@@ -1,0 +1,700 @@
+[🇮🇷 نسخه فارسی](./Whyland-Entities-fa.md)
+
+# Whyland Project Entities
+
+This file contains all the main Entities required for implementing the Whyland project based on the SRS document. Each section includes the Entity name and its corresponding C# class code.
+
+---
+
+## 1. User
+
+User authentication entity (without using ASP.NET Core Identity).
+
+```csharp
+public class User
+{
+    public Guid Id { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string UserName { get; set; }
+    public string? PhoneNumber { get; set; }
+    public string? Email { get; set; }
+    public string? PasswordHash { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime? LastLoginAt { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+
+    public UserProfile? UserProfile { get; set; }
+    public InstructorProfile? InstructorProfile { get; set; }
+    public ICollection<UserRole> UserRoles { get; set; }
+    public ICollection<ExternalLogin> ExternalLogins { get; set; }
+}
+```
+
+---
+
+## 2. UserProfile
+
+Additional user profile information that is stored separately from authentication information.
+
+```csharp
+public class UserProfile
+{
+    public Guid UserId { get; set; }
+    public string? NationalCode { get; set; }
+    public DateTime? BirthDate { get; set; }
+    public string? Gender { get; set; }
+    public string? Avatar { get; set; }
+    public string? Address { get; set; }
+    public string? Province { get; set; }
+    public string? City { get; set; }
+    public string? PostalCode { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+
+    public User User { get; set; }
+}
+```
+
+---
+
+## 3. InstructorProfile
+
+Instructor-specific information that extends a User.
+
+```csharp
+public class InstructorProfile
+{
+    public Guid UserId { get; set; }
+    public string? ProfileImage { get; set; }
+    public string? Bio { get; set; }
+    public string? Biography { get; set; }
+    public string? Specialization { get; set; }
+    public string? Website { get; set; }
+    public string? LinkedIn { get; set; }
+    public string? Instagram { get; set; }
+    public string? NationalCode { get; set; }
+    public string? Address { get; set; }
+    public string? ShebaNumber { get; set; }
+    public string? BankAccountNumber { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+
+    public User User { get; set; }
+    public ICollection<CourseInstructor> CourseInstructors { get; set; }
+}
+```
+
+---
+
+## 4. ExternalLogin
+
+A record that connects a local user account to an external identity provider (Google), inferred from the Google authentication section.
+
+```csharp
+public class ExternalLogin
+{
+    public Guid Id { get; set; }
+    public Guid UserId { get; set; }
+    public string Provider { get; set; }        // e.g. "Google"
+    public string ProviderKey { get; set; }      // external provider's unique user id
+    public DateTime CreatedAt { get; set; }
+
+    public User User { get; set; }
+}
+```
+
+---
+
+## 5. Role
+
+Dynamic roles.
+
+```csharp
+public class Role
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string Title { get; set; }
+    public bool IsSystem { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+
+    public ICollection<UserRole> UserRoles { get; set; }
+    public ICollection<RolePermission> RolePermissions { get; set; }
+}
+```
+
+---
+
+## 6. Permission
+
+Dynamic permissions identified by a unique key.
+
+```csharp
+public class Permission
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string Key { get; set; }
+    public bool IsSystem { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+
+    public ICollection<RolePermission> RolePermissions { get; set; }
+}
+```
+
+---
+
+## 7. UserRole
+
+Join table for assigning roles to users.
+
+```csharp
+public class UserRole
+{
+    public Guid UserId { get; set; }
+    public Guid RoleId { get; set; }
+
+    public User User { get; set; }
+    public Role Role { get; set; }
+}
+```
+
+---
+
+## 8. RolePermission
+
+Join table for assigning permissions to roles.
+
+```csharp
+public class RolePermission
+{
+    public Guid RoleId { get; set; }
+    public Guid PermissionId { get; set; }
+
+    public Role Role { get; set; }
+    public Permission Permission { get; set; }
+}
+```
+
+---
+
+## 9. Category
+
+Hierarchical course categorization with a maximum of three levels.
+
+```csharp
+public class Category
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string LatinName { get; set; }
+    public int DisplayOrder { get; set; }
+    public Guid? ParentId { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+
+    public Category? Parent { get; set; }
+    public ICollection<Category> Children { get; set; }
+    public ICollection<CourseCategory> CourseCategories { get; set; }
+}
+```
+
+---
+
+## 10. Course
+
+The main educational course entity.
+
+```csharp
+public class Course
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string LatinName { get; set; }
+    public string ShortDescription { get; set; }
+    public string? Description { get; set; }
+    public string Slug { get; set; }
+    public string? MainImage { get; set; }
+    public bool IsFree { get; set; }
+    public decimal? Price { get; set; }
+    public DiscountType DiscountType { get; set; }
+    public decimal? DiscountValue { get; set; }
+    public bool IsSaleActive { get; set; }
+    public DisplayStatus DisplayStatus { get; set; }
+    public bool IsFeatured { get; set; }
+    public bool IsAmazing { get; set; }
+    public string? IntroductionVideo { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+
+    public ICollection<CourseCategory> CourseCategories { get; set; }
+    public ICollection<CourseInstructor> CourseInstructors { get; set; }
+    public ICollection<CourseSection> CourseSections { get; set; }
+    public ICollection<CourseFaq> CourseFaqs { get; set; }
+}
+```
+
+### Enums Related to Course
+
+```csharp
+public enum DiscountType
+{
+    None,
+    Percentage,
+    FixedAmount
+}
+```
+
+```csharp
+public enum DisplayStatus
+{
+    Draft,
+    Published,
+    Hidden
+}
+```
+
+---
+
+## 11. CourseCategory
+
+Join table between Course and Category (many-to-many relationship).
+
+```csharp
+public class CourseCategory
+{
+    public Guid CourseId { get; set; }
+    public Guid CategoryId { get; set; }
+
+    public Course Course { get; set; }
+    public Category Category { get; set; }
+}
+```
+
+---
+
+## 12. CourseInstructor
+
+Join table between Course and InstructorProfile (many-to-many relationship).
+
+```csharp
+public class CourseInstructor
+{
+    public Guid CourseId { get; set; }
+    public Guid InstructorUserId { get; set; }
+
+    public Course Course { get; set; }
+    public InstructorProfile Instructor { get; set; }
+}
+```
+
+---
+
+## 13. CourseSection
+
+The sections that make up a course.
+
+```csharp
+public class CourseSection
+{
+    public Guid Id { get; set; }
+    public Guid CourseId { get; set; }
+    public string Title { get; set; }
+    public int DisplayOrder { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+
+    public Course Course { get; set; }
+    public ICollection<Episode> Episodes { get; set; }
+}
+```
+
+---
+
+## 14. Episode
+
+Educational episodes within each section.
+
+```csharp
+public class Episode
+{
+    public Guid Id { get; set; }
+    public Guid SectionId { get; set; }
+    public string Title { get; set; }
+    public string? Description { get; set; }
+    public string? Video { get; set; }
+    public TimeSpan? Duration { get; set; }
+    public bool IsFree { get; set; }
+    public int DisplayOrder { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+
+    public CourseSection Section { get; set; }
+    public ICollection<EpisodeAttachment> Attachments { get; set; }
+}
+```
+
+---
+
+## 15. EpisodeAttachment
+
+Attachments for each episode with configurable restrictions.
+
+```csharp
+public class EpisodeAttachment
+{
+    public Guid Id { get; set; }
+    public Guid EpisodeId { get; set; }
+    public string FileName { get; set; }
+    public string StoragePath { get; set; }
+    public string ContentType { get; set; }
+    public long Size { get; set; }
+    public DateTime CreatedAt { get; set; }
+
+    public Episode Episode { get; set; }
+}
+```
+
+---
+
+## 16. CourseFaq
+
+Course-specific frequently asked questions.
+
+```csharp
+public class CourseFaq
+{
+    public Guid Id { get; set; }
+    public Guid CourseId { get; set; }
+    public string Title { get; set; }
+    public string Description { get; set; }
+    public int DisplayOrder { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+
+    public Course Course { get; set; }
+}
+```
+
+---
+
+## 17. FavoriteCourse
+
+User's favorite courses.
+
+```csharp
+public class FavoriteCourse
+{
+    public Guid UserId { get; set; }
+    public Guid CourseId { get; set; }
+    public DateTime CreatedAt { get; set; }
+
+    public User User { get; set; }
+    public Course Course { get; set; }
+}
+```
+
+---
+
+## 18. UserCourse
+
+User's access to a purchased course (Enrollment).
+
+```csharp
+public class UserCourse
+{
+    public Guid UserId { get; set; }
+    public Guid CourseId { get; set; }
+    public Guid OrderId { get; set; }
+    public DateTime PurchasedAt { get; set; }
+
+    public User User { get; set; }
+    public Course Course { get; set; }
+    public Order Order { get; set; }
+}
+```
+
+---
+
+## 19. CartItem (Redis Shopping Cart Concept)
+
+The shopping cart is stored in Redis and is not considered a database Entity. This class is only a data model that is stored as JSON in Redis (key: `cart:{userId}`).
+
+```csharp
+public class CartItem
+{
+    public Guid CourseId { get; set; }
+    public int Quantity { get; set; }
+}
+```
+
+---
+
+## 20. Order
+
+An order created from the shopping cart.
+
+```csharp
+public class Order
+{
+    public Guid Id { get; set; }
+    public Guid UserId { get; set; }
+    public decimal TotalAmount { get; set; }
+    public OrderStatus Status { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? PaidAt { get; set; }
+
+    public User User { get; set; }
+    public ICollection<OrderItem> OrderItems { get; set; }
+    public ICollection<Payment> Payments { get; set; }
+}
+```
+
+### Enum Related to Order
+
+```csharp
+public enum OrderStatus
+{
+    Pending,
+    Paid,
+    Cancelled,
+    Failed
+}
+```
+
+---
+
+## 21. OrderItem
+
+Items within an order (each course included in the order).
+
+```csharp
+public class OrderItem
+{
+    public Guid Id { get; set; }
+    public Guid OrderId { get; set; }
+    public Guid CourseId { get; set; }
+    public int Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
+    public decimal TotalPrice { get; set; }
+
+    public Order Order { get; set; }
+    public Course Course { get; set; }
+}
+```
+
+---
+
+## 22. PaymentMethod (Enum)
+
+Payment methods represented as an enum.
+
+```csharp
+public enum PaymentMethod
+{
+    BankGateway,
+    ZarinPal,
+    SnappPay
+}
+```
+
+---
+
+## 23. Payment
+
+Financial transaction associated with an order.
+
+```csharp
+public class Payment
+{
+    public Guid Id { get; set; }
+    public Guid OrderId { get; set; }
+    public PaymentMethod PaymentMethod { get; set; }
+    public decimal Amount { get; set; }
+    public PaymentStatus Status { get; set; }
+    public string? TrackingNumber { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? PaidAt { get; set; }
+
+    public Order Order { get; set; }
+}
+```
+
+### Enum Related to Payment
+
+```csharp
+public enum PaymentStatus
+{
+    Pending,
+    Successful,
+    Failed,
+    Cancelled
+}
+```
+
+---
+
+## 24. Invoice
+
+The final financial document associated with a paid order.
+
+```csharp
+public class Invoice
+{
+    public Guid Id { get; set; }
+    public string InvoiceNumber { get; set; }
+    public DateTime InvoiceDate { get; set; }
+    public Guid OrderId { get; set; }
+    public Guid UserId { get; set; }
+    public decimal Discount { get; set; }
+    public decimal FinalAmount { get; set; }
+    public PaymentStatus PaymentStatus { get; set; }
+    public DateTime CreatedAt { get; set; }
+
+    public Order Order { get; set; }
+    public User User { get; set; }
+}
+```
+
+---
+
+## 25. BlogPost
+
+Public blog articles on the website.
+
+```csharp
+public class BlogPost
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; }
+    public string ShortDescription { get; set; }
+    public string Content { get; set; }
+    public Guid AuthorId { get; set; }
+    public string? Image { get; set; }
+    public int DisplayOrder { get; set; }
+    public DisplayStatus DisplayStatus { get; set; }
+    public string Slug { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+
+    public User Author { get; set; }
+}
+```
+
+---
+
+## 26. Faq
+
+General website frequently asked questions (separate from CourseFaq).
+
+```csharp
+public class Faq
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; }
+    public string Description { get; set; }
+    public int DisplayOrder { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+}
+```
+
+---
+
+## 27. SiteSetting
+
+Dynamic website settings (key/value) — general settings, SEO, and contact information.
+
+```csharp
+public class SiteSetting
+{
+    public Guid Id { get; set; }
+    public string Key { get; set; }
+    public string? Value { get; set; }
+    public string Group { get; set; }   // e.g. "General", "SEO", "Contact"
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+}
+```
+
+---
+
+## 28. OtpRequest
+
+A record for requesting/verifying a one-time password for phone-number authentication, inferred from the phone authentication section.
+
+```csharp
+public class OtpRequest
+{
+    public Guid Id { get; set; }
+    public string PhoneNumber { get; set; }
+    public string CodeHash { get; set; }
+    public int AttemptCount { get; set; }
+    public int MaxAttempts { get; set; }
+    public DateTime ExpiresAt { get; set; }
+    public bool IsUsed { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+```
+
+---
+
+## 29. PasswordResetToken
+
+Password recovery token, inferred from the "Forgot Password" section.
+
+```csharp
+public class PasswordResetToken
+{
+    public Guid Id { get; set; }
+    public Guid UserId { get; set; }
+    public string TokenHash { get; set; }
+    public DateTime ExpiresAt { get; set; }
+    public bool IsUsed { get; set; }
+    public DateTime CreatedAt { get; set; }
+
+    public User User { get; set; }
+}
+```
+
+---
+
+# Entity Summary Table
+
+| No. | Entity               | Related SRS Section                         |
+| --: | -------------------- | ------------------------------------------- |
+|   1 | User                 | Section 18 - User Management                |
+|   2 | UserProfile          | Section 18 - User Management                |
+|   3 | InstructorProfile    | Section 19 - Instructor Profile             |
+|   4 | ExternalLogin        | Section 21 - Google Authentication          |
+|   5 | Role                 | Section 23 - Roles                          |
+|   6 | Permission           | Section 24 - Permissions                    |
+|   7 | UserRole             | Section 26 - User-Role Assignment           |
+|   8 | RolePermission       | Section 25 - Role-Permission Assignment     |
+|   9 | Category             | Section 9 - Category Management             |
+|  10 | Course               | Section 10 - Course Management              |
+|  11 | CourseCategory       | Section 11 - Course Categories              |
+|  12 | CourseInstructor     | Section 12 - Course Instructors             |
+|  13 | CourseSection        | Section 13 - Course Sections                |
+|  14 | Episode              | Section 14 - Episodes                       |
+|  15 | EpisodeAttachment    | Section 15 - Episode Attachments            |
+|  16 | CourseFaq            | Section 17 - Course FAQ                     |
+|  17 | FavoriteCourse       | Section 28 - Favorites                      |
+|  18 | UserCourse           | Section 29 - Purchased Courses / Enrollment |
+|  19 | CartItem             | Section 30 - Shopping Cart (Redis)          |
+|  20 | Order                | Section 31 - Orders                         |
+|  21 | OrderItem            | Section 31 - Orders                         |
+|  22 | PaymentMethod (enum) | Section 33 - Payment Methods                |
+|  23 | Payment              | Section 34 - Payment                        |
+|  24 | Invoice              | Section 36 - Invoice                        |
+|  25 | BlogPost             | Section 37 - Blog                           |
+|  26 | Faq                  | Section 38 - General FAQ                    |
+|  27 | SiteSetting          | Section 39 - Site Settings                  |
+|  28 | OtpRequest           | Section 20 - Authentication (Phone OTP)     |
+|  29 | PasswordResetToken   | Section 40.7 - Forgot Password              |
