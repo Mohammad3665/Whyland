@@ -23,7 +23,7 @@ public class User
     public bool IsActive { get; set; }
     public DateTime? LastLoginAt { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 
     public UserProfile? UserProfile { get; set; }
     public InstructorProfile? InstructorProfile { get; set; }
@@ -51,7 +51,7 @@ public class UserProfile
     public string? City { get; set; }
     public string? PostalCode { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 
     public User User { get; set; }
 }
@@ -79,7 +79,7 @@ public class InstructorProfile
     public string? ShebaNumber { get; set; }
     public string? BankAccountNumber { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 
     public User User { get; set; }
     public ICollection<CourseInstructor> CourseInstructors { get; set; }
@@ -119,7 +119,12 @@ public class Role
     public string Title { get; set; }
     public bool IsSystem { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public Guid? CreatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public Guid? UpdatedBy { get; set; }
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
 
     public ICollection<UserRole> UserRoles { get; set; }
     public ICollection<RolePermission> RolePermissions { get; set; }
@@ -140,7 +145,12 @@ public class Permission
     public string Key { get; set; }
     public bool IsSystem { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public Guid? CreatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public Guid? UpdatedBy { get; set; }
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
 
     public ICollection<RolePermission> RolePermissions { get; set; }
 }
@@ -196,7 +206,12 @@ public class Category
     public Guid? ParentId { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public Guid? CreatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public Guid? UpdatedBy { get; set; }
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
 
     public Category? Parent { get; set; }
     public ICollection<Category> Children { get; set; }
@@ -220,7 +235,6 @@ public class Course
     public string? Description { get; set; }
     public string Slug { get; set; }
     public string? MainImage { get; set; }
-    public bool IsFree { get; set; }
     public decimal? Price { get; set; }
     public DiscountType DiscountType { get; set; }
     public decimal? DiscountValue { get; set; }
@@ -230,7 +244,12 @@ public class Course
     public bool IsAmazing { get; set; }
     public string? IntroductionVideo { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public Guid? CreatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public Guid? UpdatedBy { get; set; }
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
 
     public ICollection<CourseCategory> CourseCategories { get; set; }
     public ICollection<CourseInstructor> CourseInstructors { get; set; }
@@ -307,7 +326,12 @@ public class CourseSection
     public string Title { get; set; }
     public int DisplayOrder { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public Guid? CreatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public Guid? UpdatedBy { get; set; }
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
 
     public Course Course { get; set; }
     public ICollection<Episode> Episodes { get; set; }
@@ -332,7 +356,12 @@ public class Episode
     public bool IsFree { get; set; }
     public int DisplayOrder { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public Guid? CreatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public Guid? UpdatedBy { get; set; }
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
 
     public CourseSection Section { get; set; }
     public ICollection<EpisodeAttachment> Attachments { get; set; }
@@ -375,7 +404,12 @@ public class CourseFaq
     public string Description { get; set; }
     public int DisplayOrder { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public Guid? CreatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public Guid? UpdatedBy { get; set; }
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
 
     public Course Course { get; set; }
 }
@@ -448,8 +482,10 @@ public class Order
     public OrderStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? PaidAt { get; set; }
+    public Guid? CouponId { get; set; }
 
     public User User { get; set; }
+    public Coupon? Coupon { get; set; }
     public ICollection<OrderItem> OrderItems { get; set; }
     public ICollection<Payment> Payments { get; set; }
 }
@@ -546,24 +582,64 @@ public enum PaymentStatus
 ```csharp
 public class Invoice
 {
-    public Guid Id { get; set; }
-    public string InvoiceNumber { get; set; }
-    public DateTime InvoiceDate { get; set; }
-    public Guid OrderId { get; set; }
-    public Guid UserId { get; set; }
-    public decimal Discount { get; set; }
-    public decimal FinalAmount { get; set; }
-    public PaymentStatus PaymentStatus { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public Guid Id { get; private set; }
+    public string InvoiceNumber { get; private set; }
+    public DateTime InvoiceDate { get; private set; }
 
-    public Order Order { get; set; }
-    public User User { get; set; }
+    public Guid OrderId { get; private set; }
+    public Guid PaymentId { get; private set; }
+    public Guid UserId { get; private set; }
+
+    public string CustomerName { get; private set; }
+    public string CustomerPhone { get; private set; }
+    public string CustomerEmail { get; private set; }
+
+    public decimal Subtotal { get; private set; }
+    public decimal Discount { get; private set; }
+    public decimal Tax { get; private set; }
+    public decimal FinalAmount { get; private set; }
+
+    public PaymentStatus PaymentStatus { get; private set; }
+
+    public DateTime CreatedAt { get; private set; }
+    public Guid? CreatedBy { get; private set; }
+    public DateTime? UpdatedAt { get; private set; }
+    public Guid? UpdatedBy { get; private set; }
+    public bool IsDeleted { get; private set; }
+    public DateTime? DeletedAt { get; private set; }
+    public Guid? DeletedBy { get; private set; }
+
+    private readonly List<InvoiceItem> _items = new();
+    public IReadOnlyCollection<InvoiceItem> Items => _items.AsReadOnly();
+
+    public Order Order { get; private set; }
+    public User User { get; private set; }
 }
 ```
 
 ---
 
-## 25. BlogPost
+## 25. InvoiceItem
+
+آیتم های فاکتور.
+
+```csharp
+public class InvoiceItem
+{
+    public Guid Id { get; private set; }
+    public Guid InvoiceId { get; private set; }
+    public Guid CourseId { get; private set; }
+    public string ProductName { get; private set; }
+    public int Quantity { get; private set; }
+    public decimal UnitPrice { get; private set; }
+    public decimal Discount { get; private set; }
+    public decimal TotalPrice { get; private set; }
+}
+```
+
+---
+
+## 26. BlogPost
 
 مقالات وبلاگ عمومی سایت.
 
@@ -580,7 +656,12 @@ public class BlogPost
     public DisplayStatus DisplayStatus { get; set; }
     public string Slug { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public Guid? CreatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public Guid? UpdatedBy { get; set; }
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
 
     public User Author { get; set; }
 }
@@ -588,7 +669,7 @@ public class BlogPost
 
 ---
 
-## 26. Faq
+## 27. Faq
 
 سوالات متداول عمومی سایت (مجزا از CourseFaq).
 
@@ -601,13 +682,18 @@ public class Faq
     public int DisplayOrder { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public Guid? CreatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public Guid? UpdatedBy { get; set; }
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
 }
 ```
 
 ---
 
-## 27. SiteSetting
+## 28. SiteSetting
 
 تنظیمات پویای سایت (کلید/مقدار) — عمومی، سئو و اطلاعات تماس.
 
@@ -619,13 +705,15 @@ public class SiteSetting
     public string? Value { get; set; }
     public string Group { get; set; }   // e.g. "General", "SEO", "Contact"
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public Guid? CreatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public Guid? UpdatedBy { get; set; }
 }
 ```
 
 ---
 
-## 28. OtpRequest
+## 29. OtpRequest
 
 رکورد درخواست/تایید کد یک‌بار مصرف برای احراز هویت با شماره تلفن — از بخش احراز هویت تلفنی استنتاج شده است.
 
@@ -645,7 +733,7 @@ public class OtpRequest
 
 ---
 
-## 29. PasswordResetToken
+## 30. PasswordResetToken
 
 توکن بازیابی رمز عبور — از بخش «فراموشی رمز عبور» استنتاج شده است.
 
@@ -663,38 +751,37 @@ public class PasswordResetToken
 }
 ```
 
----
+## 31. Coupon
 
-## جدول خلاصه Entity ها
+کد تخفیف برای سفارشات.
 
-| ردیف | Entity | مربوط به کدام بخش SRS |
-|---|---|---|
-| 1 | User | بخش ۱۸ - User Management |
-| 2 | UserProfile | بخش ۱۸ - User Management |
-| 3 | InstructorProfile | بخش ۱۹ - Instructor Profile |
-| 4 | ExternalLogin | بخش ۲۱ - Google Authentication |
-| 5 | Role | بخش ۲۳ - Roles |
-| 6 | Permission | بخش ۲۴ - Permissions |
-| 7 | UserRole | بخش ۲۶ - User-Role Assignment |
-| 8 | RolePermission | بخش ۲۵ - Role-Permission Assignment |
-| 9 | Category | بخش ۹ - Category Management |
-| 10 | Course | بخش ۱۰ - Course Management |
-| 11 | CourseCategory | بخش ۱۱ - Course Categories |
-| 12 | CourseInstructor | بخش ۱۲ - Course Instructors |
-| 13 | CourseSection | بخش ۱۳ - Course Sections |
-| 14 | Episode | بخش ۱۴ - Episodes |
-| 15 | EpisodeAttachment | بخش ۱۵ - Episode Attachments |
-| 16 | CourseFaq | بخش ۱۷ - Course FAQ |
-| 17 | FavoriteCourse | بخش ۲۸ - Favorites |
-| 18 | UserCourse | بخش ۲۹ - Purchased Courses / Enrollment |
-| 19 | CartItem | بخش ۳۰ - Shopping Cart (Redis) |
-| 20 | Order | بخش ۳۱ - Orders |
-| 21 | OrderItem | بخش ۳۱ - Orders |
-| 22 | PaymentMethod (enum) | بخش ۳۳ - Payment Methods |
-| 23 | Payment | بخش ۳۴ - Payment |
-| 24 | Invoice | بخش ۳۶ - Invoice |
-| 25 | BlogPost | بخش ۳۷ - Blog |
-| 26 | Faq | بخش ۳۸ - General FAQ |
-| 27 | SiteSetting | بخش ۳۹ - Site Settings |
-| 28 | OtpRequest | بخش ۲۰ - Authentication (Phone OTP) |
-| 29 | PasswordResetToken | بخش ۴۰.۷ - Forgot Password |
+```csharp
+public class Coupon
+{
+    public Guid Id { get; set; }
+    public string Code { get; set; } = string.Empty;
+    public CouponType Type { get; set; }
+    public decimal Value { get; set; }
+    public decimal? MinOrderAmount { get; set; }
+    public int? UsageLimit { get; set; }
+    public int UsedCount { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+    public bool IsActive { get; set; } = true;
+    public DateTime CreatedAt { get; set; }
+    public Guid? CreatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public Guid? UpdatedBy { get; set; }
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
+
+    public ICollection<Order> Orders { get; set; } = [];
+}
+
+public enum CouponType
+{
+    Percentage,
+    FixedAmount
+}
+```

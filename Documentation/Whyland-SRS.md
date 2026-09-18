@@ -3373,3 +3373,1090 @@ Grafana
 \`\`\`
 
 The system must remain extensible without introducing unnecessary features outside the defined scope. Dynamic roles and permissions are a core requirement, while payment and SMS providers are intentionally abstracted so real integrations can be added later without changing the core business model.
+
+# 77. Data Deletion Strategy
+
+The application shall use **Soft Delete by default**.
+
+Physical deletion shall not be used for normal application entities unless there is a specific technical or business requirement that explicitly requires permanent deletion.
+
+## 77.1 Soft Delete Fields
+
+Entities that support deletion shall contain:
+
+| Field     | Requirement        |
+| --------- | ------------------ |
+| IsDeleted | Required boolean   |
+| DeletedAt | Nullable timestamp |
+| DeletedBy | Nullable User ID   |
+
+Where appropriate, entities shall also contain:
+
+| Field     | Requirement                                             |
+| --------- | ------------------------------------------------------- |
+| CreatedBy | Nullable/required User ID according to entity lifecycle |
+| UpdatedBy | Nullable/required User ID according to entity lifecycle |
+
+The audit fields shall normally be:
+
+```text
+CreatedAt
+CreatedBy
+UpdatedAt
+UpdatedBy
+IsDeleted
+DeletedAt
+DeletedBy
+```
+
+## 77.2 Default Query Behavior
+
+Soft-deleted entities shall not be returned by normal application queries.
+
+The Infrastructure layer should implement this behavior through EF Core global query filters where appropriate.
+
+A query that explicitly needs deleted records must opt into that behavior explicitly.
+
+## 77.3 Permanent Deletion
+
+Hard deletion is permitted only for entities where permanent deletion is explicitly justified.
+
+Examples may include:
+
+* Temporary technical records.
+* Disposable development/test records.
+* Data that is explicitly required to be permanently removed by a documented business/privacy rule.
+
+Financial records such as successful payments, paid orders, and issued invoices shall not be physically deleted through ordinary administrative operations.
+
+---
+
+# 78. Audit Fields
+
+The application shall maintain creation and modification audit information.
+
+At minimum, business entities that require auditability shall contain:
+
+```text
+CreatedAt
+CreatedBy
+UpdatedAt
+UpdatedBy
+```
+
+Where an operation represents deletion:
+
+```text
+DeletedAt
+DeletedBy
+IsDeleted
+```
+
+## 78.1 CreatedBy
+
+`CreatedBy` shall reference the User responsible for creating the record where the operation is performed by an authenticated user.
+
+For system-generated records, a documented system identity or nullable value may be used.
+
+## 78.2 UpdatedBy
+
+`UpdatedBy` shall reference the User responsible for the latest modification.
+
+## 78.3 DeletedBy
+
+`DeletedBy` shall reference the User who performed the soft-delete operation.
+
+The application shall not trust client-provided values for these fields.
+
+Audit information shall be populated by the server/Application/Infrastructure layer.
+
+---
+
+# 79. Repository Architecture
+
+The repository architecture shall explicitly separate **read** and **write** responsibilities.
+
+A single generic repository shall not be used.
+
+The application shall use explicit repositories designed around actual business requirements.
+
+## 79.1 Write Repositories
+
+Write repositories shall be responsible for operations that modify application state.
+
+Examples:
+
+```text
+ICourseWriteRepository
+ICategoryWriteRepository
+IUserWriteRepository
+IRoleWriteRepository
+IPermissionWriteRepository
+IOrderWriteRepository
+IPaymentWriteRepository
+IInvoiceWriteRepository
+```
+
+Write repositories shall use **Entity Framework Core**.
+
+EF Core shall be responsible for:
+
+* Inserts.
+* Updates.
+* Soft deletes.
+* Relationship changes.
+* Change tracking where required.
+* Transactional persistence.
+
+## 79.2 Read Repositories
+
+Read repositories shall be responsible for retrieving data.
+
+Examples:
+
+```text
+ICourseReadRepository
+ICategoryReadRepository
+IUserReadRepository
+IRoleReadRepository
+IPermissionReadRepository
+IOrderReadRepository
+IPaymentReadRepository
+IInvoiceReadRepository
+```
+
+Read repositories shall use **Dapper**.
+
+Dapper shall be preferred for read-oriented queries where direct SQL projection provides simpler or more efficient data retrieval.
+
+Read repositories should return application-specific DTOs/read models rather than exposing EF Core entities unnecessarily.
+
+## 79.3 No Generic Repository
+
+The application shall not implement a generic repository such as:
+
+```csharp
+IGenericRepository<T>
+```
+
+solely to provide CRUD operations.
+
+Repositories shall be explicit and use-case-oriented.
+
+For example:
+
+```csharp
+public interface ICourseReadRepository
+{
+    Task<CourseDetailsDto?> GetDetailsAsync(
+        Guid courseId,
+        CancellationToken cancellationToken);
+}
+```
+
+and:
+
+```csharp
+public interface ICourseWriteRepository
+{
+    Task AddAsync(
+        Course course,
+        CancellationToken cancellationToken);
+
+    Task<Course?> GetForUpdateAsync(
+        Guid courseId,
+        CancellationToken cancellationToken);
+}
+```
+
+The repository abstraction shall represent meaningful application operations rather than merely wrapping database APIs.
+
+---
+
+# 80. Read/Write Persistence Rules
+
+The persistence implementation shall follow these rules:
+
+```text
+                    Application
+                         |
+              +----------+----------+
+              |                     |
+              v                     v
+       Read Repositories     Write Repositories
+              |                     |
+              v                     v
+           Dapper                EF Core
+              |                     |
+              +----------+----------+
+                         |
+                     PostgreSQL
+```
+
+## 80.1 Read Operations
+
+Queries shall:
+
+* Use Dapper through read repositories.
+* Prefer explicit SQL projections.
+* Return DTOs/read models.
+* Avoid loading complete aggregate graphs when only a projection is required.
+* Support pagination for large result sets.
+
+## 80.2 Write Operations
+
+Commands shall:
+
+* Use EF Core through write repositories.
+* Apply business rules in the Application/Domain layer.
+* Use Unit of Work where multiple changes must be persisted consistently.
+* Use transactions where atomicity is required.
+
+## 80.3 DbContext Boundary
+
+`DbContext` shall remain an Infrastructure implementation detail.
+
+Controllers, Razor Pages, and Application handlers shall not directly access `DbContext`.
+
+---
+
+# 81. Product Pricing Model
+
+Where the domain contains a `Product` concept, the pricing model shall be changed.
+
+The system shall not persist a separate `IsFree` database column.
+
+Instead:
+
+```text
+Price = null
+```
+
+shall represent a free product.
+
+A non-null price represents a paid product.
+
+## 81.1 Product Fields
+
+The model shall use:
+
+```csharp
+public decimal? Price { get; private set; }
+```
+
+instead of requiring:
+
+```csharp
+public bool IsFree { get; set; }
+```
+
+## 81.2 IsFree Property
+
+The domain model may expose:
+
+```csharp
+public bool IsFree => Price is null;
+```
+
+`IsFree` is a derived domain property and shall not be persisted in the database.
+
+Conceptually:
+
+```text
+Price = null
+    => IsFree = true
+
+Price > 0
+    => IsFree = false
+```
+
+## 81.3 Pricing Rules
+
+A product with:
+
+```text
+Price = null
+```
+
+is free.
+
+A product with:
+
+```text
+Price > 0
+```
+
+is paid.
+
+Zero-priced paid products shall not be used to represent free products unless a separate documented business requirement explicitly introduces such a state.
+
+## 81.4 Course Application
+
+Because `Course` currently represents the purchasable educational product, the same pricing rule shall apply to Course unless a separate Product aggregate is introduced.
+
+Therefore, the previous requirement:
+
+```text
+IsFree = Required
+Price = Required for paid courses
+```
+
+shall be replaced by:
+
+```text
+Price = Nullable
+IsFree = Derived property and not persisted
+```
+
+The access rule becomes:
+
+```text
+Course.Price == null
+    => Course is free
+
+Course.Price != null
+    => Course is paid
+```
+
+The same rule shall be applied to episode-level free-preview behavior where applicable.
+
+---
+
+# 82. Cookie-Based Authentication
+
+Authentication shall be **cookie-based**.
+
+The application shall not use JWT bearer tokens as the primary browser authentication mechanism.
+
+## 82.1 Authentication Mechanism
+
+After successful authentication, the server shall issue an authentication cookie.
+
+The browser shall automatically send the authentication cookie with subsequent requests.
+
+Conceptually:
+
+```text
+Login / OTP Verification
+        |
+        v
+Server validates identity
+        |
+        v
+Authentication Cookie
+        |
+        v
+Authenticated Browser Requests
+```
+
+## 82.2 Cookie Security
+
+Authentication cookies shall use secure production settings, including where applicable:
+
+```text
+HttpOnly = true
+Secure = true
+SameSite = appropriate restrictive value
+```
+
+The exact SameSite behavior shall be selected according to the application's authentication and external-login requirements.
+
+## 82.3 Authentication State
+
+The authenticated user identity shall be represented by claims inside the authentication cookie.
+
+The cookie shall not contain sensitive information unnecessarily.
+
+Passwords, OTPs, payment secrets, and other sensitive values shall never be stored inside authentication cookies.
+
+## 82.4 Logout
+
+Logout shall invalidate the authenticated session/cookie according to the configured cookie authentication mechanism.
+
+## 82.5 Google Authentication
+
+Google authentication shall still use the appropriate external OAuth/OpenID Connect flow.
+
+After successful external authentication, the application shall establish its own local cookie-based authenticated session.
+
+Google access/identity tokens shall not be used as the application's normal browser authentication mechanism.
+
+---
+
+# 83. SMS Gateway Simulation Service
+
+The fake SMS functionality shall be implemented as a **separate API project** alongside the main Whyland application.
+
+It shall simulate the behavior of a real SMS provider API.
+
+The purpose is to allow the main application to communicate with an SMS API through a realistic HTTP boundary without requiring a real SMS provider.
+
+## 83.1 Project Structure
+
+The solution shall contain a separate project, for example:
+
+```text
+src/
+│
+├── Project.Domain/
+├── Project.Application/
+├── Project.Infrastructure/
+├── Project.Web/
+├── Project.Admin/
+│
+└── Project.Sms/
+```
+
+`Project.Sms` shall be an independent ASP.NET Core Web API application.
+
+It shall not contain Whyland business logic.
+
+## 83.2 SMS API
+
+The API shall expose endpoints similar to the interface normally provided by an SMS panel/provider.
+
+At minimum:
+
+```text
+POST /api/v1/sms/send
+```
+
+The request shall contain information equivalent to:
+
+```json
+{
+  "to": "09120000000",
+  "message": "Your verification code is 123456"
+}
+```
+
+The response shall contain a provider-like result:
+
+```json
+{
+  "success": true,
+  "messageId": "..."
+}
+```
+
+The exact request/response contract shall be documented and versioned.
+
+## 83.3 Provider-Oriented Design
+
+The Whyland application shall communicate with an abstraction such as:
+
+```csharp
+public interface ISmsService
+{
+    Task<SendSmsResult> SendAsync(
+        string phoneNumber,
+        string message,
+        CancellationToken cancellationToken);
+}
+```
+
+The Infrastructure implementation shall call the separate SMS API over HTTP.
+
+Therefore:
+
+```text
+Whyland Application
+        |
+        v
+ISmsService
+        |
+        v
+HTTP Client
+        |
+        v
+Project.Sms API
+        |
+        v
+In-Memory Storage
+```
+
+This keeps the main application independent from the fake provider implementation.
+
+## 83.4 In-Memory Database
+
+The SMS API shall use an in-memory data store for the first implementation.
+
+It shall store at least:
+
+```text
+SMS Requests
+SMS Messages
+Recipient
+Message
+Status
+MessageId
+CreatedAt
+SentAt
+```
+
+Persistence to PostgreSQL is not required for the SMS simulation service.
+
+The service shall be restartable without requiring database migrations.
+
+## 83.5 SMS Dashboard
+
+The SMS service shall provide a simple HTML-based administration/dashboard page.
+
+The dashboard shall allow developers to easily inspect:
+
+* Incoming SMS API requests.
+* Recipient phone numbers.
+* Message contents.
+* Generated message IDs.
+* SMS status.
+* Request timestamps.
+* Sent timestamps.
+
+Example:
+
+```text
+SMS Simulator
+-------------------------------------------------
+Message ID | Recipient | Message | Status | Date
+-------------------------------------------------
+12345      | 0912...   | OTP ... | Sent   | ...
+12346      | 0913...   | OTP ... | Sent   | ...
+-------------------------------------------------
+```
+
+The dashboard is intended for development/testing and does not need to be a production-grade administration system.
+
+## 83.6 SMS Dashboard Requirements
+
+The dashboard shall support:
+
+* Listing SMS requests.
+* Viewing an individual SMS request.
+* Basic filtering by recipient/status.
+* Displaying request time.
+* Displaying message status.
+* Displaying message ID.
+
+The dashboard may use Razor Pages or MVC.
+
+## 83.7 Real Provider Replacement
+
+The fake SMS service shall be replaceable by a real provider implementation without changing Application-layer business logic.
+
+Example future implementations:
+
+```text
+FakeSmsService
+KavenegarSmsService
+OtherProviderSmsService
+```
+
+The provider-specific HTTP contract shall remain outside the Domain layer.
+
+---
+
+# 84. SMS API Documentation and Compatibility
+
+The SMS simulator API shall be designed after reviewing the public API model of an existing SMS provider.
+
+The implementation should follow common provider concepts such as:
+
+```text
+API Key / Authentication
+Recipient
+Sender
+Message
+Message ID
+Provider Status
+Request Status
+```
+
+The simulator shall not unnecessarily copy a provider's private implementation.
+
+Its purpose is to reproduce the integration pattern expected by a real SMS provider.
+
+The selected provider documentation shall be kept as an external reference for implementation.
+
+---
+
+# 85. Invoice Generation and Reporting
+
+The invoice generation implementation shall be evaluated separately from the financial domain model.
+
+The Invoice domain entity shall represent the financial snapshot.
+
+A reporting/PDF library shall be responsible for rendering that snapshot into a document.
+
+The system shall not put PDF/reporting concerns directly into the Domain layer.
+
+Architecture:
+
+```text
+Order / Payment
+      |
+      v
+Invoice Domain Model
+      |
+      v
+Invoice Application Service
+      |
+      v
+Invoice Report Generator
+      |
+      v
+PDF / Printable Invoice
+```
+
+## 85.1 Candidate Libraries
+
+The following .NET reporting/PDF technologies were reviewed:
+
+### Stimulsoft Reports
+
+Stimulsoft Reports.WEB supports ASP.NET, ASP.NET Core, MVC, Razor Pages and browser-based report design/viewing. Its documentation also explicitly covers invoice reports and exporting reports to PDF.
+
+Stimulsoft also provides an official .NET package and examples showing report loading, rendering, and exporting to PDF.
+
+It can also expose rendered reports through a web API endpoint, which is relevant if invoice generation eventually needs to be provided as a dedicated service.
+
+Stimulsoft additionally documents support for electronic-invoice-related formats such as ZUGFeRD and Factur-X.
+
+### QuestPDF
+
+QuestPDF is a C# PDF-generation library with a component-based layout system.
+
+Its official documentation provides a dedicated invoice tutorial and recommends separating invoice/document models from the rendering logic.
+
+It can generate PDFs directly to files, byte arrays, or streams.
+
+### FastReport .NET
+
+FastReport .NET provides reporting functionality and PDF export capabilities. Its official documentation includes a PDF export API and comprehensive .NET reporting documentation.
+
+## 85.2 Selection Criteria
+
+The invoice/reporting solution shall be evaluated against:
+
+| Criterion                 | Requirement                            |
+| ------------------------- | -------------------------------------- |
+| .NET compatibility        | Must support the selected .NET version |
+| ASP.NET Core integration  | Required                               |
+| PDF output                | Required                               |
+| Invoice templates         | Required                               |
+| Persian/RTL support       | Required                               |
+| Custom fonts              | Required                               |
+| Table/layout support      | Required                               |
+| Template maintainability  | Required                               |
+| Browser preview           | Preferred                              |
+| Printing                  | Preferred                              |
+| Excel/Word export         | Optional                               |
+| API/server-side rendering | Preferred                              |
+| Barcode/QR support        | Preferred                              |
+| E-invoice support         | Preferred where relevant               |
+| Testability               | Required                               |
+| Deployment complexity     | Should be low                          |
+| Licensing                 | Must be reviewed before final adoption |
+
+## 85.3 Recommended Evaluation
+
+The current preferred candidate is:
+
+**Stimulsoft Reports.WEB**
+
+The reason is that the project already has an ASP.NET Core web architecture and the product specifically targets ASP.NET/ASP.NET Core reporting, report design, browser viewing, PDF export, and invoice-style documents.
+
+However, the final library selection shall be made after reviewing:
+
+* Licensing cost.
+* Persian/RTL invoice rendering.
+* Required fonts.
+* Deployment requirements.
+* Report template workflow.
+* PDF output quality.
+* Required export formats.
+* Long-term maintenance.
+* Commercial usage requirements.
+
+QuestPDF shall remain a strong alternative when the team prefers a code-first PDF generation model rather than a visual report designer. Its official invoice tutorial makes it particularly relevant to this use case.
+
+## 85.4 Invoice Rendering Boundary
+
+The application shall define an abstraction such as:
+
+```csharp
+public interface IInvoiceRenderer
+{
+    Task<byte[]> RenderPdfAsync(
+        InvoiceDocument document,
+        CancellationToken cancellationToken);
+}
+```
+
+The Domain layer shall not reference Stimulsoft, QuestPDF, FastReport, or any other reporting library.
+
+The Infrastructure layer shall contain the concrete implementation.
+
+For example:
+
+```text
+IInvoiceRenderer
+       |
+       +---- StimulsoftInvoiceRenderer
+```
+
+The implementation can later be replaced without modifying the Invoice domain model.
+
+---
+
+# 86. Invoice Data Model
+
+The invoice shall preserve the financial snapshot at the time it is issued.
+
+The invoice shall not calculate historical prices by querying the current Course entity.
+
+An invoice shall contain its own immutable financial information.
+
+At minimum:
+
+```text
+Invoice Number
+Invoice Date
+Customer
+Customer Phone
+Customer Email
+Order Reference
+Payment Reference
+Items
+Quantity
+Unit Price
+Discount
+Tax where applicable
+Subtotal
+Final Amount
+Payment Status
+```
+
+Each invoice item shall contain its own price snapshot.
+
+For example:
+
+```text
+InvoiceItem
+    Product/Course Name
+    Quantity
+    UnitPrice
+    Discount
+    TotalPrice
+```
+
+Changes to the Course price after invoice issuance shall not change the invoice.
+
+---
+
+# 87. Invoice Immutability
+
+Once an invoice has been finalized/issued, its financial contents shall not be modified through ordinary CRUD operations.
+
+Corrections shall be handled through an explicit documented process if such a process is introduced later.
+
+The system shall not silently overwrite historical invoice information when:
+
+* Course prices change.
+* User information changes.
+* Discounts change.
+* Product names change.
+* Payment information changes.
+
+---
+
+# 88. Updated Repository and Architecture Summary
+
+The final persistence architecture shall therefore be:
+
+```text
+                 Presentation
+              MVC / Razor Pages
+                       |
+                       v
+                 Application
+              CQRS / MediatR
+                       |
+              +--------+--------+
+              |                 |
+              v                 v
+       Read Repositories   Write Repositories
+              |                 |
+            Dapper            EF Core
+              |                 |
+              +--------+--------+
+                       |
+                   PostgreSQL
+```
+
+Redis remains responsible for temporary/shared application state such as:
+
+```text
+Shopping Cart
+OTP Temporary State
+Configured Cache Entries
+```
+
+The SMS simulator is an independent application:
+
+```text
+Project.Sms
+     |
+ In-Memory Store
+     |
+ HTML Dashboard
+```
+
+---
+
+# 89. Updated Authentication Architecture
+
+The final authentication flow shall be:
+
+```text
+                    +----------------+
+                    | Phone / Google |
+                    +-------+--------+
+                            |
+                            v
+                    Local User Account
+                            |
+                            v
+                  Cookie Authentication
+                            |
+                            v
+                    Authenticated Request
+                            |
+                            v
+                 Permission-Based Authorization
+```
+
+JWT bearer authentication shall not be used as the primary authentication mechanism for the browser application.
+
+---
+
+# 90. Updated Course Pricing Rules
+
+The previous Course pricing requirements shall be replaced by:
+
+```text
+Course.Price : decimal?
+```
+
+and:
+
+```csharp
+public bool IsFree => Price is null;
+```
+
+`IsFree` shall not be persisted.
+
+Therefore:
+
+```text
+Price == null
+    => Free Course
+
+Price != null
+    => Paid Course
+```
+
+The application shall use this rule consistently in:
+
+* Course listing.
+* Course details.
+* Cart.
+* Checkout.
+* Order creation.
+* Course access.
+* Invoice generation.
+* Admin Panel.
+
+---
+
+# 91. Updated Audit Requirements
+
+The following fields shall be considered standard audit fields:
+
+```text
+CreatedAt
+CreatedBy
+UpdatedAt
+UpdatedBy
+IsDeleted
+DeletedAt
+DeletedBy
+```
+
+Not every field is necessarily mandatory for every entity, but all persistent business entities shall explicitly document which audit fields apply.
+
+For entities participating in authorization, financial operations, content management, and administrative operations, auditability shall be treated as mandatory.
+
+---
+
+# 92. Updated Explicit Business Rules Summary
+
+The following rules are mandatory and supersede conflicting previous requirements:
+
+1. Soft delete is the default deletion strategy.
+
+2. Hard delete is permitted only for explicitly documented exceptions.
+
+3. Soft-deletable entities shall contain `IsDeleted`, `DeletedAt`, and `DeletedBy` where applicable.
+
+4. Business entities shall contain `CreatedAt`, `CreatedBy`, `UpdatedAt`, and `UpdatedBy` where applicable.
+
+5. Normal queries shall exclude soft-deleted records.
+
+6. Read and write repositories shall be separated.
+
+7. Read repositories shall use Dapper.
+
+8. Write repositories shall use Entity Framework Core.
+
+9. A generic repository shall not be implemented.
+
+10. `DbContext` shall remain inside Infrastructure.
+
+11. Controllers, Razor Pages, and Application handlers shall not directly access `DbContext`.
+
+12. Course/Product free status shall be derived from a nullable `Price`.
+
+13. `IsFree` shall not be persisted in the database.
+
+14. Browser authentication shall be cookie-based.
+
+15. JWT shall not be the primary browser authentication mechanism.
+
+16. Google authentication shall establish a local cookie-based authenticated session.
+
+17. The fake SMS provider shall be a separate API project.
+
+18. The SMS API shall use an in-memory data store.
+
+19. The SMS API shall expose a provider-like HTTP API.
+
+20. The SMS API shall provide an HTML dashboard for inspecting SMS requests.
+
+21. The fake SMS service shall be replaceable by a real provider implementation.
+
+22. Invoice rendering shall be isolated behind an abstraction.
+
+23. The Domain layer shall not reference reporting/PDF libraries.
+
+24. Stimulsoft Reports.WEB is the current preferred invoice/reporting candidate.
+
+25. QuestPDF and FastReport .NET shall remain documented alternatives.
+
+26. Invoice data shall preserve historical financial snapshots.
+
+27. Finalized invoices shall not be modified through ordinary CRUD operations.
+
+28. Payment processing shall remain idempotent.
+
+29. Financial records shall not be physically deleted through normal administration.
+
+30. All sensitive information shall remain excluded from logs and authentication cookies.
+
+---
+
+# 93. Revised Technology Stack
+
+| Area                    | Technology                                      |
+| ----------------------- | ----------------------------------------------- |
+| Runtime                 | Latest supported stable .NET                    |
+| Public Website          | ASP.NET Core MVC                                |
+| Admin Panel             | ASP.NET Core Razor Pages                        |
+| ORM / Write Persistence | Entity Framework Core                           |
+| Read Persistence        | Dapper                                          |
+| Database                | PostgreSQL                                      |
+| Cache / Temporary State | Redis                                           |
+| Architecture            | Clean Architecture                              |
+| CQRS                    | MediatR                                         |
+| Persistence             | Explicit Read/Write Repositories + Unit of Work |
+| Result Handling         | Result Pattern                                  |
+| Authentication          | Cookie-based custom authentication              |
+| Authorization           | Permission-based                                |
+| External Login          | Google                                          |
+| SMS                     | Separate Fake SMS API                           |
+| SMS Storage             | In-Memory                                       |
+| SMS Dashboard           | ASP.NET Core HTML UI                            |
+| Invoice Reporting       | Stimulsoft Reports.WEB — preferred              |
+| Invoice Alternative     | QuestPDF                                        |
+| Reporting Alternative   | FastReport .NET                                 |
+| Logging                 | Serilog                                         |
+| Telemetry               | OpenTelemetry                                   |
+| Logs Backend            | Grafana Loki                                    |
+| Tracing Backend         | Grafana Tempo                                   |
+| Metrics Backend         | Prometheus                                      |
+| Dashboards              | Grafana                                         |
+
+---
+
+# 94. Updated Implementation Principles
+
+The implementation shall additionally follow these principles:
+
+* Prefer soft delete over physical deletion.
+* Preserve audit information for administrative changes.
+* Separate read and write persistence paths.
+* Use Dapper for read-oriented repositories.
+* Use EF Core for write-oriented repositories.
+* Do not introduce a generic repository.
+* Do not persist a redundant `IsFree` field.
+* Derive free status from nullable `Price`.
+* Use secure cookie-based authentication for the browser.
+* Keep the SMS simulator outside the main application process.
+* Treat the SMS simulator as an external HTTP dependency.
+* Store SMS simulator state in memory.
+* Provide a simple HTML dashboard for SMS inspection.
+* Keep invoice rendering independent from the Domain layer.
+* Preserve immutable financial snapshots in invoices.
+* Keep provider-specific implementation details behind abstractions.
+* Keep reporting-library dependencies outside Domain and Application business models where possible.
+* Do not physically delete historical financial records.
+* Do not allow audit fields to be supplied by the client.
+
+---
+
+## 95. Coupon Business Rules
+ 
+1. Coupon validity shall be re-checked server-side at order creation time, not only when the code is first applied, to prevent stale-state or race-condition exploitation.
+2. `UsedCount` shall be incremented atomically to prevent over-redemption under concurrent requests.
+3. `Code` uniqueness shall be enforced at the persistence layer.
+4. Discount calculation logic (percentage vs. fixed amount) shall reside in the Domain layer and shall not be duplicated in the Application or presentation layers.
+5. A per-user redemption limit is not modeled directly on the Coupon entity. If required, it shall be enforced through a separate redemption-tracking record linking Coupon, User, and Order.
+6. Coupon fields shall follow the standard audit and soft-deletion requirements defined in sections 78 and 77.
+
+---
+ 
+# 96. Revised Definition of Done
+ 
+A feature is considered complete when:
+ 
+1. Domain requirements are implemented.
+2. Application commands/queries are implemented.
+3. Read operations use the read-repository boundary.
+4. Write operations use the write-repository boundary.
+5. Read repositories use Dapper.
+6. Write repositories use EF Core.
+7. No generic repository has been introduced.
+8. Required audit fields are populated.
+9. Soft deletion is implemented where applicable.
+10. Authentication uses the cookie-based mechanism.
+11. Authorization is permission-based.
+12. Required persistence constraints exist.
+13. Required UI is implemented.
+14. SMS integration uses the external SMS API boundary where applicable.
+15. Invoice rendering is isolated behind an abstraction.
+16. Financial snapshots are preserved.
+17. Error handling is implemented.
+18. Relevant logs and telemetry exist.
+19. Automated tests cover important business rules.
+20. No architectural boundary is bypassed.
+21. No sensitive information is exposed through logs, cookies, or UI.
+22. The implementation follows all mandatory business rules defined in this SRS.
