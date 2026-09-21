@@ -102,6 +102,8 @@ The system shall provide:
 
 \- Invoices.
 
+\- Discount coupons applied in the cart and at checkout.
+
 \- Dynamic site settings.
 
 \- Public MVC pages.
@@ -1348,6 +1350,14 @@ order.view
 
 payment.view
 
+coupon.view
+
+coupon.create
+
+coupon.edit
+
+coupon.delete
+
 blog.view
 
 blog.create
@@ -1542,6 +1552,34 @@ cart:{userId}
 
 Unauthenticated cart persistence is not required in this version unless explicitly added later.
 
+\## 29.3 Applied Coupon
+
+A cart may contain at most one applied coupon.
+
+In addition to its items, the cart stored in Redis shall carry an optional coupon code:
+
+\`\`\`text
+
+cart:{userId}
+
+    Items      : CourseId, Quantity
+
+    CouponCode : optional
+
+\`\`\`
+
+Only the coupon code shall be stored in the cart. Discount amounts derived from the coupon shall never be stored as trusted values and shall never be accepted from the browser. The server shall recalculate them every time the cart or the checkout summary is read.
+
+The coupon code shall be removed from the cart when:
+
+\- The user removes it.
+
+\- The cart becomes empty or is cleared after a successful purchase.
+
+If an applied coupon stops being eligible while it is still in the cart (for example it expires, its usage limit is reached, or the eligible subtotal falls below the minimum order amount after an item is removed), the server shall exclude its discount from all totals and shall inform the user that the coupon is no longer applicable. The cart shall never keep displaying a discount that is not valid.
+
+The eligibility and calculation rules are defined in section 95.
+
 \---
 
 \# 31. Orders
@@ -1558,13 +1596,19 @@ Fields:
 
 \| UserId | Required |
 
-\| TotalAmount | Required |
+\| TotalAmount | Required; the payable amount after the coupon discount |
 
 \| Status | Required |
 
 \| CreatedAt | Required |
 
 \| PaidAt | Nullable |
+
+\| ExpiresAt | Nullable; set while the order is Pending |
+
+\| CouponId | Nullable |
+
+\| CouponDiscountAmount | Required; 0 when no coupon is applied |
 
 \## 30.2 Order Item
 
@@ -1596,7 +1640,11 @@ Future changes to:
 
 \- Course discount.
 
+\- Coupon configuration (code, type, value, validity, usage limit).
+
 shall not modify existing order amounts.
+
+The order shall store the coupon discount amount that was applied when the order was created.
 
 The server shall calculate all monetary totals.
 
@@ -1623,6 +1671,28 @@ Failed
 Status transitions shall be controlled by application business rules.
 
 An order shall not be marked \`Paid\` merely because a client reports success.
+
+\## 32.1 Pending Order Expiration
+
+A \`Pending\` order shall not remain pending indefinitely.
+
+When an order is created as \`Pending\`, \`ExpiresAt\` shall be set to the creation time plus the configured expiration period (\`PendingOrderExpirationMinutes\`).
+
+A background job shall periodically process \`Pending\` orders whose \`ExpiresAt\` has passed. For each such order it shall:
+
+\- Set the order status to \`Cancelled\`.
+
+\- Set its \`Pending\` payment record to \`Cancelled\`.
+
+\- Release the reserved coupon use exactly once (section 95).
+
+The transition out of \`Pending\` shall be a conditional, atomic update, so that expiration cannot race with a payment result that marks the same order \`Paid\`. Whichever transition is applied first is final.
+
+The job shall be idempotent and safe when several application instances run it at the same time.
+
+If a successful payment result arrives for an order that has already been cancelled by expiration, the system shall not silently discard it, and it shall not automatically grant course access or issue an invoice. It shall record the payment result idempotently, log it as an error with correlation information, and make it identifiable in the Orders and Payments modules for administrative review.
+
+Order expiration shall be recorded with structured logs.
 
 \---
 
@@ -1736,11 +1806,15 @@ Invoice information shall include:
 
 \- Discount.
 
+\- Coupon code and coupon discount, when a coupon was used.
+
 \- Final amount.
 
 \- Payment status.
 
 The invoice must preserve the financial snapshot of the completed purchase.
+
+The invoice discount shall include the coupon discount, and the coupon code and coupon discount amount shall be preserved as snapshot values. Later changes to the coupon shall not alter an issued invoice.
 
 \---
 
@@ -2020,11 +2094,29 @@ The cart page shall display:
 
 \- Final line total.
 
-\- Cart total.
+\- Subtotal (the sum of line totals after course-level discounts).
+
+\- Coupon discount, when a coupon is applied.
+
+\- Cart total (the payable amount after the coupon discount).
 
 Users shall be able to remove items.
 
 Quantity modification shall respect course-purchase rules.
+
+The cart page shall let the authenticated user apply a coupon. It shall provide:
+
+\- A coupon-code input with an apply action, shown while no coupon is applied.
+
+\- The applied coupon code with an action to remove it.
+
+\- A clear message when a code cannot be applied.
+
+Applying or removing a coupon shall immediately refresh the displayed totals using server-calculated values.
+
+Failure messages shall be limited to reasons the user can act on (for example, the minimum order amount is not reached). Every other failure (unknown, inactive, expired, not yet started, or exhausted code) shall use a generic message so that valid codes cannot be discovered by guessing.
+
+Coupon application attempts shall be rate limited.
 
 \---
 
@@ -2056,11 +2148,31 @@ The system shall validate required customer information.
 
 The phone number is mandatory before payment.
 
+The order summary shall show the subtotal, the applied coupon code (if any), the coupon discount, and the payable total.
+
+The user shall be able to apply, change, or remove a coupon in this stage under the same rules as the cart page. The coupon can be changed until the pending order is created in Stage 2.
+
 \## 42.2 Stage 2 — Payment
 
 The user shall select one of the supported payment-method enum values.
 
 The application shall create the necessary pending payment/order state.
+
+When the cart has an applied coupon, order creation shall additionally:
+
+\- Re-validate the coupon server-side at that moment (section 95).
+
+\- Recalculate the coupon discount and the payable total.
+
+\- Store the coupon reference and the coupon discount amount on the order as a snapshot.
+
+\- Reserve one coupon use atomically inside the order-creation transaction.
+
+The payment amount shall equal the order's payable total after the coupon discount.
+
+If the coupon is no longer valid when the order is created, no order and no payment shall be created. The user shall be returned to Stage 1 with a message and the recalculated totals, and shall explicitly choose to continue. The system shall not silently proceed at a higher price.
+
+Once the pending order exists, its coupon and amounts are fixed and shall not be changed.
 
 \## 42.3 Stage 3 — Payment Result
 
@@ -2069,6 +2181,8 @@ The system shall display:
 \- Successful payment.
 
 \- Failed payment.
+
+The result shall show the order summary, including the coupon code and coupon discount when a coupon was used.
 
 For successful payment:
 
@@ -2097,6 +2211,10 @@ Create/Finalize Invoice
 \`\`\`
 
 The complete flow shall be transactionally consistent where database operations are involved.
+
+The invoice created for a paid order shall preserve the coupon snapshot as defined in section 36.
+
+If the order becomes \`Failed\` or \`Cancelled\`, the coupon use reserved for it shall be released exactly once. The cart, including its applied coupon, shall be preserved so the user can retry, and the coupon remains applied only if it is still eligible.
 
 \---
 
@@ -2140,11 +2258,57 @@ The panel shall provide management for:
 
 \- Payments.
 
+\- Coupons.
+
 \- Blog posts.
 
 \- Global FAQs.
 
 \- Site settings.
+
+\## 43.2 Coupon Management
+
+The Admin Panel shall provide coupon management protected by the \`coupon.view\`, \`coupon.create\`, \`coupon.edit\`, and \`coupon.delete\` permissions.
+
+The coupon list shall display the code, type, value, usage (\`UsedCount\` / \`UsageLimit\`), start date, end date, \`IsActive\`, and a derived status (Active, Scheduled, Expired, Exhausted, or Inactive). It shall support searching by code and filtering by status.
+
+Coupon form fields:
+
+\| Field | Requirement |
+
+\|---|---|
+
+\| Code | Required; trimmed; unique, compared case-insensitively |
+
+\| Type | Required; Percentage or FixedAmount |
+
+\| Value | Required; Percentage: greater than 0 and less than 100; FixedAmount: greater than 0 |
+
+\| MinOrderAmount | Optional; not negative |
+
+\| UsageLimit | Optional; empty means unlimited; when set, greater than 0 |
+
+\| UsedCount | Read-only |
+
+\| StartDate | Required |
+
+\| EndDate | Required; later than StartDate |
+
+\| IsActive | Required |
+
+Coupon management rules:
+
+\- \`UsedCount\` shall never be edited manually.
+
+\- \`UsageLimit\` shall not be set lower than the current \`UsedCount\`.
+
+\- Editing, deactivating, or deleting a coupon shall not change existing orders or invoices (section 95).
+
+\- Deactivating a coupon is the normal way to stop its use. Deleting a coupon is a soft delete, and a coupon that has been used by any order shall never be physically deleted.
+
+\- The order details in the Orders module shall display the coupon code and the coupon discount amount.
+
+\- Audit fields shall be populated by the server and never supplied by the client.
 
 \---
 
@@ -2520,6 +2684,10 @@ Important examples:
 
 \- Concurrent order processing.
 
+\- Concurrent coupon redemption.
+
+\- Pending-order expiration racing with a payment result.
+
 Database unique constraints and application-level idempotency shall be used together where necessary.
 
 \---
@@ -2569,6 +2737,10 @@ The following values shall be configuration-driven:
 \- Observability endpoints.
 
 \- Payment environment settings.
+
+\- Pending order expiration period.
+
+\- Coupon application rate limits.
 
 Secrets shall be supplied through secure environment/configuration mechanisms and shall not be committed to source control.
 
@@ -2776,7 +2948,9 @@ Before order creation, the application shall re-evaluate:
 
 \- Existing ownership.
 
-The server shall never trust price or discount values received from the browser.
+\- Coupon validity, when a coupon is applied.
+
+The server shall never trust price, discount, or coupon amounts received from the browser.
 
 \---
 
@@ -3135,6 +3309,36 @@ The following must be true:
 6\. A paid course can contain multiple free episodes.
 
 7\. Non-free episodes require course ownership.
+
+\## 70.4 Coupon Checkout
+
+The following must be true:
+
+1\. A coupon code can be applied to a cart that contains paid courses.
+
+2\. The server calculates the coupon discount and the payable total; client-supplied amounts are ignored.
+
+3\. An unknown, inactive, expired, not-yet-started, exhausted, or below-minimum code is rejected with a message.
+
+4\. The user can remove an applied coupon from the cart.
+
+5\. The coupon is re-validated at order creation, and an invalid coupon prevents order creation.
+
+6\. The order stores the coupon reference and the coupon discount snapshot, and the payment amount equals the payable total.
+
+7\. Concurrent checkouts cannot push \`UsedCount\` above \`UsageLimit\`.
+
+8\. A \`Failed\` or \`Cancelled\` order releases its reserved coupon use exactly once.
+
+9\. The invoice of a paid order shows the coupon code and coupon discount.
+
+10\. Reprocessing the same payment result does not change \`UsedCount\`.
+
+11\. A \`Pending\` order that passes its expiration is cancelled and its reserved coupon use is released.
+
+12\. A successful payment result that arrives after expiration is recorded and flagged for review, and does not grant access automatically.
+
+13\. An administrator can create, edit, deactivate, and soft-delete coupons, and cannot set an invalid value or a usage limit below the current usage.
 
 \---
 
@@ -4130,6 +4334,8 @@ Items
 Quantity
 Unit Price
 Discount
+Coupon Code (when used)
+Coupon Discount (when used)
 Tax where applicable
 Subtotal
 Final Amount
@@ -4431,6 +4637,33 @@ The implementation shall additionally follow these principles:
 4. Discount calculation logic (percentage vs. fixed amount) shall reside in the Domain layer and shall not be duplicated in the Application or presentation layers.
 5. A per-user redemption limit is not modeled directly on the Coupon entity. If required, it shall be enforced through a separate redemption-tracking record linking Coupon, User, and Order.
 6. Coupon fields shall follow the standard audit and soft-deletion requirements defined in sections 78 and 77.
+7. A cart and an order shall each have at most one coupon applied.
+8. A coupon is applicable only when all of the following hold:
+   * It exists and is not soft-deleted.
+   * `IsActive` is `true`.
+   * The current UTC time is within `StartDate` and `EndDate`, inclusive.
+   * `UsageLimit` is null or `UsedCount < UsageLimit`.
+   * `MinOrderAmount` is null or the cart subtotal is at least `MinOrderAmount`.
+9. The cart subtotal is calculated after course-level discounts and before the coupon. Amounts shall be calculated in this order:
+   ```text
+   Course price
+       -> Course-level discount (effective unit price)
+       -> Subtotal
+       -> Coupon discount
+       -> Payable total
+   ```
+   * `Percentage`: coupon discount = subtotal x `Value` / 100.
+   * `FixedAmount`: coupon discount = `Value`.
+   * Calculation shall use `decimal` and a single documented rounding rule.
+10. A coupon whose discount would reduce the payable total to zero or below is not applicable. Zero-amount orders are not supported in this version.
+11. A coupon applies to the whole cart. Restrictions to specific courses or categories are not modeled. Free courses contribute nothing to the subtotal.
+12. A coupon use is reserved by incrementing `UsedCount` at order creation, inside the order-creation transaction and with a conditional update (`UsedCount < UsageLimit`) so concurrent requests cannot exceed the limit.
+    * If the order becomes `Failed` or `Cancelled`, the reserved use shall be released exactly once, and the release shall be idempotent.
+    * If the order becomes `Paid`, the use remains consumed.
+    * Reprocessing a payment result shall never change `UsedCount`.
+    * Orders that remain `Pending` past their expiration are cancelled as defined in section 32.1, which releases the reserved use.
+13. The order shall store `CouponId` and `CouponDiscountAmount`. Later changes to, expiry of, or soft deletion of the coupon shall not alter existing orders, and historical orders shall still be able to resolve their coupon.
+14. Coupon codes shall be trimmed and matched case-insensitively, and the persistence-layer uniqueness rule (rule 3) shall be consistent with that. Apply attempts shall be rate limited, and user-facing failure messages shall follow the cart page rules in section 42.
 
 ---
  

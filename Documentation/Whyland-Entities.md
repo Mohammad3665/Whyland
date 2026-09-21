@@ -455,11 +455,19 @@ public class UserCourse
 
 ---
 
-## 19. CartItem (Redis Shopping Cart Concept)
+## 19. Cart and CartItem (Redis Shopping Cart Concept)
 
-The shopping cart is stored in Redis and is not considered a database Entity. This class is only a data model that is stored as JSON in Redis (key: `cart:{userId}`).
+The shopping cart is stored in Redis and is not considered a database Entity. These classes are only data models that are stored as JSON in Redis (key: `cart:{userId}`).
+
+The cart carries at most one applied coupon, identified by its code only. Discount amounts are never stored in the cart; the server recalculates them on every read.
 
 ```csharp
+public class Cart
+{
+    public List<CartItem> Items { get; set; } = [];
+    public string? CouponCode { get; set; }
+}
+
 public class CartItem
 {
     public Guid CourseId { get; set; }
@@ -478,11 +486,13 @@ public class Order
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
-    public decimal TotalAmount { get; set; }
+    public decimal TotalAmount { get; set; }              // payable amount after the coupon discount
     public OrderStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? PaidAt { get; set; }
+    public DateTime? ExpiresAt { get; set; }              // set while the order is Pending
     public Guid? CouponId { get; set; }
+    public decimal CouponDiscountAmount { get; set; }     // 0 when no coupon is applied
 
     public User User { get; set; }
     public Coupon? Coupon { get; set; }
@@ -595,7 +605,9 @@ public class Invoice
     public string CustomerEmail { get; private set; }
 
     public decimal Subtotal { get; private set; }
-    public decimal Discount { get; private set; }
+    public decimal Discount { get; private set; }         // includes the coupon discount
+    public string? CouponCode { get; private set; }       // snapshot, null when no coupon was used
+    public decimal CouponDiscount { get; private set; }   // snapshot, 0 when no coupon was used
     public decimal Tax { get; private set; }
     public decimal FinalAmount { get; private set; }
 
@@ -783,3 +795,11 @@ public enum CouponType
     FixedAmount
 }
 ```
+
+Notes:
+
+- `Code` is trimmed and matched case-insensitively; the unique index shall be built on the normalized code.
+- `Value` must be greater than 0 for both types, and less than 100 for `Percentage`.
+- `EndDate` must be later than `StartDate`, and `UsageLimit`, when set, must be greater than 0 and not lower than `UsedCount`.
+- `UsedCount` is changed only through an atomic conditional update (`UsedCount < UsageLimit`) at order creation, and is released when the order becomes `Failed` or `Cancelled`.
+- Orders keep their own `CouponId` and `CouponDiscountAmount` snapshot, so editing, expiring, or soft-deleting a coupon never changes existing orders.

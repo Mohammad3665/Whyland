@@ -465,6 +465,12 @@ public class CartItem
     public Guid CourseId { get; set; }
     public int Quantity { get; set; }
 }
+
+public class CartItem
+{
+    public Guid CourseId { get; set; }
+    public int Quantity { get; set; }
+}
 ```
 
 ---
@@ -482,7 +488,9 @@ public class Order
     public OrderStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? PaidAt { get; set; }
+    public DateTime? ExpiresAt { get; set; }              // set while the order is Pending
     public Guid? CouponId { get; set; }
+    public decimal CouponDiscountAmount { get; set; }     // 0 when no coupon is applied
 
     public User User { get; set; }
     public Coupon? Coupon { get; set; }
