@@ -3,9 +3,7 @@
 # Whyland Project Entities
 
 This file contains all the main Entities required for implementing the Whyland project based on the SRS document. Each section includes the Entity name and its corresponding C# class code.
-
 ---
-
 ## 1. User
 
 User authentication entity (without using ASP.NET Core Identity).
@@ -32,9 +30,7 @@ public class User
     public ICollection<UserEpisodeProgress> EpisodeProgresses { get; set; }
 }
 ```
-
 ---
-
 ## 2. UserProfile
 
 Additional user profile information that is stored separately from authentication information.
@@ -57,9 +53,7 @@ public class UserProfile
     public User User { get; set; }
 }
 ```
-
 ---
-
 ## 3. InstructorProfile
 
 Instructor-specific information that extends a User.
@@ -86,9 +80,7 @@ public class InstructorProfile
     public ICollection<CourseInstructor> CourseInstructors { get; set; }
 }
 ```
-
 ---
-
 ## 4. ExternalLogin
 
 A record that connects a local user account to an external identity provider (Google), inferred from the Google authentication section.
@@ -105,9 +97,7 @@ public class ExternalLogin
     public User User { get; set; }
 }
 ```
-
 ---
-
 ## 5. Role
 
 Dynamic roles.
@@ -131,9 +121,7 @@ public class Role
     public ICollection<RolePermission> RolePermissions { get; set; }
 }
 ```
-
 ---
-
 ## 6. Permission
 
 Dynamic permissions identified by a unique key.
@@ -156,9 +144,7 @@ public class Permission
     public ICollection<RolePermission> RolePermissions { get; set; }
 }
 ```
-
 ---
-
 ## 7. UserRole
 
 Join table for assigning roles to users.
@@ -173,9 +159,7 @@ public class UserRole
     public Role Role { get; set; }
 }
 ```
-
 ---
-
 ## 8. RolePermission
 
 Join table for assigning permissions to roles.
@@ -190,9 +174,7 @@ public class RolePermission
     public Permission Permission { get; set; }
 }
 ```
-
 ---
-
 ## 9. Category
 
 Hierarchical course categorization with a maximum of three levels.
@@ -219,9 +201,7 @@ public class Category
     public ICollection<CourseCategory> CourseCategories { get; set; }
 }
 ```
-
 ---
-
 ## 10. Course
 
 The main educational course entity.
@@ -268,9 +248,7 @@ public enum DiscountType
     Percentage,
     FixedAmount
 }
-```
-
-```csharp
+``````csharp
 public enum DisplayStatus
 {
     Draft,
@@ -278,9 +256,7 @@ public enum DisplayStatus
     Hidden
 }
 ```
-
 ---
-
 ## 11. CourseCategory
 
 Join table between Course and Category (many-to-many relationship).
@@ -295,9 +271,7 @@ public class CourseCategory
     public Category Category { get; set; }
 }
 ```
-
 ---
-
 ## 12. CourseInstructor
 
 Join table between Course and InstructorProfile (many-to-many relationship).
@@ -312,9 +286,7 @@ public class CourseInstructor
     public InstructorProfile Instructor { get; set; }
 }
 ```
-
 ---
-
 ## 13. CourseSection
 
 The sections that make up a course.
@@ -338,9 +310,7 @@ public class CourseSection
     public ICollection<Episode> Episodes { get; set; }
 }
 ```
-
 ---
-
 ## 14. Episode
 
 Educational episodes within each section.
@@ -369,9 +339,7 @@ public class Episode
     public ICollection<UserEpisodeProgress> UserProgresses { get; set; }
 }
 ```
-
 ---
-
 ## 15. EpisodeAttachment
 
 Attachments for each episode with configurable restrictions.
@@ -390,10 +358,8 @@ public class EpisodeAttachment
     public Episode Episode { get; set; }
 }
 ```
-
 ---
-
-## 15. UserEpisodeProgress
+## 16. UserEpisodeProgress
 
 Per-user watch status and progress for each episode. This entity tracks the relationship between a specific user and a specific episode, allowing each user to have their own independent status.
 
@@ -421,15 +387,13 @@ public class UserEpisodeProgress
 public enum EpisodeWatchStatus
 {
     NotWatched,
-    InProgress, 
-    Watched,   
-    Locked      
+    InProgress,
+    Watched,
+    Locked
 }
 ```
-
 ---
-
-## 16. CourseFaq
+## 17. CourseFaq
 
 Course-specific frequently asked questions.
 
@@ -452,10 +416,8 @@ public class CourseFaq
     public Course Course { get; set; }
 }
 ```
-
 ---
-
-## 17. FavoriteCourse
+## 18. FavoriteCourse
 
 User's favorite courses.
 
@@ -470,10 +432,8 @@ public class FavoriteCourse
     public Course Course { get; set; }
 }
 ```
-
 ---
-
-## 18. UserCourse
+## 19. UserCourse
 
 User's access to a purchased course (Enrollment).
 
@@ -490,10 +450,8 @@ public class UserCourse
     public Order Order { get; set; }
 }
 ```
-
 ---
-
-## 19. Cart and CartItem (Redis Shopping Cart Concept)
+## 20. Cart and CartItem (Redis Shopping Cart Concept)
 
 The shopping cart is stored in Redis and is not considered a database Entity. These classes are only data models that are stored as JSON in Redis (key: `cart:{userId}`).
 
@@ -512,10 +470,8 @@ public class CartItem
     public int Quantity { get; set; }
 }
 ```
-
 ---
-
-## 20. Order
+## 21. Order
 
 An order created from the shopping cart.
 
@@ -550,10 +506,8 @@ public enum OrderStatus
     Failed
 }
 ```
-
 ---
-
-## 21. OrderItem
+## 22. OrderItem
 
 Items within an order (each course included in the order).
 
@@ -571,10 +525,8 @@ public class OrderItem
     public Course Course { get; set; }
 }
 ```
-
 ---
-
-## 22. PaymentMethod (Enum)
+## 23. PaymentMethod (Enum)
 
 Payment methods represented as an enum.
 
@@ -586,10 +538,8 @@ public enum PaymentMethod
     SnappPay
 }
 ```
-
 ---
-
-## 23. Payment
+## 24. Payment
 
 Financial transaction associated with an order.
 
@@ -620,10 +570,8 @@ public enum PaymentStatus
     Cancelled
 }
 ```
-
 ---
-
-## 24. Invoice
+## 25. Invoice
 
 The final financial document associated with a paid order.
 
@@ -666,10 +614,8 @@ public class Invoice
     public User User { get; private set; }
 }
 ```
-
 ---
-
-## 25. InvoiceItem
+## 26. InvoiceItem
 
 The invoice Items.
 
@@ -686,10 +632,8 @@ public class InvoiceItem
     public decimal TotalPrice { get; private set; }
 }
 ```
-
 ---
-
-## 26. BlogPost
+## 27. BlogPost
 
 Public blog articles on the website.
 
@@ -707,17 +651,19 @@ public class BlogPost
     public DisplayStatus DisplayStatus { get; set; }
     public string Slug { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public Guid? CreatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public Guid? UpdatedBy { get; set; }
     public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
 
     public User Author { get; set; }
     public BlogCategory? Category { get; set; }
 }
 ```
-
 ---
-
-## 27. BlogCategory
+## 28. BlogCategory
 
 Hierarchical blog categorization.
 
@@ -744,10 +690,8 @@ public class BlogCategory
     public ICollection<BlogPost> BlogPosts { get; set; }
 }
 ```
-
 ---
-
-## 27. Faq
+## 29. Faq
 
 General website frequently asked questions (separate from CourseFaq).
 
@@ -768,10 +712,8 @@ public class Faq
     public Guid? DeletedBy { get; set; }
 }
 ```
-
 ---
-
-## 28. SiteSetting
+## 30. SiteSetting
 
 Dynamic website settings (key/value) — general settings, SEO, and contact information.
 
@@ -788,10 +730,8 @@ public class SiteSetting
     public Guid? UpdatedBy { get; set; }
 }
 ```
-
 ---
-
-## 29. OtpRequest
+## 31. OtpRequest
 
 A record for requesting/verifying a one-time password for phone-number authentication, inferred from the phone authentication section.
 
@@ -808,10 +748,8 @@ public class OtpRequest
     public DateTime CreatedAt { get; set; }
 }
 ```
-
 ---
-
-## 30. PasswordResetToken
+## 32. PasswordResetToken
 
 Password recovery token, inferred from the "Forgot Password" section.
 
@@ -828,10 +766,8 @@ public class PasswordResetToken
     public User User { get; set; }
 }
 ```
-
 ---
-
-## 31. Coupon
+## 33. Coupon
 
 Discount code for orders.
 
@@ -869,7 +805,7 @@ public enum CouponType
 Notes:
 
 - `Code` is trimmed and matched case-insensitively; the unique index shall be built on the normalized code.
-- `Value` must be greater than 0 for both types, and less than 100 for `Percentage`.
-- `EndDate` must be later than `StartDate`, and `UsageLimit`, when set, must be greater than 0 and not lower than `UsedCount`.
-- `UsedCount` is changed only through an atomic conditional update (`UsedCount < UsageLimit`) at order creation, and is released when the order becomes `Failed` or `Cancelled`.
-- Orders keep their own `CouponId` and `CouponDiscountAmount` snapshot, so editing, expiring, or soft-deleting a coupon never changes existing orders.
+- `Value` must be greater than 0 for both types, and less than 100 for`Percentage`.
+- `EndDate` must be later than`StartDate`, and`UsageLimit`, when set, must be greater than 0 and not lower than`UsedCount`.
+- `UsedCount` is changed only through an atomic conditional update (`UsedCount < UsageLimit`) at order creation, and is released when the order becomes`Failed` or`Cancelled`.
+- Orders keep their own `CouponId` and`CouponDiscountAmount` snapshot, so editing, expiring, or soft-deleting a coupon never changes existing orders.

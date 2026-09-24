@@ -1,54 +1,50 @@
 [🇮🇷 نسخه فارسی](./Whyland-SRS-fa.md)
 
- # Software Requirements Specification (SRS)
+# Software Requirements Specification (SRS)
 
- ## Whyland — Educational Platform
+## Whyland — Educational Platform
 
-**\*\*Project Name:\*\*** Whyland  
+**\*\*Project Name:\*\*** Whyland
 
-**\*\*Project Type:\*\*** Educational / Online Course Platform  
+**\*\*Project Type:\*\*** Educational / Online Course Platform
 
 **\*\*Project Purpose:\*\*** Practice project and portfolio sample
 
-**\*\*Document Version:\*\*** 1.0  
+**\*\*Document Version:\*\*** 1.0
 
-**\*\*Status:\*\*** Draft for Implementation  
+**\*\*Status:\*\*** Draft for Implementation
 
 **\*\*Language:\*\*** English
-
- ---
-
- ## 1. Purpose
+---
+## 1. Purpose
 
 This document defines the functional and non-functional requirements for an online education platform that allows users to discover, purchase, and access online courses.
 
 The platform consists of:
 
-1 . A public-facing website implemented with ASP.NET Core MVC.
+1. A public-facing website implemented with ASP.NET Core MVC.
 
-2 . An administration panel implemented with ASP.NET Core Razor Pages.
+2. An administration panel implemented with ASP.NET Core Razor Pages.
 
-3 . A custom authentication and authorization system without ASP.NET Core Identity.
+3. A custom authentication and authorization system without ASP.NET Core Identity.
 
-4 . A PostgreSQL relational database.
+4. A PostgreSQL relational database.
 
-5 . Redis for shopping cart storage and caching.
+5. Redis for shopping cart storage and caching.
 
-6 . An observability stack based on Serilog, OpenTelemetry, Grafana Loki, Grafana Tempo, and Prometheus.
+6. An observability stack based on Serilog, OpenTelemetry, Grafana Loki, Grafana Tempo, and Prometheus.
 
 The purpose of this SRS is to provide sufficiently precise requirements that the Whyland platform can be implemented without relying on undocumented business assumptions. Whyland is being developed as a practice project and portfolio sample to demonstrate production-oriented software architecture, backend development, web development, authorization, persistence, payments, and observability.
-
- ---
-
- # 3. Project Context
+---
+## 2. Project Context
 
 Whyland is an educational platform being developed as a practice project and portfolio sample. Although the project is primarily intended for learning and demonstrating engineering skills, its architecture and requirements shall follow production-oriented practices where practical.
 
 The implementation should demonstrate clean separation of concerns, maintainable code, realistic business rules, secure authentication and authorization, reliable order/payment processing, and complete application observability.
 
- # 4. Scope
+## 3. Scope
 
- ## 2.1 In Scope
+### 3.1. In Scope
 
 The system shall provide:
 
@@ -122,7 +118,7 @@ The system shall provide:
 
  - 403, 404, and 500 error handling.
 
- ## 2.2 Out of Scope
+### 3.2. Out of Scope
 
 The following are explicitly outside the first implementation scope:
 
@@ -147,10 +143,8 @@ The following are explicitly outside the first implementation scope:
  - ASP.NET Core Identity.
 
 Payment providers shall only be represented by the payment-method abstraction/enum and a suitable application boundary. Real provider implementations are not required in this version.
-
- ---
-
- # 4. Terminology
+---
+## 4. Terminology
 
 | Term | Definition |
 |---|---|
@@ -170,10 +164,8 @@ Payment providers shall only be represented by the payment-method abstraction/en
 | Admin Panel | The Razor Pages management application. |
 | System Role | A role protected from unrestricted deletion/modification because it is required by the application. |
 | System Permission | A permission defined by the application and protected from unrestricted deletion. |
-
- ---
-
- # 5. High-Level Architecture
+---
+## 5. High-Level Architecture
 
 The application shall follow Clean Architecture.
 
@@ -237,19 +229,17 @@ The application shall follow Clean Architecture.
 
              |
 
-             v
+v
 
-      Application Layer
+Application Layer
 
  ```
 
 The presentation layers shall not directly implement business rules or access infrastructure concerns that belong in the Application/Infrastructure layers.
+---
+## 6. Technology Requirements
 
- ---
-
- # 6. Technology Requirements
-
- ## 5.1 .NET
+## 6.1 .NET
 
 The project shall use the latest supported stable .NET version available at the time implementation begins.
 
@@ -257,13 +247,13 @@ If .NET 11 is stable before implementation starts, the project shall use .NET 11
 
 Preview and release-candidate versions shall not be used in production.
 
- ## 5.2 Web Framework
+### 6.2. Web Framework
 
  - ASP.NET Core MVC for the public website.
 
  - ASP.NET Core Razor Pages for the administration panel.
 
- ## 5.3 Database
+### 6.3. Database
 
  - PostgreSQL.
 
@@ -271,7 +261,7 @@ Preview and release-candidate versions shall not be used in production.
 
  - EF Core migrations for schema evolution.
 
- ## 5.4 Caching
+### 6.4. Caching
 
  - Redis.
 
@@ -279,7 +269,7 @@ Preview and release-candidate versions shall not be used in production.
 
  - Redis may also be used for application caching where explicitly configured.
 
- ## 5.5 Application Architecture
+### 6.5. Application Architecture
 
 The application shall use:
 
@@ -296,12 +286,10 @@ The application shall use:
  - Result Pattern.
 
  - Dependency Injection.
+---
+## 7. Repository and Unit of Work Requirements
 
- ---
-
- # 7. Repository and Unit of Work Requirements
-
- ## 6.1 Repository Pattern
+### 7.1. Repository Pattern
 
 Persistence access shall be abstracted through repositories.
 
@@ -335,7 +323,7 @@ Repositories shall:
 
  - Return domain/application models appropriate to the layer.
 
- - Avoid exposing  `DbContext ` to Application handlers.
+ - Avoid exposing  `DbContext` to Application handlers.
 
  - Avoid leaking EF Core-specific implementation details into Domain.
 
@@ -343,7 +331,7 @@ Repositories shall:
 
  - Support cancellation tokens.
 
- ## 6.2 Unit of Work
+### 7.2. Unit of Work
 
 The persistence layer shall implement a Unit of Work abstraction.
 
@@ -352,11 +340,11 @@ Example:
 ```csharp
 public interface IUnitOfWork
 {
-    Task <int> SaveChangesAsync(CancellationToken cancellationToken);
+Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
 ```
 
-The EF Core  `DbContext ` shall implement the Unit of Work behavior.
+The EF Core  `DbContext` shall implement the Unit of Work behavior.
 
 A single application command that changes multiple related entities shall use one Unit of Work transaction boundary where consistency is required.
 
@@ -380,7 +368,7 @@ Create Order
 
 These operations must not result in a partially persisted order.
 
- ## 6.3 Transaction Rules
+### 7.3. Transaction Rules
 
 A database transaction shall be used when multiple database changes must succeed or fail together.
 
@@ -388,21 +376,19 @@ External service calls shall not be incorrectly included inside long-running dat
 
 Payment callbacks must be idempotent.
 
- ## 6.4 Repository Restrictions
+### 7.4. Repository Restrictions
 
 The following shall be avoided:
 
  - Generic repository solely for CRUD abstraction.
 
- -  `IQueryable ` exposure from repositories when it leaks persistence concerns.
+ -  `IQueryable` exposure from repositories when it leaks persistence concerns.
 
- - Direct  `DbContext ` access from Controllers, Razor Pages, or MediatR handlers.
+ - Direct  `DbContext` access from Controllers, Razor Pages, or MediatR handlers.
 
  - Business rules implemented inside EF Core configurations.
-
- ---
-
- # 8. Domain Model
+---
+## 8. Domain Model
 
 The core entities shall include at least:
 
@@ -464,15 +450,13 @@ SiteSetting
 
 ```
 
-Audit fields such as  `CreatedAt ` and  `UpdatedAt ` shall be included where applicable.
+Audit fields such as  `CreatedAt` and  `UpdatedAt` shall be included where applicable.
 
 Primary keys shall use a consistent identifier strategy throughout the system.
+---
+## 9. Category Management
 
- ---
-
- # 9. Category Management
-
- ## 8.1 Fields
+### 9.1. Fields
 
 A Category shall contain:
 
@@ -496,7 +480,7 @@ A Category shall contain:
 
  | UpdatedAt | Required |
 
- ## 8.2 Hierarchy
+### 9.2. Hierarchy
 
 Categories shall support a maximum of three levels.
 
@@ -506,9 +490,9 @@ Example:
 
 Web Development
 
-    └── Backend
+└── Backend
 
-        └── Django
+└── Django
 
  ```
 
@@ -518,23 +502,23 @@ The following is invalid:
 
 Web Development
 
-    └── Backend
+└── Backend
 
-        └── Django
+└── Django
 
-            └── Advanced Django
+└── Advanced Django
 
  ```
 
 The application shall reject creation or modification that would produce a fourth level.
 
- ## 8.3 Rules
+### 9.3. Rules
 
  - A category must have a unique identity.
 
  - A category may have zero or one parent.
 
- - A root category has  `ParentId = null `.
+ - A root category has  `ParentId = null`.
 
  - A category cannot be its own parent.
 
@@ -545,12 +529,10 @@ The application shall reject creation or modification that would produce a fourt
  - Existing relationships shall not be silently removed when a category is deactivated.
 
  - Deleting a category that is referenced by a course shall be prevented or handled explicitly; the implementation shall not silently orphan course-category relationships.
+---
+## 10. Course Management
 
- ---
-
- # 10. Course Management
-
- ## 9.1 Course Fields
+### 10.1. Course Fields
 
  | Field | Requirement |
 
@@ -592,7 +574,7 @@ The application shall reject creation or modification that would produce a fourt
 
  | UpdatedAt | Required |
 
- ## 9.2 Description
+### 10.2. Description
 
 The full description shall support HTML editor content.
 
@@ -600,7 +582,7 @@ The system shall sanitize HTML according to an explicit allowlist before renderi
 
 Raw unsanitized user-controlled HTML shall not be rendered directly.
 
- ## 9.3 Slug
+### 10.3. Slug
 
 The course slug shall:
 
@@ -612,11 +594,11 @@ The course slug shall:
 
  - Be used for public course URLs.
 
- ## 9.4 Pricing
+### 10.4. Pricing
 
 Course prices shall use a decimal-compatible monetary type.
 
- `float ` and  `double ` shall not be used for monetary values.
+ `float` and  `double` shall not be used for monetary values.
 
 For a free course:
 
@@ -638,7 +620,7 @@ Price > 0
 
  ```
 
- ## 9.5 Discount
+### 10.5. Discount
 
 Supported discount types:
 
@@ -664,15 +646,15 @@ Fixed discounts must not make the final price negative.
 
 The final payable price shall be calculated centrally in the Application/Domain layer.
 
- ## 9.6 Sale Status
+### 10.6. Sale Status
 
- `IsSaleActive ` controls whether the course can currently be purchased.
+ `IsSaleActive` controls whether the course can currently be purchased.
 
 A course may be published but not currently purchasable.
 
 The system shall not infer sale status from display status.
 
- ## 9.7 Display Status
+### 10.7. Display Status
 
 Supported values:
 
@@ -690,7 +672,7 @@ Only published courses shall be publicly discoverable as normal course listings.
 
 Draft and hidden courses shall not be publicly exposed.
 
- ## 9.8 Featured and Amazing
+### 10.8. Featured and Amazing
 
 Courses may be marked:
 
@@ -701,10 +683,8 @@ Courses may be marked:
 These flags correspond to existing requested special-display areas.
 
 The system shall not require these flags to be set for a course to be published.
-
- ---
-
- # 11. Course Categories
+---
+## 11. Course Categories
 
 A course may belong to multiple categories.
 
@@ -727,10 +707,8 @@ Category
 Duplicate Course/Category relationships shall not be allowed.
 
 Inactive categories shall not be assignable to newly created or updated courses.
-
- ---
-
- # 12. Course Instructors
+---
+## 12. Course Instructors
 
 A course may have one or more instructors.
 
@@ -753,10 +731,8 @@ InstructorProfile/User
 The system shall retain the instructor relationship independently from authentication credentials.
 
 Only users designated as instructors through their instructor profile/role assignment shall be selectable as instructors in the Admin Panel.
-
- ---
-
- # 13. Course Sections
+---
+## 13. Course Sections
 
 Each course shall contain zero or more sections.
 
@@ -778,7 +754,7 @@ Fields:
 
  | UpdatedAt | Required |
 
-Sections shall be displayed in ascending  `DisplayOrder `.
+Sections shall be displayed in ascending  `DisplayOrder`.
 
 The system may calculate and display:
 
@@ -787,14 +763,12 @@ The system may calculate and display:
  - Total video duration.
 
 These values do not need to be persisted unless performance requirements later justify denormalization.
-
- ---
-
- # 14. Episodes
+---
+## 14. Episodes
 
 Each section may contain zero or more episodes.
 
- ## 13.1 Fields
+### 14.1. Fields
 
  | Field | Requirement |
 
@@ -820,13 +794,13 @@ Each section may contain zero or more episodes.
 
  | UpdatedAt | Required |
 
- ## 13.2 Ordering
+### 14.2. Ordering
 
-Episodes shall be displayed according to  `DisplayOrder `.
+Episodes shall be displayed according to  `DisplayOrder`.
 
 Duplicate display-order values may be technically permitted, but Admin operations should maintain deterministic ordering.
 
- ## 13.3 Free Episodes
+### 14.3. Free Episodes
 
 A paid course may expose one or more episodes as free previews.
 
@@ -846,7 +820,7 @@ Non-free episodes of a paid course require the user to own the course.
 
 The access check shall be centralized in the application authorization/access layer.
 
-## 13.4 Episode Watch Status (Per-User)
+### 14.4. Episode Watch Status (Per-User)
 
 Episode watch status is **per-user** and shall not be stored on the `Episode` entity itself.
 
@@ -861,37 +835,37 @@ The system shall track the following statuses for each (User, Episode) pair:
 | Watched | The user has fully watched this episode. |
 | Locked | The user does not have access to this episode (e.g., paid episode without ownership). |
 
-### Status Rules
+#### 14.4.1. Status Rules
 
 - Status is evaluated per authenticated user.
-- For unauthenticated users, no status is persisted; the episode is treated as `NotWatched` or `Locked` depending on access rules.
-- A free-preview episode of a paid course may be `NotWatched`, `InProgress`, or `Watched` for a non-owning user, but shall never be `Locked`.
+- For unauthenticated users, no status is persisted; the episode is treated as `NotWatched` or`Locked` depending on access rules.
+- A free-preview episode of a paid course may be `NotWatched`,`InProgress`, or`Watched` for a non-owning user, but shall never be`Locked`.
 - A non-free episode of a paid course without ownership shall be `Locked`.
-- When a user owns a paid course, non-free episodes transition from `Locked` to `NotWatched` automatically upon access grant.
+- When a user owns a paid course, non-free episodes transition from `Locked` to`NotWatched` automatically upon access grant.
 - `InProgress` is set when the user starts watching but does not complete the episode.
 - `Watched` is set when the user completes the episode (e.g., reaches a configurable completion threshold such as 90% of duration).
 - The completion threshold shall be configuration-driven.
 
-### Persistence
+#### 14.4.2. Persistence
 
 The watch status shall be persisted in a dedicated per-user entity:
 
 ```text
 UserEpisodeProgress
-    UserId
-    EpisodeId
-    Status
-    LastWatchedPosition
-    FirstWatchedAt
-    CompletedAt
-    LastWatchedAt
-    CreatedAt
-    UpdatedAt
+UserId
+EpisodeId
+Status
+LastWatchedPosition
+FirstWatchedAt
+CompletedAt
+LastWatchedAt
+CreatedAt
+UpdatedAt
 ```
 
 A unique composite constraint on `(UserId, EpisodeId)` shall be enforced.
 
-### Access vs. Status
+#### 14.4.3. Access vs. Status
 
 `Locked` is an **access-derived** status, not a stored user preference. It reflects that the current user does not have permission to watch the episode. The application shall compute it based on:
 
@@ -900,26 +874,24 @@ A unique composite constraint on `(UserId, EpisodeId)` shall be enforced.
 - Course.Price (null = free).
 - Course display status.
 
-When access is granted (e.g., after purchase), the `Locked` status is automatically resolved to `NotWatched`.
+When access is granted (e.g., after purchase), the `Locked` status is automatically resolved to`NotWatched`.
 
-### Progress Updates
+#### 14.4.4. Progress Updates
 
 Progress updates (e.g., playback position) shall be validated server-side:
 
-- `LastWatchedPosition` shall not exceed `Episode.Duration`.
+- `LastWatchedPosition` shall not exceed`Episode.Duration`.
 - Status transitions shall follow the allowed transitions:
   ```text
-  Locked     -> NotWatched   (when access is granted)
-  NotWatched -> InProgress   (when playback starts)
-  InProgress -> Watched      (when completion threshold is reached)
-  InProgress -> InProgress   (progress update)
-  Watched    -> Watched      (re-watch, no status regression)
+Locked     -> NotWatched   (when access is granted)
+NotWatched -> InProgress   (when playback starts)
+InProgress -> Watched      (when completion threshold is reached)
+InProgress -> InProgress   (progress update)
+Watched    -> Watched      (re-watch, no status regression)
   ```
-- Status shall not regress from `Watched` to `InProgress` or `NotWatched` through normal playback.
-
- ---
-
- # 15. Episode Attachments
+- Status shall not regress from `Watched` to`InProgress` or`NotWatched` through normal playback.
+---
+## 15. Episode Attachments
 
 An episode may have zero or more attachments.
 
@@ -966,18 +938,14 @@ AllowedAttachmentExtensions
  ```
 
 The limits shall be validated server-side.
-
- ---
-
- # 16. Episode Personal Notes
+---
+## 16. Episode Personal Notes
 
 Personal user notes on episodes are explicitly deferred from the first implementation.
 
 The database and application architecture should not make future implementation impossible, but no note-management feature is required in version 1.
-
- ---
-
- # 17. Course FAQ
+---
+## 17. Course FAQ
 
 Each course may contain multiple FAQs.
 
@@ -1001,13 +969,11 @@ Fields:
 
  | UpdatedAt | Required |
 
-FAQs shall be displayed according to  `DisplayOrder `.
+FAQs shall be displayed according to  `DisplayOrder`.
+---
+## 18. User Management
 
- ---
-
- # 18. User Management
-
- ## 17.1 Authentication User
+### 18.1. Authentication User
 
 The authentication-oriented User entity shall contain:
 
@@ -1039,7 +1005,7 @@ The authentication-oriented User entity shall contain:
 
 Passwords shall never be stored in plaintext.
 
- ## 17.2 User Profile
+### 18.2. User Profile
 
 Authentication data shall be separated from extended profile data.
 
@@ -1073,13 +1039,11 @@ UserProfile shall contain, where applicable:
 
 Only information necessary for the current business requirements shall be collected.
 
- ## 17.3 Account Activation
+### 18.3. Account Activation
 
 Inactive users shall not be allowed to authenticate or perform authenticated operations.
-
- ---
-
- # 19. Instructor Profile
+---
+## 19. Instructor Profile
 
 InstructorProfile shall extend a User with instructor-specific information.
 
@@ -1118,16 +1082,14 @@ Fields shall include:
  | UpdatedAt | Required |
 
 Banking information is only profile information in this version. No payout or settlement workflow is included.
-
- ---
-
- # 20. Authentication
+---
+## 20. Authentication
 
 The platform shall not use ASP.NET Core Identity.
 
 Authentication shall be implemented using the application's own user, credential, role, and permission model.
 
- ## 19.1 Phone Authentication
+### 20.1. Phone Authentication
 
 The system shall support phone-number-based authentication.
 
@@ -1139,31 +1101,31 @@ Enter Phone Number
 
         |
 
-        v
+v
 
 Request OTP
 
         |
 
-        v
+v
 
 Fake SMS Service
 
         |
 
-        v
+v
 
 Enter OTP
 
         |
 
-        v
+v
 
 Verify OTP
 
         |
 
-        v
+v
 
 Authenticate User
 
@@ -1181,7 +1143,7 @@ The OTP shall:
 
  - Be rate limited.
 
- ## 19.2 Fake SMS Service
+### 20.2. Fake SMS Service
 
 A simple interface shall be defined:
 
@@ -1191,13 +1153,13 @@ public interface ISmsService
 
 {
 
-    Task SendAsync(
+Task SendAsync(
 
-        string phoneNumber,
+string phoneNumber,
 
-        string message,
+string message,
 
-        CancellationToken cancellationToken);
+CancellationToken cancellationToken);
 
 }
 
@@ -1214,10 +1176,8 @@ It may:
  - Return a successful delivery result.
 
 The fake service shall be replaceable without changing Application business logic.
-
- ---
-
- # 21. Google Authentication
+---
+## 21. Google Authentication
 
 Google OAuth/OpenID Connect authentication shall be supported.
 
@@ -1226,10 +1186,8 @@ A Google-authenticated user shall be able to create or access a local User accou
 The local account shall be linked to the external Google identity through an appropriate external-login record.
 
 Google authentication shall not replace the local User entity.
-
- ---
-
- # 22. Mandatory Phone Number Before Purchase
+---
+## 22. Mandatory Phone Number Before Purchase
 
 A user may authenticate using Google without providing a phone number.
 
@@ -1243,51 +1201,49 @@ Google Login
 
      |
 
-     v
+v
 
 Add to Cart
 
      |
 
-     v
+v
 
 Checkout
 
      |
 
-     v
+v
 
 Phone Number Missing?
 
      |
 
-   Yes
+Yes
 
      |
 
-     v
+v
 
 Collect Phone Number
 
      |
 
-     v
+v
 
 Continue Checkout
 
  ```
 
 The system shall not allow payment to proceed without the required phone number.
-
- ---
-
- # 23. Roles
+---
+## 23. Roles
 
 Roles shall be fully dynamic.
 
 The Admin Panel shall provide CRUD operations for roles.
 
- ## 22.1 Role Fields
+### 23.1. Role Fields
 
  | Field | Requirement |
 
@@ -1305,7 +1261,7 @@ The Admin Panel shall provide CRUD operations for roles.
 
  | UpdatedAt | Required |
 
- ## 22.2 Dynamic Role CRUD
+### 23.2. Dynamic Role CRUD
 
 Administrators with the appropriate permissions shall be able to:
 
@@ -1321,19 +1277,17 @@ Administrators with the appropriate permissions shall be able to:
 
  - Assign roles to users.
 
-The system shall not hard-code business roles such as  `Admin `,  `Teacher `, or  `User ` as the only available roles.
+The system shall not hard-code business roles such as  `Admin`,  `Teacher`, or  `User` as the only available roles.
 
 System roles may be seeded by the application but must still be represented by the same Role entity.
 
- ## 22.3 System Roles
+### 23.3. System Roles
 
- `IsSystem = true ` means the role is required by the application or protected by application rules.
+ `IsSystem = true` means the role is required by the application or protected by application rules.
 
 The application shall prevent accidental deletion or destructive modification of system roles.
-
- ---
-
- # 24. Permissions
+---
+## 24. Permissions
 
 Permissions shall be dynamically represented in the authorization model.
 
@@ -1426,10 +1380,8 @@ setting.edit
  ```
 
 The exact permission catalog may evolve with the Admin Panel modules.
-
- ---
-
- # 25. Role-Permission Assignment
+---
+## 25. Role-Permission Assignment
 
 Relationship:
 
@@ -1454,10 +1406,8 @@ A permission may be assigned to many roles.
 Duplicate assignments shall not be allowed.
 
 Authorization shall evaluate the authenticated user's roles and the permissions assigned to those roles.
-
- ---
-
- # 26. User-Role Assignment
+---
+## 26. User-Role Assignment
 
 Relationship:
 
@@ -1480,10 +1430,8 @@ A user may have multiple roles.
 Effective permissions are the union of permissions assigned through the user's roles.
 
 If at least one assigned role grants a permission, the user is considered authorized for that permission, subject to any explicit application-level restrictions.
-
- ---
-
- # 27. Permission-Based Authorization
+---
+## 27. Permission-Based Authorization
 
 The system shall authorize administrative operations using permission keys rather than checking role names.
 
@@ -1506,10 +1454,8 @@ if user.HasPermission("course.create")
 This is required because roles are dynamic.
 
 Authorization requirements shall be enforced server-side and shall not rely solely on UI visibility.
-
- ---
-
- # 28. Favorites
+---
+## 28. Favorites
 
 Users shall be able to mark courses as favorites.
 
@@ -1519,11 +1465,11 @@ Entity:
 
 FavoriteCourse
 
-    UserId
+UserId
 
-    CourseId
+CourseId
 
-    CreatedAt
+CreatedAt
 
  ```
 
@@ -1536,10 +1482,8 @@ Users shall be able to:
  - Remove a course from favorites.
 
  - View their favorite courses.
-
- ---
-
- # 29. Purchased Courses / Enrollment
+---
+## 29. Purchased Courses / Enrollment
 
 The system shall maintain access to purchased courses.
 
@@ -1549,13 +1493,13 @@ Entity:
 
 UserCourse
 
-    UserId
+UserId
 
-    CourseId
+CourseId
 
-    OrderId
+OrderId
 
-    PurchasedAt
+PurchasedAt
 
  ```
 
@@ -1564,16 +1508,14 @@ A successful payment for a course shall grant course access.
 The operation shall be idempotent.
 
 Repeated payment callbacks or repeated processing shall not create duplicate access records.
-
- ---
-
- # 30. Shopping Cart
+---
+## 30. Shopping Cart
 
 The shopping cart shall be stored in Redis.
 
 It shall not be persisted as the primary cart source in PostgreSQL.
 
- ## 29.1 Cart Item
+### 30.1. Cart Item
 
 Each cart item shall contain:
 
@@ -1591,7 +1533,7 @@ Because the product is a course entitlement, the business rule should normally l
 
 If the API receives a quantity greater than the allowed value, it shall reject or normalize it according to a single documented rule. The implementation shall use one consistent behavior.
 
- ## 29.2 Cart Key
+### 30.2. Cart Key
 
 The Redis key shall be associated with the authenticated user.
 
@@ -1605,7 +1547,7 @@ cart:{userId}
 
 Unauthenticated cart persistence is not required in this version unless explicitly added later.
 
- ## 29.3 Applied Coupon
+### 30.3. Applied Coupon
 
 A cart may contain at most one applied coupon.
 
@@ -1615,9 +1557,9 @@ In addition to its items, the cart stored in Redis shall carry an optional coupo
 
 cart:{userId}
 
-    Items      : CourseId, Quantity
+Items      : CourseId, Quantity
 
-    CouponCode : optional
+CouponCode : optional
 
  ```
 
@@ -1632,12 +1574,10 @@ The coupon code shall be removed from the cart when:
 If an applied coupon stops being eligible while it is still in the cart (for example it expires, its usage limit is reached, or the eligible subtotal falls below the minimum order amount after an item is removed), the server shall exclude its discount from all totals and shall inform the user that the coupon is no longer applicable. The cart shall never keep displaying a discount that is not valid.
 
 The eligibility and calculation rules are defined in section 95.
+---
+## 31. Orders
 
- ---
-
- # 31. Orders
-
- ## 30.1 Order
+### 31.1. Order
 
 Fields:
 
@@ -1663,7 +1603,7 @@ Fields:
 
  | CouponDiscountAmount | Required; 0 when no coupon is applied |
 
- ## 30.2 Order Item
+### 31.2. Order Item
 
 Fields:
 
@@ -1683,7 +1623,7 @@ Fields:
 
  | TotalPrice | Required |
 
- ## 30.3 Price Snapshot
+### 31.3. Price Snapshot
 
 The order shall store the effective unit price at the time the order is created.
 
@@ -1702,10 +1642,8 @@ The order shall store the coupon discount amount that was applied when the order
 The server shall calculate all monetary totals.
 
 Client-provided totals shall never be trusted.
-
- ---
-
- # 32. Order Status
+---
+## 32. Order Status
 
 The initial status enum shall contain:
 
@@ -1723,33 +1661,31 @@ Failed
 
 Status transitions shall be controlled by application business rules.
 
-An order shall not be marked  `Paid ` merely because a client reports success.
+An order shall not be marked  `Paid` merely because a client reports success.
 
- ## 32.1 Pending Order Expiration
+### 32.1. Pending Order Expiration
 
-A  `Pending ` order shall not remain pending indefinitely.
+A  `Pending` order shall not remain pending indefinitely.
 
-When an order is created as  `Pending `,  `ExpiresAt ` shall be set to the creation time plus the configured expiration period ( `PendingOrderExpirationMinutes `).
+When an order is created as  `Pending`,  `ExpiresAt` shall be set to the creation time plus the configured expiration period ( `PendingOrderExpirationMinutes`).
 
-A background job shall periodically process  `Pending ` orders whose  `ExpiresAt ` has passed. For each such order it shall:
+A background job shall periodically process  `Pending` orders whose  `ExpiresAt` has passed. For each such order it shall:
 
- - Set the order status to  `Cancelled `.
+ - Set the order status to  `Cancelled`.
 
- - Set its  `Pending ` payment record to  `Cancelled `.
+ - Set its  `Pending` payment record to  `Cancelled`.
 
  - Release the reserved coupon use exactly once (section 95).
 
-The transition out of  `Pending ` shall be a conditional, atomic update, so that expiration cannot race with a payment result that marks the same order  `Paid `. Whichever transition is applied first is final.
+The transition out of  `Pending` shall be a conditional, atomic update, so that expiration cannot race with a payment result that marks the same order  `Paid`. Whichever transition is applied first is final.
 
 The job shall be idempotent and safe when several application instances run it at the same time.
 
 If a successful payment result arrives for an order that has already been cancelled by expiration, the system shall not silently discard it, and it shall not automatically grant course access or issue an invoice. It shall record the payment result idempotently, log it as an error with correlation information, and make it identifiable in the Orders and Payments modules for administrative review.
 
 Order expiration shall be recorded with structured logs.
-
- ---
-
- # 33. Payment Methods
+---
+## 33. Payment Methods
 
 Payment methods shall be represented by an enum.
 
@@ -1761,11 +1697,11 @@ public enum PaymentMethod
 
 {
 
-    BankGateway,
+BankGateway,
 
-    ZarinPal,
+ZarinPal,
 
-    SnappPay
+SnappPay
 
 }
 
@@ -1774,10 +1710,8 @@ public enum PaymentMethod
 No real gateway implementation is required in version 1.
 
 The Application layer shall depend on an abstraction so that real providers can be implemented later without changing order business rules.
-
- ---
-
- # 34. Payment
+---
+## 34. Payment
 
 Payment fields:
 
@@ -1816,10 +1750,8 @@ Cancelled
  ```
 
 The payment amount shall correspond to the payable order amount.
-
- ---
-
- # 35. Payment Idempotency
+---
+## 35. Payment Idempotency
 
 Payment result processing shall be idempotent.
 
@@ -1834,10 +1766,8 @@ If the same payment result is received multiple times, the system shall not:
  - Charge the user multiple times in the application's state.
 
 A stable payment/provider reference shall be used where applicable.
-
- ---
-
- # 36. Invoice
+---
+## 36. Invoice
 
 A successful paid order shall have an invoice available from the user's profile.
 
@@ -1868,14 +1798,10 @@ Invoice information shall include:
 The invoice must preserve the financial snapshot of the completed purchase.
 
 The invoice discount shall include the coupon discount, and the coupon code and coupon discount amount shall be preserved as snapshot values. Later changes to the coupon shall not alter an issued invoice.
-
- ---
-
----
-
+------
 ## 37. Blog
 
-### 36.1 Blog Category
+### 37.1. Blog Category
 
 The platform shall support blog categories.
 
@@ -1903,7 +1829,7 @@ Blog category rules:
 - Deleting a blog category that is referenced by a blog post shall be prevented or handled explicitly; the implementation shall not silently orphan blog post–category relationships.
 - Blog categories follow the standard soft-delete and audit rules defined in sections 77 and 78.
 
-### 36.2 Blog Post Fields
+### 37.2. Blog Post Fields
 
 | Field | Requirement |
 |---|---|
@@ -1925,10 +1851,8 @@ The author shall reference a User.
 A blog post may belong to zero or one blog category.
 
 Only content marked for public display shall appear on the public website.
-
- ---
-
- # 38. General FAQ
+---
+## 38. General FAQ
 
 The platform shall support global FAQs.
 
@@ -1953,16 +1877,14 @@ Fields:
  | UpdatedAt | Required |
 
 Global FAQs are separate from Course FAQs.
-
- ---
-
- # 39. Site Settings
+---
+## 39. Site Settings
 
 The system shall provide dynamic site settings.
 
 Examples include:
 
- ## General
+### 39.1. General
 
  - Site title.
 
@@ -1972,7 +1894,7 @@ Examples include:
 
  - Site description.
 
- ## SEO
+### 39.2. SEO
 
  - Default meta title.
 
@@ -1984,7 +1906,7 @@ Examples include:
 
  - Other required SEO metadata.
 
- ## Contact
+### 39.3. Contact
 
  - Phone.
 
@@ -1992,19 +1914,17 @@ Examples include:
 
  - Address.
 
- ## Dynamic Content
+### 39.4. Dynamic Content
 
 Content that is explicitly required to be managed dynamically by the website shall be configurable through the Admin Panel.
 
 The implementation shall avoid hard-coding editable website content into controllers or views.
-
- ---
-
- # 40. Public Website
+---
+## 40. Public Website
 
 The public website shall be implemented with ASP.NET Core MVC.
 
- ## 39.1 Home Page
+### 40.1. Home Page
 
 The home page shall support existing requested course/content areas, including:
 
@@ -2018,7 +1938,7 @@ The home page shall support existing requested course/content areas, including:
 
  - Global FAQ where configured.
 
- ## 39.2 Course Listing
+### 40.2. Course Listing
 
 The course listing page shall display published courses.
 
@@ -2038,7 +1958,7 @@ At minimum it shall display:
 
  - Free/paid state.
 
-### 39.3 Course Details
+### 40.3 Course Details
 
 The course details page shall display:
 
@@ -2059,11 +1979,9 @@ The course details page shall display:
 - **Per-episode watch status for the current user (NotWatched / InProgress / Watched / Locked).**
 - **Course progress summary for the current user (e.g., X of Y episodes watched).**
 
- ## 39.4 Blog Listing
+### 40.4. Blog Listing
 
 The blog listing page shall display public blog posts.
-
-### 39.4 Blog Listing
 
 The blog listing page shall display public blog posts.
 
@@ -2078,7 +1996,7 @@ At minimum it shall display:
 - Category (if any).
 - Publication date.
 
-### 39.5 Blog Details
+### 40.5 Blog Details
 
 The article page shall display:
 
@@ -2090,7 +2008,7 @@ The article page shall display:
 - Image.
 - Publication/display state.
 
- ## 39.6 Authentication Pages
+### 40.6. Authentication Pages
 
 Login and registration may be combined into a unified authentication flow.
 
@@ -2102,7 +2020,7 @@ The authentication experience shall support:
 
  - Password recovery where a local password exists.
 
- ## 39.7 Forgot Password
+### 40.7. Forgot Password
 
 The system shall provide a password-recovery flow.
 
@@ -2115,44 +2033,42 @@ Password-reset tokens shall be:
  - Single use.
 
  - Invalidated after successful reset.
-
- ---
-
- # 41. User Profile
+---
+## 41. User Profile
 
 The profile area shall contain:
 
- ## 40.1 User Information
+### 41.1. User Information
 
 Display the user's current profile and account information.
 
- ## 40.2 Edit Information
+### 41.2. Edit Information
 
 Users may update allowed profile fields.
 
 Sensitive identity fields such as National Code may require additional validation or may be made non-editable after verification if such verification is introduced.
 
- ## 40.3 Change Password
+### 41.3. Change Password
 
 Authenticated users with a local password shall be able to change their password.
 
- ## 40.4 Favorite Courses
+### 41.4. Favorite Courses
 
 Display the user's favorite courses.
 
- ## 40.5 Purchased Courses
+### 41.5. Purchased Courses
 
 Display courses for which the user has access.
 
- ## 40.6 Payment History
+### 41.6. Payment History
 
 Display the user's payment history.
 
- ## 40.7 Invoices
+### 41.7. Invoices
 
 Users shall be able to view/download their invoices where supported by the presentation layer.
 
-## 40.8 Episode Progress
+### 41.8. Episode Progress
 
 The user profile area may display the user's watch progress across courses, including:
 
@@ -2161,10 +2077,8 @@ The user profile area may display the user's watch progress across courses, incl
 - Last watched episode and timestamp.
 
 Locked episodes shall be displayed as locked and shall not expose progress controls.
-
- ---
-
- # 42. Cart Page
+---
+## 42. Cart Page
 
 The cart page shall display:
 
@@ -2201,32 +2115,30 @@ Applying or removing a coupon shall immediately refresh the displayed totals usi
 Failure messages shall be limited to reasons the user can act on (for example, the minimum order amount is not reached). Every other failure (unknown, inactive, expired, not yet started, or exhausted code) shall use a generic message so that valid codes cannot be discovered by guessing.
 
 Coupon application attempts shall be rate limited.
-
- ---
-
- # 43. Checkout
+---
+## 43. Checkout
 
 Checkout shall contain exactly three conceptual stages.
 
  ```text
 
-1 . Information
+1. Information
 
         |
 
-        v
+v
 
-2 . Payment
+2. Payment
 
         |
 
-        v
+v
 
-3 . Payment Result
+3. Payment Result
 
  ```
 
- ## 42.1 Stage 1 — Information
+### 43.1. Stage 1 — Information
 
 The system shall validate required customer information.
 
@@ -2236,7 +2148,7 @@ The order summary shall show the subtotal, the applied coupon code (if any), the
 
 The user shall be able to apply, change, or remove a coupon in this stage under the same rules as the cart page. The coupon can be changed until the pending order is created in Stage 2.
 
- ## 42.2 Stage 2 — Payment
+### 43.2. Stage 2 — Payment
 
 The user shall select one of the supported payment-method enum values.
 
@@ -2258,7 +2170,7 @@ If the coupon is no longer valid when the order is created, no order and no paym
 
 Once the pending order exists, its coupon and amounts are fixed and shall not be changed.
 
- ## 42.3 Stage 3 — Payment Result
+### 43.3. Stage 3 — Payment Result
 
 The system shall display:
 
@@ -2276,19 +2188,19 @@ Payment Successful
 
         |
 
-        v
+v
 
 Order = Paid
 
         |
 
-        v
+v
 
 Grant Course Access
 
         |
 
-        v
+v
 
 Create/Finalize Invoice
 
@@ -2298,17 +2210,15 @@ The complete flow shall be transactionally consistent where database operations 
 
 The invoice created for a paid order shall preserve the coupon snapshot as defined in section 36.
 
-If the order becomes  `Failed ` or  `Cancelled `, the coupon use reserved for it shall be released exactly once. The cart, including its applied coupon, shall be preserved so the user can retry, and the coupon remains applied only if it is still eligible.
-
- ---
-
- # 44. Administration Panel
+If the order becomes  `Failed` or  `Cancelled`, the coupon use reserved for it shall be released exactly once. The cart, including its applied coupon, shall be preserved so the user can retry, and the coupon remains applied only if it is still eligible.
+---
+## 44. Administration Panel
 
 The administration panel shall be implemented using Razor Pages.
 
 All administrative operations shall be permission protected.
 
- ## 43.1 Required Admin Modules
+### 44.1. Required Admin Modules
 
 The panel shall provide management for:
 
@@ -2351,11 +2261,11 @@ The panel shall provide management for:
 
  - Site settings.
 
- ## 43.2 Coupon Management
+### 44.2. Coupon Management
 
-The Admin Panel shall provide coupon management protected by the  `coupon.view `,  `coupon.create `,  `coupon.edit `, and  `coupon.delete ` permissions.
+The Admin Panel shall provide coupon management protected by the  `coupon.view`,  `coupon.create`,  `coupon.edit`, and  `coupon.delete` permissions.
 
-The coupon list shall display the code, type, value, usage ( `UsedCount ` /  `UsageLimit `), start date, end date,  `IsActive `, and a derived status (Active, Scheduled, Expired, Exhausted, or Inactive). It shall support searching by code and filtering by status.
+The coupon list shall display the code, type, value, usage ( `UsedCount` /  `UsageLimit`), start date, end date,  `IsActive`, and a derived status (Active, Scheduled, Expired, Exhausted, or Inactive). It shall support searching by code and filtering by status.
 
 Coupon form fields:
 
@@ -2383,9 +2293,9 @@ Coupon form fields:
 
 Coupon management rules:
 
- -  `UsedCount ` shall never be edited manually.
+ -  `UsedCount` shall never be edited manually.
 
- -  `UsageLimit ` shall not be set lower than the current  `UsedCount `.
+ -  `UsageLimit` shall not be set lower than the current  `UsedCount`.
 
  - Editing, deactivating, or deleting a coupon shall not change existing orders or invoices (section 95).
 
@@ -2394,10 +2304,8 @@ Coupon management rules:
  - The order details in the Orders module shall display the coupon code and the coupon discount amount.
 
  - Audit fields shall be populated by the server and never supplied by the client.
-
- ---
-
- # 45. CRUD Requirements
+---
+## 45. CRUD Requirements
 
 Where an entity is defined as administratively manageable, the Admin Panel shall provide appropriate:
 
@@ -2426,36 +2334,32 @@ CRUD operations shall respect:
 Delete operations that could destroy important historical/financial data shall use an appropriate business rule rather than blindly issuing a hard delete.
 
 For example, paid orders and successful payments shall not be physically deleted through ordinary Admin CRUD.
-
- ---
-
- # 46. Error Handling
+---
+## 46. Error Handling
 
 The public website and administration panel shall support:
 
- ## 45.1 HTTP 400
+### 46.1. HTTP 400
 
 For invalid client/application input where appropriate.
 
- ## 45.2 HTTP 403
+### 46.2. HTTP 403
 
 Displayed when an authenticated user lacks the required permission.
 
- ## 45.3 HTTP 404
+### 46.3. HTTP 404
 
 Displayed when a requested resource does not exist or is not publicly accessible.
 
- ## 45.4 HTTP 500
+### 46.4. HTTP 500
 
 Displayed for unexpected server-side errors.
 
 Internal exception details, stack traces, database errors, and secrets shall never be displayed to end users.
 
 All unexpected errors shall be logged with appropriate correlation information.
-
- ---
-
- # 47. Observability
+---
+## 47. Observability
 
 The system shall provide:
 
@@ -2489,17 +2393,15 @@ Application
 
                             |
 
-                            v
+v
 
-                         Grafana
+Grafana
 
  ```
 
 Grafana shall provide unified dashboards for operational and business observability.
-
- ---
-
- # 48. Logging Requirements
+---
+## 48. Logging Requirements
 
 Logs shall be structured.
 
@@ -2542,10 +2444,8 @@ The system shall not log:
  - Full sensitive personal information.
 
 The Fake SMS service may log OTPs only in development/test environments.
-
- ---
-
- # 49. Distributed Tracing Requirements
+---
+## 49. Distributed Tracing Requirements
 
 OpenTelemetry shall instrument relevant application operations.
 
@@ -2564,14 +2464,12 @@ Traces should cover:
  - Payment operations.
 
 Trace identifiers shall be correlated with application logs.
-
- ---
-
- # 50. Metrics Requirements
+---
+## 50. Metrics Requirements
 
 The system shall expose application and business metrics.
 
- ## 49.1 Default/System Metrics
+### 50.1. Default/System Metrics
 
 At minimum:
 
@@ -2591,7 +2489,7 @@ At minimum:
 
  - Redis performance indicators where available.
 
- ## 49.2 Business Metrics
+### 50.2. Business Metrics
 
 The system shall expose:
 
@@ -2607,7 +2505,7 @@ The system shall expose:
 
  - Conversion rate where calculable.
 
- ## 49.3 Slow Operation Metrics
+### 50.3. Slow Operation Metrics
 
 The system shall make slow operations observable, including:
 
@@ -2618,14 +2516,12 @@ The system shall make slow operations observable, including:
  - Slow external service calls.
 
 Thresholds shall be configuration-driven.
-
- ---
-
- # 51. Grafana Dashboards
+---
+## 51. Grafana Dashboards
 
 At minimum, the project shall provide dashboards for:
 
- ## Application
+### 51.1. Application
 
  - Request rate.
 
@@ -2637,7 +2533,7 @@ At minimum, the project shall provide dashboards for:
 
  - HTTP 5xx.
 
- ## Business
+### 51.2. Business
 
  - Course views.
 
@@ -2649,7 +2545,7 @@ At minimum, the project shall provide dashboards for:
 
  - Conversion rate.
 
- ## Logs
+### 51.3. Logs
 
  - Error logs.
 
@@ -2657,7 +2553,7 @@ At minimum, the project shall provide dashboards for:
 
  - Application logs.
 
- ## Traces
+### 51.4. Traces
 
  - Slow requests.
 
@@ -2666,18 +2562,16 @@ At minimum, the project shall provide dashboards for:
  - Trace details.
 
 Prometheus shall act as the metrics backend, Loki as the log backend, and Tempo as the trace backend.
+---
+## 52. Security Requirements
 
- ---
-
- # 52. Security Requirements
-
- ## 51.1 Password Security
+### 52.1. Password Security
 
 Passwords shall be securely hashed using a modern password hashing mechanism.
 
 Plaintext passwords shall never be stored.
 
- ## 51.2 Authentication Security
+### 52.2. Authentication Security
 
 Authentication tokens/cookies shall:
 
@@ -2689,13 +2583,13 @@ Authentication tokens/cookies shall:
 
  - Support logout/invalidation according to the selected authentication mechanism.
 
- ## 51.3 Authorization
+### 52.3. Authorization
 
 All protected operations shall be authorized server-side.
 
 Hiding an Admin UI button shall never be considered sufficient authorization.
 
- ## 51.4 Input Validation
+### 52.4. Input Validation
 
 All external input shall be validated.
 
@@ -2713,11 +2607,11 @@ This includes:
 
  - OAuth responses.
 
- ## 51.5 HTML Content
+### 52.5. HTML Content
 
 HTML editor content shall be sanitized.
 
- ## 51.6 File Uploads
+### 52.6. File Uploads
 
 Attachments shall be validated by:
 
@@ -2732,10 +2626,8 @@ Attachments shall be validated by:
  - Storage rules.
 
 Uploaded files shall not automatically become executable content.
-
- ---
-
- # 53. Data Integrity
+---
+## 53. Data Integrity
 
 The database shall enforce appropriate constraints, including:
 
@@ -2750,10 +2642,8 @@ The database shall enforce appropriate constraints, including:
  - Valid enum representations where appropriate.
 
 Important business invariants shall be enforced in the Application/Domain layer and not rely solely on UI validation.
-
- ---
-
- # 54. Concurrency
+---
+## 54. Concurrency
 
 Operations that can be triggered simultaneously shall be designed to avoid inconsistent state.
 
@@ -2774,10 +2664,8 @@ Important examples:
  - Pending-order expiration racing with a payment result.
 
 Database unique constraints and application-level idempotency shall be used together where necessary.
-
- ---
-
- # 55. Caching
+---
+## 55. Caching
 
 Redis shall be used for:
 
@@ -2790,10 +2678,8 @@ Redis shall be used for:
 Cached data shall have an expiration policy.
 
 Critical persisted business data shall not exist only in Redis.
-
- ---
-
- # 56. Configuration
+---
+## 56. Configuration
 
 The following values shall be configuration-driven:
 
@@ -2828,20 +2714,16 @@ The following values shall be configuration-driven:
  - Coupon application rate limits.
 
 Secrets shall be supplied through secure environment/configuration mechanisms and shall not be committed to source control.
-
- ---
-
- # 57. Database Migration
+---
+## 57. Database Migration
 
 Entity Framework Core migrations shall be used.
 
 Database schema changes shall be reproducible from source control.
 
 Production database migration strategy shall not rely on manually editing the database.
-
- ---
-
- # 58. API/Application Boundary
+---
+## 58. API/Application Boundary
 
 Even though the public website and Admin Panel are MVC/Razor Pages applications, business operations shall be implemented in the Application layer.
 
@@ -2888,10 +2770,8 @@ ResetEpisodeProgressCommand
  ```
 
 Queries shall be separated from commands according to CQRS.
-
- ---
-
- # 59. Result Pattern
+---
+## 59. Result Pattern
 
 Application operations shall use a Result Pattern rather than using exceptions as the normal mechanism for expected business failures.
 
@@ -2916,10 +2796,8 @@ Expected failures may include:
  - Invalid payment state.
 
 Unexpected infrastructure/system failures shall still use exception handling and centralized error handling.
-
- ---
-
- # 60. CQRS and MediatR
+---
+## 60. CQRS and MediatR
 
 Commands shall modify state.
 
@@ -2938,34 +2816,30 @@ Cross-cutting concerns such as:
  - Transaction handling where appropriate.
 
 may be implemented through MediatR pipeline behaviors.
-
- ---
-
- # 61. Validation
+---
+## 61. Validation
 
 Validation shall exist at multiple levels:
 
- ### Presentation
+### 61.1. Presentation
 
 Basic input validation for user experience.
 
- ### Application
+### 61.2. Application
 
 Business validation and command validation.
 
- ### Domain
+### 61.3. Domain
 
 Invariants that must always hold.
 
- ### Database
+### 61.4. Database
 
 Final integrity constraints.
 
 No single layer shall be treated as the only source of validation.
-
- ---
-
- # 62. Public Access Rules
+---
+## 62. Public Access Rules
 
 The public website shall only expose content according to its state.
 
@@ -2975,25 +2849,23 @@ Examples:
 
 Course:
 
-    Published -> public
+Published -> public
 
-    Draft     -> not public
+Draft     -> not public
 
-    Hidden    -> not public
+Hidden    -> not public
 
 Blog:
 
-    Published/display-enabled -> public
+Published/display-enabled -> public
 
-    Otherwise                 -> not public
+Otherwise                 -> not public
 
  ```
 
 Paid course content shall require course ownership except for explicitly free episodes.
-
- ---
-
- ## 63. Course Access Rules
+---
+## 63. Course Access Rules
 
 A user may access a course if:
 
@@ -3021,18 +2893,16 @@ For each episode, the effective watch status for the current user shall be deriv
 
 ```text
 if user has no access to the episode:
-    status = Locked
+status = Locked
 else if UserEpisodeProgress exists:
-    status = persisted status (NotWatched / InProgress / Watched)
+status = persisted status (NotWatched / InProgress / Watched)
 else:
-    status = NotWatched
+status = NotWatched
 ```
 
 This computation shall be centralized in the Application layer and shall not be duplicated in controllers or views.
-
- ---
-
- # 64. Purchase Integrity
+---
+## 64. Purchase Integrity
 
 Before order creation, the application shall re-evaluate:
 
@@ -3055,18 +2925,14 @@ Before order creation, the application shall re-evaluate:
  - Coupon validity, when a coupon is applied.
 
 The server shall never trust price, discount, or coupon amounts received from the browser.
-
- ---
-
- # 65. Existing Ownership
+---
+## 65. Existing Ownership
 
 If a user already owns a course, the system shall not create a second course entitlement for the same user/course pair.
 
 The cart/checkout flow should prevent unnecessary repurchase of already-owned courses.
-
- ---
-
- # 66. Auditability
+---
+## 66. Auditability
 
 At minimum, entities should retain:
 
@@ -3089,10 +2955,8 @@ Financial and authorization operations should produce structured logs sufficient
  - What request/trace initiated it.
 
 Sensitive data must not be logged.
-
- ---
-
- # 67. Suggested Project Structure
+---
+## 67. Suggested Project Structure
 
  ```text
 
@@ -3182,17 +3046,15 @@ src/
 
 └── Project.Admin/
 
-    ├── Pages/
+├── Pages/
 
-    ├── ViewModels/
+├── ViewModels/
 
-    └── Middleware/
+└── Middleware/
 
  ```
-
- ---
-
- # 68. Required Initial System Data
+---
+## 68. Required Initial System Data
 
 The application shall seed the minimum data required for first operation.
 
@@ -3207,12 +3069,10 @@ This may include:
  - Required system settings.
 
 Seeded roles remain dynamic database records and must not be replaced by hard-coded role-name authorization.
+---
+## 69. Non-Functional Requirements
 
- ---
-
- # 69. Non-Functional Requirements
-
- ## 68.1 Performance
+### 69.1. Performance
 
 The application shall:
 
@@ -3228,7 +3088,7 @@ The application shall:
 
  - Monitor slow HTTP requests.
 
- ## 68.2 Scalability
+### 69.2. Scalability
 
 The application should remain stateless at the web-server layer as much as practical.
 
@@ -3236,7 +3096,7 @@ Session/cart state shall not depend on local server memory.
 
 Redis shall be used for shared temporary state.
 
- ## 68.3 Maintainability
+### 69.3. Maintainability
 
 The codebase shall:
 
@@ -3250,13 +3110,13 @@ The codebase shall:
 
  - Avoid duplicated business logic.
 
- ## 68.4 Reliability
+### 69.4. Reliability
 
 Critical operations shall be idempotent where repeated requests are possible.
 
 Payment processing is specifically required to be idempotent.
 
- ## 68.5 Security
+### 69.5. Security
 
 The application shall follow secure defaults for:
 
@@ -3275,14 +3135,12 @@ The application shall follow secure defaults for:
  - Logging.
 
  - Input validation.
-
- ---
-
- # 70. Testing Requirements
+---
+## 70. Testing Requirements
 
 The project should contain:
 
- ## Unit Tests
+## Unit Tests
 
 For:
 
@@ -3300,7 +3158,7 @@ For:
 
  - Payment-state transitions.
 
- ## Integration Tests
+## Integration Tests
 
 For:
 
@@ -3316,7 +3174,7 @@ For:
 
  - Payment-result processing.
 
- ## End-to-End Tests
+## End-to-End Tests
 
 For critical flows:
 
@@ -3324,201 +3182,195 @@ For critical flows:
 
 Registration/Login
 
-       ↓
+↓
 
 Browse Course
 
-       ↓
+↓
 
 Add to Cart
 
-       ↓
+↓
 
 Checkout
 
-       ↓
+↓
 
 Payment
 
-       ↓
+↓
 
 Course Access
 
-       ↓
+↓
 
 Invoice
 
  ```
+---
+## 71. Acceptance Criteria — Core Flows
 
- ---
-
- # 71. Acceptance Criteria — Core Flows
-
- ## 70.1 Course Purchase
+### 71.1. Course Purchase
 
 The following must be true:
 
-1 . A user can browse published courses.
+1. A user can browse published courses.
 
-2 . A paid course can be added to the Redis cart.
+2. A paid course can be added to the Redis cart.
 
-3 . Checkout requires a phone number.
+3. Checkout requires a phone number.
 
-4 . The server calculates the order price.
+4. The server calculates the order price.
 
-5 . An order is created.
+5. An order is created.
 
-6 . A payment record is created.
+6. A payment record is created.
 
-7 . A successful payment changes the order to  `Paid `.
+7. A successful payment changes the order to  `Paid`.
 
-8 . The user receives course access.
+8. The user receives course access.
 
-9 . An invoice becomes available.
+9. An invoice becomes available.
 
-10 . Reprocessing the same payment result does not duplicate access or invoice state.
+10. Reprocessing the same payment result does not duplicate access or invoice state.
 
- ## 70.2 Dynamic Roles
-
-The following must be true:
-
-1 . An authorized administrator can create a role.
-
-2 . The administrator can edit the role.
-
-3 . The administrator can assign permissions.
-
-4 . The administrator can assign the role to users.
-
-5 . The user receives the role's permissions.
-
-6 . Authorization is based on permission keys.
-
-7 . The administrator can remove the role when it is not protected as a system role.
-
- ## 70.3 Course Structure
+### 71.2. Dynamic Roles
 
 The following must be true:
 
-1 . A course can contain multiple sections.
+1. An authorized administrator can create a role.
 
-2 . A section can contain multiple episodes.
+2. The administrator can edit the role.
 
-3 . Sections are ordered.
+3. The administrator can assign permissions.
 
-4 . Episodes are ordered.
+4. The administrator can assign the role to users.
 
-5 . Episode duration is available.
+5. The user receives the role's permissions.
 
-6 . A paid course can contain multiple free episodes.
+6. Authorization is based on permission keys.
 
-7 . Non-free episodes require course ownership.
+7. The administrator can remove the role when it is not protected as a system role.
 
- ## 70.4 Coupon Checkout
+### 71.3. Course Structure
 
 The following must be true:
 
-1 . A coupon code can be applied to a cart that contains paid courses.
+1. A course can contain multiple sections.
 
-2 . The server calculates the coupon discount and the payable total; client-supplied amounts are ignored.
+2. A section can contain multiple episodes.
 
-3 . An unknown, inactive, expired, not-yet-started, exhausted, or below-minimum code is rejected with a message.
+3. Sections are ordered.
 
-4 . The user can remove an applied coupon from the cart.
+4. Episodes are ordered.
 
-5 . The coupon is re-validated at order creation, and an invalid coupon prevents order creation.
+5. Episode duration is available.
 
-6 . The order stores the coupon reference and the coupon discount snapshot, and the payment amount equals the payable total.
+6. A paid course can contain multiple free episodes.
 
-7 . Concurrent checkouts cannot push  `UsedCount ` above  `UsageLimit `.
+7. Non-free episodes require course ownership.
 
-8 . A  `Failed ` or  `Cancelled ` order releases its reserved coupon use exactly once.
+### 71.4. Coupon Checkout
 
-9 . The invoice of a paid order shows the coupon code and coupon discount.
+The following must be true:
 
-10 . Reprocessing the same payment result does not change  `UsedCount `.
+1. A coupon code can be applied to a cart that contains paid courses.
 
-11 . A  `Pending ` order that passes its expiration is cancelled and its reserved coupon use is released.
+2. The server calculates the coupon discount and the payable total; client-supplied amounts are ignored.
 
-12 . A successful payment result that arrives after expiration is recorded and flagged for review, and does not grant access automatically.
+3. An unknown, inactive, expired, not-yet-started, exhausted, or below-minimum code is rejected with a message.
 
-13 . An administrator can create, edit, deactivate, and soft-delete coupons, and cannot set an invalid value or a usage limit below the current usage.
+4. The user can remove an applied coupon from the cart.
 
- ---
+5. The coupon is re-validated at order creation, and an invalid coupon prevents order creation.
 
- # 72. Explicit Business Rules Summary
+6. The order stores the coupon reference and the coupon discount snapshot, and the payment amount equals the payable total.
+
+7. Concurrent checkouts cannot push  `UsedCount` above  `UsageLimit`.
+
+8. A  `Failed` or  `Cancelled` order releases its reserved coupon use exactly once.
+
+9. The invoice of a paid order shows the coupon code and coupon discount.
+
+10. Reprocessing the same payment result does not change  `UsedCount`.
+
+11. A  `Pending` order that passes its expiration is cancelled and its reserved coupon use is released.
+
+12. A successful payment result that arrives after expiration is recorded and flagged for review, and does not grant access automatically.
+
+13. An administrator can create, edit, deactivate, and soft-delete coupons, and cannot set an invalid value or a usage limit below the current usage.
+---
+## 72. Explicit Business Rules Summary
 
 The following rules are mandatory:
 
-1 . Category hierarchy cannot exceed three levels.
+1. Category hierarchy cannot exceed three levels.
 
-2 . Course slugs are unique.
+2. Course slugs are unique.
 
-3 . Blog slugs are unique.
+3. Blog slugs are unique.
 
-4 . Phone numbers are unique when present.
+4. Phone numbers are unique when present.
 
-5 . Emails are unique when present.
+5. Emails are unique when present.
 
-6 . Passwords are never stored in plaintext.
+6. Passwords are never stored in plaintext.
 
-7 . Roles are dynamic.
+7. Roles are dynamic.
 
-8 . Permissions are dynamic.
+8. Permissions are dynamic.
 
-9 . Roles receive permissions.
+9. Roles receive permissions.
 
-10 . Authorization uses permissions rather than hard-coded role names.
+10. Authorization uses permissions rather than hard-coded role names.
 
-11 . System roles/permissions are protected from destructive changes.
+11. System roles/permissions are protected from destructive changes.
 
-12 . Shopping carts are stored in Redis.
+12. Shopping carts are stored in Redis.
 
-13 . Order prices are snapshotted.
+13. Order prices are snapshotted.
 
-14 . Payment processing is idempotent.
+14. Payment processing is idempotent.
 
-15 . Successful payment grants course access.
+15. Successful payment grants course access.
 
-16 . Free episodes of paid courses can be viewed without purchasing the complete course.
+16. Free episodes of paid courses can be viewed without purchasing the complete course.
 
-17 . Paid non-free episodes require course ownership.
+17. Paid non-free episodes require course ownership.
 
-18 . Users authenticated through Google must provide a phone number before payment.
+18. Users authenticated through Google must provide a phone number before payment.
 
-19 . Real SMS provider integration is not required.
+19. Real SMS provider integration is not required.
 
-20 . Real payment-provider integration is not required.
+20. Real payment-provider integration is not required.
 
-21 . Course attachments have count and size limits.
+21. Course attachments have count and size limits.
 
-22 . Attachment restrictions are configuration-driven.
+22. Attachment restrictions are configuration-driven.
 
-23 . Public content must respect its display status.
+23. Public content must respect its display status.
 
-24 . Admin operations must be permission-protected.
+24. Admin operations must be permission-protected.
 
-25 . Unexpected server errors must be logged and must not expose sensitive details.
+25. Unexpected server errors must be logged and must not expose sensitive details.
 
-26 . Logs, traces, and metrics must be available through the observability stack.
+26. Logs, traces, and metrics must be available through the observability stack.
 
-27 . Grafana must provide unified observability dashboards.
+27. Grafana must provide unified observability dashboards.
 
-28 . Repository and Unit of Work abstractions must be used for persistence access.
+28. Repository and Unit of Work abstractions must be used for persistence access.
 
-29 . Controllers and Razor Pages must not directly access EF Core  `DbContext `.
+29. Controllers and Razor Pages must not directly access EF Core  `DbContext`.
 
-30 . Business logic belongs in the Application/Domain layers.
+30. Business logic belongs in the Application/Domain layers.
 
 35. Episode watch status is per-user and shall not be stored on the Episode entity.
 36. Each (User, Episode) pair shall have at most one UserEpisodeProgress record.
 37. Locked status is derived from access rules, not stored as a user preference.
 38. Status transitions shall follow the documented state machine and shall not regress from Watched.
 39. The presentation layer shall only receive the current user's episode status.
-
- ---
-
- # 73. Final Technology Stack
+---
+## 73. Final Technology Stack
 
  | Area | Technology |
 
@@ -3563,10 +3415,8 @@ The following rules are mandatory:
  | Metrics Backend | Prometheus |
 
  | Dashboards | Grafana |
-
- ---
-
- # 74. Implementation Principles
+---
+## 74. Implementation Principles
 
 The implementation shall follow these principles:
 
@@ -3590,7 +3440,7 @@ The implementation shall follow these principles:
 
  - Do not duplicate business rules between MVC, Razor Pages, and Application services.
 
- - Do not expose  `DbContext ` outside Infrastructure.
+ - Do not expose  `DbContext` outside Infrastructure.
 
  - Do not use a generic repository solely for the sake of having a repository.
 
@@ -3603,42 +3453,38 @@ The implementation shall follow these principles:
  - Keep configuration and secrets outside source code.
 
  - Prefer explicit domain/application rules over implicit behavior.
-
- ---
-
- # 75. Definition of Done
+---
+## 75. Definition of Done
 
 A feature is considered complete when:
 
-1 . Its Domain model is implemented where required.
+1. Its Domain model is implemented where required.
 
-2 . Its Application command/query is implemented.
+2. Its Application command/query is implemented.
 
-3 . Validation is implemented.
+3. Validation is implemented.
 
-4 . Authorization is implemented where required.
+4. Authorization is implemented where required.
 
-5 . Persistence is implemented through the repository/unit-of-work boundary.
+5. Persistence is implemented through the repository/unit-of-work boundary.
 
-6 . Required database constraints exist.
+6. Required database constraints exist.
 
-7 . The Public Website or Admin Panel UI is implemented as applicable.
+7. The Public Website or Admin Panel UI is implemented as applicable.
 
-8 . Error handling is implemented.
+8. Error handling is implemented.
 
-9 . Relevant logs and telemetry exist.
+9. Relevant logs and telemetry exist.
 
-10 . Automated tests cover important business rules.
+10. Automated tests cover important business rules.
 
-11 . The feature does not bypass architectural boundaries.
+11. The feature does not bypass architectural boundaries.
 
-12 . No sensitive information is exposed through logs or UI.
+12. No sensitive information is exposed through logs or UI.
 
-13 . The feature follows the business rules defined in this document.
-
- ---
-
- # 76. Conclusion
+13. The feature follows the business rules defined in this document.
+---
+## 76. Conclusion
 
 This SRS defines the first implementation scope of the online course platform.
 
@@ -3688,13 +3534,13 @@ Grafana
 
 The system must remain extensible without introducing unnecessary features outside the defined scope. Dynamic roles and permissions are a core requirement, while payment and SMS providers are intentionally abstracted so real integrations can be added later without changing the core business model.
 
-# 77. Data Deletion Strategy
+## 77. Data Deletion Strategy
 
 The application shall use **Soft Delete by default**.
 
 Physical deletion shall not be used for normal application entities unless there is a specific technical or business requirement that explicitly requires permanent deletion.
 
-## 77.1 Soft Delete Fields
+### 77.1. Soft Delete Fields
 
 Entities that support deletion shall contain:
 
@@ -3723,7 +3569,7 @@ DeletedAt
 DeletedBy
 ```
 
-## 77.2 Default Query Behavior
+### 77.2. Default Query Behavior
 
 Soft-deleted entities shall not be returned by normal application queries.
 
@@ -3731,7 +3577,7 @@ The Infrastructure layer should implement this behavior through EF Core global q
 
 A query that explicitly needs deleted records must opt into that behavior explicitly.
 
-## 77.3 Permanent Deletion
+### 77.3. Permanent Deletion
 
 Hard deletion is permitted only for entities where permanent deletion is explicitly justified.
 
@@ -3742,10 +3588,8 @@ Examples may include:
 * Data that is explicitly required to be permanently removed by a documented business/privacy rule.
 
 Financial records such as successful payments, paid orders, and issued invoices shall not be physically deleted through ordinary administrative operations.
-
 ---
-
-# 78. Audit Fields
+## 78. Audit Fields
 
 The application shall maintain creation and modification audit information.
 
@@ -3766,27 +3610,25 @@ DeletedBy
 IsDeleted
 ```
 
-## 78.1 CreatedBy
+### 78.1. CreatedBy
 
 `CreatedBy` shall reference the User responsible for creating the record where the operation is performed by an authenticated user.
 
 For system-generated records, a documented system identity or nullable value may be used.
 
-## 78.2 UpdatedBy
+### 78.2. UpdatedBy
 
 `UpdatedBy` shall reference the User responsible for the latest modification.
 
-## 78.3 DeletedBy
+### 78.3. DeletedBy
 
 `DeletedBy` shall reference the User who performed the soft-delete operation.
 
 The application shall not trust client-provided values for these fields.
 
 Audit information shall be populated by the server/Application/Infrastructure layer.
-
 ---
-
-# 79. Repository Architecture
+## 79. Repository Architecture
 
 The repository architecture shall explicitly separate **read** and **write** responsibilities.
 
@@ -3794,21 +3636,21 @@ A single generic repository shall not be used.
 
 The application shall use explicit repositories designed around actual business requirements.
 
-## 79.1 Write Repositories
+### 79.1. Write Repositories
 
 Write repositories shall be responsible for operations that modify application state.
 
 Examples:
 
 ```text
-ICourseWriteRepository
-ICategoryWriteRepository
-IUserWriteRepository
-IRoleWriteRepository
-IPermissionWriteRepository
-IOrderWriteRepository
-IPaymentWriteRepository
-IInvoiceWriteRepository
+ICourseCommandRepository
+ICategoryCommandRepository
+IUserCommandRepository
+IRoleCommandRepository
+IPermissionCommandRepository
+IOrderCommandRepository
+IPaymentCommandRepository
+IInvoiceCommandRepository
 ```
 
 Write repositories shall use **Entity Framework Core**.
@@ -3822,21 +3664,21 @@ EF Core shall be responsible for:
 * Change tracking where required.
 * Transactional persistence.
 
-## 79.2 Read Repositories
+### 79.2. Read Repositories
 
 Read repositories shall be responsible for retrieving data.
 
 Examples:
 
 ```text
-ICourseReadRepository
-ICategoryReadRepository
-IUserReadRepository
-IRoleReadRepository
-IPermissionReadRepository
-IOrderReadRepository
-IPaymentReadRepository
-IInvoiceReadRepository
+ICourseQueryRepository
+ICategoryQueryRepository
+IUserQueryRepository
+IRoleQueryRepository
+IPermissionQueryRepository
+IOrderQueryRepository
+IPaymentQueryRepository
+IInvoiceQueryRepository
 ```
 
 Read repositories shall use **Dapper**.
@@ -3845,7 +3687,7 @@ Dapper shall be preferred for read-oriented queries where direct SQL projection 
 
 Read repositories should return application-specific DTOs/read models rather than exposing EF Core entities unnecessarily.
 
-## 79.3 No Generic Repository
+### 79.3. No Generic Repository
 
 The application shall not implement a generic repository such as:
 
@@ -3862,9 +3704,9 @@ For example:
 ```csharp
 public interface ICourseReadRepository
 {
-    Task<CourseDetailsDto?> GetDetailsAsync(
-        Guid courseId,
-        CancellationToken cancellationToken);
+Task<CourseDetailsDto?> GetDetailsAsync(
+Guid courseId,
+CancellationToken cancellationToken);
 }
 ```
 
@@ -3873,41 +3715,39 @@ and:
 ```csharp
 public interface ICourseWriteRepository
 {
-    Task AddAsync(
-        Course course,
-        CancellationToken cancellationToken);
+Task AddAsync(
+Course course,
+CancellationToken cancellationToken);
 
-    Task<Course?> GetForUpdateAsync(
-        Guid courseId,
-        CancellationToken cancellationToken);
+Task<Course?> GetForUpdateAsync(
+Guid courseId,
+CancellationToken cancellationToken);
 }
 ```
 
 The repository abstraction shall represent meaningful application operations rather than merely wrapping database APIs.
-
 ---
-
-# 80. Read/Write Persistence Rules
+## 80. Read/Write Persistence Rules
 
 The persistence implementation shall follow these rules:
 
 ```text
-                    Application
+Application
                          |
               +----------+----------+
               |                     |
-              v                     v
-       Read Repositories     Write Repositories
+v                     v
+Read Repositories     Write Repositories
               |                     |
-              v                     v
-           Dapper                EF Core
+v                     v
+Dapper                EF Core
               |                     |
               +----------+----------+
                          |
-                     PostgreSQL
+PostgreSQL
 ```
 
-## 80.1 Read Operations
+### 80.1. Read Operations
 
 Queries shall:
 
@@ -3917,7 +3757,7 @@ Queries shall:
 * Avoid loading complete aggregate graphs when only a projection is required.
 * Support pagination for large result sets.
 
-## 80.2 Write Operations
+### 80.2. Write Operations
 
 Commands shall:
 
@@ -3926,15 +3766,13 @@ Commands shall:
 * Use Unit of Work where multiple changes must be persisted consistently.
 * Use transactions where atomicity is required.
 
-## 80.3 DbContext Boundary
+### 80.3. DbContext Boundary
 
 `DbContext` shall remain an Infrastructure implementation detail.
 
 Controllers, Razor Pages, and Application handlers shall not directly access `DbContext`.
-
 ---
-
-# 81. Product Pricing Model
+## 81. Product Pricing Model
 
 Where the domain contains a `Product` concept, the pricing model shall be changed.
 
@@ -3950,7 +3788,7 @@ shall represent a free product.
 
 A non-null price represents a paid product.
 
-## 81.1 Product Fields
+### 81.1. Product Fields
 
 The model shall use:
 
@@ -3964,27 +3802,25 @@ instead of requiring:
 public bool IsFree { get; set; }
 ```
 
-## 81.2 IsFree Property
+### 81.2. IsFree Property
 
 The domain model may expose:
 
 ```csharp
 public bool IsFree => Price is null;
-```
-
-`IsFree` is a derived domain property and shall not be persisted in the database.
+````IsFree` is a derived domain property and shall not be persisted in the database.
 
 Conceptually:
 
 ```text
 Price = null
-    => IsFree = true
+=> IsFree = true
 
 Price > 0
-    => IsFree = false
+=> IsFree = false
 ```
 
-## 81.3 Pricing Rules
+### 81.3. Pricing Rules
 
 A product with:
 
@@ -4004,7 +3840,7 @@ is paid.
 
 Zero-priced paid products shall not be used to represent free products unless a separate documented business requirement explicitly introduces such a state.
 
-## 81.4 Course Application
+### 81.4. Course Application
 
 Because `Course` currently represents the purchasable educational product, the same pricing rule shall apply to Course unless a separate Product aggregate is introduced.
 
@@ -4026,23 +3862,21 @@ The access rule becomes:
 
 ```text
 Course.Price == null
-    => Course is free
+=> Course is free
 
 Course.Price != null
-    => Course is paid
+=> Course is paid
 ```
 
 The same rule shall be applied to episode-level free-preview behavior where applicable.
-
 ---
-
-# 82. Cookie-Based Authentication
+## 82. Cookie-Based Authentication
 
 Authentication shall be **cookie-based**.
 
 The application shall not use JWT bearer tokens as the primary browser authentication mechanism.
 
-## 82.1 Authentication Mechanism
+### 82.1. Authentication Mechanism
 
 After successful authentication, the server shall issue an authentication cookie.
 
@@ -4053,17 +3887,17 @@ Conceptually:
 ```text
 Login / OTP Verification
         |
-        v
+v
 Server validates identity
         |
-        v
+v
 Authentication Cookie
         |
-        v
+v
 Authenticated Browser Requests
 ```
 
-## 82.2 Cookie Security
+### 82.2. Cookie Security
 
 Authentication cookies shall use secure production settings, including where applicable:
 
@@ -4075,7 +3909,7 @@ SameSite = appropriate restrictive value
 
 The exact SameSite behavior shall be selected according to the application's authentication and external-login requirements.
 
-## 82.3 Authentication State
+### 82.3. Authentication State
 
 The authenticated user identity shall be represented by claims inside the authentication cookie.
 
@@ -4083,21 +3917,19 @@ The cookie shall not contain sensitive information unnecessarily.
 
 Passwords, OTPs, payment secrets, and other sensitive values shall never be stored inside authentication cookies.
 
-## 82.4 Logout
+### 82.4. Logout
 
 Logout shall invalidate the authenticated session/cookie according to the configured cookie authentication mechanism.
 
-## 82.5 Google Authentication
+### 82.5. Google Authentication
 
 Google authentication shall still use the appropriate external OAuth/OpenID Connect flow.
 
 After successful external authentication, the application shall establish its own local cookie-based authenticated session.
 
 Google access/identity tokens shall not be used as the application's normal browser authentication mechanism.
-
 ---
-
-# 83. SMS Gateway Simulation Service
+## 83. SMS Gateway Simulation Service
 
 The fake SMS functionality shall be implemented as a **separate API project** alongside the main Whyland application.
 
@@ -4105,7 +3937,7 @@ It shall simulate the behavior of a real SMS provider API.
 
 The purpose is to allow the main application to communicate with an SMS API through a realistic HTTP boundary without requiring a real SMS provider.
 
-## 83.1 Project Structure
+### 83.1. Project Structure
 
 The solution shall contain a separate project, for example:
 
@@ -4119,13 +3951,11 @@ src/
 ├── Project.Admin/
 │
 └── Project.Sms/
-```
-
-`Project.Sms` shall be an independent ASP.NET Core Web API application.
+````Project.Sms` shall be an independent ASP.NET Core Web API application.
 
 It shall not contain Whyland business logic.
 
-## 83.2 SMS API
+### 83.2. SMS API
 
 The API shall expose endpoints similar to the interface normally provided by an SMS panel/provider.
 
@@ -4139,8 +3969,8 @@ The request shall contain information equivalent to:
 
 ```json
 {
-  "to": "09120000000",
-  "message": "Your verification code is 123456"
+"to": "09120000000",
+"message": "Your verification code is 123456"
 }
 ```
 
@@ -4148,24 +3978,24 @@ The response shall contain a provider-like result:
 
 ```json
 {
-  "success": true,
-  "messageId": "..."
+"success": true,
+"messageId": "..."
 }
 ```
 
 The exact request/response contract shall be documented and versioned.
 
-## 83.3 Provider-Oriented Design
+### 83.3. Provider-Oriented Design
 
 The Whyland application shall communicate with an abstraction such as:
 
 ```csharp
 public interface ISmsService
 {
-    Task<SendSmsResult> SendAsync(
-        string phoneNumber,
-        string message,
-        CancellationToken cancellationToken);
+Task<SendSmsResult> SendAsync(
+string phoneNumber,
+string message,
+CancellationToken cancellationToken);
 }
 ```
 
@@ -4176,22 +4006,22 @@ Therefore:
 ```text
 Whyland Application
         |
-        v
+v
 ISmsService
         |
-        v
+v
 HTTP Client
         |
-        v
+v
 Project.Sms API
         |
-        v
+v
 In-Memory Storage
 ```
 
 This keeps the main application independent from the fake provider implementation.
 
-## 83.4 In-Memory Database
+### 83.4. In-Memory Database
 
 The SMS API shall use an in-memory data store for the first implementation.
 
@@ -4212,7 +4042,7 @@ Persistence to PostgreSQL is not required for the SMS simulation service.
 
 The service shall be restartable without requiring database migrations.
 
-## 83.5 SMS Dashboard
+### 83.5. SMS Dashboard
 
 The SMS service shall provide a simple HTML-based administration/dashboard page.
 
@@ -4240,7 +4070,7 @@ Message ID | Recipient | Message | Status | Date
 
 The dashboard is intended for development/testing and does not need to be a production-grade administration system.
 
-## 83.6 SMS Dashboard Requirements
+### 83.6. SMS Dashboard Requirements
 
 The dashboard shall support:
 
@@ -4253,7 +4083,7 @@ The dashboard shall support:
 
 The dashboard may use Razor Pages or MVC.
 
-## 83.7 Real Provider Replacement
+### 83.7. Real Provider Replacement
 
 The fake SMS service shall be replaceable by a real provider implementation without changing Application-layer business logic.
 
@@ -4266,10 +4096,8 @@ OtherProviderSmsService
 ```
 
 The provider-specific HTTP contract shall remain outside the Domain layer.
-
 ---
-
-# 84. SMS API Documentation and Compatibility
+## 84. SMS API Documentation and Compatibility
 
 The SMS simulator API shall be designed after reviewing the public API model of an existing SMS provider.
 
@@ -4290,10 +4118,8 @@ The simulator shall not unnecessarily copy a provider's private implementation.
 Its purpose is to reproduce the integration pattern expected by a real SMS provider.
 
 The selected provider documentation shall be kept as an external reference for implementation.
-
 ---
-
-# 85. Invoice Generation and Reporting
+## 85. Invoice Generation and Reporting
 
 The invoice generation implementation shall be evaluated separately from the financial domain model.
 
@@ -4308,24 +4134,24 @@ Architecture:
 ```text
 Order / Payment
       |
-      v
+v
 Invoice Domain Model
       |
-      v
+v
 Invoice Application Service
       |
-      v
+v
 Invoice Report Generator
       |
-      v
+v
 PDF / Printable Invoice
 ```
 
-## 85.1 Candidate Libraries
+### 85.1. Candidate Libraries
 
 The following .NET reporting/PDF technologies were reviewed:
 
-### Stimulsoft Reports
+#### 85.1.1. Stimulsoft Reports
 
 Stimulsoft Reports.WEB supports ASP.NET, ASP.NET Core, MVC, Razor Pages and browser-based report design/viewing. Its documentation also explicitly covers invoice reports and exporting reports to PDF.
 
@@ -4335,7 +4161,7 @@ It can also expose rendered reports through a web API endpoint, which is relevan
 
 Stimulsoft additionally documents support for electronic-invoice-related formats such as ZUGFeRD and Factur-X.
 
-### QuestPDF
+#### 85.1.2. QuestPDF
 
 QuestPDF is a C# PDF-generation library with a component-based layout system.
 
@@ -4343,11 +4169,11 @@ Its official documentation provides a dedicated invoice tutorial and recommends 
 
 It can generate PDFs directly to files, byte arrays, or streams.
 
-### FastReport .NET
+#### 85.1.3. FastReport .NET
 
 FastReport .NET provides reporting functionality and PDF export capabilities. Its official documentation includes a PDF export API and comprehensive .NET reporting documentation.
 
-## 85.2 Selection Criteria
+### 85.2. Selection Criteria
 
 The invoice/reporting solution shall be evaluated against:
 
@@ -4371,7 +4197,7 @@ The invoice/reporting solution shall be evaluated against:
 | Deployment complexity     | Should be low                          |
 | Licensing                 | Must be reviewed before final adoption |
 
-## 85.3 Recommended Evaluation
+### 85.3. Recommended Evaluation
 
 The current preferred candidate is:
 
@@ -4393,16 +4219,16 @@ However, the final library selection shall be made after reviewing:
 
 QuestPDF shall remain a strong alternative when the team prefers a code-first PDF generation model rather than a visual report designer. Its official invoice tutorial makes it particularly relevant to this use case.
 
-## 85.4 Invoice Rendering Boundary
+### 85.4. Invoice Rendering Boundary
 
 The application shall define an abstraction such as:
 
 ```csharp
 public interface IInvoiceRenderer
 {
-    Task<byte[]> RenderPdfAsync(
-        InvoiceDocument document,
-        CancellationToken cancellationToken);
+Task<byte[]> RenderPdfAsync(
+InvoiceDocument document,
+CancellationToken cancellationToken);
 }
 ```
 
@@ -4419,10 +4245,8 @@ IInvoiceRenderer
 ```
 
 The implementation can later be replaced without modifying the Invoice domain model.
-
 ---
-
-# 86. Invoice Data Model
+## 86. Invoice Data Model
 
 The invoice shall preserve the financial snapshot at the time it is issued.
 
@@ -4458,18 +4282,16 @@ For example:
 
 ```text
 InvoiceItem
-    Product/Course Name
-    Quantity
-    UnitPrice
-    Discount
-    TotalPrice
+Product/Course Name
+Quantity
+UnitPrice
+Discount
+TotalPrice
 ```
 
 Changes to the Course price after invoice issuance shall not change the invoice.
-
 ---
-
-# 87. Invoice Immutability
+## 87. Invoice Immutability
 
 Once an invoice has been finalized/issued, its financial contents shall not be modified through ordinary CRUD operations.
 
@@ -4482,31 +4304,29 @@ The system shall not silently overwrite historical invoice information when:
 * Discounts change.
 * Product names change.
 * Payment information changes.
-
 ---
-
-# 88. Updated Repository and Architecture Summary
+## 88. Updated Repository and Architecture Summary
 
 The final persistence architecture shall therefore be:
 
 ```text
-                 Presentation
-              MVC / Razor Pages
+Presentation
+MVC / Razor Pages
                        |
-                       v
-                 Application
-              CQRS / MediatR
+v
+Application
+CQRS / MediatR
                        |
               +--------+--------+
               |                 |
-              v                 v
-       Read Repositories   Write Repositories
+v                 v
+Read Repositories   Write Repositories
               |                 |
-            Dapper            EF Core
+Dapper            EF Core
               |                 |
               +--------+--------+
                        |
-                   PostgreSQL
+PostgreSQL
 ```
 
 Redis remains responsible for temporary/shared application state such as:
@@ -4522,14 +4342,12 @@ The SMS simulator is an independent application:
 ```text
 Project.Sms
      |
- In-Memory Store
+In-Memory Store
      |
- HTML Dashboard
+HTML Dashboard
 ```
-
 ---
-
-# 89. Updated Authentication Architecture
+## 89. Updated Authentication Architecture
 
 The final authentication flow shall be:
 
@@ -4538,24 +4356,22 @@ The final authentication flow shall be:
                     | Phone / Google |
                     +-------+--------+
                             |
-                            v
-                    Local User Account
+v
+Local User Account
                             |
-                            v
-                  Cookie Authentication
+v
+Cookie Authentication
                             |
-                            v
-                    Authenticated Request
+v
+Authenticated Request
                             |
-                            v
-                 Permission-Based Authorization
+v
+Permission-Based Authorization
 ```
 
 JWT bearer authentication shall not be used as the primary authentication mechanism for the browser application.
-
 ---
-
-# 90. Updated Course Pricing Rules
+## 90. Updated Course Pricing Rules
 
 The previous Course pricing requirements shall be replaced by:
 
@@ -4567,18 +4383,16 @@ and:
 
 ```csharp
 public bool IsFree => Price is null;
-```
-
-`IsFree` shall not be persisted.
+````IsFree` shall not be persisted.
 
 Therefore:
 
 ```text
 Price == null
-    => Free Course
+=> Free Course
 
 Price != null
-    => Paid Course
+=> Paid Course
 ```
 
 The application shall use this rule consistently in:
@@ -4591,10 +4405,8 @@ The application shall use this rule consistently in:
 * Course access.
 * Invoice generation.
 * Admin Panel.
-
 ---
-
-# 91. Updated Audit Requirements
+## 91. Updated Audit Requirements
 
 The following fields shall be considered standard audit fields:
 
@@ -4611,10 +4423,8 @@ DeletedBy
 Not every field is necessarily mandatory for every entity, but all persistent business entities shall explicitly document which audit fields apply.
 
 For entities participating in authorization, financial operations, content management, and administrative operations, auditability shall be treated as mandatory.
-
 ---
-
-# 92. Updated Explicit Business Rules Summary
+## 92. Updated Explicit Business Rules Summary
 
 The following rules are mandatory and supersede conflicting previous requirements:
 
@@ -4622,9 +4432,9 @@ The following rules are mandatory and supersede conflicting previous requirement
 
 2. Hard delete is permitted only for explicitly documented exceptions.
 
-3. Soft-deletable entities shall contain `IsDeleted`, `DeletedAt`, and `DeletedBy` where applicable.
+3. Soft-deletable entities shall contain `IsDeleted`,`DeletedAt`, and`DeletedBy` where applicable.
 
-4. Business entities shall contain `CreatedAt`, `CreatedBy`, `UpdatedAt`, and `UpdatedBy` where applicable.
+4. Business entities shall contain `CreatedAt`,`CreatedBy`,`UpdatedAt`, and`UpdatedBy` where applicable.
 
 5. Normal queries shall exclude soft-deleted records.
 
@@ -4687,10 +4497,8 @@ The following rules are mandatory and supersede conflicting previous requirement
 38. The completion threshold for Watched status shall be configuration-driven.
 
 39. Locked episodes shall not expose progress controls in the UI.
-
 ---
-
-# 93. Revised Technology Stack
+## 93. Revised Technology Stack
 
 | Area                    | Technology                                      |
 | ----------------------- | ----------------------------------------------- |
@@ -4720,10 +4528,8 @@ The following rules are mandatory and supersede conflicting previous requirement
 | Tracing Backend         | Grafana Tempo                                   |
 | Metrics Backend         | Prometheus                                      |
 | Dashboards              | Grafana                                         |
-
 ---
-
-# 94. Updated Implementation Principles
+## 94. Updated Implementation Principles
 
 The implementation shall additionally follow these principles:
 
@@ -4746,11 +4552,9 @@ The implementation shall additionally follow these principles:
 * Keep reporting-library dependencies outside Domain and Application business models where possible.
 * Do not physically delete historical financial records.
 * Do not allow audit fields to be supplied by the client.
-
 ---
-
 ## 95. Coupon Business Rules
- 
+
 1. Coupon validity shall be re-checked server-side at order creation time, not only when the code is first applied, to prevent stale-state or race-condition exploitation.
 2. `UsedCount` shall be incremented atomically to prevent over-redemption under concurrent requests.
 3. `Code` uniqueness shall be enforced at the persistence layer.
@@ -4759,38 +4563,36 @@ The implementation shall additionally follow these principles:
 6. Coupon fields shall follow the standard audit and soft-deletion requirements defined in sections 78 and 77.
 7. A cart and an order shall each have at most one coupon applied.
 8. A coupon is applicable only when all of the following hold:
-   * It exists and is not soft-deleted.
-   * `IsActive` is `true`.
-   * The current UTC time is within `StartDate` and `EndDate`, inclusive.
-   * `UsageLimit` is null or `UsedCount < UsageLimit`.
-   * `MinOrderAmount` is null or the cart subtotal is at least `MinOrderAmount`.
+* It exists and is not soft-deleted.
+* `IsActive` is`true`.
+* The current UTC time is within `StartDate` and`EndDate`, inclusive.
+* `UsageLimit` is null or`UsedCount < UsageLimit`.
+* `MinOrderAmount` is null or the cart subtotal is at least`MinOrderAmount`.
 9. The cart subtotal is calculated after course-level discounts and before the coupon. Amounts shall be calculated in this order:
    ```text
-   Course price
+Course price
        -> Course-level discount (effective unit price)
        -> Subtotal
        -> Coupon discount
        -> Payable total
    ```
-   * `Percentage`: coupon discount = subtotal x `Value` / 100.
-   * `FixedAmount`: coupon discount = `Value`.
-   * Calculation shall use `decimal` and a single documented rounding rule.
+* `Percentage`: coupon discount = subtotal x`Value` / 100.
+* `FixedAmount`: coupon discount =`Value`.
+* Calculation shall use `decimal` and a single documented rounding rule.
 10. A coupon whose discount would reduce the payable total to zero or below is not applicable. Zero-amount orders are not supported in this version.
 11. A coupon applies to the whole cart. Restrictions to specific courses or categories are not modeled. Free courses contribute nothing to the subtotal.
 12. A coupon use is reserved by incrementing `UsedCount` at order creation, inside the order-creation transaction and with a conditional update (`UsedCount < UsageLimit`) so concurrent requests cannot exceed the limit.
-    * If the order becomes `Failed` or `Cancelled`, the reserved use shall be released exactly once, and the release shall be idempotent.
-    * If the order becomes `Paid`, the use remains consumed.
-    * Reprocessing a payment result shall never change `UsedCount`.
-    * Orders that remain `Pending` past their expiration are cancelled as defined in section 32.1, which releases the reserved use.
-13. The order shall store `CouponId` and `CouponDiscountAmount`. Later changes to, expiry of, or soft deletion of the coupon shall not alter existing orders, and historical orders shall still be able to resolve their coupon.
+* If the order becomes `Failed` or`Cancelled`, the reserved use shall be released exactly once, and the release shall be idempotent.
+* If the order becomes `Paid`, the use remains consumed.
+* Reprocessing a payment result shall never change `UsedCount`.
+* Orders that remain `Pending` past their expiration are cancelled as defined in section 32.1, which releases the reserved use.
+13. The order shall store `CouponId` and`CouponDiscountAmount`. Later changes to, expiry of, or soft deletion of the coupon shall not alter existing orders, and historical orders shall still be able to resolve their coupon.
 14. Coupon codes shall be trimmed and matched case-insensitively, and the persistence-layer uniqueness rule (rule 3) shall be consistent with that. Apply attempts shall be rate limited, and user-facing failure messages shall follow the cart page rules in section 42.
-
 ---
- 
-# 96. Revised Definition of Done
- 
+## 96. Revised Definition of Done
+
 A feature is considered complete when:
- 
+
 1. Domain requirements are implemented.
 2. Application commands/queries are implemented.
 3. Read operations use the read-repository boundary.

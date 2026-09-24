@@ -3,9 +3,7 @@
 # موجودیت‌های (Entities) پروژه Whyland
 
 این فایل تمام Entity های اصلی مورد نیاز برای پیاده‌سازی پروژه Whyland بر اساس سند SRS را شامل می‌شود. هر بخش شامل نام Entity و کد کلاس C# مربوط به آن است.
-
 ---
-
 ## 1. User
 
 Entity احراز هویت کاربر (بدون استفاده از ASP.NET Core Identity).
@@ -28,11 +26,10 @@ public class User
     public InstructorProfile? InstructorProfile { get; set; }
     public ICollection<UserRole> UserRoles { get; set; }
     public ICollection<ExternalLogin> ExternalLogins { get; set; }
+    public ICollection<UserEpisodeProgress> EpisodeProgresses { get; set; }
 }
 ```
-
 ---
-
 ## 2. UserProfile
 
 اطلاعات پروفایل تکمیلی کاربر که از اطلاعات احراز هویت جدا نگه‌داری می‌شود.
@@ -50,9 +47,7 @@ public class UserProfile
     public User User { get; set; }
 }
 ```
-
 ---
-
 ## 3. InstructorProfile
 
 اطلاعات اختصاصی مدرس که یک User را گسترش می‌دهد.
@@ -78,9 +73,7 @@ public class InstructorProfile
     public ICollection<CourseInstructor> CourseInstructors { get; set; }
 }
 ```
-
 ---
-
 ## 4. ExternalLogin
 
 رکورد اتصال حساب کاربری محلی به هویت خارجی (Google) — از بخش احراز هویت گوگل استنتاج شده است.
@@ -97,9 +90,7 @@ public class ExternalLogin
     public User User { get; set; }
 }
 ```
-
 ---
-
 ## 5. Role
 
 نقش‌های پویا (Dynamic Roles).
@@ -123,9 +114,7 @@ public class Role
     public ICollection<RolePermission> RolePermissions { get; set; }
 }
 ```
-
 ---
-
 ## 6. Permission
 
 مجوزهای پویا (Dynamic Permissions) که با کلید یکتا شناسایی می‌شوند.
@@ -148,9 +137,7 @@ public class Permission
     public ICollection<RolePermission> RolePermissions { get; set; }
 }
 ```
-
 ---
-
 ## 7. UserRole
 
 جدول واسط برای تخصیص نقش به کاربر.
@@ -165,9 +152,7 @@ public class UserRole
     public Role Role { get; set; }
 }
 ```
-
 ---
-
 ## 8. RolePermission
 
 جدول واسط برای تخصیص مجوز به نقش.
@@ -182,9 +167,7 @@ public class RolePermission
     public Permission Permission { get; set; }
 }
 ```
-
 ---
-
 ## 9. Category
 
 دسته‌بندی سلسله‌مراتبی دوره‌ها (حداکثر سه سطح).
@@ -211,9 +194,7 @@ public class Category
     public ICollection<CourseCategory> CourseCategories { get; set; }
 }
 ```
-
 ---
-
 ## 10. Course
 
 موجودیت اصلی دوره آموزشی.
@@ -262,9 +243,7 @@ public enum DiscountType
     Percentage,
     FixedAmount
 }
-```
-
-```csharp
+``````csharp
 public enum DisplayStatus
 {
     Draft,
@@ -272,9 +251,7 @@ public enum DisplayStatus
     Hidden
 }
 ```
-
 ---
-
 ## 11. CourseCategory
 
 جدول واسط بین Course و Category (رابطه چند به چند).
@@ -289,9 +266,7 @@ public class CourseCategory
     public Category Category { get; set; }
 }
 ```
-
 ---
-
 ## 12. CourseInstructor
 
 جدول واسط بین Course و InstructorProfile (رابطه چند به چند).
@@ -306,9 +281,7 @@ public class CourseInstructor
     public InstructorProfile Instructor { get; set; }
 }
 ```
-
 ---
-
 ## 13. CourseSection
 
 بخش‌های تشکیل‌دهنده یک دوره.
@@ -332,9 +305,7 @@ public class CourseSection
     public ICollection<Episode> Episodes { get; set; }
 }
 ```
-
 ---
-
 ## 14. Episode
 
 قسمت‌های آموزشی داخل هر بخش (Section).
@@ -360,11 +331,10 @@ public class Episode
 
     public CourseSection Section { get; set; }
     public ICollection<EpisodeAttachment> Attachments { get; set; }
+    public ICollection<UserEpisodeProgress> UserProgresses { get; set; }
 }
 ```
-
 ---
-
 ## 15. EpisodeAttachment
 
 فایل‌های پیوست هر قسمت (Episode) با محدودیت‌های قابل تنظیم.
@@ -383,10 +353,42 @@ public class EpisodeAttachment
     public Episode Episode { get; set; }
 }
 ```
-
 ---
+## 16. UserEpisodeProgress
 
-## 16. CourseFaq
+وضعیت مشاهده و پیشرفت هر اپیزود را به‌صورت مستقل برای هر کاربر نگه‌داری می‌کند. این Entity رابطه بین یک کاربر مشخص و یک اپیزود مشخص را مدل می‌کند.
+
+```csharp
+public class UserEpisodeProgress
+{
+    public Guid UserId { get; set; }
+    public Guid EpisodeId { get; set; }
+    public EpisodeWatchStatus Status { get; set; }
+    public TimeSpan? LastWatchedPosition { get; set; }   // last playback position
+    public DateTime? FirstWatchedAt { get; set; }        // when the user first started this episode
+    public DateTime? CompletedAt { get; set; }           // when the user fully watched it
+    public DateTime? LastWatchedAt { get; set; }         // last time the user watched it
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+
+    public User User { get; set; }
+    public Episode Episode { get; set; }
+}
+```
+
+### Enum مرتبط با UserEpisodeProgress
+
+```csharp
+public enum EpisodeWatchStatus
+{
+    NotWatched,
+    InProgress,
+    Watched,
+    Locked
+}
+```
+---
+## 17. CourseFaq
 
 سوالات متداول اختصاصی هر دوره.
 
@@ -409,10 +411,8 @@ public class CourseFaq
     public Course Course { get; set; }
 }
 ```
-
 ---
-
-## 17. FavoriteCourse
+## 18. FavoriteCourse
 
 علاقه‌مندی‌های کاربر به دوره‌ها.
 
@@ -427,10 +427,8 @@ public class FavoriteCourse
     public Course Course { get; set; }
 }
 ```
-
 ---
-
-## 18. UserCourse
+## 19. UserCourse
 
 دسترسی کاربر به دوره خریداری‌شده (Enrollment).
 
@@ -447,18 +445,18 @@ public class UserCourse
     public Order Order { get; set; }
 }
 ```
-
 ---
+## 20. Cart and CartItem (Redis Shopping Cart Concept)
 
-## 19. CartItem (مفهوم سبد خرید در Redis)
+سبد خرید در Redis نگهداری می‌شود و Entity پایگاه‌داده محسوب نمی‌شود. این کلاس‌ها صرفاً مدل‌های داده‌ای هستند که به‌صورت JSON در Redis ذخیره می‌شوند (کلید: `cart:{userId}`).
 
-سبد خرید در Redis نگهداری می‌شود و Entity پایگاه‌داده محسوب نمی‌شود؛ این کلاس صرفاً مدل داده‌ای است که به صورت JSON در Redis ذخیره می‌شود (کلید: `cart:{userId}`).
+سبد خرید حداکثر یک کوپن اعمال‌شده را با کد آن نگه‌داری می‌کند. مبلغ تخفیف در سبد ذخیره نمی‌شود و سرور باید آن را در هر بار خواندن مجدداً محاسبه کند.
 
 ```csharp
-public class CartItem
+public class Cart
 {
-    public Guid CourseId { get; set; }
-    public int Quantity { get; set; }
+    public List<CartItem> Items { get; set; } = [];
+    public string? CouponCode { get; set; }
 }
 
 public class CartItem
@@ -467,10 +465,8 @@ public class CartItem
     public int Quantity { get; set; }
 }
 ```
-
 ---
-
-## 20. Order
+## 21. Order
 
 سفارش ایجادشده از سبد خرید.
 
@@ -505,10 +501,8 @@ public enum OrderStatus
     Failed
 }
 ```
-
 ---
-
-## 21. OrderItem
+## 22. OrderItem
 
 اقلام هر سفارش (هر دوره داخل سفارش).
 
@@ -526,10 +520,8 @@ public class OrderItem
     public Course Course { get; set; }
 }
 ```
-
 ---
-
-## 22. PaymentMethod (Enum)
+## 23. PaymentMethod (Enum)
 
 روش‌های پرداخت به صورت Enum.
 
@@ -541,10 +533,8 @@ public enum PaymentMethod
     SnappPay
 }
 ```
-
 ---
-
-## 23. Payment
+## 24. Payment
 
 تراکنش مالی مرتبط با یک سفارش.
 
@@ -575,10 +565,8 @@ public enum PaymentStatus
     Cancelled
 }
 ```
-
 ---
-
-## 24. Invoice
+## 25. Invoice
 
 سند مالی نهایی مرتبط با سفارش پرداخت‌شده.
 
@@ -598,7 +586,9 @@ public class Invoice
     public string CustomerEmail { get; private set; }
 
     public decimal Subtotal { get; private set; }
-    public decimal Discount { get; private set; }
+    public decimal Discount { get; private set; }         // includes the coupon discount
+    public string? CouponCode { get; private set; }       // snapshot, null when no coupon was used
+    public decimal CouponDiscount { get; private set; }   // snapshot, 0 when no coupon was used
     public decimal Tax { get; private set; }
     public decimal FinalAmount { get; private set; }
 
@@ -619,10 +609,8 @@ public class Invoice
     public User User { get; private set; }
 }
 ```
-
 ---
-
-## 25. InvoiceItem
+## 26. InvoiceItem
 
 آیتم های فاکتور.
 
@@ -639,10 +627,8 @@ public class InvoiceItem
     public decimal TotalPrice { get; private set; }
 }
 ```
-
 ---
-
-## 26. BlogPost
+## 27. BlogPost
 
 مقالات وبلاگ عمومی سایت.
 
@@ -654,7 +640,8 @@ public class BlogPost
     public string ShortDescription { get; set; }
     public string Content { get; set; }
     public Guid AuthorId { get; set; }
-    public string? Image { get; set; }
+    public Guid? CategoryId { get; set; }
+    public string? Image { get; set;}
     public int DisplayOrder { get; set; }
     public DisplayStatus DisplayStatus { get; set; }
     public string Slug { get; set; }
@@ -667,12 +654,39 @@ public class BlogPost
     public Guid? DeletedBy { get; set; }
 
     public User Author { get; set; }
+    public BlogCategory? Category { get; set; }
 }
 ```
-
 ---
+## 28. BlogCategory
 
-## 27. Faq
+دسته‌بندی سلسله‌مراتبی مطالب وبلاگ.
+
+```csharp
+public class BlogCategory
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string LatinName { get; set; }
+    public string Slug { get; set; }
+    public int DisplayOrder { get; set; }
+    public Guid? ParentId { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public Guid? CreatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public Guid? UpdatedBy { get; set; }
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
+
+    public BlogCategory? Parent { get; set; }
+    public ICollection<BlogCategory> Children { get; set; }
+    public ICollection<BlogPost> BlogPosts { get; set; }
+}
+```
+---
+## 29. Faq
 
 سوالات متداول عمومی سایت (مجزا از CourseFaq).
 
@@ -693,10 +707,8 @@ public class Faq
     public Guid? DeletedBy { get; set; }
 }
 ```
-
 ---
-
-## 28. SiteSetting
+## 30. SiteSetting
 
 تنظیمات پویای سایت (کلید/مقدار) — عمومی، سئو و اطلاعات تماس.
 
@@ -713,10 +725,8 @@ public class SiteSetting
     public Guid? UpdatedBy { get; set; }
 }
 ```
-
 ---
-
-## 29. OtpRequest
+## 31. OtpRequest
 
 رکورد درخواست/تایید کد یک‌بار مصرف برای احراز هویت با شماره تلفن — از بخش احراز هویت تلفنی استنتاج شده است.
 
@@ -733,10 +743,8 @@ public class OtpRequest
     public DateTime CreatedAt { get; set; }
 }
 ```
-
 ---
-
-## 30. PasswordResetToken
+## 32. PasswordResetToken
 
 توکن بازیابی رمز عبور — از بخش «فراموشی رمز عبور» استنتاج شده است.
 
@@ -754,7 +762,7 @@ public class PasswordResetToken
 }
 ```
 
-## 31. Coupon
+## 33. Coupon
 
 کد تخفیف برای سفارشات.
 
