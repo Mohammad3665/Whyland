@@ -29,6 +29,7 @@ public class User
     public InstructorProfile? InstructorProfile { get; set; }
     public ICollection<UserRole> UserRoles { get; set; }
     public ICollection<ExternalLogin> ExternalLogins { get; set; }
+    public ICollection<UserEpisodeProgress> EpisodeProgresses { get; set; }
 }
 ```
 
@@ -365,6 +366,7 @@ public class Episode
 
     public CourseSection Section { get; set; }
     public ICollection<EpisodeAttachment> Attachments { get; set; }
+    public ICollection<UserEpisodeProgress> UserProgresses { get; set; }
 }
 ```
 
@@ -386,6 +388,42 @@ public class EpisodeAttachment
     public DateTime CreatedAt { get; set; }
 
     public Episode Episode { get; set; }
+}
+```
+
+---
+
+## 15. UserEpisodeProgress
+
+Per-user watch status and progress for each episode. This entity tracks the relationship between a specific user and a specific episode, allowing each user to have their own independent status.
+
+```csharp
+public class UserEpisodeProgress
+{
+    public Guid UserId { get; set; }
+    public Guid EpisodeId { get; set; }
+    public EpisodeWatchStatus Status { get; set; }
+    public TimeSpan? LastWatchedPosition { get; set; }   // last playback position
+    public DateTime? FirstWatchedAt { get; set; }        // when the user first started this episode
+    public DateTime? CompletedAt { get; set; }           // when the user fully watched it
+    public DateTime? LastWatchedAt { get; set; }         // last time the user watched it
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+
+    public User User { get; set; }
+    public Episode Episode { get; set; }
+}
+```
+
+### Enum Related to UserEpisodeProgress
+
+```csharp
+public enum EpisodeWatchStatus
+{
+    NotWatched,
+    InProgress, 
+    Watched,   
+    Locked      
 }
 ```
 
@@ -663,6 +701,7 @@ public class BlogPost
     public string ShortDescription { get; set; }
     public string Content { get; set; }
     public Guid AuthorId { get; set; }
+    public Guid? CategoryId { get; set; }
     public string? Image { get; set; }
     public int DisplayOrder { get; set; }
     public DisplayStatus DisplayStatus { get; set; }
@@ -672,6 +711,37 @@ public class BlogPost
     public bool IsDeleted { get; set; }
 
     public User Author { get; set; }
+    public BlogCategory? Category { get; set; }
+}
+```
+
+---
+
+## 27. BlogCategory
+
+Hierarchical blog categorization.
+
+```csharp
+public class BlogCategory
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string LatinName { get; set; }
+    public string Slug { get; set; }
+    public int DisplayOrder { get; set; }
+    public Guid? ParentId { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public Guid? CreatedBy { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public Guid? UpdatedBy { get; set; }
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
+
+    public BlogCategory? Parent { get; set; }
+    public ICollection<BlogCategory> Children { get; set; }
+    public ICollection<BlogPost> BlogPosts { get; set; }
 }
 ```
 
