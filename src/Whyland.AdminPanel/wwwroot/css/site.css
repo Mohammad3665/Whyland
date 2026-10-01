@@ -1,0 +1,12 @@
+/* فونت فارسی برای کل پنل */
+body {
+  font-family: Vazirmatn, "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+/* اعداد و تاریخ‌ها در محتوای نمودارها و جداول به‌صورت لاتین نمایش داده شوند */
+.latin-nums,
+.latin-nums * {
+  font-family: Inter, "Segoe UI", Tahoma, Arial, sans-serif;
+  direction: ltr;
+  unicode-bidi: embed;
+}
