@@ -1,11 +1,12 @@
 /* =========================================================
- * admin-crud.js  —  منطق مشترک صفحات CRUD پنل ادمین
- * وابستگی‌ها: jQuery, DataTables, Bootstrap 5, toastr
+ * admin-crud.js — Shared logic for the admin panel CRUD pages
+ * Dependencies: jQuery, DataTables, Bootstrap 5, toastr
  * ========================================================= */
 (function (window, $) {
   "use strict";
 
-  // ---------- زبان فارسی DataTable ----------
+  //#region DataTables Persian Language Pack
+  // Localized strings handed to every DataTable created by this module.
   var FA_LANG = {
     search: "جستجو:",
     lengthMenu: "_MENU_ مورد",
@@ -18,9 +19,11 @@
     processing: "در حال پردازش...",
     paginate: { first: "اول", last: "آخر", next: "بعدی", previous: "قبلی" },
   };
+  //#endregion
 
-  // ---------- توابع کمکی عمومی ----------
+  //#region General Purpose Helpers
   var Utils = {
+    /** Turns a Latin/Persian title into a URL-friendly slug. */
     slugify: function (text) {
       return text
         .toString()
@@ -31,36 +34,50 @@
         .replace(/-+/g, "-")
         .replace(/^-|-$/g, "");
     },
+
+    /** Strips non-digit characters and returns a number (null when empty). */
     parseNumber: function (val) {
       var digits = (val || "").replace(/[^\d]/g, "");
       return digits ? Number(digits) : null;
     },
+
+    /** Formats a number with thousands separators ("" for null/undefined). */
     toFa: function (n) {
       return n === null || n === undefined
         ? ""
         : Number(n).toLocaleString("en-US");
     },
+
+    /** Re-formats a numeric text input while the user types. */
     formatNumberInput: function (el) {
       var digits = el.value.replace(/[^\d]/g, "");
       el.value = digits ? Number(digits).toLocaleString("en-US") : "";
     },
+
+    /** Toggles Bootstrap's "is-invalid" class; returns the new state. */
     setInvalid: function ($el, invalid) {
       $el.toggleClass("is-invalid", invalid);
       return invalid;
     },
+
+    /** Shows the Bootstrap modal with the given element id. */
     showModal: function (id) {
       bootstrap.Modal.getOrCreateInstance(document.getElementById(id)).show();
     },
+
+    /** Hides the Bootstrap modal with the given element id (if instantiated). */
     hideModal: function (id) {
       var m = bootstrap.Modal.getInstance(document.getElementById(id));
       if (m) m.hide();
     },
   };
+  //#endregion
 
-  // ---------- DataTable ----------
+  //#region DataTable Factory
   /**
-   * @param {string} selector      مثل "#kt_courses_table"
-   * @param {object} [overrides]   هر آپشن DataTables که بخواهی بازنویسی شود
+   * Creates a DataTable with sensible admin defaults.
+   * @param {string} selector      e.g. "#kt_courses_table"
+   * @param {object} [overrides]   any DataTables option to override
    */
   function createTable(selector, overrides) {
     var defaults = {
@@ -72,13 +89,15 @@
     };
     return $(selector).DataTable($.extend(true, {}, defaults, overrides || {}));
   }
+  //#endregion
 
-  // ---------- فیلترهای سفارشی (چندتایی، بدون تداخل) ----------
+  //#region Custom (Combinable) Filters
   /**
+   * Registers multiple independent filters on a single table.
    * @param {DataTable} table
-   * @param {string}    tableId   id جدول بدون #
+   * @param {string}    tableId   table id without the leading "#"
    * @param {Array}     filters   [{ el:"#statusFilter", test:function(row$, val){...} }]
-   * هر فیلتر وقتی مقدارش خالی باشد نادیده گرفته می‌شود.
+   * A filter is ignored whenever its current value is empty.
    */
   function bindFilters(table, tableId, filters) {
     $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
@@ -91,6 +110,7 @@
       return true;
     });
 
+    // Re-draw the table whenever any filter control changes.
     var selectors = filters
       .map(function (f) {
         return f.el;
@@ -100,16 +120,17 @@
       table.draw();
     });
   }
+  //#endregion
 
-  // ---------- فیلترهای آماده ----------
+  //#region Ready-made Filter Predicates
   var Filters = {
-    // data-<attr>="value"  برابر باشد
+    /** Row matches when data-<attr>="value" equals the filter value. */
     dataEquals: function (attr) {
       return function ($row, val) {
         return String($row.data(attr)) === String(val);
       };
     },
-    // data-<attr>="1,2,3"  شامل مقدار باشد
+    /** Row matches when the comma-separated data-<attr> contains the value. */
     dataContains: function (attr) {
       return function ($row, val) {
         return (
@@ -120,9 +141,13 @@
       };
     },
   };
+  //#endregion
 
-  // ---------- صفحه CRUD ----------
+  //#region CRUD Page Controller
   /**
+   * Wires up search, filters, create/edit modals and delete confirmation
+   * for one admin list page.
+   *
    * @param {object} cfg
    *  table:        { selector, options }
    *  search:       "#searchInput"
@@ -130,39 +155,42 @@
    *  modal:        { id, titleEl, submitBtn }
    *  deleteModal:  { id, nameEl }
    *  texts:        { createTitle, editTitle, created, updated, deleted }
-   *  fillForm(data | null)   پر کردن فرم؛ null یعنی حالت ایجاد
-   *  getData()               خواندن فرم → آبجکت
-   *  validate()              آرایه خطاها (اختیاری)
-   *  loadItem(id)            داده آیتم برای ویرایش (اختیاری؛ می‌تواند Promise هم برگرداند)
-   *  onSubmit(data, mode)    ارسال به سرور (اختیاری؛ باید Promise/jqXHR برگرداند)
-   *  onDelete(id)            حذف در سرور (اختیاری؛ Promise)
-   *  onModalShown / onModalHidden  (اختیاری)
+   *  fillForm(data | null)   fill the form; null means "create" mode
+   *  getData()               read the form into an object
+   *  validate()              return an array of error messages (optional)
+   *  loadItem(id)            fetch the item to edit (optional; may return a Promise)
+   *  onSubmit(data, mode)    send to the server (optional; return Promise/jqXHR)
+   *  onDelete(id)            delete on the server (optional; return a Promise)
+   *  onModalShown / onModalHidden  (optional)
    */
   function createCrudPage(cfg) {
     var tableId = cfg.table.selector.replace("#", "");
     var table = createTable(cfg.table.selector, cfg.table.options);
     var state = { mode: "create", editId: null, deleteId: null };
 
-    // جستجو
+    //#region Search Box Binding
     if (cfg.search) {
       $(cfg.search).on("keyup", function () {
         table.search(this.value).draw();
       });
     }
+    //#endregion
 
-    // فیلترها
+    //#region Filter Bindings
     if (cfg.filters && cfg.filters.length) {
       bindFilters(table, tableId, cfg.filters);
     }
+    //#endregion
 
-    // رویدادهای مودال
+    //#region Modal Lifecycle Hooks
     var modalEl = document.getElementById(cfg.modal.id);
     if (cfg.onModalShown)
       modalEl.addEventListener("shown.bs.modal", cfg.onModalShown);
     if (cfg.onModalHidden)
       modalEl.addEventListener("hidden.bs.modal", cfg.onModalHidden);
+    //#endregion
 
-    // ----- ایجاد -----
+    //#region Create
     function openCreate() {
       state.mode = "create";
       state.editId = null;
@@ -170,8 +198,9 @@
       cfg.fillForm(null);
       Utils.showModal(cfg.modal.id);
     }
+    //#endregion
 
-    // ----- ویرایش -----
+    //#region Edit
     function openEdit(id) {
       state.mode = "edit";
       state.editId = id;
@@ -181,8 +210,9 @@
         Utils.showModal(cfg.modal.id);
       });
     }
+    //#endregion
 
-    // ----- ارسال فرم -----
+    //#region Submit (Create / Edit)
     function submit() {
       if (cfg.validate) {
         var errors = cfg.validate();
@@ -195,6 +225,7 @@
       var data = cfg.getData();
       data.id = state.editId;
 
+      // Show the busy indicator on the submit button while saving.
       var btn = document.getElementById(cfg.modal.submitBtn);
       btn.setAttribute("data-kt-indicator", "on");
       btn.disabled = true;
@@ -220,12 +251,14 @@
             toastr.error("خطا در ذخیره اطلاعات.", "خطا");
           });
       } else {
+        // No server handler wired up yet: simulate a successful save.
         console.log(data);
         setTimeout(success, 800);
       }
     }
+    //#endregion
 
-    // ----- حذف -----
+    //#region Delete
     function openDelete(id, name) {
       state.deleteId = id;
       $(cfg.deleteModal.nameEl).text(name);
@@ -247,7 +280,9 @@
         done();
       }
     }
+    //#endregion
 
+    // Initialize Select2 on any [data-control="select2"] element.
     if (typeof KTSelect2 !== "undefined") KTSelect2.init();
 
     return {
@@ -260,7 +295,9 @@
       confirmDelete: confirmDelete,
     };
   }
+  //#endregion
 
+  // Public API of the module.
   window.AdminCrud = {
     createPage: createCrudPage,
     createTable: createTable,

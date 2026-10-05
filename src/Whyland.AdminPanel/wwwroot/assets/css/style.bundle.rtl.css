@@ -49379,7 +49379,6 @@ body,
   border-bottom: 0;
 }
 [data-kt-app-layout=light-sidebar] .app-sidebar .app-sidebar-toggle {
-  border-radius: 50%;
   box-shadow: none !important;
 }
 [data-kt-app-layout=light-sidebar] .app-sidebar .menu {
@@ -49512,9 +49511,6 @@ body,
 }
 [data-kt-app-layout=light-sidebar] .app-sidebar .menu .menu-item .menu-sub .menu-item .menu-link .menu-title {
   color: #4B5675;
-}
-[data-kt-app-layout=light-sidebar] .app-sidebar .menu .menu-item .menu-sub .menu-item .menu-link.active .menu-title {
-  color: var(--bs-primary);
 }
 
 [data-kt-app-layout=light-sidebar][data-kt-app-header-fixed=true] [data-kt-app-header-minimize=on] .app-header {

@@ -1,14 +1,28 @@
+//#region Courses Page Scripts
+/**
+ * Admin "Courses" list page: DataTable, filters and the full-screen
+ * create/edit modal (including the TinyMCE rich-text description editor).
+ * Built on top of the shared AdminCrud module (admin-crud.js).
+ */
+
+//#region Imports
 var U = AdminCrud.Utils;
 var F = AdminCrud.Filters;
+//#endregion
 
-// ----- TinyMCE (مخصوص این صفحه) -----
-var descriptionEditor = null;
-var pendingDescription = null;
-var slugTouched = false;
+//#region TinyMCE Description Editor (page-specific)
+var descriptionEditor = null; // Active TinyMCE instance (null until initialized)
+var pendingDescription = null; // HTML waiting to be applied once the editor initializes
+var slugTouched = false; // True once the user edits the slug manually
 
+/**
+ * Initializes the TinyMCE editor for the "Full description" field.
+ * Loaded lazily when the course modal opens for the first time.
+ */
 function initDescriptionEditor() {
   if (typeof tinymce === "undefined") return;
 
+  // Option names differ between TinyMCE 5 and 6+; detect the major version.
   var ver = parseInt(tinymce.majorVersion, 10) || 5;
   var isNew = ver >= 6;
 
@@ -50,6 +64,7 @@ function initDescriptionEditor() {
     image_title: true,
     automatic_uploads: false,
     paste_data_images: true,
+    // Pick a local image file and insert it as a base64 data URL.
     file_picker_types: "image",
     file_picker_callback: function (cb) {
       var input = document.createElement("input");
@@ -72,21 +87,25 @@ function initDescriptionEditor() {
     setup: function (editor) {
       editor.on("init", function () {
         descriptionEditor = editor;
+        // Force design (visual) mode in both TinyMCE 5 and 6+.
         try {
           if (editor.mode && editor.mode.set) editor.mode.set("design");
           else if (editor.setMode) editor.setMode("design");
         } catch (e) {}
+        // Apply any content that was set before the editor finished loading.
         if (pendingDescription !== null) editor.setContent(pendingDescription);
       });
     },
   };
 
+  // TinyMCE 6+ only: self-hosted GPL build settings.
   if (isNew) {
     options.license_key = "gpl";
     options.promotion = false;
     options.font_size_formats = options.fontsize_formats;
   }
 
+  // Match the admin panel's dark theme when it is active.
   if (typeof KTThemeMode !== "undefined" && KTThemeMode.getMode() === "dark") {
     options["skin"] = "oxide-dark";
     options["content_css"] = "dark";
@@ -94,17 +113,24 @@ function initDescriptionEditor() {
 
   tinymce.init(options);
 }
+
+/** Sets the editor content (queued until the editor exists if needed). */
 function setDescription(html) {
   pendingDescription = html || "";
   if (descriptionEditor) descriptionEditor.setContent(pendingDescription);
   else $("#Form_Description").val(pendingDescription);
 }
+
+/** Returns the current editor content as HTML. */
 function getDescription() {
   return descriptionEditor
     ? descriptionEditor.getContent()
     : $("#Form_Description").val();
 }
+//#endregion
 
+//#region Pricing / Image Field Helpers
+/** Enables or disables the discount value field and updates its unit label. */
 function setDiscountState(type) {
   var $v = $("#Form_DiscountValue");
   if (!type) {
@@ -116,6 +142,7 @@ function setDiscountState(type) {
   }
 }
 
+/** Renders the main-image picker: shows the given url or resets to empty. */
 function setMainImage(url) {
   var wrapper = document.getElementById("Form_MainImage_wrapper");
   var $w = $(wrapper);
@@ -132,8 +159,9 @@ function setMainImage(url) {
     $w.find(".image-input-wrapper").css("background-image", "none");
   }
 }
+//#endregion
 
-// ----- صفحه -----
+//#region CRUD Page Configuration
 var page = AdminCrud.createPage({
   table: {
     selector: "#kt_courses_table",
@@ -141,6 +169,7 @@ var page = AdminCrud.createPage({
       columnDefs: [
         { orderable: false, targets: [0, -1] },
         { targets: -1, className: "text-nowrap text-end" },
+        // Column responsiveness priorities (order shown on small screens).
         { responsivePriority: 1, targets: 0 },
         { responsivePriority: 2, targets: 1 },
         { responsivePriority: 3, targets: -1 },
@@ -173,6 +202,7 @@ var page = AdminCrud.createPage({
     deleted: "دوره با موفقیت حذف شد.",
   },
 
+  // Create/destroy TinyMCE with the modal so its content stays fresh.
   onModalShown: function () {
     if (!tinymce.get("Form_Description")) initDescriptionEditor();
   },
@@ -183,10 +213,11 @@ var page = AdminCrud.createPage({
   },
 
   loadItem: function (id) {
-    // TODO: دریافت از سرور
+    // TODO: fetch the item from the server instead of the local sample data.
     return coursesData[id];
   },
 
+  // Populate all course form fields from a course object.
   fillForm: function (c) {
     c = c || {
       name: "",
@@ -227,6 +258,7 @@ var page = AdminCrud.createPage({
     $("#kt_course_form .is-invalid").removeClass("is-invalid");
   },
 
+  // Client-side validation; returns the list of error messages.
   validate: function () {
     var errors = [];
     if (U.setInvalid($("#Form_Name"), !$("#Form_Name").val().trim()))
@@ -252,6 +284,7 @@ var page = AdminCrud.createPage({
     return errors;
   },
 
+  // Collect the form into the course data object sent to the server.
   getData: function () {
     return {
       name: $("#Form_Name").val().trim(),
@@ -272,22 +305,27 @@ var page = AdminCrud.createPage({
     };
   },
 });
+//#endregion
 
-// ----- رویدادهای فرم مخصوص دوره -----
+//#region Course-specific Form Events
+// Auto-generate the slug from the Latin name until the user edits it manually.
 $("#Form_LatinName").on("input", function () {
   if (!slugTouched) $("#Form_Slug").val(U.slugify(this.value));
 });
 $("#Form_Slug").on("input", function () {
   slugTouched = this.value.length > 0;
 });
+// Pretty-print numbers while typing price and discount fields.
 $("#Form_Price, #Form_DiscountValue").on("input", function () {
   U.formatNumberInput(this);
 });
 $("#Form_DiscountType").on("change", function () {
   setDiscountState(this.value);
 });
+//#endregion
 
-// ----- سازگاری با onclick های HTML -----
+//#region Inline onclick Handlers (HTML compatibility)
+// The markup calls these directly via onclick="..." attributes.
 function openCreateModal() {
   page.openCreate();
 }
@@ -303,7 +341,9 @@ function openDeleteModal(id, name) {
 function confirmDelete() {
   page.confirmDelete();
 }
+//#endregion
 
+//#region Sample Data (temporary, until a real API exists)
 var coursesData = {
   1: {
     name: "دوره جامع ASP.NET Core",
@@ -378,3 +418,5 @@ var coursesData = {
     image: "/assets/media/stock/600x400/img-3.jpg",
   },
 };
+//#endregion
+//#endregion

@@ -1,4 +1,19 @@
-﻿<!--begin::Sidebar-->
+﻿@{
+    string? current = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+
+    bool IsActive(params string[] pages) =>
+        pages.Any(p =>
+        {
+            string? folder = p.EndsWith("/Index") ? p[..^"/Index".Length] : p;
+            if (folder == "") return current == "/Index";   // صفحه اصلی فقط خودش
+            return current == p || current.StartsWith(folder + "/");
+        });
+
+    string Active(params string[] pages) => IsActive(pages) ? "active" : "";
+    string Open(params string[] pages)   => IsActive(pages) ? "here show" : "";
+}
+
+<!--begin::Sidebar-->
 <div
   id="kt_app_sidebar"
   class="app-sidebar flex-column"
@@ -13,17 +28,13 @@
   <!--begin::Logo-->
   <div class="app-sidebar-logo px-6" id="kt_app_sidebar_logo">
     <!--begin::Logo image-->
-    <a asp-page="/Index">
-      <img
-        alt="Logo"
-        src="~/assets/media/logos/logo-light.png"
-        class="h-40px app-sidebar-logo-default"
-      />
-      <img
-        alt="Logo"
-        src="~/assets/media/logos/logo-small.png"
-        class="h-20px app-sidebar-logo-minimize"
-      />
+    <a asp-page="/Home/Index">
+        <img alt="Logo" src="~/assets/media/logos/logo-light.png"
+            class="h-40px app-sidebar-logo-default theme-light-hide" />
+        <img alt="Logo" src="~/assets/media/logos/logo-dark.png"
+            class="h-40px app-sidebar-logo-default theme-dark-hide" />
+        <img alt="Logo" src="~/assets/media/logos/logo-small.png"
+            class="h-20px app-sidebar-logo-minimize" />
     </a>
     <!--end::Logo image-->
     <!--begin::Sidebar toggle-->
@@ -69,7 +80,7 @@
           <!--begin:Menu item-->
           <div
             data-kt-menu-trigger="click"
-            class="menu-item here show menu-accordion"
+            class="menu-item menu-accordion @Open("/Home/Index")"
           >
             <!--begin:Menu link-->
             <span class="menu-link">
@@ -90,7 +101,7 @@
               <!--begin:Menu item-->
               <div class="menu-item">
                 <!--begin:Menu link-->
-                <a class="menu-link active" asp-page="/Index">
+                <a class="menu-link @Active("/Home/Index")" asp-page="/Home/Index">
                   <span class="menu-bullet">
                     <span class="bullet bullet-dot"></span>
                   </span>
@@ -128,7 +139,7 @@
           </div>
           <!--end:Menu item-->
           <!--begin:Menu item-->
-          <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
+          <div data-kt-menu-trigger="click" class="menu-item menu-accordion @Open("/Courses/Index", "/Categories/Index")">
             <!--begin:Menu link-->
             <span class="menu-link">
               <span class="menu-icon">
@@ -148,7 +159,7 @@
               <!--begin:Menu item-->
               <div class="menu-item">
                 <!--begin:Menu link-->
-                <a class="menu-link" asp-page="/Courses">
+                <a class="menu-link @Active("/Courses/Index")" asp-page="/Courses/Index">
                   <span class="menu-bullet">
                     <span class="bullet bullet-dot"></span>
                   </span>
@@ -172,7 +183,7 @@
               <!--begin:Menu item-->
               <div class="menu-item">
                 <!--begin:Menu link-->
-                <a class="menu-link" asp-page="Categories">
+                <a class="menu-link @Active("/Categories/Index")" asp-page="/Categories/Index">
                   <span class="menu-bullet">
                     <span class="bullet bullet-dot"></span>
                   </span>

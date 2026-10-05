@@ -1,3 +1,11 @@
+//#region Categories Page Scripts
+/**
+ * Admin "Categories" list page: hierarchical category table with
+ * create/edit modal and delete confirmation.
+ * Built on top of the shared AdminCrud module (admin-crud.js).
+ */
+
+//#region CRUD Page Configuration
 var page = AdminCrud.createPage({
   table: { selector: "#kt_categories_table" },
   search: "#categorySearch",
@@ -21,6 +29,7 @@ var page = AdminCrud.createPage({
     deleted: "دسته‌بندی با موفقیت حذف شد.",
   },
 
+  // Populate the form fields from a category object (null = create mode).
   fillForm: function (c) {
     c = c || {
       name: "",
@@ -37,6 +46,8 @@ var page = AdminCrud.createPage({
       .trigger("change");
     $("#Form_IsActive").prop("checked", c.isActive);
   },
+
+  // Collect the form into the category data object sent to the server.
   getData: function () {
     return {
       name: $("#Form_Name").val().trim(),
@@ -47,8 +58,11 @@ var page = AdminCrud.createPage({
     };
   },
 });
+//#endregion
 
-// برای حفظ سازگاری با onclick های موجود در HTML
+//#region Inline onclick Handlers (HTML compatibility)
+// The markup calls these directly via onclick="..." attributes.
+
 function openCreateModal() {
   page.openCreate();
 }
@@ -61,8 +75,14 @@ function confirmDelete() {
 function openDeleteModal(id, name) {
   page.openDelete(id, name);
 }
+//#endregion
 
-// ویرایش: امضای قبلی حفظ شده؛ داده‌ها از پارامترها می‌آیند
+//#region Edit From Row Data
+/**
+ * Edit: keeps the old inline onclick signature
+ * (id, name, latinName, displayOrder, parentId, isActive);
+ * the values are passed in directly from the table row.
+ */
 function openEditModal(id, name, latinName, displayOrder, parentId, isActive) {
   page.state.mode = "edit";
   page.state.editId = id;
@@ -76,3 +96,5 @@ function openEditModal(id, name, latinName, displayOrder, parentId, isActive) {
   $("#Form_IsActive").prop("checked", isActive);
   AdminCrud.Utils.showModal("kt_modal_category");
 }
+//#endregion
+//#endregion

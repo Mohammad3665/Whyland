@@ -1,14 +1,28 @@
+/* ============================================================
+   site.css — Global styles for the Whyland admin panel
+   Loaded on every page via the layout (RTL, Persian-first UI).
+   Sections are wrapped in "region" ... "endregion" comment markers
+   so editors can collapse/expand them like #region directives.
+   ============================================================ */
+
+/* #region Typography & Root */
 body {
   font-family: Vazirmatn, "Segoe UI", Tahoma, Arial, sans-serif;
 }
 
+/* Wrapper for Latin/LTR content (e.g. numeric or English values):
+   switches to a Latin font and forces left-to-right rendering. */
 .latin-nums,
 .latin-nums * {
   font-family: Inter, "Segoe UI", Tahoma, Arial, sans-serif;
   direction: ltr;
   unicode-bidi: embed;
 }
+/* #endregion */
 
+/* #region DataTables Responsive Child Rows */
+/* When DataTables collapses columns into a child row (responsive mode),
+   show the details as a full-width, cleanly spaced definition list. */
 table.dataTable > tbody > tr.child > td {
   width: 100% !important;
   padding: 0 !important;
@@ -35,6 +49,7 @@ table.dataTable > tbody > tr.child ul.dtr-details > li:last-child {
   border-bottom: none;
 }
 
+/* Field label inside a child row. */
 table.dataTable > tbody > tr.child ul.dtr-details > li > span.dtr-title {
   font-weight: 600;
   color: #5e6278;
@@ -42,11 +57,13 @@ table.dataTable > tbody > tr.child ul.dtr-details > li > span.dtr-title {
   flex-shrink: 0;
 }
 
+/* Field value inside a child row. */
 table.dataTable > tbody > tr.child ul.dtr-details > li > span.dtr-data {
   text-align: left;
   color: #3f4254;
 }
 
+/* Expand/collapse control button of inline collapsed rows. */
 table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before {
   top: 50%;
   left: 0.5rem;
@@ -71,7 +88,10 @@ table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control {
   position: relative;
   padding-left: 2.5rem;
 }
+/* #endregion */
 
+/* #region DataTables Length Dropdown */
+/* "Rows per page" control: label and select side by side. */
 .dataTables_length label {
   padding: 10px;
   display: flex;
@@ -80,14 +100,244 @@ table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control {
   white-space: nowrap;
   margin: 0;
 }
+/* #endregion */
 
-/* .app-navbar [data-kt-search-element="content"].show {
+/* #region Topbar Dropdown Positioning (RTL fix) */
+/* Kept for reference; forced absolute offsets are no longer needed.
+.app-navbar [data-kt-search-element="content"].show {
   transform: translate(-904px, 75px) !important;
 } */
 
+/* Pin the topbar dropdown menus to a predictable spot in RTL layout,
+   overriding the plugin's computed transform. */
 .app-navbar .menu-sub-dropdown.show {
   left: 20px !important;
   right: auto !important;
   top: 60px !important;
   transform: none !important;
 }
+/* #endregion */
+
+/* #region Sidebar — Light Theme Colors */
+/* [data-bs-theme="light"] palette for the app sidebar. */
+[data-bs-theme="light"] .app-sidebar {
+  --bs-app-sidebar-base-bg-color: #ffffff;
+  background-color: #ffffff;
+  border-inline-end: 1px solid #eff2f5;
+}
+
+/* Menu link text and icon colors. */
+[data-bs-theme="light"] .app-sidebar .menu .menu-item .menu-link {
+  color: #4b5675;
+}
+[data-bs-theme="light"] .app-sidebar .menu .menu-item .menu-link .menu-title {
+  color: #4b5675;
+}
+[data-bs-theme="light"]
+  .app-sidebar
+  .menu
+  .menu-item
+  .menu-link
+  .menu-icon
+  i {
+  color: #99a1b7;
+}
+
+/* Hover / active background for menu links. */
+[data-bs-theme="light"] .app-sidebar .menu .menu-item .menu-link:hover,
+[data-bs-theme="light"] .app-sidebar .menu .menu-item .menu-link.active {
+  background-color: #f1f1f4;
+}
+[data-bs-theme="light"]
+  .app-sidebar
+  .menu
+  .menu-item
+  .menu-link.active
+  .menu-title {
+  color: #1c1c1c;
+}
+
+/* Theme-specific logo visibility:
+   each theme shows only the logo image made for it. */
+[data-bs-theme="light"] .theme-light-hide {
+  display: none !important;
+}
+[data-bs-theme="dark"] .theme-dark-hide {
+  display: none !important;
+}
+/* #endregion */
+
+/* #region Sidebar — Menu Icon Colors (Light Layout) */
+/* Hover: darken the duotone icon (root element and its path layers). */
+/* ---- Light layout ---- */
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item.hover:not(.here)
+  .menu-link:not(.disabled):not(.active):not(.here)
+  .menu-icon
+  .ki-duotone,
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item.hover:not(.here)
+  .menu-link:not(.disabled):not(.active):not(.here)
+  .menu-icon
+  .ki-duotone
+  [class^="path"]::before,
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item.hover:not(.here)
+  .menu-link:not(.disabled):not(.active):not(.here)
+  .menu-icon
+  .ki-duotone::before {
+  color: #1c1c1c;
+}
+
+/* Active: use the primary brand color. */
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item
+  .menu-link.active
+  .menu-icon
+  .ki-duotone,
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item
+  .menu-link.active
+  .menu-icon
+  .ki-duotone
+  [class^="path"]::before,
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item
+  .menu-link.active
+  .menu-icon
+  .ki-duotone::before {
+  color: var(--bs-primary);
+}
+
+/* Generic (non-duotone) icons: hover and active. */
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item.hover:not(.here)
+  .menu-link:not(.disabled):not(.active):not(.here)
+  .menu-icon,
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item.hover:not(.here)
+  .menu-link:not(.disabled):not(.active):not(.here)
+  .menu-icon
+  .svg-icon,
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item.hover:not(.here)
+  .menu-link:not(.disabled):not(.active):not(.here)
+  .menu-icon
+  i,
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item:not(.here)
+  .menu-link:hover:not(.disabled):not(.active):not(.here)
+  .menu-icon,
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item:not(.here)
+  .menu-link:hover:not(.disabled):not(.active):not(.here)
+  .menu-icon
+  .svg-icon,
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item:not(.here)
+  .menu-link:hover:not(.disabled):not(.active):not(.here)
+  .menu-icon
+  i {
+  color: #1c1c1c;
+}
+
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item
+  .menu-link.active
+  .menu-icon,
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item
+  .menu-link.active
+  .menu-icon
+  i {
+  color: var(--bs-primary);
+}
+/* #endregion */
+
+/* #region Sidebar — Accordion Header State (Light Layout) */
+/* Icon of an accordion parent whose submenu is open (item.here / .show). */
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item.here
+  .menu-link
+  .menu-icon,
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item.here
+  .menu-link
+  .menu-icon
+  i,
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item.here
+  .menu-link
+  .menu-icon
+  .svg-icon,
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item.show
+  .menu-link
+  .menu-icon,
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item.show
+  .menu-link
+  .menu-icon
+  i {
+  color: #1c1c1c;
+}
+
+/* Keep the accordion parent's title consistent with its icon. */
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item.here
+  .menu-link
+  .menu-title {
+  color: #1c1c1c;
+}
+
+/* Bullet dot of the active submenu link. */
+[data-kt-app-layout="light-sidebar"]
+  .app-sidebar
+  .menu
+  .menu-item
+  .menu-link.active
+  .menu-bullet
+  .bullet {
+  background-color: #1c1c1c;
+}
+/* #endregion */
