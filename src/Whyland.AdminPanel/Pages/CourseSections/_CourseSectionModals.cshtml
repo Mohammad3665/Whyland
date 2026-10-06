@@ -1,0 +1,106 @@
+﻿<!-- ==================== مودال ایجاد/ویرایش ==================== -->
+<div class="modal fade" id="kt_modal_section" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+        <div class="modal-content rounded">
+            <!--begin::Modal header-->
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+            <!--end::Modal header-->
+
+            <!--begin::Modal body-->
+            <div class="modal-body scroll-y px-10 px-lg-15 pt-0 pb-15">
+                <form id="kt_modal_section_form" class="form" onsubmit="return false;">
+                    <!--begin::Heading-->
+                    <div class="mb-13 text-center">
+                        <h1 class="mb-3" id="modal-section-title">افزودن سرفصل</h1>
+                        <div class="text-muted fw-semibold fs-5">
+                            اطلاعات سرفصل دوره را وارد کنید
+                        </div>
+                    </div>
+                    <!--end::Heading-->
+
+                    <!--begin::Input group - Title-->
+                    <div class="fv-row mb-8">
+                        <label class="required fs-6 fw-semibold mb-2">عنوان</label>
+                        <input type="text" id="Form_Title" name="Form_Title"
+                               class="form-control form-control-solid"
+                               placeholder="مثال: مبانی C#" />
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Input group - DisplayOrder-->
+                    <div class="fv-row mb-8">
+                        <label class="fs-6 fw-semibold mb-2">ترتیب نمایش</label>
+                        <input type="number" id="Form_DisplayOrder" name="Form_DisplayOrder"
+                               class="form-control form-control-solid" value="1" />
+                        <div class="text-muted fs-7 mt-1">
+                            ترتیب سرفصل‌ها همچنین با درگ کردن سطرها در جدول قابل تغییر است
+                        </div>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Actions-->
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">انصراف</button>
+                        <button type="button" class="btn btn-primary" id="kt_modal_section_submit"
+                                onclick="submitSectionForm()">
+                            <span class="indicator-label">ذخیره</span>
+                            <span class="indicator-progress">
+                                لطفاً صبر کنید...
+                                <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                            </span>
+                        </button>
+                    </div>
+                    <!--end::Actions-->
+                </form>
+            </div>
+            <!--end::Modal body-->
+        </div>
+    </div>
+</div>
+
+<!-- ==================== مودال حذف ==================== -->
+<div class="modal fade" id="kt_modal_delete_section" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-500px">
+        <div class="modal-content rounded">
+            <!--begin::Modal header-->
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+            <!--end::Modal header-->
+
+            <!--begin::Modal body-->
+            <div class="modal-body text-center pt-0 pb-15 px-10">
+                <i class="ki-duotone ki-trash fs-5x text-danger mb-5">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                    <span class="path4"></span><span class="path5"></span>
+                </i>
+
+                <h2 class="mb-3">حذف سرفصل</h2>
+
+                <div class="text-muted fw-semibold fs-5 mb-8">
+                    آیا از حذف سرفصل
+                    <span class="fw-bold text-gray-900" id="delete-section-name"></span>
+                    مطمئن هستید؟
+                </div>
+
+                <div class="d-flex justify-content-center gap-3">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+                        <span class="indicator-label">بله، حذف شود</span>
+                        <span class="indicator-progress">
+                            لطفاً صبر کنید...
+                            <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+            <!--end::Modal body-->
+        </div>
+    </div>
+</div>
