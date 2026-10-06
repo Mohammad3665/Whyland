@@ -49999,8 +49999,3 @@ body,
     color: #ffffff !important;
   }
 }
-
-.actions-cell {
-    white-space: nowrap;
-    min-width: 80px;
-}

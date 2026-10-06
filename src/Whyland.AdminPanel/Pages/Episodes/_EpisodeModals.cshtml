@@ -1,0 +1,164 @@
+﻿<!--begin::Create/Edit Modal-->
+<div class="modal fade" id="kt_modal_episode" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+        <div class="modal-content rounded">
+            <!--begin::Modal header-->
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+            <!--end::Modal header-->
+
+            <!--begin::Modal body-->
+            <div class="modal-body scroll-y px-10 px-lg-15 pt-0 pb-15">
+                <form id="kt_modal_episode_form" class="form" onsubmit="return false;">
+                    <!--begin::Heading-->
+                    <div class="mb-13 text-center">
+                        <h1 class="mb-3" id="modal-episode-title">افزودن اپیزود</h1>
+                        <div class="text-muted fw-semibold fs-5">
+                            اطلاعات اپیزود را وارد کنید
+                        </div>
+                    </div>
+                    <!--end::Heading-->
+
+                    <!--begin::Input group - Title-->
+                    <div class="fv-row mb-8">
+                        <label class="required fs-6 fw-semibold mb-2">عنوان</label>
+                        <input type="text" id="Form_Title" name="Form_Title"
+                               class="form-control form-control-solid"
+                               placeholder="مثال: معرفی دوره و نصب ابزارها" />
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Input group - Description-->
+                    <div class="fv-row mb-8">
+                        <label class="fs-6 fw-semibold mb-2">توضیحات</label>
+                        <textarea id="Form_Description" name="Form_Description"
+                                  class="form-control form-control-solid" rows="3"
+                                  maxlength="2000" placeholder="توضیح کوتاه درباره محتوای اپیزود..."></textarea>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Input group - Video file & Video URL-->
+                    <div class="row g-9 mb-8">
+                        <div class="col-md-6 fv-row">
+                            <label class="fs-6 fw-semibold mb-2">آپلود فایل ویدیو</label>
+                            <input type="file" id="Form_Video" name="Form_Video"
+                                   class="form-control form-control-solid"
+                                   accept="video/mp4,video/webm" />
+                            <div class="text-muted fs-7 mt-1">mp4، webm — حداکثر ۵۰۰ مگابایت</div>
+                        </div>
+                        <div class="col-md-6 fv-row">
+                            <label class="fs-6 fw-semibold mb-2">آدرس ویدیو (هاست دانلود)</label>
+                            <input type="text" id="Form_VideoUrl" name="Form_VideoUrl"
+                                   class="form-control form-control-solid" dir="ltr"
+                                   placeholder="https://..." />
+                            <div class="text-muted fs-7 mt-1">
+                                با وارد کردن آدرس، آپلود فایل قفل می‌شود (و برعکس)
+                            </div>
+                        </div>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Input group - Duration & DisplayOrder-->
+                    <div class="row g-9 mb-8">
+                        <div class="col-md-6 fv-row">
+                            <label class="fs-6 fw-semibold mb-2">مدت زمان</label>
+                            <input type="text" id="Form_Duration" name="Form_Duration"
+                                   class="form-control form-control-solid" dir="ltr"
+                                   placeholder="مثال: 14:25" />
+                            <div class="text-muted fs-7 mt-1">
+                                با انتخاب ویدیو یا وارد کردن آدرس، به‌صورت خودکار محاسبه و قفل می‌شود
+                            </div>
+                        </div>
+                        <div class="col-md-6 fv-row">
+                            <label class="fs-6 fw-semibold mb-2">ترتیب نمایش</label>
+                            <input type="number" id="Form_DisplayOrder" name="Form_DisplayOrder"
+                                   class="form-control form-control-solid" value="1" />
+                            <div class="text-muted fs-7 mt-1">
+                                ترتیب اپیزودها همچنین با درگ کردن سطرها در جدول قابل تغییر است
+                            </div>
+                        </div>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Input group - IsFree-->
+                    <div class="d-flex flex-stack mb-8">
+                        <div class="me-5">
+                            <label class="fs-6 fw-semibold">اپیزود رایگان</label>
+                            <div class="text-muted fs-7">اپیزودهای رایگان بدون خرید برای همه کاربران قابل مشاهده هستند</div>
+                        </div>
+                        <label class="form-check form-switch form-check-custom form-check-solid">
+                            <input class="form-check-input" type="checkbox" id="Form_IsFree" />
+                            <span class="form-check-label fw-semibold text-muted">رایگان</span>
+                        </label>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Actions-->
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">انصراف</button>
+                        <button type="button" class="btn btn-primary" id="kt_modal_episode_submit"
+                                onclick="submitEpisodeForm()">
+                            <span class="indicator-label">ذخیره</span>
+                            <span class="indicator-progress">
+                                لطفاً صبر کنید...
+                                <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                            </span>
+                        </button>
+                    </div>
+                    <!--end::Actions-->
+                </form>
+            </div>
+            <!--end::Modal body-->
+        </div>
+    </div>
+</div>
+
+<!--end::Create/Edit Modal-->
+
+<!--begin::Delete Confirmation Modal-->
+<div class="modal fade" id="kt_modal_delete_episode" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-500px">
+        <div class="modal-content rounded">
+            <!--begin::Modal header-->
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+            <!--end::Modal header-->
+
+            <!--begin::Modal body-->
+            <div class="modal-body text-center pt-0 pb-15 px-10">
+                <i class="ki-duotone ki-trash fs-5x text-danger mb-5">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                    <span class="path4"></span><span class="path5"></span>
+                </i>
+
+                <h2 class="mb-3">حذف اپیزود</h2>
+
+                <div class="text-muted fw-semibold fs-5 mb-8">
+                    آیا از حذف اپیزود
+                    <span class="fw-bold text-gray-900" id="delete-episode-name"></span>
+                    مطمئن هستید؟
+                </div>
+
+                <div class="d-flex justify-content-center gap-3">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+                        <span class="indicator-label">بله، حذف شود</span>
+                        <span class="indicator-progress">
+                            لطفاً صبر کنید...
+                            <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+            <!--end::Modal body-->
+        </div>
+    </div>
+</div>
+
+<!--end::Delete Confirmation Modal-->

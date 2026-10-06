@@ -1,4 +1,4 @@
-﻿<!-- ==================== مودال تمام‌صفحه ایجاد/ویرایش ==================== -->
+﻿<!--begin::Create/Edit Modal (fullscreen)-->
 <div class="modal fade" id="kt_modal_course" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-focus="false">
     <div class="modal-dialog modal-fullscreen">
         <div class="modal-content">
@@ -16,7 +16,7 @@
                 <form id="kt_course_form" class="form d-flex flex-column flex-lg-row gap-7 gap-lg-10" onsubmit="return false;">
                     <input type="hidden" id="Form_Id" />
 
-                    <!-- ============ ستون کناری ============ -->
+                    <!--begin::Side column-->
                     <div class="d-flex flex-column gap-7 gap-lg-10 w-100 w-lg-350px">
 
                         <div class="card card-flush py-4">
@@ -105,7 +105,9 @@
                         </div>
                     </div>
 
-                    <!-- ============ ستون اصلی ============ -->
+                    <!--end::Side column-->
+
+                    <!--begin::Main column-->
                     <div class="d-flex flex-column flex-row-fluid gap-7 gap-lg-10">
 
                         <div class="card card-flush py-4">
@@ -196,6 +198,7 @@
                             </div>
                         </div>
                     </div>
+                    <!--end::Main column-->
                 </form>
             </div>
             <!--end::Modal body-->
@@ -216,7 +219,9 @@
     </div>
 </div>
 
-<!-- ==================== مودال حذف ==================== -->
+<!--end::Create/Edit Modal (fullscreen)-->
+
+<!--begin::Delete Confirmation Modal-->
 <div class="modal fade" id="kt_modal_delete_course" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered mw-500px">
         <div class="modal-content rounded">
@@ -250,3 +255,4 @@
         </div>
     </div>
 </div>
+<!--end::Delete Confirmation Modal-->

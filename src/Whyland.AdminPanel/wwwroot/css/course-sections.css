@@ -1,0 +1,4 @@
+#kt_course_sections_table thead th.dtr-control-col::before {
+  display: none !important;
+  content: none !important;
+}

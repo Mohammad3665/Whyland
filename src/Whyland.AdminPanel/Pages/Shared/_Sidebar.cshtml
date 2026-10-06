@@ -1,16 +1,18 @@
 ﻿@{
+    // #region Active menu helpers
     string? current = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
 
     bool IsActive(params string[] pages) =>
         pages.Any(p =>
         {
             string? folder = p.EndsWith("/Index") ? p[..^"/Index".Length] : p;
-            if (folder == "") return current == "/Index";   // صفحه اصلی فقط خودش
+            if (folder == "") return current == "/Index";   // the home page matches only itself
             return current == p || current.StartsWith(folder + "/");
         });
 
     string Active(params string[] pages) => IsActive(pages) ? "active" : "";
     string Open(params string[] pages)   => IsActive(pages) ? "here show" : "";
+    // #endregion
 }
 
 <!--begin::Sidebar-->

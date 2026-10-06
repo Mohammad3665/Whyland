@@ -133,13 +133,7 @@ table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control {
 [data-bs-theme="light"] .app-sidebar .menu .menu-item .menu-link .menu-title {
   color: #4b5675;
 }
-[data-bs-theme="light"]
-  .app-sidebar
-  .menu
-  .menu-item
-  .menu-link
-  .menu-icon
-  i {
+[data-bs-theme="light"] .app-sidebar .menu .menu-item .menu-link .menu-icon i {
   color: #99a1b7;
 }
 
@@ -341,3 +335,8 @@ table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control {
   background-color: #1c1c1c;
 }
 /* #endregion */
+
+.actions-cell {
+  white-space: nowrap;
+  min-width: 80px;
+}

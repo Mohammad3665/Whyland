@@ -1,0 +1,4 @@
+#kt_episodes_table thead th.dtr-control-col::before {
+  display: none !important;
+  content: none !important;
+}

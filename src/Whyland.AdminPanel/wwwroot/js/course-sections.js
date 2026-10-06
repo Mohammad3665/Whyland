@@ -6,27 +6,20 @@
  * Built on top of the shared AdminCrud module (admin-crud.js).
  */
 
+var reorder; // shared drag & drop ordering controller (set below)
+
 //#region CRUD Page Configuration
 var page = AdminCrud.createPage({
   table: {
     selector: "#kt_course_sections_table",
-    options: {
-      order: [], // keep the DOM (DisplayOrder) sequence
+    options: $.extend(true, AdminCrud.rowReorderOptions(), {
       columnDefs: [
         { orderable: false, targets: [0, 1, 4] },
-
-        // سه ستون اول → همیشه نمایش
-        { className: "all", targets: [0, 1, 2] },
-
-        // دو ستون آخر → فقط در موبایل مخفی شوند (در تبلت و دسکتاپ نمایش)
+        { className: "all", targets: [1, 2] },
         { className: "min-tablet", targets: [3, 4] },
+        { className: "dtr-control", targets: 0 },
       ],
-      rowReorder: {
-        selector: "td.reorder", // drag handle cell
-        dataSrc: 0,
-        update: false, // order cells are rewritten in the row-reordered handler
-      },
-    },
+    }),
   },
   search: "#sectionSearch",
   modal: {
@@ -49,7 +42,7 @@ var page = AdminCrud.createPage({
   // Populate the form fields from a section object (null = create mode).
   fillForm: function (s) {
     $("#Form_Title").val(s ? s.title : "");
-    $("#Form_DisplayOrder").val(s ? s.displayOrder : getNextOrder());
+    $("#Form_DisplayOrder").val(s ? s.displayOrder : reorder.getNextOrder());
   },
 
   // Collect the form into the section data object sent to the server.
@@ -62,54 +55,15 @@ var page = AdminCrud.createPage({
 });
 //#endregion
 
-//#region Order Helpers
-/** Returns 1 + the highest order number currently visible in the table. */
-function getNextOrder() {
-  var max = 0;
-  page.table
-    .cells(0, ":eq(0)", { page: "current" })
-    .nodes()
-    .to$()
-    .find(".section-order")
-    .each(function () {
-      max = Math.max(max, parseInt($(this).text(), 10) || 0);
-    });
-  return max + 1;
-}
-
-/** Rewrites the "ترتیب" badges 1..n according to the current row order. */
-function renumberRows() {
-  page.table.rows({ page: "current" }).every(function (rowIdx) {
-    $(this.node())
-      .find(".section-order")
-      .text(rowIdx + 1);
-  });
-}
-
-/**
- * Persists the new DisplayOrder values after a drag & drop.
- * TODO: wire up to a real endpoint (e.g. POST /CourseSections?handler=Reorder)
- * with [{ id, displayOrder }] once the data layer is connected.
- */
-function saveOrder() {
-  var rows = [];
-  page.table.rows({ page: "current" }).every(function () {
-    var $row = $(this.node());
-    rows.push({
-      id: $row.data("id"),
-      displayOrder: parseInt($row.find(".section-order").text(), 10) || 0,
-    });
-  });
-  console.log("Reorder sections:", rows);
-  toastr.success("ترتیب سرفصل‌ها با موفقیت ذخیره شد.", "موفق");
-}
-//#endregion
-
 //#region Drag & Drop Reordering
-// After RowReorder drops a row, renumber the order column and persist.
-page.table.on("row-reordered", function (e, diff, edit) {
-  renumberRows();
-  saveOrder();
+// Renumbers the «ترتیب» badges and persists the new order after a drop.
+// TODO: pass onSave here (POST [{ id, displayOrder }] to ?handler=Reorder)
+// once the data layer is connected.
+reorder = AdminCrud.bindRowReorder(page.table, {
+  badge: ".section-order",
+  orderCol: 1,
+  logLabel: "Reorder sections",
+  successMsg: "ترتیب سرفصل‌ها با موفقیت ذخیره شد.",
 });
 //#endregion
 

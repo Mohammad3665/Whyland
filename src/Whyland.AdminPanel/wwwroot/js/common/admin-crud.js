@@ -143,6 +143,129 @@
   };
   //#endregion
 
+  //#region Row Reorder (Drag & Drop Ordering)
+  /**
+   * Common DataTable options for the orderable admin tables: rows keep
+   * their DOM (DisplayOrder) sequence and can be dragged by the handle
+   * cell (td.reorder) using the RowReorder plugin. Pages merge their
+   * own columnDefs on top, e.g.:
+   *   options: $.extend(true, AdminCrud.rowReorderOptions(), { columnDefs: [...] })
+   */
+  function rowReorderOptions() {
+    return {
+      order: [], // keep the DOM (DisplayOrder) sequence
+      rowReorder: {
+        selector: "td.reorder", // drag handle cell
+        dataSrc: 1,
+        // Keep false: the plugin then only moves the <tr> nodes and never
+        // rewrites DataTables' internal row data — bindRowReorder does the
+        // renumbering/persistence in visual DOM order via the `row-reorder`
+        // event. (With update:true and order:[] the post-drop redraw would
+        // snap the rows back to the original internal order.)
+        update: false,
+      },
+    };
+  }
+
+  /**
+   * Wires drag & drop row ordering for one table created with
+   * rowReorderOptions(). Each row is expected to carry data-id and an
+   * order badge element (e.g. <span class="order-badge">) inside the
+   * order column. After every successful drop, the order column is
+   * renumbered 1..n and the new order is persisted.
+   *
+   * @param {DataTable} table
+   * @param {object} [opts]
+   *   badge:      selector of the order badge inside the order cell (default ".order-badge")
+   *   orderCol:   index of the order column (default 1; column 0 is the responsive control)
+   *   logLabel:   console label for the demo save (default "Reorder rows")
+   *   successMsg: toastr message shown after the demo save
+   *   onSave:     optional function(rows) to persist [{ id, displayOrder }];
+   *               when provided it replaces the demo console/toast behavior
+   * @returns {{getNextOrder: Function, renumber: Function, collect: Function}}
+   */
+  function bindRowReorder(table, opts) {
+    opts = $.extend(
+      {
+        badge: ".order-badge",
+        orderCol: 1,
+        logLabel: "Reorder rows",
+        successMsg: "ترتیب سطرها با موفقیت ذخیره شد.",
+        onSave: null,
+      },
+      opts || {},
+    );
+
+    /**
+     * Row nodes in *visual* order. Must read the DOM instead of
+     * table.rows(): with rowReorder.update=false the plugin only moves
+     * the <tr> nodes — DataTables' internal row order stays the original
+     * one, so iterating rows() would rewrite the very same numbers (the
+     * "order never changes" bug). tr[data-id] also skips the collapsed
+     * child rows that the Responsive extension inserts into the tbody.
+     */
+    function orderedRowNodes() {
+      return $(table.table().body())
+        .find("tr[data-id]")
+        .not(".child");
+    }
+
+    /** Returns 1 + the highest order number currently visible. */
+    function getNextOrder() {
+      var max = 0;
+      orderedRowNodes()
+        .find(opts.badge)
+        .each(function () {
+          max = Math.max(max, parseInt($(this).text(), 10) || 0);
+        });
+      return max + 1;
+    }
+
+    /** Rewrites the order badges 1..n following the visual row order. */
+    function renumber() {
+      orderedRowNodes().each(function (idx) {
+        $(this)
+          .find(opts.badge)
+          .text(idx + 1);
+      });
+    }
+
+    /** Collects [{ id, displayOrder }] in visual row order. */
+    function collect() {
+      return orderedRowNodes()
+        .map(function () {
+          var $row = $(this);
+          return {
+            id: $row.data("id"),
+            displayOrder: parseInt($row.find(opts.badge).text(), 10) || 0,
+          };
+        })
+        .get();
+    }
+
+    // `row-reorder` fires at drop time, after the plugin has already
+    // placed the dragged <tr> in its new DOM position — exactly what the
+    // DOM-order renumbering needs. The post-drop `row-reordered` event is
+    // NOT used because it never fires when update:false (see options).
+    // No draw()/invalidate() here: DataTables' internal order is left
+    // untouched on purpose.
+    table.on("row-reorder", function () {
+      renumber();
+      var rows = collect();
+      if (opts.onSave) {
+        opts.onSave(rows);
+      } else {
+        // Demo mode: pass onSave to this helper to POST the rows to a
+        // real endpoint (e.g. ?handler=Reorder) instead.
+        console.log(opts.logLabel + ":", rows);
+        toastr.success(opts.successMsg, "موفق");
+      }
+    });
+
+    return { getNextOrder: getNextOrder, renumber: renumber, collect: collect };
+  }
+  //#endregion
+
   //#region CRUD Page Controller
   /**
    * Wires up search, filters, create/edit modals and delete confirmation
@@ -302,6 +425,8 @@
     createPage: createCrudPage,
     createTable: createTable,
     bindFilters: bindFilters,
+    rowReorderOptions: rowReorderOptions,
+    bindRowReorder: bindRowReorder,
     Filters: Filters,
     Utils: Utils,
     FA_LANG: FA_LANG,

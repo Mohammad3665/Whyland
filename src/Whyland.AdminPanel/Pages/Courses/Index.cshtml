@@ -12,11 +12,12 @@
 @section Styles {
     <link rel="stylesheet" href="~/assets/plugins/custom/datatables/datatables.bundle.css" type="text/css" />
     <style>
-        /* دیالوگ‌ها و منوهای TinyMCE باید بالاتر از مودال تمام‌صفحه باشند */
+        /* #region TinyMCE z-index fixes — dialogs and menus must render above the fullscreen modal */
         .tox-tinymce-aux,
         .tox .tox-dialog-wrap,
         .tox .tox-silver-sink { z-index: 2000 !important; }
         .tox-tinymce { border-radius: .475rem !important; border-color: var(--bs-gray-300, #dbdfe9) !important; }
+        /* #endregion */
     </style>
 }
 
@@ -42,6 +43,7 @@
 <div id="kt_app_content" class="app-content flex-column-fluid">
     <div id="kt_app_content_container" class="app-container container-fluid">
 
+        <!--begin::Card-->
         <div class="card card-flush">
             <!--begin::Card header-->
             <div class="card-header align-items-center py-5 gap-2 gap-md-5">
@@ -240,6 +242,7 @@
             </div>
             <!--end::Card body-->
         </div>
+        <!--end::Card-->
     </div>
 </div>
 <!--end::Content-->
