@@ -20,6 +20,18 @@ body {
 }
 /* #endregion */
 
+/* #region DataTables Responsive Control Column Header */
+/* The Responsive extension paints its expand/collapse arrow via ::before
+   on the first-column header too (it gets the dtr-control class at
+   runtime), which would show a stray icon above the empty control
+   column. Hide it on every admin table using the dtr-control-col
+   header class; the per-row cells keep their arrows. */
+table.dataTable thead th.dtr-control-col::before {
+  display: none !important;
+  content: none !important;
+}
+/* #endregion */
+
 /* #region DataTables Responsive Child Rows */
 /* When DataTables collapses columns into a child row (responsive mode),
    show the details as a full-width, cleanly spaced definition list. */

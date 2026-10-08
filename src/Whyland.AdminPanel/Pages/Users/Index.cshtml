@@ -1,0 +1,297 @@
+﻿@page
+@using Whyland.AdminPanel.Models
+@model Whyland.AdminPanel.Pages.Users.IndexModel
+@{
+    ViewData["Title"] = "کاربران";
+    ViewData["Breadcrumbs"] = new List<BreadcrumbItem>
+    {
+        new BreadcrumbItem { Title = "پنل مدیریت", Url = "/Home/Index", IsActive = false },
+        new BreadcrumbItem { Title = "کاربران", Url = null, IsActive = true }
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/assets/plugins/custom/datatables/datatables.bundle.css" type="text/css" />
+}
+
+<!--begin::Toolbar-->
+<div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
+    <div id="kt_app_toolbar_container" class="app-container container-fluid d-flex flex-column flex-sm-row align-items-start align-items-lg-center justify-content-between gap-3">
+
+        <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
+            <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
+                مدیریت کاربران
+            </h1>
+            <div class="text-muted fw-semibold fs-7 pt-2">
+                لیست کاربران ثبت‌نام‌شده در پلتفرم
+            </div>
+        </div>
+
+        <!--begin::Actions-->
+        <div class="d-flex flex-wrap align-items-center gap-2 gap-lg-3">
+            <button type="button" class="btn btn-sm fw-bold btn-primary"
+                    onclick="openCreateModal()">
+                <i class="ki-duotone ki-plus fs-4 me-1"></i>
+                افزودن کاربر جدید
+            </button>
+        </div>
+        <!--end::Actions-->
+    </div>
+</div>
+<!--end::Toolbar-->
+
+<!--begin::Content-->
+<div id="kt_app_content" class="app-content flex-column-fluid">
+    <div id="kt_app_content_container" class="app-container container-fluid">
+
+        <!--begin::Card-->
+        <div class="card card-flush">
+            <!--begin::Card header-->
+            <div class="card-header align-items-center py-5 gap-2 gap-md-5">
+                <!--begin::Search-->
+                <div class="d-flex align-items-center position-relative my-1">
+                    <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
+                        <span class="path1"></span><span class="path2"></span>
+                    </i>
+                    <input type="text" id="userSearch"
+                           class="form-control form-control-solid w-250px ps-12"
+                           placeholder="جستجو در کاربران..." />
+                </div>
+                <!--end::Search-->
+
+                <!--begin::Status filter-->
+                <div class="d-flex align-items-center gap-2">
+                    <label class="fs-7 fw-semibold text-muted">وضعیت:</label>
+                    <select id="userStatusFilter" class="form-select form-select-solid w-150px" data-control="select2" data-hide-search="true">
+                        <option value="">همه</option>
+                        <option value="active">فعال</option>
+                        <option value="inactive">غیرفعال</option>
+                    </select>
+                </div>
+                <!--end::Status filter-->
+            </div>
+            <!--end::Card header-->
+
+            <!--begin::Card body-->
+            <div class="card-body pt-0">
+                <table id="kt_users_table" class="table table-striped table-row-bordered gy-5 gs-7 align-middle">
+                    <thead>
+                        <tr class="fw-semibold fs-6 text-gray-800 text-start">
+                            <th class="dtr-control-col w-25px"></th>
+                            <th class="text-start w-250px">نام و نام خانوادگی</th>
+                            <th class="text-start">ایمیل</th>
+                            <th class="text-start w-150px">شماره موبایل</th>
+                            <th class="text-start w-100px">وضعیت</th>
+                            <th class="text-start w-150px">آخرین ورود</th>
+                            <th class="text-start w-150px">تاریخ ایجاد</th>
+                            <th class="text-start actions-cell">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Demo rows — replace with real data when the data layer is wired up. -->
+                        <tr data-id="1" data-status="active">
+                            <td class="dtr-control-col"></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="symbol symbol-circle symbol-40px me-3">
+                                        <span class="symbol-label bg-light-primary text-primary fw-bold">ع‌م</span>
+                                    </div>
+                                    <div class="d-flex flex-column">
+                                        <span class="text-gray-800 fw-bold">علی محمدی</span>
+                                        <span class="text-muted fs-7">کاربر عادی</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="text-gray-600" dir="ltr">ali@example.com</span></td>
+                            <td><span class="text-gray-600" dir="ltr">۰۹۱۲۳۴۵۶۷۸۹</span></td>
+                            <td><span class="badge badge-light-success">فعال</span></td>
+                            <td data-order="2026-10-07">
+                                <span class="text-gray-600">۱۴۰۵/۰۷/۱۵</span>
+                            </td>
+                            <td data-order="2026-09-01">
+                                <span class="text-gray-600">۱۴۰۵/۰۶/۱۰</span>
+                            </td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info me-1"
+                                        onclick="window.location='/Users/Profile?id=1'" title="مشاهده پروفایل">
+                                    <i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary me-1"
+                                        onclick="openEditModal(1)" title="ویرایش">
+                                    <i class="ki-duotone ki-pencil fs-2"><span class="path1"></span><span class="path2"></span></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-warning me-1"
+                                        onclick="toggleUserStatus(1, 'علی محمدی', false)" title="تغییر وضعیت">
+                                    <i class="ki-duotone ki-shield-cross fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <tr data-id="2" data-status="active">
+                            <td class="dtr-control-col"></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="symbol symbol-circle symbol-40px me-3">
+                                        <span class="symbol-label bg-light-success text-success fw-bold">س‌ر</span>
+                                    </div>
+                                    <div class="d-flex flex-column">
+                                        <span class="text-gray-800 fw-bold">سارا رضایی</span>
+                                        <span class="text-muted fs-7">کاربر عادی</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="text-gray-600" dir="ltr">sara@example.com</span></td>
+                            <td><span class="text-gray-600" dir="ltr">۰۹۳۵۱۱۲۲۳۳۴</span></td>
+                            <td><span class="badge badge-light-success">فعال</span></td>
+                            <td data-order="2026-10-06">
+                                <span class="text-gray-600">۱۴۰۵/۰۷/۱۴</span>
+                            </td>
+                            <td data-order="2026-09-03">
+                                <span class="text-gray-600">۱۴۰۵/۰۶/۱۲</span>
+                            </td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info me-1"
+                                        onclick="window.location='/Users/Profile?id=2'" title="مشاهده پروفایل">
+                                    <i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary me-1"
+                                        onclick="openEditModal(2)" title="ویرایش">
+                                    <i class="ki-duotone ki-pencil fs-2"><span class="path1"></span><span class="path2"></span></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-warning me-1"
+                                        onclick="toggleUserStatus(2, 'سارا رضایی', false)" title="تغییر وضعیت">
+                                    <i class="ki-duotone ki-shield-cross fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <tr data-id="3" data-status="inactive">
+                            <td class="dtr-control-col"></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="symbol symbol-circle symbol-40px me-3">
+                                        <span class="symbol-label bg-light-danger text-danger fw-bold">م‌ک</span>
+                                    </div>
+                                    <div class="d-flex flex-column">
+                                        <span class="text-gray-800 fw-bold">محمد کریمی</span>
+                                        <span class="text-muted fs-7">کاربر عادی</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="text-gray-600" dir="ltr">m.karimi@example.com</span></td>
+                            <td><span class="text-gray-600" dir="ltr">۰۹۰۲۹۹۸۸۷۷۶</span></td>
+                            <td><span class="badge badge-light-danger">غیرفعال</span></td>
+                            <td data-order="2026-09-20">
+                                <span class="text-gray-600">۱۴۰۵/۰۶/۲۹</span>
+                            </td>
+                            <td data-order="2026-09-05">
+                                <span class="text-gray-600">۱۴۰۵/۰۶/۱۴</span>
+                            </td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info me-1"
+                                        onclick="window.location='/Users/Profile?id=3'" title="مشاهده پروفایل">
+                                    <i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary me-1"
+                                        onclick="openEditModal(3)" title="ویرایش">
+                                    <i class="ki-duotone ki-pencil fs-2"><span class="path1"></span><span class="path2"></span></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-success me-1"
+                                        onclick="toggleUserStatus(3, 'محمد کریمی', true)" title="تغییر وضعیت">
+                                    <i class="ki-duotone ki-shield-tick fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <tr data-id="4" data-status="active">
+                            <td class="dtr-control-col"></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="symbol symbol-circle symbol-40px me-3">
+                                        <span class="symbol-label bg-light-info text-info fw-bold">ن‌ا</span>
+                                    </div>
+                                    <div class="d-flex flex-column">
+                                        <span class="text-gray-800 fw-bold">نیما احمدی</span>
+                                        <span class="text-muted fs-7">کاربر عادی</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="text-gray-600" dir="ltr">nima@example.com</span></td>
+                            <td><span class="text-gray-600" dir="ltr">۰۹۱۱۷۷۷۶۶۵۵</span></td>
+                            <td><span class="badge badge-light-success">فعال</span></td>
+                            <td data-order="2026-10-08">
+                                <span class="text-gray-600">۱۴۰۵/۰۷/۱۶</span>
+                            </td>
+                            <td data-order="2026-09-08">
+                                <span class="text-gray-600">۱۴۰۵/۰۶/۱۷</span>
+                            </td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info me-1"
+                                        onclick="window.location='/Users/Profile?id=4'" title="مشاهده پروفایل">
+                                    <i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary me-1"
+                                        onclick="openEditModal(4)" title="ویرایش">
+                                    <i class="ki-duotone ki-pencil fs-2"><span class="path1"></span><span class="path2"></span></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-warning me-1"
+                                        onclick="toggleUserStatus(4, 'نیما احمدی', false)" title="تغییر وضعیت">
+                                    <i class="ki-duotone ki-shield-cross fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <tr data-id="5" data-status="inactive">
+                            <td class="dtr-control-col"></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="symbol symbol-circle symbol-40px me-3">
+                                        <span class="symbol-label bg-light-secondary fw-bold">ش‌ج</span>
+                                    </div>
+                                    <div class="d-flex flex-column">
+                                        <span class="text-gray-800 fw-bold">شیرین جعفری</span>
+                                        <span class="text-muted fs-7">کاربر عادی</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="text-gray-600" dir="ltr">shirin@example.com</span></td>
+                            <td><span class="text-gray-600" dir="ltr">۰۹۲۱۴۴۴۳۳۲۲</span></td>
+                            <td><span class="badge badge-light-danger">غیرفعال</span></td>
+                            <td data-order="2026-08-15">
+                                <span class="text-gray-600">۱۴۰۵/۰۵/۲۴</span>
+                            </td>
+                            <td data-order="2026-09-10">
+                                <span class="text-gray-600">۱۴۰۵/۰۶/۱۹</span>
+                            </td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info me-1"
+                                        onclick="window.location='/Users/Profile?id=5'" title="مشاهده پروفایل">
+                                    <i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary me-1"
+                                        onclick="openEditModal(5)" title="ویرایش">
+                                    <i class="ki-duotone ki-pencil fs-2"><span class="path1"></span><span class="path2"></span></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-success me-1"
+                                        onclick="toggleUserStatus(5, 'شیرین جعفری', true)" title="تغییر وضعیت">
+                                    <i class="ki-duotone ki-shield-tick fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!--end::Card body-->
+        </div>
+        <!--end::Card-->
+    </div>
+</div>
+<!--end::Content-->
+
+<partial name="_UserModals" />
+
+@section Scripts {
+    <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
+    <script src="~/js/common/admin-crud.js"></script>
+    <script src="~/js/users.js"></script>
+}

@@ -14,12 +14,7 @@ var page = AdminCrud.createPage({
   table: {
     selector: "#kt_episode_attachments_table",
     options: {
-      columnDefs: [
-        { orderable: false, targets: [0, 5] },
-        { className: "all", targets: [1] },
-        { className: "min-tablet", targets: [2, 3, 4, 5] },
-        { className: "dtr-control", targets: 0 },
-      ],
+      pageLength: 10,
     },
   },
   search: "#attachmentSearch",
@@ -42,11 +37,10 @@ var page = AdminCrud.createPage({
 
   // Populate the form fields from an attachment object (null = create mode).
   // Note: attachments have no edit — files cannot be modified after upload,
-  // only deleted and re-uploaded.
-  fillForm: function (att) {
-    att = att || { description: "" };
+  // only deleted and re-uploaded. The upload form has only the file input
+  // (section 3.5: file selection + limits display).
+  fillForm: function () {
     resetFileInput();
-    $("#Form_Description").val(att.description || "");
   },
 
   // Collect the form into the attachment data object sent to the server.
@@ -57,7 +51,6 @@ var page = AdminCrud.createPage({
       fileName: file ? file.name : null,
       contentType: file ? file.type : null,
       size: file ? file.size : 0,
-      description: $("#Form_Description").val().trim(),
     };
   },
 
@@ -88,7 +81,7 @@ var page = AdminCrud.createPage({
         dotIndex >= 0 ? file.name.slice(dotIndex).toLowerCase() : "";
       if (allowed.length && allowed.indexOf(extension) === -1) {
         errors.push(
-          "پسوند فایل مجاز نیست. پسوندهای مجاز: " + allowed.join("، ")
+          "پسوند فایل مجاز نیست. پسوندهای مجاز: " + allowed.join("، "),
         );
       }
 
@@ -97,7 +90,7 @@ var page = AdminCrud.createPage({
         errors.push(
           "حجم فایل بیشتر از حد مجاز است (حداکثر " +
             formatFileSize(maxSize) +
-            ")."
+            ").",
         );
       }
 
@@ -105,7 +98,7 @@ var page = AdminCrud.createPage({
       var currentCount = page.table.rows().count();
       if (maxCount > 0 && currentCount + 1 > maxCount) {
         errors.push(
-          "حداکثر تعداد پیوست برای هر اپیزود " + maxCount + " مورد است."
+          "حداکثر تعداد پیوست برای هر اپیزود " + maxCount + " مورد است.",
         );
       }
     }
@@ -140,7 +133,7 @@ $("#Form_AttachmentFile").on("change", function () {
     $(this).removeClass("is-invalid");
     toastr.info(
       file.name + " (" + formatFileSize(file.size) + ") انتخاب شد.",
-      "فایل انتخاب شد"
+      "فایل انتخاب شد",
     );
   }
 });

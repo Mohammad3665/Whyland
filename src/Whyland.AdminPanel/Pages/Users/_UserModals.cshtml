@@ -1,0 +1,198 @@
+﻿<!--begin::Create/Edit Modal (section 4.2)-->
+<div class="modal fade" id="kt_modal_user" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded">
+            <!--begin::Modal header-->
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+            <!--end::Modal header-->
+
+            <!--begin::Modal body-->
+            <div class="modal-body scroll-y px-10 px-lg-15 pt-0 pb-15">
+                <form id="kt_modal_user_form" class="form" onsubmit="return false;">
+                    <!--begin::Heading-->
+                    <div class="mb-10 text-center">
+                        <h1 class="mb-3" id="modal-user-title">افزودن کاربر</h1>
+                        <div class="text-muted fw-semibold fs-5">
+                            اطلاعات کاربر را وارد کنید
+                        </div>
+                    </div>
+                    <!--end::Heading-->
+
+                    <!--begin::Base info-->
+                    <h3 class="mb-6 text-gray-900 fw-bold fs-5">اطلاعات پایه</h3>
+
+                    <!--begin::Input group - Names-->
+                    <div class="row g-9 mb-6">
+                        <div class="col-md-6 fv-row">
+                            <label class="required fs-6 fw-semibold mb-2">نام</label>
+                            <input type="text" id="Form_FirstName" name="Form_FirstName"
+                                   class="form-control form-control-solid"
+                                   placeholder="مثال: علی" />
+                        </div>
+                        <div class="col-md-6 fv-row">
+                            <label class="required fs-6 fw-semibold mb-2">نام خانوادگی</label>
+                            <input type="text" id="Form_LastName" name="Form_LastName"
+                                   class="form-control form-control-solid"
+                                   placeholder="مثال: محمدی" />
+                        </div>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Input group - Email & Phone-->
+                    <div class="row g-9 mb-6">
+                        <div class="col-md-6 fv-row">
+                            <label class="fs-6 fw-semibold mb-2">ایمیل</label>
+                            <input type="email" id="Form_Email" name="Form_Email"
+                                   class="form-control form-control-solid" dir="ltr"
+                                   placeholder="example@mail.com" />
+                            <div class="text-muted fs-7 mt-1">در صورت وارد شدن باید یکتا باشد</div>
+                        </div>
+                        <div class="col-md-6 fv-row">
+                            <label class="required fs-6 fw-semibold mb-2">شماره موبایل</label>
+                            <input type="tel" id="Form_PhoneNumber" name="Form_PhoneNumber"
+                                   class="form-control form-control-solid" dir="ltr"
+                                   placeholder="09xxxxxxxxx" />
+                            <div class="text-muted fs-7 mt-1">برای ورود با OTP استفاده می‌شود؛ در صورت وارد شدن یکتا</div>
+                        </div>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Input group - Password-->
+                    <div class="row g-9 mb-6">
+                        <div class="col-md-6 fv-row" id="user-password-row">
+                            <label class="required fs-6 fw-semibold mb-2" id="user-password-label">رمز عبور</label>
+                            <input type="password" id="Form_Password" name="Form_Password"
+                                   class="form-control form-control-solid" dir="ltr"
+                                   placeholder="••••••••" />
+                            <div class="text-muted fs-7 mt-1" id="user-password-hint">
+                                فقط هنگام ایجاد کاربر وارد می‌شود؛ در ویرایش مخفی است
+                            </div>
+                        </div>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Input group - IsActive-->
+                    <div class="d-flex flex-stack mb-10">
+                        <div class="me-5">
+                            <label class="fs-6 fw-semibold">وضعیت فعال</label>
+                            <div class="text-muted fs-7">کاربر غیرفعال امکان ورود به سایت را ندارد</div>
+                        </div>
+                        <label class="form-check form-switch form-check-custom form-check-solid">
+                            <input class="form-check-input" type="checkbox" id="Form_IsActive" checked />
+                            <span class="form-check-label fw-semibold text-muted">فعال</span>
+                        </label>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Profile info (section 4.2: BirthDate + Gender only)-->
+                    <div class="separator separator-dashed my-8"></div>
+                    <h3 class="mb-6 text-gray-900 fw-bold fs-5">پروفایل کاربر</h3>
+
+                    <!--begin::Input group - BirthDate & Gender-->
+                    <div class="row g-9 mb-10">
+                        <div class="col-md-6 fv-row">
+                            <label class="fs-6 fw-semibold mb-2">تاریخ تولد</label>
+                            <input type="text" id="Form_BirthDate" name="Form_BirthDate"
+                                   class="form-control form-control-solid"
+                                   placeholder="مثال: ۱۳۷۰/۰۵/۱۵" />
+                        </div>
+                        <div class="col-md-6 fv-row">
+                            <label class="fs-6 fw-semibold mb-2">جنسیت</label>
+                            <select id="Form_Gender" name="Form_Gender" class="form-select form-select-solid" data-control="select2" data-hide-search="true">
+                                <option value="">انتخاب نشده</option>
+                                <option value="male">مرد</option>
+                                <option value="female">زن</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Roles-->
+                    <div class="separator separator-dashed my-8"></div>
+                    <h3 class="mb-2 text-gray-900 fw-bold fs-5">نقش‌ها</h3>
+                    <div class="text-muted fs-7 mb-6">
+                        نقش‌های مورد نظر کاربر را انتخاب کنید (چندگانه)
+                    </div>
+
+                    <div class="fv-row mb-10">
+                        <select id="Form_Roles" name="Form_Roles" class="form-select form-select-solid"
+                                data-control="select2" data-close-on-select="false" multiple
+                                data-placeholder="انتخاب نقش‌ها...">
+                            <option value="student">دانشجو</option>
+                            <option value="instructor">مدرس</option>
+                            <option value="support">پشتیبان</option>
+                            <option value="admin">مدیر</option>
+                        </select>
+                    </div>
+                    <!--end::Roles-->
+
+                    <!--begin::Actions-->
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">انصراف</button>
+                        <button type="button" class="btn btn-primary" id="kt_modal_user_submit"
+                                onclick="submitUserForm()">
+                            <span class="indicator-label">ذخیره</span>
+                            <span class="indicator-progress">
+                                لطفاً صبر کنید...
+                                <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                            </span>
+                        </button>
+                    </div>
+                    <!--end::Actions-->
+                </form>
+            </div>
+            <!--end::Modal body-->
+        </div>
+    </div>
+</div>
+
+<!--end::Create/Edit Modal-->
+
+<!--begin::Toggle Status Confirmation Modal-->
+<div class="modal fade" id="kt_modal_toggle_user_status" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-500px">
+        <div class="modal-content rounded">
+            <!--begin::Modal header-->
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+            <!--end::Modal header-->
+
+            <!--begin::Modal body-->
+            <div class="modal-body text-center pt-0 pb-15 px-10">
+                <i class="ki-duotone ki-shield fs-5x text-warning mb-5">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                </i>
+
+                <h2 class="mb-3">تغییر وضعیت کاربر</h2>
+
+                <div class="text-muted fw-semibold fs-5 mb-8">
+                    آیا از
+                    <span class="fw-bold text-gray-900" id="toggle-status-user-name"></span>
+                    <span id="toggle-status-user-text"></span>
+                    مطمئن هستید؟
+                </div>
+
+                <div class="d-flex justify-content-center gap-3">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
+                    <button type="button" class="btn btn-warning" onclick="confirmToggleStatus()">
+                        <span class="indicator-label">بله، تغییر بده</span>
+                        <span class="indicator-progress">
+                            لطفاً صبر کنید...
+                            <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+            <!--end::Modal body-->
+        </div>
+    </div>
+</div>
+
+<!--end::Toggle Status Confirmation Modal-->
