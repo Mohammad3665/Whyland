@@ -1,0 +1,201 @@
+@*
+    Fullscreen create/edit modal for the instructor profile (section 4.3),
+    mirroring the "Add Course" modal shell in Pages/Courses/_CourseModals.cshtml.
+    Read-only view lives in /InstructorProfile; this modal is opened with
+    openEditModal() and holds all editable InstructorProfile fields.
+*@
+<div class="modal fade" id="kt_modal_instructor_profile" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-focus="false">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <!--begin::Modal header-->
+            <div class="modal-header">
+                <h2 class="fw-bold mb-0" id="modal-instructor-profile-title">ویرایش پروفایل مدرس</h2>
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+            <!--end::Modal header-->
+
+            <!--begin::Modal body-->
+            <div class="modal-body bg-light px-5 px-lg-10 py-7">
+                <form id="kt_instructor_profile_form" class="form d-flex flex-column flex-lg-row gap-7 gap-lg-10" onsubmit="return false;">
+                    <input type="hidden" id="Form_UserId" value="@Model.UserId" />
+
+                    <!--begin::Side column-->
+                    <div class="d-flex flex-column gap-7 gap-lg-10 w-100 w-lg-350px">
+
+                        <!--begin::Image card-->
+                        <div class="card card-flush py-4">
+                            <div class="card-header"><div class="card-title"><h2>تصویر پروفایل</h2></div></div>
+                            <div class="card-body text-center pt-0 pb-6">
+                                <div id="Form_ProfileImage_wrapper"
+                                    class="mb-6 d-flex align-items-center justify-content-center mx-auto"
+                                    style="width: 240px; height: 240px;">
+                                    <img id="Form_ProfileImage_preview"
+                                        src="/assets/media/svg/files/blank-image.svg"
+                                        alt=""
+                                        style="width: 100%; height: 100%; object-fit: contain; border-radius: 0.475rem; background: var(--bs-body-bg);"
+                                        onerror="this.style.visibility='hidden';" />
+                                </div>
+
+                                <label class="btn btn-sm btn-light-primary mb-2" for="Form_ProfileImageFile">
+                                    <i class="ki-duotone ki-pencil fs-4 me-1"><span class="path1"></span><span class="path2"></span></i>
+                                    انتخاب تصویر
+                                </label>
+                                <input type="file" id="Form_ProfileImageFile" name="Form_ProfileImageFile"
+                                    accept=".png,.jpg,.jpeg,.webp"
+                                    onchange="previewModalProfileImage(this)" style="display: none;" />
+                                <input type="hidden" name="Form_ProfileImage_remove" />
+
+                                <button type="button" class="btn btn-sm btn-light-danger mb-2"
+                                        onclick="markProfileImageRemoved()">
+                                    <i class="ki-duotone ki-trash fs-4 me-1"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span></i>
+                                    حذف تصویر فعلی
+                                </button>
+
+                                <div class="text-muted fs-7 mt-2">
+                                    فرمت‌های مجاز: JPG، PNG، WebP — حداکثر ۲ مگابایت
+                                </div>
+                            </div>
+                        </div>
+                        <!--end::Image card-->
+
+                        <!--begin::Links card-->
+                        <div class="card card-flush py-4">
+                            <div class="card-header"><div class="card-title"><h2>شبکه‌های اجتماعی</h2></div></div>
+                            <div class="card-body pt-0">
+                                <div class="fv-row mb-8">
+                                    <label class="fs-6 fw-semibold mb-2">وب‌سایت</label>
+                                    <div class="input-group input-group-solid">
+                                        <span class="input-group-text"><i class="fas fa-globe fs-4 me-1"></i><span class="path1"></span><span class="path2"></span></i></span>
+                                        <input type="url" id="Form_Website" name="Form_Website"
+                                               class="form-control" dir="ltr"
+                                               placeholder="https://example.com" />
+                                    </div>
+                                </div>
+                                <div class="fv-row mb-8">
+                                    <label class="fs-6 fw-semibold mb-2">لینکدین</label>
+                                    <div class="input-group input-group-solid">
+                                        <span class="input-group-text" dir="ltr"><i class="fab fa-linkedin-in fs-4 me-1"></i></span>
+                                        <input type="text" id="Form_LinkedIn" name="Form_LinkedIn"
+                                               class="form-control" dir="ltr"
+                                               placeholder="linkedin.com/in/username" />
+                                    </div>
+                                </div>
+                                <div class="fv-row">
+                                    <label class="fs-6 fw-semibold mb-2">اینستاگرام</label>
+                                    <div class="input-group input-group-solid">
+                                        <span class="input-group-text"><i class="fab fa-instagram fs-4 me-1"></i><span class="path1"></span><span class="path2"></span></i></span>
+                                        <input type="text" id="Form_Instagram" name="Form_Instagram"
+                                               class="form-control" dir="ltr"
+                                               placeholder="instagram.com/username" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--end::Links card-->
+                    </div>
+                    <!--end::Side column-->
+
+                    <!--begin::Main column-->
+                    <div class="d-flex flex-column flex-row-fluid gap-7 gap-lg-10">
+
+                        <!--begin::Biography card-->
+                        <div class="card card-flush py-4">
+                            <div class="card-header"><div class="card-title"><h2>بیوگرافی</h2></div></div>
+                            <div class="card-body pt-0">
+                                <div class="fv-row mb-8">
+                                    <label class="fs-6 fw-semibold mb-2">بیوگرافی کوتاه</label>
+                                    <textarea id="Form_Bio" name="Form_Bio" rows="3" maxlength="300"
+                                              class="form-control form-control-solid"
+                                              placeholder="متنی کوتاه برای نمایش در کارت مدرس و لیست دوره‌ها (حداکثر ۳۰۰ کاراکتر)"
+                                              oninput="document.getElementById('bio-char-count').textContent = this.value.length + ' / 300';"></textarea>
+                                    <div class="text-muted fs-7 mt-1">
+                                        <span id="bio-char-count">0 / 300</span>
+                                    </div>
+                                </div>
+
+                                <div class="fv-row">
+                                    <label class="fs-6 fw-semibold mb-2">بیوگرافی کامل</label>
+                                    <textarea id="Form_Biography" name="Form_Biography" rows="7"
+                                              class="form-control form-control-solid"
+                                              placeholder="متن کامل معرفی مدرس که در صفحه اختصاصی او نمایش داده می‌شود"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <!--end::Biography card-->
+
+                        <!--begin::Specialization card-->
+                        <div class="card card-flush py-4">
+                            <div class="card-header"><div class="card-title"><h2>تخصص</h2></div></div>
+                            <div class="card-body pt-0">
+                                <div class="fv-row">
+                                    <label class="fs-6 fw-semibold mb-2">تخصص</label>
+                                    <input type="text" id="Form_Specialization" name="Form_Specialization"
+                                           class="form-control form-control-solid"
+                                           placeholder="مثال: توسعه‌دهنده بک‌اند" />
+                                </div>
+                            </div>
+                        </div>
+                        <!--end::Specialization card-->
+
+                        <!--begin::Address & bank card-->
+                        <div class="card card-flush py-4">
+                            <div class="card-header"><div class="card-title"><h2>آدرس و اطلاعات مالی</h2></div></div>
+                            <div class="card-body pt-0">
+                                <div class="fv-row mb-8">
+                                    <label class="fs-6 fw-semibold mb-2">آدرس</label>
+                                    <textarea id="Form_Address" name="Form_Address" rows="2"
+                                              class="form-control form-control-solid"
+                                              placeholder="آدرس کامل سکونت یا دفتر"></textarea>
+                                </div>
+
+                                <div class="row g-9">
+                                    <div class="col-md-6 fv-row">
+                                        <label class="fs-6 fw-semibold mb-2">شماره شبا</label>
+                                        <div class="input-group input-group-solid">
+                                            <span class="input-group-text" dir="ltr">IR</span>
+                                            <input type="text" id="Form_ShebaNumber" name="Form_ShebaNumber"
+                                                   class="form-control" dir="ltr" inputmode="numeric"
+                                                   maxlength="35" oninput="formatSheba(this)"
+                                                   placeholder="0000 0000 0000 0000 0000 0000" />
+                                        </div>
+                                        <div class="text-muted fs-7 mt-1">
+                                            ۲۴ رقم بدون "IR" — اعتبارسنجی در سمت سرور انجام می‌شود
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 fv-row">
+                                        <label class="fs-6 fw-semibold mb-2">شماره حساب</label>
+                                        <div class="input-group input-group-solid">
+                                            <span class="input-group-text"><i class="ki-duotone ki-bank fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i></span>
+                                            <input type="text" id="Form_BankAccountNumber" name="Form_BankAccountNumber"
+                                                   class="form-control" dir="ltr" inputmode="numeric"
+                                                   maxlength="20" placeholder="000000000000" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--end::Address & bank card-->
+                    </div>
+                    <!--end::Main column-->
+                </form>
+            </div>
+            <!--end::Modal body-->
+
+            <!--begin::Modal footer-->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-primary" id="kt_instructor_profile_submit" onclick="saveInstructorProfile()">
+                    <span class="indicator-label">ذخیره</span>
+                    <span class="indicator-progress">
+                        لطفاً صبر کنید...
+                        <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                    </span>
+                </button>
+            </div>
+            <!--end::Modal footer-->
+        </div>
+    </div>
+</div>
+<!--end::Fullscreen Edit Modal-->
