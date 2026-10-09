@@ -1,0 +1,350 @@
+﻿﻿<!--begin::Create/Edit Modal (same page; section 5.2 of the UI/UX doc)-->
+<div class="modal fade" id="kt_modal_role" tabindex="-1" aria-hidden="true">
+    <!--begin::Modal dialog-->
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+        <!--begin::Modal content-->
+        <div class="modal-content rounded">
+            <!--begin::Modal header-->
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <!--begin::Close-->
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1">
+                        <span class="path1"></span><span class="path2"></span>
+                    </i>
+                </div>
+                <!--end::Close-->
+            </div>
+            <!--end::Modal header-->
+
+            <!--begin::Modal body-->
+            <div class="modal-body scroll-y px-10 px-lg-15 pt-0 pb-15">
+                <!--begin::Heading-->
+                <div class="text-center mb-10">
+                    <h2 class="fw-bolder mb-3" id="modal-role-title">افزودن نقش جدید</h2>
+                    <div class="text-muted fs-7 fw-semibold">
+                        نام و عنوان نقش را وارد کنید.
+                    </div>
+                </div>
+                <!--end::Heading-->
+
+                <!--begin::Form (demo; no backend handler yet)-->
+                <form id="kt_role_form" class="form" onsubmit="return false;">
+
+                    <!--begin::Input group: Title-->
+                    <div class="mb-10">
+                        <label class="form-label fs-6 fw-bold text-gray-900" for="Form_Title">
+                            <span>عنوان:</span>
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" id="Form_Title" name="Form_Title"
+                               class="form-control form-control-solid"
+                               placeholder="مثال: مدیر محتوا" />
+                        <div class="form-text">عنوان نمایشی نقش در پنل مدیریت.</div>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Input group: Name-->
+                    <div class="mb-10">
+                        <label class="form-label fs-6 fw-bold text-gray-900" for="Form_Name">
+                            <span>نام (Name):</span>
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" id="Form_Name" name="Form_Name"
+                               class="form-control form-control-solid" dir="ltr"
+                               placeholder="مثال: ContentManager" />
+                        <div class="form-text">شناسه انگلیسی و یکتا؛ بدون فاصله — مثال: ContentManager</div>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Input group: IsSystem (readonly in edit)-->
+                    <div class="mb-10">
+                        <label class="form-label d-block fs-6 fw-bold text-gray-900">
+                            <span>نقش سیستمی:</span>
+                        </label>
+                        <div id="RoleIsSystemEdit" class="d-none">
+                            <span class="badge badge-light-primary">
+                                <i class="ki-duotone ki-shield-cross fs-4 me-1">
+                                    <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                                    <span class="path4"></span><span class="path5"></span><span class="path6"></span>
+                                    <span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span>
+                                </i>
+                                این نقش سیستمی است و نوع آن قابل تغییر نیست
+                            </span>
+                        </div>
+                        <div id="RoleIsSystemCreate" class="form-check form-switch form-check-solid">
+                            <input class="form-check-input" type="checkbox" id="Form_IsSystem" name="Form_IsSystem" />
+                            <label class="form-check-label fw-semibold text-gray-700" for="Form_IsSystem">
+                                این نقش را سیستمی ثبت کن (قابل حذف نخواهد بود)
+                            </label>
+                        </div>
+                    </div>
+                    <!--end::Input group-->
+
+                </form>
+                <!--end::Form-->
+            </div>
+            <!--end::Modal body-->
+
+            <!--begin::Modal footer-->
+            <div class="modal-footer border-0 pt-0 justify-content-center">
+                <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-primary" id="kt_role_submit" onclick="submitRoleForm()">
+                    <span class="indicator-label">ذخیره</span>
+                    <span class="indicator-progress">
+                        لطفاً صبر کنید...
+                        <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                    </span>
+                </button>
+            </div>
+            <!--end::Modal footer-->
+        </div>
+        <!--end::Modal content-->
+    </div>
+    <!--end::Modal dialog-->
+</div>
+<!--end::Create/Edit Modal-->
+
+<!--begin::Delete Confirmation Modal-->
+<div class="modal fade" id="kt_modal_delete_role" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-500px">
+        <div class="modal-content rounded">
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1">
+                        <span class="path1"></span><span class="path2"></span>
+                    </i>
+                </div>
+            </div>
+            <div class="modal-body text-center pt-0 pb-15 px-10">
+                <i class="ki-duotone ki-trash fs-5x text-danger mb-5">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                    <span class="path4"></span><span class="path5"></span>
+                </i>
+                <h2 class="mb-3">حذف نقش</h2>
+                <div class="text-muted fw-semibold fs-5 mb-8">
+                    آیا از حذف نقش
+                    <span class="fw-bold text-gray-900" id="delete-role-name"></span>
+                    مطمئن هستید؟
+                </div>
+                <div class="text-muted fs-7 mb-8">
+                    نقش سیستم می‌تواند این نقش را بپوشاند؛ اعمال دسترسی‌های وابسته از کاربران برداشته می‌شود.
+                </div>
+                <div class="d-flex justify-content-center gap-3">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+                        <span class="indicator-label">بله، حذف شود</span>
+                        <span class="indicator-progress">
+                            لطفاً صبر کنید...
+                            <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end::Delete Confirmation Modal-->
+
+<!--begin::Role Permissions Modal (section 5.3)-->
+<div class="modal fade" id="kt_modal_role_permissions" tabindex="-1" aria-hidden="true">
+    <!--begin::Modal dialog-->
+    <div class="modal-dialog modal-dialog-centered mw-700px">
+        <!--begin::Modal content-->
+        <div class="modal-content rounded">
+            <!--begin::Modal header-->
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <!--begin::Close-->
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1">
+                        <span class="path1"></span><span class="path2"></span>
+                    </i>
+                </div>
+                <!--end::Close-->
+            </div>
+            <!--end::Modal header-->
+
+            <!--begin::Modal body-->
+            <div class="modal-body scroll-y px-10 px-lg-15 pt-0 pb-10">
+                <!--begin::Heading-->
+                <div class="text-center mb-8">
+                    <h2 class="fw-bolder mb-3">مدیریت دسترسی‌های نقش</h2>
+                    <div class="text-muted fs-7 fw-semibold">
+                        نقش: <span class="fw-bold text-gray-800" id="permissions-role-name">—</span>
+                    </div>
+                </div>
+                <!--end::Heading-->
+
+                <!--begin::Permission groups (server-rendered demo; grouped by module)-->
+                <div id="role_permissions_list" class="d-flex flex-column gap-6">
+
+                    <!--begin::Group: Courses-->
+                    <div class="rounded border border-gray-300 p-6">
+                        <div class="form-check form-check-custom form-check-solid form-check-sm mb-4">
+                            <input class="form-check-input perm-group" type="checkbox" id="perm_group_courses" data-group="courses" />
+                            <label class="form-check-label fs-6 fw-bold text-gray-900" for="perm_group_courses">
+                                دوره‌ها
+                            </label>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="form-check form-check-custom form-check-solid form-check-sm">
+                                    <input class="form-check-input perm-item" type="checkbox" id="perm_courses_view" data-group="courses" data-perm="Courses.View" />
+                                    <label class="form-check-label fs-7 text-gray-700" for="perm_courses_view">مشاهده دوره</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-check-custom form-check-solid form-check-sm">
+                                    <input class="form-check-input perm-item" type="checkbox" id="perm_courses_create" data-group="courses" data-perm="Courses.Create" />
+                                    <label class="form-check-label fs-7 text-gray-700" for="perm_courses_create">ایجاد دوره</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-check-custom form-check-solid form-check-sm">
+                                    <input class="form-check-input perm-item" type="checkbox" id="perm_courses_edit" data-group="courses" data-perm="Courses.Edit" />
+                                    <label class="form-check-label fs-7 text-gray-700" for="perm_courses_edit">ویرایش دوره</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-check-custom form-check-solid form-check-sm">
+                                    <input class="form-check-input perm-item" type="checkbox" id="perm_courses_delete" data-group="courses" data-perm="Courses.Delete" />
+                                    <label class="form-check-label fs-7 text-gray-700" for="perm_courses_delete">حذف دوره</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end::Group: Courses-->
+
+                    <!--begin::Group: Categories-->
+                    <div class="rounded border border-gray-300 p-6">
+                        <div class="form-check form-check-custom form-check-solid form-check-sm mb-4">
+                            <input class="form-check-input perm-group" type="checkbox" id="perm_group_categories" data-group="categories" />
+                            <label class="form-check-label fs-6 fw-bold text-gray-900" for="perm_group_categories">
+                                دسته‌بندی‌ها
+                            </label>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="form-check form-check-custom form-check-solid form-check-sm">
+                                    <input class="form-check-input perm-item" type="checkbox" id="perm_categories_view" data-group="categories" data-perm="Categories.View" />
+                                    <label class="form-check-label fs-7 text-gray-700" for="perm_categories_view">مشاهده دسته‌بندی</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-check-custom form-check-solid form-check-sm">
+                                    <input class="form-check-input perm-item" type="checkbox" id="perm_categories_manage" data-group="categories" data-perm="Categories.Manage" />
+                                    <label class="form-check-label fs-7 text-gray-700" for="perm_categories_manage">مدیریت دسته‌بندی</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end::Group: Categories-->
+
+                    <!--begin::Group: Users-->
+                    <div class="rounded border border-gray-300 p-6">
+                        <div class="form-check form-check-custom form-check-solid form-check-sm mb-4">
+                            <input class="form-check-input perm-group" type="checkbox" id="perm_group_users" data-group="users" />
+                            <label class="form-check-label fs-6 fw-bold text-gray-900" for="perm_group_users">
+                                کاربران
+                            </label>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="form-check form-check-custom form-check-solid form-check-sm">
+                                    <input class="form-check-input perm-item" type="checkbox" id="perm_users_view" data-group="users" data-perm="Users.View" />
+                                    <label class="form-check-label fs-7 text-gray-700" for="perm_users_view">مشاهده کاربر</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-check-custom form-check-solid form-check-sm">
+                                    <input class="form-check-input perm-item" type="checkbox" id="perm_users_edit" data-group="users" data-perm="Users.Edit" />
+                                    <label class="form-check-label fs-7 text-gray-700" for="perm_users_edit">ویرایش کاربر</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-check-custom form-check-solid form-check-sm">
+                                    <span class="badge badge-light-primary">
+                                        <i class="ki-duotone ki-shield-tick fs-4 me-1">
+                                            <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span>
+                                        </i>
+                                        سیستمی
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end::Group: Users-->
+
+                    <!--begin::Group: Orders & Payments-->
+                    <div class="rounded border border-gray-300 p-6">
+                        <div class="form-check form-check-custom form-check-solid form-check-sm mb-4">
+                            <input class="form-check-input perm-group" type="checkbox" id="perm_group_orders" data-group="orders" />
+                            <label class="form-check-label fs-6 fw-bold text-gray-900" for="perm_group_orders">
+                                سفارش‌ها و پرداخت‌ها
+                            </label>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="form-check form-check-custom form-check-solid form-check-sm">
+                                    <input class="form-check-input perm-item" type="checkbox" id="perm_orders_view" data-group="orders" data-perm="Orders.View" />
+                                    <label class="form-check-label fs-7 text-gray-700" for="perm_orders_view">مشاهده سفارش</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-check-custom form-check-solid form-check-sm">
+                                    <input class="form-check-input perm-item" type="checkbox" id="perm_orders_manage" data-group="orders" data-perm="Orders.Manage" />
+                                    <label class="form-check-label fs-7 text-gray-700" for="perm_orders_manage">مدیریت سفارش</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end::Group: Orders & Payments-->
+
+                    <!--begin::Group: Roles & Permissions-->
+                    <div class="rounded border border-gray-300 p-6">
+                        <div class="form-check form-check-custom form-check-solid form-check-sm mb-4">
+                            <input class="form-check-input perm-group" type="checkbox" id="perm_group_roles" data-group="roles" />
+                            <label class="form-check-label fs-6 fw-bold text-gray-900" for="perm_group_roles">
+                                نقش‌ها و دسترسی‌ها
+                            </label>
+                        </div>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="form-check form-check-custom form-check-solid form-check-sm">
+                                    <input class="form-check-input perm-item" type="checkbox" id="perm_roles_view" data-group="roles" data-perm="Roles.View" />
+                                    <label class="form-check-label fs-7 text-gray-700" for="perm_roles_view">مشاهده نقش‌ها</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-check-custom form-check-solid form-check-sm">
+                                    <input class="form-check-input perm-item" type="checkbox" id="perm_roles_manage" data-group="roles" data-perm="Roles.Manage" />
+                                    <label class="form-check-label fs-7 text-gray-700" for="perm_roles_manage">مدیریت نقش‌ها</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end::Group: Roles & Permissions-->
+
+                </div>
+                <!--end::Permission groups-->
+            </div>
+            <!--end::Modal body-->
+
+            <!--begin::Modal footer-->
+            <div class="modal-footer border-0 pt-0 justify-content-center">
+                <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-primary" id="kt_role_permissions_submit"
+                        onclick="saveRolePermissions()">
+                    <span class="indicator-label">ذخیره دسترسی‌ها</span>
+                    <span class="indicator-progress">
+                        لطفاً صبر کنید...
+                        <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                    </span>
+                </button>
+            </div>
+            <!--end::Modal footer-->
+        </div>
+        <!--end::Modal content-->
+    </div>
+    <!--end::Modal dialog-->
+</div>
+<!--end::Role Permissions Modal-->
