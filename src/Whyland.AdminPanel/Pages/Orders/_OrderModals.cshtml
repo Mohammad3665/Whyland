@@ -1,0 +1,135 @@
+﻿<!--begin::Order Details Modal (read-only; «مشاهده جزئیات» from 7.1)-->
+<div class="modal fade" id="kt_modal_order_details" tabindex="-1" aria-hidden="true">
+    <!--begin::Modal dialog-->
+    <div class="modal-dialog modal-dialog-centered mw-700px">
+        <!--begin::Modal content-->
+        <div class="modal-content rounded">
+            <!--begin::Modal header-->
+            <div class="modal-header pb-0 border-0 justify-content-between align-items-center">
+                <!--begin::Title-->
+                <h2 class="fw-bolder mb-0">جزئیات سفارش <span id="details-order-number" dir="ltr" class="text-primary"></span></h2>
+                <!--begin::Close-->
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1">
+                        <span class="path1"></span><span class="path2"></span>
+                    </i>
+                </div>
+                <!--end::Close-->
+            </div>
+            <!--end::Modal header-->
+
+            <!--begin::Modal body-->
+            <div class="modal-body scroll-y px-10 px-lg-15 pt-5 pb-10">
+
+                <!--begin::Order info-->
+                <div class="rounded border border-gray-300 p-6 mb-6">
+                    <div class="fs-7 fw-bold text-gray-900 mb-4">اطلاعات سفارش</div>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="fs-7 fw-semibold text-muted mb-1">کاربر</div>
+                            <div class="fs-6 text-gray-800 fw-bold" id="details-user-name">—</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fs-7 fw-semibold text-muted mb-1">وضعیت</div>
+                            <div id="details-status">—</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="fs-7 fw-semibold text-muted mb-1">تاریخ ایجاد</div>
+                            <div class="fs-6 text-gray-800" id="details-created-at">—</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="fs-7 fw-semibold text-muted mb-1">تاریخ پرداخت</div>
+                            <div class="fs-6 text-gray-800" id="details-paid-at">—</div>
+                        </div>
+                        <div class="col-md-4" id="details-expires-wrapper">
+                            <div class="fs-7 fw-semibold text-muted mb-1">تاریخ انقضا</div>
+                            <div class="fs-6 text-gray-800" id="details-expires-at">—</div>
+                        </div>
+                    </div>
+                </div>
+                <!--end::Order info-->
+
+                <!--begin::Order items-->
+                <div class="rounded border border-gray-300 p-6 mb-6">
+                    <div class="fs-7 fw-bold text-gray-900 mb-4">آیتم‌های سفارش</div>
+                    <table class="table table-row-bordered gy-3 gs-3 mb-0 align-middle">
+                        <thead>
+                            <tr class="fs-7 fw-semibold text-muted text-start border-0">
+                                <th class="text-start ps-0">نام دوره</th>
+                                <th class="text-center">تعداد</th>
+                                <th class="text-end">قیمت واحد</th>
+                                <th class="text-end pe-0">قیمت کل</th>
+                            </tr>
+                        </thead>
+                        <tbody id="details-items-body">
+                            <!-- filled by orders.js -->
+                        </tbody>
+                    </table>
+                </div>
+                <!--end::Order items-->
+
+                <!--begin::Discount + payment info-->
+                <div class="row g-6">
+                    <!--begin::Discount-->
+                    <div class="col-md-6">
+                        <div class="rounded border border-gray-300 p-6 h-100">
+                            <div class="fs-7 fw-bold text-gray-900 mb-4">اطلاعات تخفیف</div>
+                            <div class="mb-3">
+                                <div class="fs-7 fw-semibold text-muted mb-1">کد تخفیف</div>
+                                <div class="fs-6 text-gray-800" id="details-coupon-code">—</div>
+                            </div>
+                            <div>
+                                <div class="fs-7 fw-semibold text-muted mb-1">مبلغ تخفیف</div>
+                                <div class="fs-6 text-danger fw-bold" id="details-coupon-amount">—</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end::Discount-->
+
+                    <!--begin::Payment-->
+                    <div class="col-md-6">
+                        <div class="rounded border border-gray-300 p-6 h-100">
+                            <div class="fs-7 fw-bold text-gray-900 mb-4">اطلاعات پرداخت</div>
+                            <div class="mb-3">
+                                <div class="fs-7 fw-semibold text-muted mb-1">روش پرداخت</div>
+                                <div class="fs-6 text-gray-800" id="details-payment-method">—</div>
+                            </div>
+                            <div class="mb-3 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fs-7 fw-semibold text-muted mb-1">وضعیت پرداخت</div>
+                                    <div id="details-payment-status">—</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fs-7 fw-semibold text-muted mb-1">مبلغ پرداخت</div>
+                                    <div class="fs-6 text-gray-800 fw-bold" id="details-payment-amount">—</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="fs-7 fw-semibold text-muted mb-1">شماره پیگیری</div>
+                                <div class="fs-6 text-gray-800" dir="ltr" id="details-tracking-number">—</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end::Payment-->
+                </div>
+
+                <!--begin::Total-->
+                <div class="d-flex justify-content-between align-items-center mt-6 rounded bg-light p-5">
+                    <span class="fs-6 fw-bold text-gray-700">مبلغ نهایی قابل پرداخت:</span>
+                    <span class="fs-4 fw-bolder text-gray-900" id="details-total-amount">—</span>
+                </div>
+                <!--end::Total-->
+            </div>
+            <!--end::Modal body-->
+
+            <!--begin::Modal footer-->
+            <div class="modal-footer border-0 pt-0 justify-content-center">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">بستن</button>
+            </div>
+            <!--end::Modal footer-->
+        </div>
+        <!--end::Modal content-->
+    </div>
+    <!--end::Modal dialog-->
+</div>
+<!--end::Order Details Modal-->

@@ -1,0 +1,213 @@
+﻿@page
+@using Whyland.AdminPanel.Models
+@model Whyland.AdminPanel.Pages.Orders.IndexModel
+@{
+    ViewData["Title"] = "سفارشات";
+    ViewData["Breadcrumbs"] = new List<BreadcrumbItem>
+    {
+        new BreadcrumbItem { Title = "پنل مدیریت", Url = "/Home/Index", IsActive = false },
+        new BreadcrumbItem { Title = "فروش و سفارش‌ها", Url = null, IsActive = false },
+        new BreadcrumbItem { Title = "سفارشات", Url = null, IsActive = true }
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/assets/plugins/custom/datatables/datatables.bundle.css" type="text/css" />
+}
+
+<!--begin::Toolbar-->
+<div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
+    <div id="kt_app_toolbar_container" class="app-container container-fluid d-flex flex-stack">
+
+        <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
+            <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
+                مدیریت سفارشات
+            </h1>
+        </div>
+    </div>
+</div>
+<!--end::Toolbar-->
+
+<!--begin::Content-->
+<div id="kt_app_content" class="app-content flex-column-fluid">
+    <div id="kt_app_content_container" class="app-container container-fluid">
+
+        <!--begin::Card-->
+        <div class="card card-flush">
+            <!--begin::Card header-->
+            <div class="card-header align-items-center py-5 gap-2 gap-md-5">
+                <!--begin::Search-->
+                <div class="d-flex align-items-center position-relative my-1">
+                    <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
+                        <span class="path1"></span><span class="path2"></span>
+                    </i>
+                    <input type="text" id="orderSearch"
+                           class="form-control form-control-solid w-250px ps-12"
+                           placeholder="جستجو در سفارشات..." />
+                </div>
+                <!--end::Search-->
+
+                <!--begin::Filter: status-->
+                <div class="d-flex align-items-center gap-2">
+                    <select id="orderStatusFilter" class="form-select form-select-solid w-180px">
+                        <option value="">همه وضعیت‌ها</option>
+                        <option value="Pending">در انتظار پرداخت</option>
+                        <option value="Paid">پرداخت شده</option>
+                        <option value="Cancelled">لغو شده</option>
+                        <option value="Failed">ناموفق</option>
+                    </select>
+                </div>
+                <!--end::Filter-->
+            </div>
+            <!--end::Card header-->
+
+            <!--begin::Card body-->
+            <div class="card-body pt-0">
+                <table id="kt_orders_table" class="table table-striped table-row-bordered gy-5 gs-7 align-middle">
+                    <thead>
+                        <tr class="fw-semibold fs-6 text-gray-800 text-start">
+                            <th class="text-start">شماره سفارش</th>
+                            <th class="text-start">کاربر</th>
+                            <th class="text-start">مبلغ کل</th>
+                            <th class="text-start">کد تخفیف</th>
+                            <th class="text-start">مبلغ تخفیف</th>
+                            <th class="text-start">وضعیت</th>
+                            <th class="text-start">تاریخ ایجاد</th>
+                            <th class="text-start">تاریخ پرداخت</th>
+                            <th class="text-start">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Demo rows — replace with real data when the data layer is wired up. -->
+
+                        <!-- Paid order with coupon -->
+                        <tr data-status="Paid">
+                            <td><span class="text-gray-800 fw-bold" dir="ltr">ORD-1403-0001</span></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-gray-800 fw-bold actions-cell">علی محمدی</span>
+                                </div>
+                            </td>
+                            <td><span class="text-gray-800 fw-bold actions-cell" data-amount="1250000">1,250,000 تومان</span></td>
+                            <td><span class="badge badge-light-success" dir="ltr">NOWROUZ1403</span></td>
+                            <td><span class="text-gray-800 actions-cell" data-amount="125000">125,000 تومان</span></td>
+                            <td><span class="badge badge-light-success">پرداخت شده</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/07/12</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/07/12</span></td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info"
+                                        onclick="openDetailsModal('ORD-1403-0001', 'علی محمدی', 'پرداخت شده', '1403/07/12', '1403/07/12', null, 'NOWROUZ1403', '125000', '1250000', 'درگاه بانکی', 'موفق', 'TRX-99873211', '1250000', 'دوره جامع ASP.NET Core|1|1200000|1200000^دوره Git و GitHub|1|175000|175000')"
+                                        title="مشاهده جزئیات">
+                                    <i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Pending order, no coupon -->
+                        <tr data-status="Pending">
+                            <td><span class="text-gray-800 fw-bold" dir="ltr">ORD-1403-0002</span></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-gray-800 fw-bold">شیرین جعفری</span>
+                                </div>
+                            </td>
+                            <td><span class="text-gray-800 fw-bold" data-amount="850000">850,000 تومان</span></td>
+                            <td><span class="text-muted">—</span></td>
+                            <td><span class="text-gray-600" data-amount="0">0 تومان</span></td>
+                            <td><span class="badge badge-light-warning">در انتظار پرداخت</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/07/14</span></td>
+                            <td><span class="text-muted fs-7">—</span></td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info"
+                                        onclick="openDetailsModal('ORD-1403-0002', 'شیرین جعفری', 'در انتظار پرداخت', '1403/07/14', null, '1403/07/15', null, '0', '850000', null, null, null, '850000', 'دوره طراحی UI/UX با فیگما|1|850000|850000')"
+                                        title="مشاهده جزئیات">
+                                    <i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Cancelled order with coupon -->
+                        <tr data-status="Cancelled">
+                            <td><span class="text-gray-800 fw-bold" dir="ltr">ORD-1403-0003</span></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-gray-800 fw-bold">محمد رضایی</span>
+                                </div>
+                            </td>
+                            <td><span class="text-gray-800 fw-bold" data-amount="540000">540,000 تومان</span></td>
+                            <td><span class="badge badge-light-success" dir="ltr">SUMMER20</span></td>
+                            <td><span class="text-gray-800" data-amount="135000">135,000 تومان</span></td>
+                            <td><span class="badge badge-light-dark">لغو شده</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/07/09</span></td>
+                            <td><span class="text-muted fs-7">—</span></td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info"
+                                        onclick="openDetailsModal('ORD-1403-0003', 'محمد رضایی', 'لغو شده', '1403/07/09', null, null, 'SUMMER20', '135000', '540000', null, null, null, '540000', 'دوره پایتون برای داده‌کاوی|1|675000|675000')"
+                                        title="مشاهده جزئیات">
+                                    <i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Failed order -->
+                        <tr data-status="Failed">
+                            <td><span class="text-gray-800 fw-bold" dir="ltr">ORD-1403-0004</span></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-gray-800 fw-bold">سارا احمدی</span>
+                                </div>
+                            </td>
+                            <td><span class="text-gray-800 fw-bold" data-amount="2200000">2,200,000 تومان</span></td>
+                            <td><span class="text-muted">—</span></td>
+                            <td><span class="text-gray-600" data-amount="0">0 تومان</span></td>
+                            <td><span class="badge badge-light-danger">ناموفق</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/07/08</span></td>
+                            <td><span class="text-muted fs-7">—</span></td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info"
+                                        onclick="openDetailsModal('ORD-1403-0004', 'سارا احمدی', 'ناموفق', '1403/07/08', null, null, null, '0', '2200000', 'زرین‌پال', 'ناموفق', 'TRX-99871110', '2200000', 'دوره جامع React و Next.js|1|2100000|2100000^دوره TypeScript پیشرفته|1|100000|100000')"
+                                        title="مشاهده جزئیات">
+                                    <i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Paid order, multi-item -->
+                        <tr data-status="Paid">
+                            <td><span class="text-gray-800 fw-bold" dir="ltr">ORD-1403-0005</span></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="text-gray-800 fw-bold">رضا کاظمی</span>
+                                </div>
+                            </td>
+                            <td><span class="text-gray-800 fw-bold" data-amount="950000">950,000 تومان</span></td>
+                            <td><span class="text-muted">—</span></td>
+                            <td><span class="text-gray-600" data-amount="0">0 تومان</span></td>
+                            <td><span class="badge badge-light-success">پرداخت شده</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/07/05</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/07/05</span></td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info"
+                                        onclick="openDetailsModal('ORD-1403-0005', 'رضا کاظمی', 'پرداخت شده', '1403/07/05', '1403/07/05', null, null, '0', '950000', 'زرین‌پال', 'موفق', 'TRX-99870102', '950000', 'دوره Node.js تولیدی|1|950000|950000')"
+                                        title="مشاهده جزئیات">
+                                    <i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!--end::Card body-->
+        </div>
+        <!--end::Card-->
+    </div>
+</div>
+<!--end::Content-->
+
+<partial name="_OrderModals" />
+
+@section Scripts {
+    <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
+    <script src="~/js/common/admin-crud.js"></script>
+    <script src="~/js/orders.js"></script>
+}
