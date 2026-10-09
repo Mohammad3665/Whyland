@@ -1,0 +1,199 @@
+﻿@page
+@using Whyland.AdminPanel.Models
+@model Whyland.AdminPanel.Pages.Payments.IndexModel
+@{
+    ViewData["Title"] = "پرداخت‌ها";
+    ViewData["Breadcrumbs"] = new List<BreadcrumbItem>
+    {
+        new BreadcrumbItem { Title = "پنل مدیریت", Url = "/Home/Index", IsActive = false },
+        new BreadcrumbItem { Title = "فروش و سفارش‌ها", Url = null, IsActive = false },
+        new BreadcrumbItem { Title = "پرداخت‌ها", Url = null, IsActive = true }
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/assets/plugins/custom/datatables/datatables.bundle.css" type="text/css" />
+}
+
+<!--begin::Toolbar-->
+<div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
+    <div id="kt_app_toolbar_container" class="app-container container-fluid d-flex flex-stack">
+
+        <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
+            <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
+                مدیریت پرداخت‌ها
+            </h1>
+        </div>
+    </div>
+</div>
+<!--end::Toolbar-->
+
+<!--begin::Content-->
+<div id="kt_app_content" class="app-content flex-column-fluid">
+    <div id="kt_app_content_container" class="app-container container-fluid">
+
+        <!--begin::Card-->
+        <div class="card card-flush">
+            <!--begin::Card header-->
+            <div class="card-header align-items-center py-5 gap-2 gap-md-5">
+                <!--begin::Search-->
+                <div class="d-flex align-items-center position-relative my-1">
+                    <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
+                        <span class="path1"></span><span class="path2"></span>
+                    </i>
+                    <input type="text" id="paymentSearch"
+                           class="form-control form-control-solid w-250px ps-12"
+                           placeholder="جستجو در پرداخت‌ها..." />
+                </div>
+                <!--end::Search-->
+
+                <!--begin::Filters: status + method-->
+                <div class="d-flex align-items-center gap-2">
+                    <select id="paymentStatusFilter" class="form-select form-select-solid w-170px">
+                        <option value="">همه وضعیت‌ها</option>
+                        <option value="Pending">در انتظار</option>
+                        <option value="Successful">موفق</option>
+                        <option value="Failed">ناموفق</option>
+                        <option value="Cancelled">لغو شده</option>
+                    </select>
+                    <select id="paymentMethodFilter" class="form-select form-select-solid w-170px">
+                        <option value="">همه روش‌ها</option>
+                        <option value="درگاه بانکی">درگاه بانکی</option>
+                        <option value="زرین‌پال">زرین‌پال</option>
+                        <option value="اسنپ‌پی">اسنپ‌پی</option>
+                    </select>
+                </div>
+                <!--end::Filters-->
+            </div>
+            <!--end::Card header-->
+
+            <!--begin::Card body-->
+            <div class="card-body pt-0">
+                <table id="kt_payments_table" class="table table-striped table-row-bordered gy-5 gs-7 align-middle">
+                    <thead>
+                        <tr class="fw-semibold fs-6 text-gray-800 text-start">
+                            <th class="text-start">شماره سفارش</th>
+                            <th class="text-start">کاربر</th>
+                            <th class="text-start">روش پرداخت</th>
+                            <th class="text-start">مبلغ</th>
+                            <th class="text-start">وضعیت</th>
+                            <th class="text-start">شماره پیگیری</th>
+                            <th class="text-start">تاریخ ایجاد</th>
+                            <th class="text-start">تاریخ پرداخت</th>
+                            <th class="text-start">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Demo rows — replace with real data when the data layer is wired up. -->
+
+                        <!-- Successful gateway payment -->
+                        <tr data-status="Successful" data-method="درگاه بانکی">
+                            <td><span class="text-gray-800 fw-bold" dir="ltr">ORD-1403-0001</span></td>
+                            <td><span class="text-gray-800 fw-bold">علی محمدی</span></td>
+                            <td><span class="badge badge-light-info">درگاه بانکی</span></td>
+                            <td><span class="text-gray-800 fw-bold" data-amount="1250000">1,250,000 تومان</span></td>
+                            <td><span class="badge badge-light-success">موفق</span></td>
+                            <td><span class="text-gray-700 fs-7" dir="ltr">TRX-99873211</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/07/12</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/07/12</span></td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info"
+                                        onclick="openDetailsModal('ORD-1403-0001', 'علی محمدی', 'درگاه بانکی', 'موفق', '1250000', 'TRX-99873211', '1403/07/12', '1403/07/12', 'پرداخت شده|success', '1,250,000 تومان', '1403/07/12')"
+                                        title="مشاهده جزئیات">
+                                    <i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Pending ZarinPal payment -->
+                        <tr data-status="Pending" data-method="زرین‌پال">
+                            <td><span class="text-gray-800 fw-bold" dir="ltr">ORD-1403-0002</span></td>
+                            <td><span class="text-gray-800 fw-bold">شیرین جعفری</span></td>
+                            <td><span class="badge badge-light-info">زرین‌پال</span></td>
+                            <td><span class="text-gray-800 fw-bold" data-amount="850000">850,000 تومان</span></td>
+                            <td><span class="badge badge-light-warning">در انتظار</span></td>
+                            <td><span class="text-muted fs-7">—</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/07/14</span></td>
+                            <td><span class="text-muted fs-7">—</span></td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info"
+                                        onclick="openDetailsModal('ORD-1403-0002', 'شیرین جعفری', 'زرین‌پال', 'در انتظار', '850000', null, '1403/07/14', null, 'در انتظار پرداخت|warning', '850,000 تومان', '1403/07/14')"
+                                        title="مشاهده جزئیات">
+                                    <i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Failed SnappPay payment -->
+                        <tr data-status="Failed" data-method="اسنپ‌پی">
+                            <td><span class="text-gray-800 fw-bold" dir="ltr">ORD-1403-0004</span></td>
+                            <td><span class="text-gray-800 fw-bold">سارا احمدی</span></td>
+                            <td><span class="badge badge-light-info">اسنپ‌پی</span></td>
+                            <td><span class="text-gray-800 fw-bold" data-amount="2200000">2,200,000 تومان</span></td>
+                            <td><span class="badge badge-light-danger">ناموفق</span></td>
+                            <td><span class="text-gray-700 fs-7" dir="ltr">TRX-99871110</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/07/08</span></td>
+                            <td><span class="text-muted fs-7">—</span></td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info"
+                                        onclick="openDetailsModal('ORD-1403-0004', 'سارا احمدی', 'اسنپ‌پی', 'ناموفق', '2200000', 'TRX-99871110', '1403/07/08', null, 'ناموفق|danger', '2,200,000 تومان', '1403/07/08')"
+                                        title="مشاهده جزئیات">
+                                    <i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Cancelled gateway payment -->
+                        <tr data-status="Cancelled" data-method="درگاه بانکی">
+                            <td><span class="text-gray-800 fw-bold" dir="ltr">ORD-1403-0003</span></td>
+                            <td><span class="text-gray-800 fw-bold">محمد رضایی</span></td>
+                            <td><span class="badge badge-light-info">درگاه بانکی</span></td>
+                            <td><span class="text-gray-800 fw-bold" data-amount="540000">540,000 تومان</span></td>
+                            <td><span class="badge badge-light-dark">لغو شده</span></td>
+                            <td><span class="text-muted fs-7">—</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/07/09</span></td>
+                            <td><span class="text-muted fs-7">—</span></td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info"
+                                        onclick="openDetailsModal('ORD-1403-0003', 'محمد رضایی', 'درگاه بانکی', 'لغو شده', '540000', null, '1403/07/09', null, 'لغو شده|dark', '540,000 تومان', '1403/07/09')"
+                                        title="مشاهده جزئیات">
+                                    <i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Successful ZarinPal payment -->
+                        <tr data-status="Successful" data-method="زرین‌پال">
+                            <td><span class="text-gray-800 fw-bold" dir="ltr">ORD-1403-0005</span></td>
+                            <td><span class="text-gray-800 fw-bold">رضا کاظمی</span></td>
+                            <td><span class="badge badge-light-info">زرین‌پال</span></td>
+                            <td><span class="text-gray-800 fw-bold" data-amount="950000">950,000 تومان</span></td>
+                            <td><span class="badge badge-light-success">موفق</span></td>
+                            <td><span class="text-gray-700 fs-7" dir="ltr">TRX-99870102</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/07/05</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/07/05</span></td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info"
+                                        onclick="openDetailsModal('ORD-1403-0005', 'رضا کاظمی', 'زرین‌پال', 'موفق', '950000', 'TRX-99870102', '1403/07/05', '1403/07/05', 'پرداخت شده|success', '950,000 تومان', '1403/07/05')"
+                                        title="مشاهده جزئیات">
+                                    <i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!--end::Card body-->
+        </div>
+        <!--end::Card-->
+    </div>
+</div>
+<!--end::Content-->
+
+<partial name="_PaymentModals" />
+
+@section Scripts {
+    <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
+    <script src="~/js/common/admin-crud.js"></script>
+    <script src="~/js/payments.js"></script>
+}

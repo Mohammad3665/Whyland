@@ -1,0 +1,112 @@
+﻿<!--begin::Payment Details Modal (read-only; «مشاهده جزئیات» from 8.1)-->
+<div class="modal fade" id="kt_modal_payment_details" tabindex="-1" aria-hidden="true">
+    <!--begin::Modal dialog-->
+    <div class="modal-dialog modal-dialog-centered mw-700px">
+        <!--begin::Modal content-->
+        <div class="modal-content rounded">
+            <!--begin::Modal header-->
+            <div class="modal-header pb-0 border-0 justify-content-between align-items-center">
+                <!--begin::Title-->
+                <h2 class="fw-bolder mb-0">
+                    جزئیات پرداخت
+                    <span id="payment-details-tracking" dir="ltr" class="text-primary"></span>
+                </h2>
+                <!--begin::Close-->
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1">
+                        <span class="path1"></span><span class="path2"></span>
+                    </i>
+                </div>
+                <!--end::Close-->
+            </div>
+            <!--end::Modal header-->
+
+            <!--begin::Modal body-->
+            <div class="modal-body scroll-y px-10 px-lg-15 pt-5 pb-10">
+
+                <!--begin::Payment info-->
+                <div class="rounded border border-gray-300 p-6 mb-6">
+                    <div class="fs-7 fw-bold text-gray-900 mb-4">اطلاعات پرداخت</div>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="fs-7 fw-semibold text-muted mb-1">شماره سفارش</div>
+                            <div class="fs-6 text-gray-800 fw-bold" id="payment-details-order-no">—</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fs-7 fw-semibold text-muted mb-1">کاربر</div>
+                            <div class="fs-6 text-gray-800 fw-bold" id="payment-details-user">—</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fs-7 fw-semibold text-muted mb-1">روش پرداخت</div>
+                            <div class="fs-6 text-gray-800" id="payment-details-method">—</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fs-7 fw-semibold text-muted mb-1">مبلغ</div>
+                            <div class="fs-6 text-gray-800 fw-bold" id="payment-details-amount">—</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fs-7 fw-semibold text-muted mb-1">وضعیت</div>
+                            <div id="payment-details-status">—</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fs-7 fw-semibold text-muted mb-1">شماره پیگیری</div>
+                            <div class="fs-6 text-gray-800" id="payment-details-tracking-no">—</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fs-7 fw-semibold text-muted mb-1">تاریخ ایجاد پرداخت</div>
+                            <div class="fs-6 text-gray-800" id="payment-details-created">—</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fs-7 fw-semibold text-muted mb-1">تاریخ پرداخت</div>
+                            <div class="fs-6 text-gray-800" id="payment-details-paid">—</div>
+                        </div>
+                    </div>
+                </div>
+                <!--end::Payment info-->
+
+                <!--begin::Linked order-->
+                <div class="rounded border border-gray-300 p-6">
+                    <div class="fs-7 fw-bold text-gray-900 mb-4">اطلاعات سفارش مرتبط</div>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="fs-7 fw-semibold text-muted mb-1">وضعیت سفارش</div>
+                            <div id="payment-details-order-status">—</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fs-7 fw-semibold text-muted mb-1">مبلغ سفارش</div>
+                            <div class="fs-6 text-gray-800" id="payment-details-order-amount">—</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="fs-7 fw-semibold text-muted mb-1">تاریخ ایجاد سفارش</div>
+                            <div class="fs-6 text-gray-800" id="payment-details-order-created">—</div>
+                        </div>
+                    </div>
+                    <div class="mt-4" dir="ltr">
+                        <a href="/Orders/Index" class="btn btn-sm btn-light-primary">
+                            <i class="ki-duotone ki-arrow-left fs-4 me-1">
+                                <span class="path1"></span><span class="path2"></span>
+                            </i>
+                            مشاهده لیست سفارش‌ها
+                        </a>
+                    </div>
+                </div>
+                <!--end::Linked order-->
+            </div>
+            <!--end::Modal body-->
+
+            <!--begin::Modal footer: back button (8.2)-->
+            <div class="modal-footer border-0 pt-0 justify-content-center">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal" id="payment_details_back_btn">
+                    <i class="ki-duotone ki-arrow-left fs-4 me-1">
+                        <span class="path1"></span><span class="path2"></span>
+                    </i>
+                    بازگشت
+                </button>
+            </div>
+            <!--end::Modal footer-->
+        </div>
+        <!--end::Modal content-->
+    </div>
+    <!--end::Modal dialog-->
+</div>
+<!--end::Payment Details Modal-->
