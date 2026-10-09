@@ -1,0 +1,263 @@
+﻿@page
+@using Whyland.AdminPanel.Models
+@model Whyland.AdminPanel.Pages.Permissions.IndexModel
+@{
+    ViewData["Title"] = "دسترسی‌ها";
+    ViewData["Breadcrumbs"] = new List<BreadcrumbItem>
+    {
+        new BreadcrumbItem { Title = "پنل مدیریت", Url = "/Home/Index", IsActive = false },
+        new BreadcrumbItem { Title = "دسترسی‌ها", Url = null, IsActive = true }
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/assets/plugins/custom/datatables/datatables.bundle.css" type="text/css" />
+}
+
+<!--begin::Toolbar-->
+<div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
+    <div id="kt_app_toolbar_container" class="app-container container-fluid d-flex flex-stack">
+
+        <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
+            <h1 class="page-heading d-flex text-gray-900 fw-bold fs-3 flex-column justify-content-center my-0">
+                مدیریت دسترسی‌ها
+            </h1>
+        </div>
+
+        <!--begin::Actions (button on the left)-->
+        <div class="d-flex align-items-center gap-2 gap-lg-3">
+            <button type="button" class="btn btn-sm fw-bold btn-primary"
+                    data-bs-toggle="modal" data-bs-target="#kt_modal_permission"
+                    onclick="openCreateModal()">
+                <i class="ki-duotone ki-plus fs-4 me-1"></i>
+                افزودن دسترسی جدید
+            </button>
+        </div>
+        <!--end::Actions-->
+    </div>
+</div>
+<!--end::Toolbar-->
+
+<!--begin::Content-->
+<div id="kt_app_content" class="app-content flex-column-fluid">
+    <div id="kt_app_content_container" class="app-container container-fluid">
+
+        <!--begin::Card-->
+        <div class="card card-flush">
+            <!--begin::Card header-->
+            <div class="card-header align-items-center py-5 gap-2 gap-md-5">
+                <!--begin::Search-->
+                <div class="d-flex align-items-center position-relative my-1">
+                    <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
+                        <span class="path1"></span><span class="path2"></span>
+                    </i>
+                    <input type="text" id="permissionSearch"
+                           class="form-control form-control-solid w-250px ps-12"
+                           placeholder="جستجو در دسترسی‌ها..." />
+                </div>
+                <!--end::Search-->
+
+                <!--begin::Filter: group by Key prefix-->
+                <div class="d-flex align-items-center gap-2">
+                    <select id="permissionGroupFilter" class="form-select form-select-solid w-180px">
+                        <option value="">همه گروه‌ها</option>
+                        <option value="Courses">دوره‌ها (Courses)</option>
+                        <option value="Categories">دسته‌بندی‌ها (Categories)</option>
+                        <option value="Users">کاربران (Users)</option>
+                        <option value="Orders">سفارش‌ها (Orders)</option>
+                        <option value="Blog">مقالات (Blog)</option>
+                        <option value="Settings">تنظیمات (Settings)</option>
+                    </select>
+                    <select id="permissionTypeFilter" class="form-select form-select-solid w-150px">
+                        <option value="">همه انواع</option>
+                        <option value="system">سیستمی</option>
+                        <option value="custom">سفارشی</option>
+                    </select>
+                </div>
+                <!--end::Filter-->
+            </div>
+            <!--end::Card header-->
+
+            <!--begin::Card body-->
+            <div class="card-body pt-0">
+                <table id="kt_permissions_table" class="table table-striped table-row-bordered gy-5 gs-7 align-middle">
+                    <thead>
+                        <tr class="fw-semibold fs-6 text-gray-800 text-start">
+                            <th class="text-start">نام</th>
+                            <th class="text-start">کلید (Key)</th>
+                            <th class="text-start">گروه</th>
+                            <th class="text-start">نوع</th>
+                            <th class="text-start">تاریخ ایجاد</th>
+                            <th class="text-start">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Demo rows — replace with real data when the data layer is wired up. -->
+
+                        <!-- System permissions -->
+                        <tr data-type="system" data-group="Courses">
+                            <td>
+                                <span class="text-gray-800 fw-bold">مشاهده دوره</span>
+                            </td>
+                            <td><span class="text-gray-600" dir="ltr">Courses.View</span></td>
+                            <td><span class="badge badge-light-secondary">Courses</span></td>
+                            <td><span class="badge badge-light-primary">سیستمی</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/01/01</span></td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary me-1"
+                                        onclick="openEditModal('31250000-0000-0000-0000-000000000101', 'مشاهده دوره', 'Courses.View', true)" title="ویرایش">
+                                    <i class="ki-duotone ki-pencil fs-2"><span class="path1"></span><span class="path2"></span></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-danger"
+                                        onclick="openDeleteModal('31250000-0000-0000-0000-000000000101', 'مشاهده دوره', true)" title="حذف (دسترسی سیستمی قابل حذف نیست)">
+                                    <i class="ki-duotone ki-trash fs-2">
+                                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                                        <span class="path4"></span><span class="path5"></span>
+                                    </i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <tr data-type="system" data-group="Courses">
+                            <td><span class="text-gray-800 fw-bold">ایجاد دوره</span></td>
+                            <td><span class="text-gray-600" dir="ltr">Courses.Create</span></td>
+                            <td><span class="badge badge-light-secondary">Courses</span></td>
+                            <td><span class="badge badge-light-primary">سیستمی</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/01/01</span></td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary me-1"
+                                        onclick="openEditModal('31250000-0000-0000-0000-000000000102', 'ایجاد دوره', 'Courses.Create', true)" title="ویرایش">
+                                    <i class="ki-duotone ki-pencil fs-2"><span class="path1"></span><span class="path2"></span></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-danger"
+                                        onclick="openDeleteModal('31250000-0000-0000-0000-000000000102', 'ایجاد دوره', true)" title="حذف (دسترسی سیستمی قابل حذف نیست)">
+                                    <i class="ki-duotone ki-trash fs-2">
+                                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                                        <span class="path4"></span><span class="path5"></span>
+                                    </i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <tr data-type="system" data-group="Categories">
+                            <td><span class="text-gray-800 fw-bold">مشاهده دسته‌بندی</span></td>
+                            <td><span class="text-gray-600" dir="ltr">Categories.View</span></td>
+                            <td><span class="badge badge-light-secondary">Categories</span></td>
+                            <td><span class="badge badge-light-primary">سیستمی</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/01/01</span></td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary me-1"
+                                        onclick="openEditModal('31250000-0000-0000-0000-000000000103', 'مشاهده دسته‌بندی', 'Categories.View', true)" title="ویرایش">
+                                    <i class="ki-duotone ki-pencil fs-2"><span class="path1"></span><span class="path2"></span></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-danger"
+                                        onclick="openDeleteModal('31250000-0000-0000-0000-000000000103', 'مشاهده دسته‌بندی', true)" title="حذف (دسترسی سیستمی قابل حذف نیست)">
+                                    <i class="ki-duotone ki-trash fs-2">
+                                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                                        <span class="path4"></span><span class="path5"></span>
+                                    </i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <tr data-type="system" data-group="Users">
+                            <td><span class="text-gray-800 fw-bold">مشاهده کاربر</span></td>
+                            <td><span class="text-gray-600" dir="ltr">Users.View</span></td>
+                            <td><span class="badge badge-light-secondary">Users</span></td>
+                            <td><span class="badge badge-light-primary">سیستمی</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/01/01</span></td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary me-1"
+                                        onclick="openEditModal('31250000-0000-0000-0000-000000000104', 'مشاهده کاربر', 'Users.View', true)" title="ویرایش">
+                                    <i class="ki-duotone ki-pencil fs-2"><span class="path1"></span><span class="path2"></span></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-danger"
+                                        onclick="openDeleteModal('31250000-0000-0000-0000-000000000104', 'مشاهده کاربر', true)" title="حذف (دسترسی سیستمی قابل حذف نیست)">
+                                    <i class="ki-duotone ki-trash fs-2">
+                                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                                        <span class="path4"></span><span class="path5"></span>
+                                    </i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Custom permissions -->
+                        <tr data-type="custom" data-group="Blog">
+                            <td><span class="text-gray-800 fw-bold">انتشار مقاله</span></td>
+                            <td><span class="text-gray-600" dir="ltr">Blog.Publish</span></td>
+                            <td><span class="badge badge-light-secondary">Blog</span></td>
+                            <td><span class="badge badge-light-secondary">سفارشی</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/05/09</span></td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary me-1"
+                                        onclick="openEditModal('31250000-0000-0000-0000-000000000105', 'انتشار مقاله', 'Blog.Publish', false)" title="ویرایش">
+                                    <i class="ki-duotone ki-pencil fs-2"><span class="path1"></span><span class="path2"></span></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-danger"
+                                        onclick="openDeleteModal('31250000-0000-0000-0000-000000000105', 'انتشار مقاله', false)" title="حذف">
+                                    <i class="ki-duotone ki-trash fs-2">
+                                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                                        <span class="path4"></span><span class="path5"></span>
+                                    </i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <tr data-type="custom" data-group="Orders">
+                            <td><span class="text-gray-800 fw-bold">تغییر وضعیت سفارش</span></td>
+                            <td><span class="text-gray-600" dir="ltr">Orders.ChangeStatus</span></td>
+                            <td><span class="badge badge-light-secondary">Orders</span></td>
+                            <td><span class="badge badge-light-secondary">سفارشی</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/06/21</span></td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary me-1"
+                                        onclick="openEditModal('31250000-0000-0000-0000-000000000106', 'تغییر وضعیت سفارش', 'Orders.ChangeStatus', false)" title="ویرایش">
+                                    <i class="ki-duotone ki-pencil fs-2"><span class="path1"></span><span class="path2"></span></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-danger"
+                                        onclick="openDeleteModal('31250000-0000-0000-0000-000000000106', 'تغییر وضعیت سفارش', false)" title="حذف">
+                                    <i class="ki-duotone ki-trash fs-2">
+                                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                                        <span class="path4"></span><span class="path5"></span>
+                                    </i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <tr data-type="custom" data-group="Settings">
+                            <td><span class="text-gray-800 fw-bold">مدیریت تنظیمات سایت</span></td>
+                            <td><span class="text-gray-600" dir="ltr">Settings.Manage</span></td>
+                            <td><span class="badge badge-light-secondary">Settings</span></td>
+                            <td><span class="badge badge-light-secondary">سفارشی</span></td>
+                            <td><span class="text-gray-600 fs-7">1403/07/03</span></td>
+                            <td class="text-end actions-cell">
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary me-1"
+                                        onclick="openEditModal('31250000-0000-0000-0000-000000000107', 'مدیریت تنظیمات سایت', 'Settings.Manage', false)" title="ویرایش">
+                                    <i class="ki-duotone ki-pencil fs-2"><span class="path1"></span><span class="path2"></span></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-danger"
+                                        onclick="openDeleteModal('31250000-0000-0000-0000-000000000107', 'مدیریت تنظیمات سایت', false)" title="حذف">
+                                    <i class="ki-duotone ki-trash fs-2">
+                                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                                        <span class="path4"></span><span class="path5"></span>
+                                    </i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!--end::Card body-->
+        </div>
+        <!--end::Card-->
+    </div>
+</div>
+<!--end::Content-->
+
+<partial name="_PermissionModals" />
+
+@section Scripts {
+    <script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>
+    <script src="~/js/common/admin-crud.js"></script>
+    <script src="~/js/permissions.js"></script>
+}
