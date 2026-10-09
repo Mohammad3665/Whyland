@@ -1,0 +1,203 @@
+﻿<!--begin::Create/Edit Modal (same page; section 9.2 of the UI/UX doc)-->
+<div class="modal fade" id="kt_modal_coupon" tabindex="-1" aria-hidden="true">
+    <!--begin::Modal dialog-->
+    <div class="modal-dialog modal-dialog-centered mw-700px">
+        <!--begin::Modal content-->
+        <div class="modal-content rounded">
+            <!--begin::Modal header-->
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <!--begin::Close-->
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1">
+                        <span class="path1"></span><span class="path2"></span>
+                    </i>
+                </div>
+                <!--end::Close-->
+            </div>
+            <!--end::Modal header-->
+
+            <!--begin::Modal body-->
+            <div class="modal-body scroll-y px-10 px-lg-15 pt-0 pb-15">
+                <!--begin::Heading-->
+                <div class="text-center mb-10">
+                    <h2 class="fw-bolder mb-3" id="modal-coupon-title">افزودن کد تخفیف</h2>
+                    <div class="text-muted fs-7 fw-semibold">
+                        مشخصات کد تخفیف را وارد کنید.
+                    </div>
+                </div>
+                <!--end::Heading-->
+
+                <!--begin::Form (demo; no backend handler yet)-->
+                <form id="kt_coupon_form" class="form" onsubmit="return false;">
+
+                    <!--begin::Input group: Code-->
+                    <div class="mb-10">
+                        <label class="form-label fs-6 fw-bold text-gray-900" for="Form_Code">
+                            <span>کد:</span>
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" id="Form_Code" name="Form_Code"
+                               class="form-control form-control-solid text-uppercase" dir="ltr"
+                               placeholder="مثال: NOWROUZ1403" />
+                        <div class="form-text">کد یکتا؛ بدون حساسیت به حروف بزرگ/کوچک و بدون فاصله.</div>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Input group: Type + Value (row)-->
+                    <div class="row g-6 mb-10">
+                        <div class="col-md-6">
+                            <label class="form-label fs-6 fw-bold text-gray-900" for="Form_Type">
+                                <span>نوع:</span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select id="Form_Type" name="Form_Type" class="form-select form-select-solid">
+                                <option value="Percentage">درصدی (Percentage)</option>
+                                <option value="FixedAmount">مبلغ ثابت (FixedAmount)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fs-6 fw-bold text-gray-900" for="Form_Value">
+                                <span>مقدار:</span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="text" id="Form_Value" name="Form_Value"
+                                       class="form-control form-control-solid" dir="ltr"
+                                       placeholder="مثال: 10" />
+                                <span class="input-group-text" id="Form_ValueUnit">%</span>
+                            </div>
+                            <div class="form-text" id="Form_ValueHint">درصد تخفیف (۱ تا ۹۹).</div>
+                        </div>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Input group: optional Min/Limit (row)-->
+                    <div class="row g-6 mb-10">
+                        <div class="col-md-6">
+                            <label class="form-label fs-6 fw-bold text-gray-900" for="Form_MinOrderAmount">
+                                <span>حداقل مبلغ سفارش:</span>
+                            </label>
+                            <input type="text" id="Form_MinOrderAmount" name="Form_MinOrderAmount"
+                                   class="form-control form-control-solid" dir="ltr"
+                                   placeholder="اختیاری — مثال: 500000" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fs-6 fw-bold text-gray-900" for="Form_UsageLimit">
+                                <span>محدودیت استفاده:</span>
+                            </label>
+                            <input type="text" id="Form_UsageLimit" name="Form_UsageLimit"
+                                   class="form-control form-control-solid" dir="ltr"
+                                   placeholder="اختیاری — مثال: 100" />
+                        </div>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Input group: UsedCount (readonly)-->
+                    <div class="mb-10" id="CouponUsedCountGroup">
+                        <label class="form-label fs-6 fw-bold text-gray-900" for="Form_UsedCount">
+                            <span>تعداد استفاده شده:</span>
+                        </label>
+                        <input type="text" id="Form_UsedCount" name="Form_UsedCount"
+                               class="form-control form-control-solid" dir="ltr" readonly disabled tabindex="-1" />
+                        <div class="form-text">این مقدار به‌صورت خودکار با سفارش‌ها به‌روز می‌شود و قابل ویرایش نیست.</div>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Input group: dates (row)-->
+                    <div class="row g-6 mb-10">
+                        <div class="col-md-6">
+                            <label class="form-label fs-6 fw-bold text-gray-900" for="Form_StartDate">
+                                <span>تاریخ شروع:</span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="date" value="2026-10-10" id="Form_StartDate" name="Form_StartDate"
+                                   class="form-control form-control-solid" dir="ltr"
+                                   placeholder="مثال: 1403/07/01" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fs-6 fw-bold text-gray-900" for="Form_EndDate">
+                                <span>تاریخ پایان:</span>
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="date" value="2026-10-10" id="Form_EndDate" name="Form_EndDate"
+                                   class="form-control form-control-solid" dir="ltr"
+                                   placeholder="مثال: 1403/09/29" />
+                            <div class="form-text">تاریخ پایان باید بعد از تاریخ شروع باشد.</div>
+                        </div>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Input group: IsActive-->
+                    <div class="form-check form-switch form-check-solid">
+                        <input class="form-check-input" type="checkbox" id="Form_IsActive" name="Form_IsActive" checked />
+                        <label class="form-check-label fw-semibold text-gray-700" for="Form_IsActive">
+                            کد فعال باشد
+                        </label>
+                    </div>
+                    <!--end::Input group-->
+
+                </form>
+                <!--end::Form-->
+            </div>
+            <!--end::Modal body-->
+
+            <!--begin::Modal footer-->
+            <div class="modal-footer border-0 pt-0 justify-content-center">
+                <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-primary" id="kt_coupon_submit" onclick="submitCouponForm()">
+                    <span class="indicator-label">ذخیره</span>
+                    <span class="indicator-progress">
+                        لطفاً صبر کنید...
+                        <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                    </span>
+                </button>
+            </div>
+            <!--end::Modal footer-->
+        </div>
+        <!--end::Modal content-->
+    </div>
+    <!--end::Modal dialog-->
+</div>
+<!--end::Create/Edit Modal-->
+
+<!--begin::Delete Confirmation Modal (9.3: soft delete)-->
+<div class="modal fade" id="kt_modal_delete_coupon" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-500px">
+        <div class="modal-content rounded">
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1">
+                        <span class="path1"></span><span class="path2"></span>
+                    </i>
+                </div>
+            </div>
+            <div class="modal-body text-center pt-0 pb-15 px-10">
+                <i class="ki-duotone ki-trash fs-5x text-danger mb-5">
+                    <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                    <span class="path4"></span><span class="path5"></span>
+                </i>
+                <h2 class="mb-3">حذف کد تخفیف</h2>
+                <div class="text-muted fw-semibold fs-5 mb-8">
+                    آیا از حذف کد
+                    <span class="fw-bold text-gray-900" id="delete-coupon-name"></span>
+                    مطمئن هستید؟
+                </div>
+                <div class="text-muted fs-7 mb-8" id="delete-coupon-note">
+                    حذف به‌صورت نرم انجام می‌شود؛ سفارش‌های قبلی به کد تخفیف خود دسترسی حفظ می‌کنند
+                    و حذف فیزیکی برای کدهای استفاده‌شده انجام نمی‌شود.
+                </div>
+                <div class="d-flex justify-content-center gap-3">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+                        <span class="indicator-label">بله، حذف شود</span>
+                        <span class="indicator-progress">
+                            لطفاً صبر کنید...
+                            <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end::Delete Confirmation Modal-->
