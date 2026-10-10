@@ -1,4 +1,19 @@
-﻿<!--begin::Header-->
+﻿@{
+    #region Active menu helpers
+    string? current = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+
+    bool IsActive(params string[] pages) =>
+        pages.Any(p =>
+        {
+            string? folder = p.EndsWith("/Index") ? p[..^"/Index".Length] : p;
+            if (folder == "") return current == "/Index";
+            return current == p || current.StartsWith(folder + "/");
+        });
+
+    string Open(params string[] pages)   => IsActive(pages) ? "here show" : "";
+    #endregion
+}
+<!--begin::Header-->
 <div
   id="kt_app_header"
   class="app-header"
@@ -67,7 +82,7 @@
         >
           <!--begin:Menu item-->
           <div
-            class="menu-item here show menu-here-bg menu-lg-down-accordion me-0 me-lg-2"
+            class="menu-item @Open("/Home/Index") menu-lg-down-accordion me-0 me-lg-2"
           >
             <!--begin:Menu link-->
             <a asp-page="/Home/Index" class="menu-link">
@@ -77,36 +92,36 @@
           </div>
           <!--end:Menu item-->
           <!--begin:Menu item-->
-          <div class="menu-item menu-lg-down-accordion me-0 me-lg-2">
+          <div class="menu-item @Open("/Courses/Index") menu-lg-down-accordion me-0 me-lg-2">
             <!--begin:Menu link-->
-            <a href="#" class="menu-link">
+            <a asp-page="/Courses/Index" class="menu-link">
               <span class="menu-title">دوره‌ها</span>
             </a>
             <!--end:Menu link-->
           </div>
           <!--end:Menu item-->
           <!--begin:Menu item-->
-          <div class="menu-item menu-lg-down-accordion me-0 me-lg-2">
+          <div class="menu-item @Open("/Orders/Index") menu-lg-down-accordion me-0 me-lg-2">
             <!--begin:Menu link-->
-            <a href="#" class="menu-link">
+            <a asp-page="/Orders/Index" class="menu-link">
               <span class="menu-title">سفارش‌ها</span>
             </a>
             <!--end:Menu link-->
           </div>
           <!--end:Menu item-->
           <!--begin:Menu item-->
-          <div class="menu-item menu-lg-down-accordion me-0 me-lg-2">
+          <div class="menu-item @Open("/Users/Index") menu-lg-down-accordion me-0 me-lg-2">
             <!--begin:Menu link-->
-            <a href="#" class="menu-link">
+            <a asp-page="/Users/Index" class="menu-link">
               <span class="menu-title">کاربران</span>
             </a>
             <!--end:Menu link-->
           </div>
           <!--end:Menu item-->
           <!--begin:Menu item-->
-          <div class="menu-item menu-lg-down-accordion me-0 me-lg-2">
+          <div class="menu-item @Open("/BlogPosts/Index") menu-lg-down-accordion me-0 me-lg-2">
             <!--begin:Menu link-->
-            <a href="#" class="menu-link">
+            <a asp-page="/BlogPosts/Index" class="menu-link">
               <span class="menu-title">مقالات</span>
             </a>
             <!--end:Menu link-->

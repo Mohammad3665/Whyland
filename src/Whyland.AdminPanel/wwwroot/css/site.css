@@ -352,3 +352,10 @@ table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control {
   white-space: nowrap;
   min-width: 80px;
 }
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}

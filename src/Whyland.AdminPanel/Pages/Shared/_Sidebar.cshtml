@@ -1,5 +1,5 @@
 ﻿@{
-    // #region Active menu helpers
+    #region Active menu helpers
     string? current = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
 
     bool IsActive(params string[] pages) =>
@@ -12,7 +12,7 @@
 
     string Active(params string[] pages) => IsActive(pages) ? "active" : "";
     string Open(params string[] pages)   => IsActive(pages) ? "here show" : "";
-    // #endregion
+    #endregion
 }
 
 <!--begin::Sidebar-->
@@ -255,7 +255,7 @@
           </div>
           <!--end:Menu item-->
           <!--begin:Menu item-->
-          <div data-kt-menu-trigger="click" class="menu-item menu-accordion @Open("/Roles/Index", "/Permissions/Index")">
+          <div data-kt-menu-trigger="click" class="menu-item menu-accordion @Open("/Roles/Index", "/Permissions/Index", "/Users/Index")">
             <!--begin:Menu link-->
             <span class="menu-link">
               <span class="menu-icon">
@@ -273,7 +273,7 @@
               <!--begin:Menu item-->
               <div class="menu-item">
                 <!--begin:Menu link-->
-                <a class="menu-link" asp-page="/Users/Index">
+                <a class="menu-link @Active("/Users/Index")" asp-page="/Users/Index">
                   <span class="menu-bullet">
                     <span class="bullet bullet-dot"></span>
                   </span>
@@ -323,7 +323,7 @@
           </div>
           <!--end:Menu item-->
           <!--begin:Menu item-->
-          <div data-kt-menu-trigger="click" class="menu-item menu-accordion @Open("/BlogCategories/Index", "/BlogPosts/Index")">
+          <div data-kt-menu-trigger="click" class="menu-item menu-accordion @Open("/BlogCategories/Index", "/BlogPosts/Index", "/Faqs/Index")">
             <!--begin:Menu link-->
             <span class="menu-link">
               <span class="menu-icon">
@@ -365,7 +365,7 @@
               <!--begin:Menu item-->
               <div class="menu-item">
                 <!--begin:Menu link-->
-                <a class="menu-link" href="#">
+                <a class="menu-link @Active("/Faqs/Index")" asp-page="/Faqs/Index">
                   <span class="menu-bullet">
                     <span class="bullet bullet-dot"></span>
                   </span>

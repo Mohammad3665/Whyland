@@ -13,9 +13,6 @@
 var page = AdminCrud.createPage({
   table: {
     selector: "#kt_users_table",
-    options: {
-      pageLength: 10, // pagination required by section 4.1
-    },
   },
   search: "#userSearch",
   filters: [

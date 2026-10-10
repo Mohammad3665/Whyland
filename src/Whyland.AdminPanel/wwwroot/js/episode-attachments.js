@@ -13,9 +13,6 @@
 var page = AdminCrud.createPage({
   table: {
     selector: "#kt_episode_attachments_table",
-    options: {
-      pageLength: 10,
-    },
   },
   search: "#attachmentSearch",
   modal: {

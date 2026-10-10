@@ -12,23 +12,6 @@ var reorder; // shared drag & drop ordering controller (set below)
 var page = AdminCrud.createPage({
   table: {
     selector: "#kt_course_faqs_table",
-    options: $.extend(true, AdminCrud.rowReorderOptions(), {
-      responsive: {
-        breakpoints: [
-          { name: "desktop", width: 1260 },
-          { name: "tablet-l", width: 960 },
-          { name: "tablet", width: 930 },
-          { name: "phone", width: 576 },
-        ],
-      },
-      columnDefs: [
-        { orderable: false, targets: [0, 1, 4] },
-        { className: "all", targets: 1 },
-        { className: "desktop", targets: 3 },
-        { className: "min-tablet", targets: 4 },
-        { className: "dtr-control", targets: 0 },
-      ],
-    }),
   },
   search: "#courseFaqSearch",
   modal: {
@@ -99,6 +82,18 @@ reorder = AdminCrud.bindRowReorder(page.table, {
   logLabel: "Reorder course FAQs",
   successMsg: "ترتیب سوالات متداول با موفقیت ذخیره شد.",
 });
+//#endregion
+
+//#region Details Modal (read-only answer preview)
+/**
+ * Shows the long answer in a read-only modal; avoids truncating the
+ * توضیحات column in the table.
+ */
+function openDetailsModal(title, description) {
+  $("#details-course-faq-title").text(title);
+  $("#details-course-faq-description").text(description);
+  AdminCrud.Utils.showModal("kt_modal_course_faq_details");
+}
 //#endregion
 
 //#region Inline onclick Handlers (HTML compatibility)

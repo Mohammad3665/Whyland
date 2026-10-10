@@ -11,9 +11,6 @@
 var page = AdminCrud.createPage({
   table: {
     selector: "#kt_orders_table",
-    options: {
-      pageLength: 10,
-    },
   },
   search: "#orderSearch",
   filters: [
