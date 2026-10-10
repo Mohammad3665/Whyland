@@ -8,125 +8,30 @@
 //#region Imports
 var U = AdminCrud.Utils;
 var F = AdminCrud.Filters;
-//#endregion
-
-//#region TinyMCE Description Editor (page-specific)
-var descriptionEditor = null; // Active TinyMCE instance (null until initialized)
-var pendingDescription = null; // HTML waiting to be applied once the editor initializes
-var slugTouched = false; // True once the user edits the slug manually
-
+//#endregion//#region Description Editor (shared generic module)
 /**
- * Initializes the TinyMCE editor for the "Full description" field.
- * Loaded lazily when the course modal opens for the first time.
+ * The TinyMCE wrapper for the "Full description" field lives in the
+ * shared HtmlEditor module (js/common/html-editor.js) so other pages
+ * (Blog Posts, ...) reuse the same generic code instead of duplicating
+ * it. This page only creates the instance and drives its lifecycle.
  */
+var HtmlEditor_ = window.HtmlEditor;
+var descriptionHtmlEditor = HtmlEditor_.create({
+  selector: "#Form_Description",
+  height: 520,
+  minHeight: 420,
+});
+// Aliases kept for the existing call sites below.
 function initDescriptionEditor() {
-  if (typeof tinymce === "undefined") return;
-
-  // Option names differ between TinyMCE 5 and 6+; detect the major version.
-  var ver = parseInt(tinymce.majorVersion, 10) || 5;
-  var isNew = ver >= 6;
-
-  var options = {
-    selector: "#Form_Description",
-    readonly: 0,
-    directionality: "rtl",
-    height: 520,
-    min_height: 420,
-    resize: true,
-    branding: false,
-    menubar: "edit view insert format table tools",
-    plugins: isNew
-      ? "advlist autolink lists link image media table charmap anchor searchreplace visualblocks " +
-        "code codesample fullscreen preview insertdatetime emoticons directionality wordcount help"
-      : "advlist autolink lists link image media table charmap anchor hr paste searchreplace visualblocks " +
-        "code codesample fullscreen preview insertdatetime emoticons directionality wordcount help",
-    toolbar:
-      "undo redo | " +
-      (isNew ? "blocks fontsize" : "formatselect fontsizeselect") +
-      " | bold italic underline strikethrough | forecolor backcolor | " +
-      "alignright aligncenter alignleft alignjustify | ltr rtl | bullist numlist outdent indent | " +
-      "link unlink anchor | image media table | blockquote hr codesample | charmap emoticons | " +
-      "subscript superscript removeformat | searchreplace visualblocks code preview fullscreen",
-    toolbar_mode: "wrap",
-    block_formats:
-      "پاراگراف=p; عنوان ۱=h1; عنوان ۲=h2; عنوان ۳=h3; عنوان ۴=h4; عنوان ۵=h5; عنوان ۶=h6; نقل‌قول=blockquote; متن قالب‌بندی‌شده=pre",
-    fontsize_formats: "12px 14px 16px 18px 20px 24px 28px 32px 40px",
-    link_default_target: "_blank",
-    link_assume_external_targets: "https",
-    link_title: false,
-    relative_urls: false,
-    remove_script_host: false,
-    convert_urls: false,
-    table_default_attributes: { class: "table table-bordered" },
-    table_default_styles: { width: "100%" },
-    image_caption: true,
-    image_advtab: true,
-    image_title: true,
-    automatic_uploads: false,
-    paste_data_images: true,
-    // Pick a local image file and insert it as a base64 data URL.
-    file_picker_types: "image",
-    file_picker_callback: function (cb) {
-      var input = document.createElement("input");
-      input.type = "file";
-      input.accept = "image/*";
-      input.onchange = function () {
-        var file = this.files[0];
-        var reader = new FileReader();
-        reader.onload = function () {
-          cb(reader.result, { title: file.name, alt: file.name });
-        };
-        reader.readAsDataURL(file);
-      };
-      input.click();
-    },
-    content_style:
-      "body { font-family: Vazirmatn, IRANSans, Tahoma, sans-serif; font-size: 15px; line-height: 1.9; direction: rtl; padding: 12px; }" +
-      " img { max-width: 100%; height: auto; }" +
-      " table { border-collapse: collapse; } table td, table th { border: 1px solid #ddd; padding: 6px 10px; }",
-    setup: function (editor) {
-      editor.on("init", function () {
-        descriptionEditor = editor;
-        // Force design (visual) mode in both TinyMCE 5 and 6+.
-        try {
-          if (editor.mode && editor.mode.set) editor.mode.set("design");
-          else if (editor.setMode) editor.setMode("design");
-        } catch (e) {}
-        // Apply any content that was set before the editor finished loading.
-        if (pendingDescription !== null) editor.setContent(pendingDescription);
-      });
-    },
-  };
-
-  // TinyMCE 6+ only: self-hosted GPL build settings.
-  if (isNew) {
-    options.license_key = "gpl";
-    options.promotion = false;
-    options.font_size_formats = options.fontsize_formats;
-  }
-
-  // Match the admin panel's dark theme when it is active.
-  if (typeof KTThemeMode !== "undefined" && KTThemeMode.getMode() === "dark") {
-    options["skin"] = "oxide-dark";
-    options["content_css"] = "dark";
-  }
-
-  tinymce.init(options);
+  descriptionHtmlEditor.init();
 }
-
-/** Sets the editor content (queued until the editor exists if needed). */
 function setDescription(html) {
-  pendingDescription = html || "";
-  if (descriptionEditor) descriptionEditor.setContent(pendingDescription);
-  else $("#Form_Description").val(pendingDescription);
+  descriptionHtmlEditor.set(html);
 }
-
-/** Returns the current editor content as HTML. */
 function getDescription() {
-  return descriptionEditor
-    ? descriptionEditor.getContent()
-    : $("#Form_Description").val();
+  return descriptionHtmlEditor.get();
 }
+var slugTouched = false; // True once the user edits the slug manually
 //#endregion
 
 //#region Pricing / Image Field Helpers
@@ -204,12 +109,10 @@ var page = AdminCrud.createPage({
 
   // Create/destroy TinyMCE with the modal so its content stays fresh.
   onModalShown: function () {
-    if (!tinymce.get("Form_Description")) initDescriptionEditor();
+    if (!descriptionHtmlEditor.ready()) descriptionHtmlEditor.init();
   },
   onModalHidden: function () {
-    var ed = tinymce.get("Form_Description");
-    if (ed) ed.remove();
-    descriptionEditor = null;
+    descriptionHtmlEditor.destroy();
   },
 
   loadItem: function (id) {
