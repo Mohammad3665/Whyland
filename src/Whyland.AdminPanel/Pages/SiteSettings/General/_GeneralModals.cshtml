@@ -1,0 +1,151 @@
+<!--begin::Edit Settings Modal (تنظیمات عمومی - section 12.2)-->
+<div class="modal fade" id="kt_modal_settings_edit" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-800px">
+        <div class="modal-content rounded">
+            <!--begin::Modal header-->
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+            <!--end::Modal header-->
+
+            <!--begin::Modal body-->
+            <div class="modal-body scroll-y px-10 px-lg-15 pt-0 pb-15">
+                <form id="kt_modal_settings_form" class="form" onsubmit="return false;">
+                    <!--begin::Heading-->
+                    <div class="mb-13 text-center">
+                        <h1 class="mb-3">ویرایش تنظیمات عمومی</h1>
+                        <div class="text-muted fw-semibold fs-5">
+                            مقادیر زیر در وب‌سایت عمومی نمایش داده می‌شوند
+                        </div>
+                    </div>
+                    <!--end::Heading-->
+
+                    <!--begin::Input group - Site title-->
+                    <div class="fv-row mb-8">
+                        <label class="required fs-6 fw-semibold mb-2">عنوان سایت</label>
+                        <input type="text" id="Form_SiteTitle" name="Form_SiteTitle"
+                               class="form-control form-control-solid"
+                               maxlength="200"
+                               placeholder="مثال: آکادمی وایلند" />
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Input group - Logos (light & dark theme)-->
+                    <div class="row g-9 mb-2">
+                        <!--begin::Logo (light theme)-->
+                        <div class="col-md-6">
+                            <label class="fs-6 fw-semibold mb-2">لوگو (تم روشن)</label>
+                            <div class="d-flex align-items-center justify-content-center bg-white border border-gray-300 border-dashed rounded p-2 mb-3"
+                                 style="height: 70px;">
+                                <img id="Form_LogoDark_preview" src="/assets/media/logos/logo-dark.png" alt=""
+                                     class="mw-100 mh-100 object-fit-contain"
+                                     onerror="this.onerror=null;this.src='/assets/media/svg/files/blank-image.svg';" />
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <label class="btn btn-sm btn-light-primary" for="Form_LogoDarkFile">
+                                    <i class="ki-duotone ki-picture fs-4 me-1"><span class="path1"></span><span class="path2"></span></i>
+                                    انتخاب تصویر
+                                </label>
+                                <input type="file" id="Form_LogoDarkFile" class="d-none"
+                                       accept=".png,.jpg,.jpeg,.webp,.svg"
+                                       onchange="previewSettingsImage(this, 'LogoDark')" />
+                                <button type="button" class="btn btn-sm btn-light-danger"
+                                        onclick="clearSettingsImage('LogoDark')">
+                                    حذف تصویر
+                                </button>
+                            </div>
+                        </div>
+                        <!--end::Logo-->
+
+                        <!--begin::Logo (dark theme)-->
+                        <div class="col-md-6">
+                            <label class="fs-6 fw-semibold mb-2">لوگو (تم تیره)</label>
+                            <div class="d-flex align-items-center justify-content-center border border-gray-300 border-dashed rounded p-2 mb-3"
+                                 style="height: 70px; background-color: #1e1e2d;">
+                                <img id="Form_LogoLight_preview" src="/assets/media/logos/logo-light.png" alt=""
+                                     class="mw-100 mh-100 object-fit-contain"
+                                     onerror="this.onerror=null;this.src='/assets/media/svg/files/blank-image.svg';" />
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <label class="btn btn-sm btn-light-primary" for="Form_LogoLightFile">
+                                    <i class="ki-duotone ki-picture fs-4 me-1"><span class="path1"></span><span class="path2"></span></i>
+                                    انتخاب تصویر
+                                </label>
+                                <input type="file" id="Form_LogoLightFile" class="d-none"
+                                       accept=".png,.jpg,.jpeg,.webp,.svg"
+                                       onchange="previewSettingsImage(this, 'LogoLight')" />
+                                <button type="button" class="btn btn-sm btn-light-danger"
+                                        onclick="clearSettingsImage('LogoLight')">
+                                    حذف تصویر
+                                </button>
+                            </div>
+                        </div>
+                        <!--end::Logo-->
+                    </div>
+                    <div class="text-muted fs-7 mb-8">
+                        فرمت‌های مجاز: PNG، JPG، WebP یا SVG — حداکثر ۲ مگابایت
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Input group - Favicon-->
+                    <div class="fv-row mb-8">
+                        <label class="fs-6 fw-semibold mb-2">فاوآیکون</label>
+                        <div class="d-flex align-items-center gap-5">
+                            <div class="d-flex align-items-center justify-content-center bg-white border border-gray-300 border-dashed rounded p-2"
+                                 style="width: 64px; height: 64px;">
+                                <img id="Form_Favicon_preview" src="/fav-icon.png" alt=""
+                                     class="mw-100 mh-100 object-fit-contain"
+                                     onerror="this.onerror=null;this.src='/assets/media/svg/files/blank-image.svg';" />
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <label class="btn btn-sm btn-light-primary" for="Form_FaviconFile">
+                                    <i class="ki-duotone ki-picture fs-4 me-1"><span class="path1"></span><span class="path2"></span></i>
+                                    انتخاب تصویر
+                                </label>
+                                <input type="file" id="Form_FaviconFile" class="d-none"
+                                       accept=".ico,.png,.svg"
+                                       onchange="previewSettingsImage(this, 'Favicon')" />
+                                <button type="button" class="btn btn-sm btn-light-danger"
+                                        onclick="clearSettingsImage('Favicon')">
+                                    حذف تصویر
+                                </button>
+                            </div>
+                        </div>
+                        <div class="text-muted fs-7 mt-2">
+                            فرمت‌های مجاز: ICO، PNG یا SVG — حداکثر ۲ مگابایت
+                        </div>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Input group - Site description-->
+                    <div class="fv-row mb-8">
+                        <label class="fs-6 fw-semibold mb-2">توضیحات سایت</label>
+                        <textarea id="Form_SiteDescription" name="Form_SiteDescription"
+                                  class="form-control form-control-solid" rows="3"
+                                  maxlength="1000"
+                                  placeholder="توضیح کوتاه درباره وب‌سایت..."></textarea>
+                    </div>
+                    <!--end::Input group-->
+
+                    <!--begin::Actions-->
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">انصراف</button>
+                        <button type="button" class="btn btn-primary" id="kt_settings_submit"
+                                onclick="saveSettings()">
+                            <span class="indicator-label">ذخیره</span>
+                            <span class="indicator-progress">
+                                لطفاً صبر کنید...
+                                <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                            </span>
+                        </button>
+                    </div>
+                    <!--end::Actions-->
+                </form>
+            </div>
+            <!--end::Modal body-->
+        </div>
+    </div>
+</div>
+<!--end::Edit Settings Modal-->
