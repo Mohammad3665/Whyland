@@ -1,5 +1,5 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src/Whyland.AdminPanel/Whyland.AdminPanel.csproj" />
+    <Project Path="src/Whyland.Web/Whyland.Web.csproj" />
   </Folder>
 </Solution>
