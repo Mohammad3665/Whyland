@@ -1,5 +1,8 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/Whyland.Application/Whyland.Application.csproj" />
+    <Project Path="src/Whyland.Domain/Whyland.Domain.csproj" />
+    <Project Path="src/Whyland.Infrastructure/Whyland.Infrastructure.csproj" />
     <Project Path="src/Whyland.Web/Whyland.Web.csproj" />
   </Folder>
 </Solution>
