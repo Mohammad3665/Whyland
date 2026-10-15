@@ -1,0 +1,86 @@
+using Mapster;
+using MapsterMapper;
+using Whyland.Application.Common.Extensions;
+using Whyland.Domain.Common.Filters;
+
+namespace Whyland.Infrastructure.Persistence.Extensions;
+
+/// <summary>
+/// Extension methods for converting IQueryable collections to DataTableResult format.
+/// Provides server-side paging, sorting, and filtering support for DataTables.
+/// Lives in Infrastructure because it composes EF Core query execution with Mapster projection;
+/// callers are repository/query handlers, never the Domain layer.
+/// </summary>
+public static class DataTableExtensions
+{
+    /// <summary>
+    /// Converts an IQueryable to a DataTableResult with server-side paging and sorting.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type.</typeparam>
+    /// <param name="source">The queryable data source.</param>
+    /// <param name="filter">The DataTable filter containing paging and sorting parameters.</param>
+    /// <returns>A DataTableResult with paginated and sorted data.</returns>
+    public static async Task<DataTableResult<TEntity>> ToDataTableAsync<TEntity>(
+        this IQueryable<TEntity> source,
+        DataTableFilter filter)
+    {
+        return await source.ToDataTableAsync<TEntity, TEntity>(filter);
+    }
+
+    /// <summary>
+    /// Converts an IQueryable to a DataTableResult with projection to a different type.
+    /// Applies the selector before paging for better performance.
+    /// </summary>
+    /// <typeparam name="TEntity">The source entity type.</typeparam>
+    /// <typeparam name="TResult">The result DTO type.</typeparam>
+    /// <param name="source">The queryable data source.</param>
+    /// <param name="filter">The DataTable filter containing paging and sorting parameters.</param>
+    /// <returns>A DataTableResult with paginated, sorted, and projected data.</returns>
+    public static async Task<DataTableResult<TResult>> ToDataTableAsync<TEntity, TResult>(
+        this IQueryable<TEntity> source,
+        DataTableFilter filter)
+    {
+        var recordsTotal = await source.CountAsync();
+        var queryRequest = filter.ToQueryRequest<TEntity>();
+        var filteredQuery = source.ApplyFilters(queryRequest.Filters);
+        var recordsFiltered = await filteredQuery.CountAsync();
+        ConfigPaging(ref filter, recordsFiltered);
+
+        var sortedQuery = filteredQuery.ApplySorting(queryRequest.SortBy, queryRequest.Sort);
+
+        var data = await sortedQuery
+            .Skip(filter.Skip)
+            .Take(filter.PageSize)
+            .ProjectToType<TResult>()
+            .ToListAsync();
+
+        return new DataTableResult<TResult>
+        {
+            Draw = filter.Draw ?? "1",
+            RecordsFiltered = recordsFiltered,
+            RecordsTotal = recordsTotal,
+            Data = data
+        };
+    }
+
+    /// <summary>
+    /// Configures paging parameters when "show all" is requested (PageSize = -1)
+    /// and normalizes a missing/zero PageSize to the default page size, so paging
+    /// never silently returns an empty dataset.
+    /// </summary>
+    /// <param name="filter">The filter to configure.</param>
+    /// <param name="recordsTotal">Total number of records.</param>
+    private static void ConfigPaging(ref DataTableFilter filter, int recordsTotal)
+    {
+        if (filter.PageSize == -1)
+        {
+            filter.PageSize = recordsTotal;
+            filter.Skip = 0;
+        }
+        else if (filter.PageSize <= 0)
+        {
+            // Default page size, mirroring ToQueryRequest's fallback
+            filter.PageSize = 10;
+        }
+    }
+}

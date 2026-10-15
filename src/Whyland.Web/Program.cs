@@ -1,26 +1,20 @@
-var builder = WebApplication.CreateBuilder(args);
+using Whyland.Infrastructure.Persistence;
+using Whyland.Web;
+using Whyland.Web.Common.Extensions;
 
-// Add services to the container.
-builder.Services.AddRazorPages().WithRazorPagesRoot("/Areas/Admin/Pages");;
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+try
 {
-    app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    var app = StartupHost.Build(args);
+    await app.UseApplicationMiddlewares();
+    await app.Services.InitializeDatabaseAsync();
+    app.Run();
 }
-
-app.UseHttpsRedirection();
-
-app.UseRouting();
-
-app.UseAuthorization();
-
-app.MapStaticAssets();
-app.MapRazorPages()
-   .WithStaticAssets();
-
-app.Run();
+catch (Exception ex) when (ex is not HostAbortedException)
+{
+    Log.Fatal(ex, "Unexpected error occurred. Application is shutting down.");
+    throw;
+}
+finally
+{
+    Log.CloseAndFlush();
+}

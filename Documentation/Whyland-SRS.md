@@ -204,24 +204,24 @@ Payment providers must be represented only through the payment-method abstractio
 
 ### 1.4 Terminology
 
-| Term                 | Definition                                                                              |
-| -------------------- | --------------------------------------------------------------------------------------- |
-| User                 | An account that can authenticate and use the platform.                                  |
-| Instructor           | A user associated with dedicated instructor profile information, assignable to courses.  |
-| Role                 | A dynamic, manageable collection of permissions.                                        |
-| Permission           | A named authorization capability identified by a unique key.                            |
-| Course               | A purchasable or free educational product.                                              |
-| Section              | A logical grouping of episodes within a course.                                         |
-| Episode              | An individual educational lesson within a section.                                      |
-| Cart                 | A temporary collection of courses stored in Redis.                                      |
-| Order                | A persisted purchase request generated from a cart.                                     |
-| Order Item           | A course line item within an order.                                                     |
-| Payment              | A financial transaction associated with an order.                                       |
-| Invoice              | A financial document representing a completed order/payment.                            |
-| Public Website       | The customer-facing MVC application.                                                    |
-| Admin Panel          | The Razor Pages management application.                                                 |
-| System Role          | A role required by the application and protected against unrestricted deletion/changes. |
-| System Permission    | A permission defined by the application and protected against unrestricted deletion.    |
+| Term              | Definition                                                                              |
+| ----------------- | --------------------------------------------------------------------------------------- |
+| User              | An account that can authenticate and use the platform.                                  |
+| Instructor        | A user associated with dedicated instructor profile information, assignable to courses. |
+| Role              | A dynamic, manageable collection of permissions.                                        |
+| Permission        | A named authorization capability identified by a unique key.                            |
+| Course            | A purchasable or free educational product.                                              |
+| Section           | A logical grouping of episodes within a course.                                         |
+| Episode           | An individual educational lesson within a section.                                      |
+| Cart              | A temporary collection of courses stored in Redis.                                      |
+| Order             | A persisted purchase request generated from a cart.                                     |
+| Order Item        | A course line item within an order.                                                     |
+| Payment           | A financial transaction associated with an order.                                       |
+| Invoice           | A financial document representing a completed order/payment.                            |
+| Public Website    | The customer-facing MVC application.                                                    |
+| Admin Panel       | The Razor Pages management application.                                                 |
+| System Role       | A role required by the application and protected against unrestricted deletion/changes. |
+| System Permission | A permission defined by the application and protected against unrestricted deletion.    |
 
 ## 2. Architecture & Technology
 
@@ -314,36 +314,36 @@ The application must use:
 
 ### 2.3 Technology Stack
 
-| Area                     | Technology                                                            |
-| ------------------------ | --------------------------------------------------------------------- |
-| Runtime                  | Latest stable, supported .NET version                                 |
-| Public website           | ASP.NET Core MVC                                                      |
-| Admin panel              | ASP.NET Core Razor Pages                                              |
-| ORM / write persistence  | Entity Framework Core                                                 |
-| Read persistence         | Dapper                                                                |
-| Database                 | PostgreSQL                                                            |
-| Cache / temporary state  | Redis                                                                 |
-| File/video storage       | The application's `wwwroot` folder (MP4 serving with access control)  |
-| Architecture             | Clean Architecture                                                    |
-| CQRS                     | MediatR                                                               |
-| Persistence              | Explicit read/write repositories + Unit of Work                       |
-| Result handling          | Result Pattern                                                        |
-| Authentication           | Custom cookie-based authentication                                    |
-| Authorization            | Permission-based                                                      |
-| External login           | Google                                                                |
-| SMS                      | Standalone fake SMS API                                               |
-| SMS API client           | Refit (standalone Project.Sms.Provider package)                       |
-| SMS storage              | In-Memory for SMS records; durable database for templates (§11.3.5)   |
-| SMS dashboard            | ASP.NET Core HTML-based UI                                            |
-| Invoice reporting        | Stimulsoft Reports.WEB — preferred                                    |
-| Invoice alternative      | QuestPDF                                                              |
-| Reporting alternative    | FastReport .NET                                                       |
-| Logging                  | Serilog                                                               |
-| Telemetry                | OpenTelemetry                                                         |
-| Log backend              | Grafana Loki                                                          |
-| Tracing backend          | Grafana Tempo                                                         |
-| Metrics backend          | Prometheus                                                            |
-| Dashboard                | Grafana                                                               |
+| Area                    | Technology                                                           |
+| ----------------------- | -------------------------------------------------------------------- |
+| Runtime                 | Latest stable, supported .NET version                                |
+| Public website          | ASP.NET Core MVC                                                     |
+| Admin panel             | ASP.NET Core Razor Pages                                             |
+| ORM / write persistence | Entity Framework Core                                                |
+| Read persistence        | Dapper                                                               |
+| Database                | PostgreSQL                                                           |
+| Cache / temporary state | Redis                                                                |
+| File/video storage      | The application's `wwwroot` folder (MP4 serving with access control) |
+| Architecture            | Clean Architecture                                                   |
+| CQRS                    | MediatR                                                              |
+| Persistence             | Explicit read/write repositories + Unit of Work                      |
+| Result handling         | Result Pattern                                                       |
+| Authentication          | Custom cookie-based authentication                                   |
+| Authorization           | Permission-based                                                     |
+| External login          | Google                                                               |
+| SMS                     | Standalone fake SMS API                                              |
+| SMS API client          | Refit (standalone Project.Sms.Provider package)                      |
+| SMS storage             | In-Memory for SMS records; durable database for templates (s11.3.5)  |
+| SMS dashboard           | ASP.NET Core HTML-based UI                                           |
+| Invoice reporting       | Stimulsoft Reports.WEB — preferred                                   |
+| Invoice alternative     | QuestPDF                                                             |
+| Reporting alternative   | FastReport .NET                                                      |
+| Logging                 | Serilog                                                              |
+| Telemetry               | OpenTelemetry                                                        |
+| Log backend             | Grafana Loki                                                         |
+| Tracing backend         | Grafana Tempo                                                        |
+| Metrics backend         | Prometheus                                                           |
+| Dashboard               | Grafana                                                              |
 
 ### 2.4 Suggested Project Structure
 
@@ -565,7 +565,7 @@ IPaymentWriteRepository / IPaymentReadRepository
 IBlogPostWriteRepository / IBlogPostReadRepository
 ```
 
-The read/write repository separation is defined in §3.3.
+The read/write repository separation is defined in s3.3.
 
 Repositories must:
 
@@ -829,18 +829,18 @@ Physical deletion must not be used for ordinary application entities unless a sp
 
 Entities that support deletion must include:
 
-| Field     | Requirement           |
-| --------- | --------------------- |
-| IsDeleted | Required boolean      |
-| DeletedAt | Timestamp (nullable)  |
-| DeletedBy | User ID (nullable)    |
+| Field     | Requirement          |
+| --------- | -------------------- |
+| IsDeleted | Required boolean     |
+| DeletedAt | Timestamp (nullable) |
+| DeletedBy | User ID (nullable)   |
 
 Where appropriate, entities should also include:
 
-| Field     | Requirement                                                            |
-| --------- | ---------------------------------------------------------------------- |
-| CreatedBy | User ID, nullable/required depending on the entity lifecycle           |
-| UpdatedBy | User ID, nullable/required depending on the entity lifecycle           |
+| Field     | Requirement                                                  |
+| --------- | ------------------------------------------------------------ |
+| CreatedBy | User ID, nullable/required depending on the entity lifecycle |
+| UpdatedBy | User ID, nullable/required depending on the entity lifecycle |
 
 Audit fields should typically include:
 
@@ -949,19 +949,19 @@ Authentication data must be separated from extended profile data.
 
 UserProfile must include, where applicable:
 
-| Field        | Requirement     |
-| ------------ | --------------- |
-| UserId       | PK/FK           |
-| NationalCode | Optional        |
-| BirthDate    | Optional        |
-| Gender       | Optional        |
-| Avatar       | Optional        |
-| Address      | Optional        |
-| Province     | Optional        |
-| City         | Optional        |
-| PostalCode   | Optional        |
-| CreatedAt    | Required        |
-| UpdatedAt    | Required        |
+| Field        | Requirement |
+| ------------ | ----------- |
+| UserId       | PK/FK       |
+| NationalCode | Optional    |
+| BirthDate    | Optional    |
+| Gender       | Optional    |
+| Avatar       | Optional    |
+| Address      | Optional    |
+| Province     | Optional    |
+| City         | Optional    |
+| PostalCode   | Optional    |
+| CreatedAt    | Required    |
+| UpdatedAt    | Required    |
 
 Only information strictly necessary for the current business requirements must be collected.
 
@@ -1393,16 +1393,16 @@ Free preview access must not grant ownership of the whole course.
 
 A category must include:
 
-| Field        | Requirement             |
-| ------------ | ----------------------- |
-| Id           | Unique identifier       |
-| Name         | Required                |
-| LatinName    | Required                |
-| DisplayOrder | Required integer        |
-| ParentId     | Nullable                |
-| IsActive     | Required boolean        |
-| CreatedAt    | Required                |
-| UpdatedAt    | Required                |
+| Field        | Requirement       |
+| ------------ | ----------------- |
+| Id           | Unique identifier |
+| Name         | Required          |
+| LatinName    | Required          |
+| DisplayOrder | Required integer  |
+| ParentId     | Nullable          |
+| IsActive     | Required boolean  |
+| CreatedAt    | Required          |
+| UpdatedAt    | Required          |
 
 #### 7.1.2 Hierarchy
 
@@ -1442,25 +1442,25 @@ The application must reject any creation or edit that would produce a fourth lev
 
 #### 7.2.1 Course Fields
 
-| Field             | Requirement                                                                                |
-| ----------------- | ------------------------------------------------------------------------------------------ |
-| Id                | Unique identifier                                                                           |
-| Name              | Required                                                                                    |
-| LatinName         | Required                                                                                    |
-| ShortDescription  | Required                                                                                    |
-| Description       | Optional/required per validation rules; supports HTML editor content                        |
-| Slug              | Required, unique                                                                            |
-| MainImage         | Optional                                                                                    |
-| Price             | Optional; null means the course is free, a non-null value (> 0) means it is paid (§7.3)     |
-| DiscountType      | None / Percentage / FixedAmount                                                             |
-| DiscountValue     | Required when a discount is active                                                          |
-| IsSaleActive      | Required                                                                                    |
-| DisplayStatus     | Draft / Published / Hidden                                                                  |
-| IsFeatured        | Required                                                                                    |
-| IsAmazing         | Required                                                                                    |
-| IntroductionVideo | Optional                                                                                    |
-| CreatedAt         | Required                                                                                    |
-| UpdatedAt         | Required                                                                                    |
+| Field             | Requirement                                                                             |
+| ----------------- | --------------------------------------------------------------------------------------- |
+| Id                | Unique identifier                                                                       |
+| Name              | Required                                                                                |
+| LatinName         | Required                                                                                |
+| ShortDescription  | Required                                                                                |
+| Description       | Optional/required per validation rules; supports HTML editor content                    |
+| Slug              | Required, unique                                                                        |
+| MainImage         | Optional                                                                                |
+| Price             | Optional; null means the course is free, a non-null value (> 0) means it is paid (s7.3) |
+| DiscountType      | None / Percentage / FixedAmount                                                         |
+| DiscountValue     | Required when a discount is active                                                      |
+| IsSaleActive      | Required                                                                                |
+| DisplayStatus     | Draft / Published / Hidden                                                              |
+| IsFeatured        | Required                                                                                |
+| IsAmazing         | Required                                                                                |
+| IntroductionVideo | Optional                                                                                |
+| CreatedAt         | Required                                                                                |
+| UpdatedAt         | Required                                                                                |
 
 #### 7.2.2 Description
 
@@ -1485,7 +1485,7 @@ Course prices must use a decimal-compatible money type.
 
 `float` and `double` must not be used for monetary values.
 
-Free vs. paid is determined from `Price` (§7.3):
+Free vs. paid is determined from `Price` (s7.3):
 
 ```text
 Price == null  => free course
@@ -1715,18 +1715,18 @@ Each section can contain zero or more episodes.
 
 #### 7.7.1 Fields
 
-| Field        | Requirement                            |
-| ------------ | -------------------------------------- |
-| Id           | Unique identifier                      |
-| SectionId    | Required                               |
-| Title        | Required                               |
-| Description  | Optional                               |
-| Video        | Optional/required per episode kind     |
-| Duration     | Required when a video exists           |
-| IsFree       | Required                               |
-| DisplayOrder | Required                               |
-| CreatedAt    | Required                               |
-| UpdatedAt    | Required                               |
+| Field        | Requirement                        |
+| ------------ | ---------------------------------- |
+| Id           | Unique identifier                  |
+| SectionId    | Required                           |
+| Title        | Required                           |
+| Description  | Optional                           |
+| Video        | Optional/required per episode kind |
+| Duration     | Required when a video exists       |
+| IsFree       | Required                           |
+| DisplayOrder | Required                           |
+| CreatedAt    | Required                           |
+| UpdatedAt    | Required                           |
 
 #### 7.7.2 Ordering
 
@@ -1759,7 +1759,7 @@ Each user must have their own independent status per episode. Changing one user'
 
 The system must maintain the following statuses for each `(User, Episode)` pair:
 
-| Status     | Description                                                          |
+| Status     | Description                                                           |
 | ---------- | --------------------------------------------------------------------- |
 | NotWatched | The user has not started watching the episode.                        |
 | InProgress | The user has watched part of the episode but has not completed it.    |
@@ -2045,6 +2045,7 @@ The system must distinguish between public preview videos and protected course v
 - Storage credentials must not be exposed to the browser.
 
 #### 8.4.2 Cache Policy
+
 - Responses for videos and protected files must have a cache policy matching the content's sensitivity.
 - Caching in a reverse proxy or CDN must be configured deliberately.
 - A shared cache must not expose one user's protected content to another unauthorized user.
@@ -2203,7 +2204,7 @@ The coupon code must be removed from the cart when:
 
 If an applied coupon loses eligibility while still in the cart (for example it expires, reaches its usage cap, or the subtotal falls below the minimum order amount after an item is removed), the server must exclude its discount from all totals and inform the user that the coupon is no longer applicable. The cart must never display a discount that is not valid.
 
-Eligibility and calculation rules are defined in §9.4.
+Eligibility and calculation rules are defined in s9.4.
 
 ### 9.4 Coupon Business Rules
 
@@ -2212,7 +2213,7 @@ Eligibility and calculation rules are defined in §9.4.
 3. `Code` uniqueness must be enforced in the storage layer.
 4. Discount calculation logic (percentage vs. fixed amount) must live in the domain layer and must not be duplicated in application or presentation layers.
 5. Per-user usage limits are not modeled directly on the Coupon entity. If needed, they must be enforced through a separate usage-tracking record associating Coupon, User, and Order.
-6. Coupon fields must follow the standard audit and soft-delete requirements defined in §4.2 and §4.1.
+6. Coupon fields must follow the standard audit and soft-delete requirements defined in s4.2 and s4.1.
 7. A cart and an order each have at most one applied coupon.
 8. A coupon is applicable only when all the following conditions hold:
    - It exists and is not soft-deleted.
@@ -2240,9 +2241,9 @@ Eligibility and calculation rules are defined in §9.4.
     - If the order becomes `Failed` or `Cancelled`, the reserved usage must be released exactly once, and release must be idempotent.
     - If the order becomes `Paid`, the consumed usage remains.
     - Re-processing the same payment result must never change `UsedCount`.
-    - Orders left `Pending` past their expiry are cancelled per §9.6.1, which releases the reserved usage.
+    - Orders left `Pending` past their expiry are cancelled per s9.6.1, which releases the reserved usage.
 13. The order must store `CouponId` and `CouponDiscountAmount`. Later changes, expiry, or soft-deletion of the coupon must not alter existing orders, and historical orders must still be able to resolve their coupon.
-14. Coupon codes must be trimmed and matched case-insensitively, and the storage-layer uniqueness rule (rule 3) must be consistent with that. Apply attempts must be rate-limited, and user-displayed failure messages must follow the cart-page rules in §13.3.
+14. Coupon codes must be trimmed and matched case-insensitively, and the storage-layer uniqueness rule (rule 3) must be consistent with that. Apply attempts must be rate-limited, and user-displayed failure messages must follow the cart-page rules in s13.3.
 
 ### 9.5 Orders
 
@@ -2250,17 +2251,17 @@ Eligibility and calculation rules are defined in §9.4.
 
 Fields:
 
-| Field                | Requirement                                                 |
-| -------------------- | ----------------------------------------------------------- |
-| Id                   | Unique identifier                                            |
-| UserId               | Required                                                     |
-| TotalAmount          | Required; payable amount after the coupon discount           |
-| Status               | Required                                                     |
-| CreatedAt            | Required                                                     |
-| PaidAt               | Nullable                                                     |
-| ExpiresAt            | Nullable; populated while the order is Pending               |
-| CouponId             | Nullable                                                     |
-| CouponDiscountAmount | Required; 0 when no coupon is applied                        |
+| Field                | Requirement                                        |
+| -------------------- | -------------------------------------------------- |
+| Id                   | Unique identifier                                  |
+| UserId               | Required                                           |
+| TotalAmount          | Required; payable amount after the coupon discount |
+| Status               | Required                                           |
+| CreatedAt            | Required                                           |
+| PaidAt               | Nullable                                           |
+| ExpiresAt            | Nullable; populated while the order is Pending     |
+| CouponId             | Nullable                                           |
+| CouponDiscountAmount | Required; 0 when no coupon is applied              |
 
 #### 9.5.2 Order Item
 
@@ -2318,7 +2319,7 @@ A background job must periodically process `Pending` orders whose `ExpiresAt` ha
 
 - Transition the order to `Cancelled`.
 - Transition its `Pending` payment record to `Cancelled`.
-- Release the reserved coupon usage exactly once (§9.4).
+- Release the reserved coupon usage exactly once (s9.4).
 
 The transition out of `Pending` must be an atomic conditional update so expiration cannot race with a payment result that makes the same order `Paid`. Whichever transition lands first wins.
 
@@ -2543,25 +2544,25 @@ FastReport .NET provides reporting and PDF export capabilities. Its official doc
 
 The invoice/reporting solution must be evaluated against:
 
-| Criterion                    | Requirement                                        |
-| ---------------------------- | -------------------------------------------------- |
-| .NET compatibility           | Must support the chosen .NET version               |
-| ASP.NET Core integration     | Required                                           |
-| PDF export                   | Required                                           |
-| Invoice templates            | Required                                           |
-| Persian/RTL support          | Required                                           |
-| Custom fonts                 | Required                                           |
-| Table/layout support         | Required                                           |
-| Template maintainability     | Required                                           |
-| Browser preview              | Preferred                                          |
-| Printing                     | Preferred                                          |
-| Excel/Word export            | Optional                                           |
-| API/server-side rendering    | Preferred                                          |
-| Barcode/QR support           | Preferred                                          |
-| E-invoice support            | Preferred where relevant                           |
-| Testability                  | Required                                           |
-| Deployment complexity        | Must be low                                        |
-| Licensing                    | Must be reviewed before final acceptance           |
+| Criterion                 | Requirement                              |
+| ------------------------- | ---------------------------------------- |
+| .NET compatibility        | Must support the chosen .NET version     |
+| ASP.NET Core integration  | Required                                 |
+| PDF export                | Required                                 |
+| Invoice templates         | Required                                 |
+| Persian/RTL support       | Required                                 |
+| Custom fonts              | Required                                 |
+| Table/layout support      | Required                                 |
+| Template maintainability  | Required                                 |
+| Browser preview           | Preferred                                |
+| Printing                  | Preferred                                |
+| Excel/Word export         | Optional                                 |
+| API/server-side rendering | Preferred                                |
+| Barcode/QR support        | Preferred                                |
+| E-invoice support         | Preferred where relevant                 |
+| Testability               | Required                                 |
+| Deployment complexity     | Must be low                              |
+| Licensing                 | Must be reviewed before final acceptance |
 
 #### 10.4.3 Suggested Evaluation
 
@@ -2712,7 +2713,7 @@ This keeps the main application independent from the fake provider implementatio
 
 The SMS API must use an in-memory data store for the first implementation.
 
-Exception: SMS templates (`SmsTemplate`) must be stored in the persistent database per §11.3.5; in-memory storage is used for SMS request/message records (particularly in development/test environments).
+Exception: SMS templates (`SmsTemplate`) must be stored in the persistent database per s11.3.5; in-memory storage is used for SMS request/message records (particularly in development/test environments).
 
 This service must store at least:
 
@@ -2899,15 +2900,15 @@ This API must support sending SMS based on a template and input parameters.
 
 Suggested primary endpoints:
 
-| Method | Endpoint                       | Description                                    |
-| ------ | ------------------------------ | ---------------------------------------------- |
-| `POST` | `/api/v1/sms/send`             | Send SMS using raw text or a template          |
-| `GET`  | `/api/v1/sms/{messageId}`      | Get information about one SMS                  |
-| `GET`  | `/api/v1/sms/templates`        | Get the SMS template list                      |
-| `GET`  | `/api/v1/sms/templates/{code}` | Get one template's info by its unique code     |
-| `POST` | `/api/v1/sms/templates`        | Create an SMS template                         |
-| `PUT`  | `/api/v1/sms/templates/{code}` | Edit an SMS template                           |
-| `DELETE` | `/api/v1/sms/templates/{code}` | Delete an SMS template, where permitted      |
+| Method   | Endpoint                       | Description                                |
+| -------- | ------------------------------ | ------------------------------------------ |
+| `POST`   | `/api/v1/sms/send`             | Send SMS using raw text or a template      |
+| `GET`    | `/api/v1/sms/{messageId}`      | Get information about one SMS              |
+| `GET`    | `/api/v1/sms/templates`        | Get the SMS template list                  |
+| `GET`    | `/api/v1/sms/templates/{code}` | Get one template's info by its unique code |
+| `POST`   | `/api/v1/sms/templates`        | Create an SMS template                     |
+| `PUT`    | `/api/v1/sms/templates/{code}` | Edit an SMS template                       |
+| `DELETE` | `/api/v1/sms/templates/{code}` | Delete an SMS template, where permitted    |
 
 Template-management endpoints must be protected against unauthorized access per the security requirements.
 
@@ -2952,17 +2953,17 @@ This code is valid for 5 minutes.
 
 Each SMS template must include at least:
 
-| Field         | Description                                               |
-| ------------- | --------------------------------------------------------- |
-| `Id`          | Template internal identifier                              |
-| `Code`        | Unique code usable for referencing the template           |
-| `Name`        | Displayable template name                                 |
-| `Content`     | The SMS template text                                     |
-| `Parameters`  | Definition of the template's required parameters          |
-| `Description` | Optional description                                      |
-| `IsActive`    | Template enabled/disabled state                           |
-| `CreatedAt`   | Template creation time                                    |
-| `UpdatedAt`   | Last edit time                                            |
+| Field         | Description                                      |
+| ------------- | ------------------------------------------------ |
+| `Id`          | Template internal identifier                     |
+| `Code`        | Unique code usable for referencing the template  |
+| `Name`        | Displayable template name                        |
+| `Content`     | The SMS template text                            |
+| `Parameters`  | Definition of the template's required parameters |
+| `Description` | Optional description                             |
+| `IsActive`    | Template enabled/disabled state                  |
+| `CreatedAt`   | Template creation time                           |
+| `UpdatedAt`   | Last edit time                                   |
 
 The template's unique code must be unique within the system's intended scope and used to identify the template in API requests.
 
@@ -3406,23 +3407,23 @@ The SMS service and the consuming package must observe at least the following se
 
 ##### 11.3.11.1 Summary of Design Decisions
 
-| Topic                          | Suggested decision                               |
-| ------------------------------ | ------------------------------------------------ |
-| SMS service structure          | Standalone ASP.NET Core Web API project          |
-| Consuming package              | `Project.Sms.Provider`                           |
-| Public contract                | Provider-independent interfaces and DTOs         |
-| API client                     | Refit                                            |
-| API versioning                 | Path-based versioning, e.g. `/api/v1`            |
-| Template storage               | Persistent database                              |
-| Request/message storage        | Database or environment-appropriate storage      |
-| Template identification        | Unique code with a DB uniqueness constraint      |
-| Message identification         | Unique ID generated per message                  |
-| Dashboard                      | Razor Pages or ASP.NET Core MVC                  |
-| Provider selection             | Via abstraction and Dependency Injection         |
-| Documentation                  | OpenAPI/Swagger and contract documentation       |
-| Security                       | Authentication, input validation, dashboard protection |
+| Topic                   | Suggested decision                                     |
+| ----------------------- | ------------------------------------------------------ |
+| SMS service structure   | Standalone ASP.NET Core Web API project                |
+| Consuming package       | `Project.Sms.Provider`                                 |
+| Public contract         | Provider-independent interfaces and DTOs               |
+| API client              | Refit                                                  |
+| API versioning          | Path-based versioning, e.g. `/api/v1`                  |
+| Template storage        | Persistent database                                    |
+| Request/message storage | Database or environment-appropriate storage            |
+| Template identification | Unique code with a DB uniqueness constraint            |
+| Message identification  | Unique ID generated per message                        |
+| Dashboard               | Razor Pages or ASP.NET Core MVC                        |
+| Provider selection      | Via abstraction and Dependency Injection               |
+| Documentation           | OpenAPI/Swagger and contract documentation             |
+| Security                | Authentication, input validation, dashboard protection |
 
-**Important note on storage:** given the need to maintain templates in the database, using persistent storage for `SmsTemplate` is essential. This is an exception to the original in-memory storage requirement (§11.1.4).
+**Important note on storage:** given the need to maintain templates in the database, using persistent storage for `SmsTemplate` is essential. This is an exception to the original in-memory storage requirement (s11.1.4).
 
 Final decision: templates are stored in the persistent database, and using in-memory storage for SMS records in test environments remains available.
 
@@ -3436,17 +3437,17 @@ The platform must support blog categories.
 
 Blog category fields:
 
-| Field        | Requirement             |
-| ------------ | ----------------------- |
-| Id           | Unique identifier       |
-| Name         | Required                |
-| LatinName    | Required                |
-| Slug         | Required, unique        |
-| DisplayOrder | Required integer        |
-| ParentId     | Nullable                |
-| IsActive     | Required boolean        |
-| CreatedAt    | Required                |
-| UpdatedAt    | Required                |
+| Field        | Requirement       |
+| ------------ | ----------------- |
+| Id           | Unique identifier |
+| Name         | Required          |
+| LatinName    | Required          |
+| Slug         | Required, unique  |
+| DisplayOrder | Required integer  |
+| ParentId     | Nullable          |
+| IsActive     | Required boolean  |
+| CreatedAt    | Required          |
+| UpdatedAt    | Required          |
 
 Blog category rules:
 
@@ -3456,24 +3457,24 @@ Blog category rules:
 - Inactive categories must not be selectable for new posts.
 - Existing relations must not be silently removed when a category is deactivated.
 - Deleting a blog category referenced by a post must be prevented or explicitly handled and must not orphan the post-category relation.
-- Blog categories follow the general soft-delete and audit rules defined in §4.1 and §4.2.
+- Blog categories follow the general soft-delete and audit rules defined in s4.1 and s4.2.
 
 #### 12.1.2 Blog Post Fields
 
-| Field            | Requirement         |
-| ---------------- | ------------------- |
-| Id               | Unique identifier   |
-| Title            | Required            |
-| ShortDescription | Required            |
-| Content          | Required            |
-| AuthorId         | Required            |
-| CategoryId       | Optional            |
-| Image            | Optional            |
-| DisplayOrder     | Required            |
-| DisplayStatus    | Required            |
-| Slug             | Required, unique    |
-| CreatedAt        | Required            |
-| UpdatedAt        | Required            |
+| Field            | Requirement       |
+| ---------------- | ----------------- |
+| Id               | Unique identifier |
+| Title            | Required          |
+| ShortDescription | Required          |
+| Content          | Required          |
+| AuthorId         | Required          |
+| CategoryId       | Optional          |
+| Image            | Optional          |
+| DisplayOrder     | Required          |
+| DisplayStatus    | Required          |
+| Slug             | Required, unique  |
+| CreatedAt        | Required          |
+| UpdatedAt        | Required          |
 
 The author must reference a User.
 
@@ -3724,7 +3725,7 @@ The application must create the required pending payment/order state.
 
 When the cart has an applied coupon, order creation must additionally:
 
-- Re-validate the coupon server-side at that moment (§9.4).
+- Re-validate the coupon server-side at that moment (s9.4).
 - Recompute the coupon discount and payable amount.
 - Store the coupon reference and coupon discount amount as a snapshot on the order.
 - Reserve one coupon usage atomically, inside the order-creation transaction.
@@ -3761,7 +3762,7 @@ Create/finalize invoice
 
 This entire flow must be transactionally consistent where database operations are involved.
 
-The invoice created for a paid order must preserve the coupon snapshot per §10.1.
+The invoice created for a paid order must preserve the coupon snapshot per s10.1.
 
 If the order becomes `Failed` or `Cancelled`, the coupon usage reserved for it must be released exactly once. The cart, including its applied coupon, must be preserved for the user's retry, and the coupon remains applied only if it is still eligible.
 
@@ -3803,23 +3804,23 @@ The coupon list must show the code, type, value, usage (`UsedCount` / `UsageLimi
 
 Coupon form fields:
 
-| Field          | Requirement                                                                   |
-| -------------- | ----------------------------------------------------------------------------- |
-| Code           | Required; trimmed; unique, compared case-insensitively                        |
-| Type           | Required; Percentage or FixedAmount                                           |
+| Field          | Requirement                                                                         |
+| -------------- | ----------------------------------------------------------------------------------- |
+| Code           | Required; trimmed; unique, compared case-insensitively                              |
+| Type           | Required; Percentage or FixedAmount                                                 |
 | Value          | Required; Percentage: greater than 0 and less than 100; FixedAmount: greater than 0 |
-| MinOrderAmount | Optional; must not be negative                                                |
-| UsageLimit     | Optional; empty means unlimited; when set, greater than 0                     |
-| UsedCount      | Read-only                                                                     |
-| StartDate      | Required                                                                      |
-| EndDate        | Required; after StartDate                                                     |
-| IsActive       | Required                                                                      |
+| MinOrderAmount | Optional; must not be negative                                                      |
+| UsageLimit     | Optional; empty means unlimited; when set, greater than 0                           |
+| UsedCount      | Read-only                                                                           |
+| StartDate      | Required                                                                            |
+| EndDate        | Required; after StartDate                                                           |
+| IsActive       | Required                                                                            |
 
 Coupon management rules:
 
 - `UsedCount` must never be edited manually.
 - `UsageLimit` must not be set below the current `UsedCount`.
-- Editing, deactivating, or deleting a coupon must not alter existing orders or invoices (§9.4).
+- Editing, deactivating, or deleting a coupon must not alter existing orders or invoices (s9.4).
 - Deactivating a coupon is the normal way to stop its use. Deleting a coupon is a soft delete, and a coupon used by any order must never be physically deleted.
 - The order details in the orders module must display the coupon code and coupon discount amount.
 - Audit fields must be set server-side and never supplied from the client.
@@ -4422,4 +4423,3 @@ Grafana
 ```
 
 The system must remain extendable without introducing unnecessary features outside the defined scope. Dynamic roles and permissions are a core requirement, while payment and SMS providers are deliberately abstracted so real integrations can later be added without changing the core business model.
-
