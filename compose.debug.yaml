@@ -1,0 +1,23 @@
+# Please refer https://aka.ms/HTTPSinContainer on how to setup an https developer certificate for your ASP.NET Core service.
+
+services:
+  whylandweb:
+    image: whylandweb
+    build:
+      context: .
+      dockerfile: src/Whyland.Web/Dockerfile
+      args:
+        - configuration=Debug
+    ports:
+      - 5182:5182
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # The base image bakes ASPNETCORE_URLS=http://+:8080 (see Dockerfile), so in debug mode
+      # it must be overridden to listen on the port published above (matches launchSettings.json).
+      - ASPNETCORE_URLS=http://+:5182
+      - ConnectionStrings__Postgres=Host=postgres;Port=5432;Database=whyland;Username=postgres;Password=${WHYLAND_POSTGRES_PASSWORD:?Set WHYLAND_POSTGRES_PASSWORD (see .env.example)}
+    volumes:
+      - ~/.vsdbg:/remote_debugger:rw
+    depends_on:
+      postgres:
+        condition: service_healthy
