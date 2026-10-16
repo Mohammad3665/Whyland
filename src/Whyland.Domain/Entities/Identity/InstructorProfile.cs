@@ -26,10 +26,6 @@ public class InstructorProfile : BaseEntity<Guid>
 
     public string? Instagram { get; set; }
 
-    public string? NationalCode { get; set; }
-
-    public string? Address { get; set; }
-
     public string? ShebaNumber { get; set; }
 
     public string? BankAccountNumber { get; set; }

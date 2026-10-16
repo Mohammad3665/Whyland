@@ -27,12 +27,6 @@ public sealed class InstructorProfileConfiguration : IEntityTypeConfiguration<In
         builder.Property(x => x.Instagram)
             .HasMaxLength(256);
 
-        builder.Property(x => x.NationalCode)
-            .HasMaxLength(20);
-
-        builder.Property(x => x.Address)
-            .HasMaxLength(500);
-
         builder.Property(x => x.ShebaNumber)
             .HasMaxLength(26);
 

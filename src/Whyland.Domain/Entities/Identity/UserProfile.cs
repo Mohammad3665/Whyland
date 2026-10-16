@@ -23,8 +23,6 @@ public class UserProfile : BaseEntity<Guid>
 
     #region Personal
 
-    public string? NationalCode { get; set; }
-
     public DateOnly? BirthDate { get; set; }
 
     public Gender? Gender { get; set; }
@@ -34,14 +32,6 @@ public class UserProfile : BaseEntity<Guid>
     #region Contact
 
     public string? Avatar { get; set; }
-
-    public string? Address { get; set; }
-
-    public string? Province { get; set; }
-
-    public string? City { get; set; }
-
-    public string? PostalCode { get; set; }
 
     #endregion
 }
