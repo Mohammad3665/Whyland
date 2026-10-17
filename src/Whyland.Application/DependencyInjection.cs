@@ -1,8 +1,6 @@
-using System;
-using Microsoft.Extensions.DependencyInjection;
 using Whyland.Application.Common.Behaviors;
-using Whyland.Application.Common.Configurations;
 using Whyland.Application.Common.Mappings;
+using Whyland.Application.Common.Abstractions.CQRS.Dispatchers;
 
 namespace Whyland.Application;
 
@@ -34,8 +32,8 @@ public static class DependencyInjection
             cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
         });
 
-        // Configure Fluent Validation
-        FluentValidationConfig.Configure();
+        // Facade over MediatR for the outer layers (e.g. Razor Pages).
+        services.AddScoped<IDispatcher, MediatRDispatcher>();
 
         return services;
     }

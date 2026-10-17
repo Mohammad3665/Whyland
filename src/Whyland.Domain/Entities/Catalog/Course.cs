@@ -1,4 +1,3 @@
-
 namespace Whyland.Domain.Entities.Catalog;
 
 /// <summary>
@@ -7,10 +6,19 @@ namespace Whyland.Domain.Entities.Catalog;
 /// </summary>
 public class Course : BaseEntity<long>
 {
+    /// <summary>
+    /// The course display name.
+    /// </summary>
     public string Name { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Latin equivalent of the name, used to generate URL-friendly slugs.
+    /// </summary>
     public string LatinName { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Short excerpt shown in listings before the full description.
+    /// </summary>
     public string ShortDescription { get; set; } = string.Empty;
 
     /// <summary>
@@ -24,6 +32,9 @@ public class Course : BaseEntity<long>
     /// </summary>
     public string Slug { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Path or URL of the main cover image shown in listings.
+    /// </summary>
     public string? MainImage { get; set; }
 
     /// <summary>
@@ -32,6 +43,9 @@ public class Course : BaseEntity<long>
     /// </summary>
     public decimal? Price { get; private set; }
 
+    /// <summary>
+    /// The kind of discount applied to the course (s7.2.5).
+    /// </summary>
     public DiscountType DiscountType { get; set; } = DiscountType.None;
 
     /// <summary>
@@ -45,20 +59,44 @@ public class Course : BaseEntity<long>
     /// </summary>
     public bool IsSaleActive { get; set; }
 
+    /// <summary>
+    /// Public visibility status of the course (s7.2.7). Only published courses are discoverable.
+    /// </summary>
     public DisplayStatus DisplayStatus { get; set; } = DisplayStatus.Draft;
 
+    /// <summary>
+    /// Featured courses are promoted in the site's highlighted sections.
+    /// </summary>
     public bool IsFeatured { get; set; }
 
+    /// <summary>
+    /// Amazing (special-offer) courses appear in the site's promotional deals section.
+    /// </summary>
     public bool IsAmazing { get; set; }
 
+    /// <summary>
+    /// Reference to the course introduction video shown on the landing page.
+    /// </summary>
     public string? IntroductionVideo { get; set; }
 
+    /// <summary>
+    /// The categories the course belongs to (s7.4).
+    /// </summary>
     public ICollection<CourseCategory> CourseCategories { get; set; } = [];
 
+    /// <summary>
+    /// The instructors assigned to this course (s7.5).
+    /// </summary>
     public ICollection<CourseInstructor> CourseInstructors { get; set; } = [];
 
+    /// <summary>
+    /// The logical sections grouping the course episodes (s7.6).
+    /// </summary>
     public ICollection<CourseSection> Sections { get; set; } = [];
 
+    /// <summary>
+    /// FAQ items attached to this course (s7.10).
+    /// </summary>
     public ICollection<CourseFaq> CourseFaqs { get; set; } = [];
 
     /// <summary>

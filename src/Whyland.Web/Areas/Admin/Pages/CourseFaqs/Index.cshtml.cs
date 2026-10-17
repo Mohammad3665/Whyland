@@ -8,9 +8,11 @@ namespace Whyland.Web.Areas.Admin.Pages.CourseFaqs
     /// </summary>
     public class IndexModel : PageModel
     {
+        /// <summary>Id of the course whose FAQs are being listed (resolved against a demo lookup).</summary>
         [BindProperty(SupportsGet = true)]
         public int CourseId { get; set; } = 1;
 
+        /// <summary>Display title of the requested course, populated by OnGet from the demo lookup.</summary>
         public string CourseTitle { get; private set; } = string.Empty;
 
         // TODO: replace the demo lookups with real queries when the data layer is wired up.
@@ -22,6 +24,7 @@ namespace Whyland.Web.Areas.Admin.Pages.CourseFaqs
             { 4, "کارآفرینی و استارتاپ" },
         };
 
+        /// <summary>Resolves the demo course title for the requested course id so the view can show it while the data layer is not wired up.</summary>
         public void OnGet()
         {
             CourseTitle = DemoCourseTitles.TryGetValue(CourseId, out var course)

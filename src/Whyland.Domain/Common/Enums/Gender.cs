@@ -1,4 +1,3 @@
-
 namespace Whyland.Domain.Common.Enums;
 
 /// <summary>
@@ -9,11 +8,12 @@ namespace Whyland.Domain.Common.Enums;
 public enum Gender
 {
     /// <summary>
-    /// Not provided.
+    /// Male.
     /// </summary>
-    NotSpecified = 0,
+    Male = 0,
 
-    Male = 1,
-
-    Female = 2
+    /// <summary>
+    /// Female.
+    /// </summary>
+    Female = 1
 }

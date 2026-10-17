@@ -1,6 +1,9 @@
 
 namespace Whyland.Infrastructure.Persistence.Configurations.Catalog;
 
+/// <summary>
+/// Maps the many-to-many link between courses and categories (s7.4).
+/// </summary>
 public sealed class CourseCategoryConfiguration : IEntityTypeConfiguration<CourseCategory>
 {
     public void Configure(EntityTypeBuilder<CourseCategory> builder)

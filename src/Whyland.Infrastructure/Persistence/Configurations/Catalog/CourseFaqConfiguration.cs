@@ -1,6 +1,9 @@
 
 namespace Whyland.Infrastructure.Persistence.Configurations.Catalog;
 
+/// <summary>
+/// Maps a per-course FAQ item shown on the course page (s7.10).
+/// </summary>
 public sealed class CourseFaqConfiguration : IEntityTypeConfiguration<CourseFaq>
 {
     public void Configure(EntityTypeBuilder<CourseFaq> builder)

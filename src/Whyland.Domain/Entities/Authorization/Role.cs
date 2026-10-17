@@ -1,4 +1,3 @@
-
 namespace Whyland.Domain.Entities.Authorization;
 
 /// <summary>
@@ -24,7 +23,13 @@ public class Role : BaseEntity<long>
     /// </summary>
     public bool IsSystem { get; set; }
 
+    /// <summary>
+    /// The role assignments made to users through this role.
+    /// </summary>
     public ICollection<UserRole> UserRoles { get; set; } = [];
 
+    /// <summary>
+    /// The permissions granted to this role.
+    /// </summary>
     public ICollection<RolePermission> RolePermissions { get; set; } = [];
 }

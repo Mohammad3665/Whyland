@@ -1,6 +1,9 @@
 
 namespace Whyland.Infrastructure.Persistence.Configurations.Identity;
 
+/// <summary>
+/// Maps the application user with its unique credentials and authentication relations (s5.1).
+/// </summary>
 public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)

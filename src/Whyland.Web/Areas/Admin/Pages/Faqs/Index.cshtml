@@ -11,6 +11,9 @@
     };
 }
 
+@* Antiforgery token required by the modal POST handlers (read by faqs.js). *@
+@Html.AntiForgeryToken()
+
 @section Styles {
     <link rel="stylesheet" href="~/admin/assets/plugins/custom/datatables/datatables.bundle.css" type="text/css" />
     <link rel="stylesheet" href="~/admin/assets/plugins/custom/orderable-datatables/rowReorder.datatables.min.css" type="text/css" />
@@ -97,114 +100,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Demo rows — replace with real data when the data layer is wired up. -->
-                        <tr data-id="1" data-active="1">
-                            <td class="dtr-control-col"></td>
-                            <td tabindex="0" class="reorder text-center dt-type-numeric dtr-control">
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <i class="ki-duotone ki-burger-menu-2 fs-2 text-gray-400 cursor-move me-2">
-                                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
-                                        <span class="path4"></span><span class="path5"></span><span class="path6"></span>
-                                        <span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span>
-                                    </i>
-                                    <span class="faq-order badge badge-light-secondary">1</span>
-                                </div>
-                            </td>
-                            <td><span class="text-gray-800 fw-bold">چگونه می‌توانم ثبت‌نام کنم؟</span></td>
-                            <td class="text-center" data-order="1">
-                                <span class="badge badge-light-success">فعال</span>
-                            </td>
-                            <td data-order="2026-09-15"><span class="text-gray-600">۱۴۰۴/۰۶/۲۴</span></td>
-                            <td class="text-end nowrap-cell">
-                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info me-1"
-                                        onclick="openDetailsModal('چگونه می‌توانم ثبت‌نام کنم؟', 'برای ثبت‌نام روی دکمه «ثبت‌نام» در صفحه ورود کلیک کنید و شماره موبایل خود را وارد نمایید.')" title="جزئیات">
-                                    <i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary me-1"
-                                        onclick="openEditModal(1, 'چگونه می‌توانم ثبت‌نام کنم؟', 'برای ثبت‌نام روی دکمه «ثبت‌نام» در صفحه ورود کلیک کنید و شماره موبایل خود را وارد نمایید.', 1, true)" title="ویرایش">
-                                    <i class="ki-duotone ki-pencil fs-2"><span class="path1"></span><span class="path2"></span></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-danger"
-                                        onclick="openDeleteModal(1, 'چگونه می‌توانم ثبت‌نام کنم؟')" title="حذف">
-                                    <i class="ki-duotone ki-trash fs-2">
-                                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
-                                        <span class="path4"></span><span class="path5"></span>
-                                    </i>
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr data-id="2" data-active="1">
-                            <td class="dtr-control-col"></td>
-                            <td tabindex="0" class="reorder text-center dt-type-numeric dtr-control">
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <i class="ki-duotone ki-burger-menu-2 fs-2 text-gray-400 cursor-move me-2">
-                                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
-                                        <span class="path4"></span><span class="path5"></span><span class="path6"></span>
-                                        <span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span>
-                                    </i>
-                                    <span class="faq-order badge badge-light-secondary">2</span>
-                                </div>
-                            </td>
-                            <td><span class="text-gray-800 fw-bold">آیا امکان بازگشت وجه وجود دارد؟</span></td>
-                            <td class="text-center" data-order="1">
-                                <span class="badge badge-light-success">فعال</span>
-                            </td>
-                            <td data-order="2026-09-20"><span class="text-gray-600">۱۴۰۴/۰۶/۲۹</span></td>
-                            <td class="text-end nowrap-cell">
-                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info me-1"
-                                        onclick="openDetailsModal('آیا امکان بازگشت وجه وجود دارد؟', 'در صورت عدم رضایت، طبق قوانین سایت تا ۷ روز پس از خرید امکان بازگشت وجه وجود دارد.')" title="جزئیات">
-                                    <i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary me-1"
-                                        onclick="openEditModal(2, 'آیا امکان بازگشت وجه وجود دارد؟', 'در صورت عدم رضایت، طبق قوانین سایت تا ۷ روز پس از خرید امکان بازگشت وجه وجود دارد.', 2, true)" title="ویرایش">
-                                    <i class="ki-duotone ki-pencil fs-2"><span class="path1"></span><span class="path2"></span></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-danger"
-                                        onclick="openDeleteModal(2, 'آیا امکان بازگشت وجه وجود دارد؟')" title="حذف">
-                                    <i class="ki-duotone ki-trash fs-2">
-                                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
-                                        <span class="path4"></span><span class="path5"></span>
-                                    </i>
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr data-id="3" data-active="0">
-                            <td class="dtr-control-col"></td>
-                            <td tabindex="0" class="reorder text-center dt-type-numeric dtr-control">
-                                <div class="d-flex align-items-center justify-content-center">
-                                    <i class="ki-duotone ki-burger-menu-2 fs-2 text-gray-400 cursor-move me-2">
-                                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
-                                        <span class="path4"></span><span class="path5"></span><span class="path6"></span>
-                                        <span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span>
-                                    </i>
-                                    <span class="faq-order badge badge-light-secondary">3</span>
-                                </div>
-                            </td>
-                            <td><span class="text-gray-800 fw-bold">آیا دوره‌ها به صورت حضوری برگزار می‌شوند؟</span></td>
-                            <td class="text-center" data-order="0">
-                                <span class="badge badge-light-danger">غیرفعال</span>
-                            </td>
-                            <td data-order="2026-10-01"><span class="text-gray-600">۱۴۰۴/۰۷/۰۹</span></td>
-                            <td class="text-end nowrap-cell">
-                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info me-1"
-                                        onclick="openDetailsModal('آیا دوره‌ها به صورت حضوری برگزار می‌شوند؟', 'در حال حاضر تمامی دوره‌ها به صورت آنلاین برگزار می‌شوند.')" title="جزئیات">
-                                    <i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary me-1"
-                                        onclick="openEditModal(3, 'آیا دوره‌ها به صورت حضوری برگزار می‌شوند؟', 'در حال حاضر تمامی دوره‌ها به صورت آنلاین برگزار می‌شوند.', 3, false)" title="ویرایش">
-                                    <i class="ki-duotone ki-pencil fs-2"><span class="path1"></span><span class="path2"></span></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-danger"
-                                        onclick="openDeleteModal(3, 'آیا دوره‌ها به صورت حضوری برگزار می‌شوند؟')" title="حذف">
-                                    <i class="ki-duotone ki-trash fs-2">
-                                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
-                                        <span class="path4"></span><span class="path5"></span>
-                                    </i>
-                                </button>
-                            </td>
-                        </tr>
+                        <!-- Rows are loaded and rendered by faqs.js (?handler=Rows). -->
                     </tbody>
                 </table>
             </div>

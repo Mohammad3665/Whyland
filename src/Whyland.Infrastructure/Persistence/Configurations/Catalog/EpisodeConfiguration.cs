@@ -1,6 +1,9 @@
 
 namespace Whyland.Infrastructure.Persistence.Configurations.Catalog;
 
+/// <summary>
+/// Maps a playable video episode inside a course section (s7.7).
+/// </summary>
 public sealed class EpisodeConfiguration : IEntityTypeConfiguration<Episode>
 {
     public void Configure(EntityTypeBuilder<Episode> builder)

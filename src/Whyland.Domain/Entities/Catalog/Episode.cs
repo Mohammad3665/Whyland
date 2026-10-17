@@ -1,4 +1,3 @@
-
 namespace Whyland.Domain.Entities.Catalog;
 
 /// <summary>
@@ -8,12 +7,24 @@ namespace Whyland.Domain.Entities.Catalog;
 /// </summary>
 public class Episode : BaseEntity<long>
 {
+    /// <summary>
+    /// The section the episode belongs to.
+    /// </summary>
     public long SectionId { get; set; }
 
+    /// <summary>
+    /// The section the episode belongs to.
+    /// </summary>
     public CourseSection Section { get; set; } = null!;
 
+    /// <summary>
+    /// The episode title.
+    /// </summary>
     public string Title { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Optional short description of the episode's content.
+    /// </summary>
     public string? Description { get; set; }
 
     /// <summary>
@@ -33,7 +44,13 @@ public class Episode : BaseEntity<long>
     /// </summary>
     public bool IsFree { get; set; }
 
+    /// <summary>
+    /// Manual ordering weight; episodes are shown in ascending order within the section.
+    /// </summary>
     public int DisplayOrder { get; set; }
 
+    /// <summary>
+    /// The downloadable attachments of this episode.
+    /// </summary>
     public ICollection<EpisodeAttachment> Attachments { get; set; } = [];
 }

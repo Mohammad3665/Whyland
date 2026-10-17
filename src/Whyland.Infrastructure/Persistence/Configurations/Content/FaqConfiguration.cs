@@ -15,10 +15,11 @@ public sealed class FaqConfiguration : IEntityTypeConfiguration<Faq>
 
         builder.Property(x => x.Title)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(Faq.MaxTitleLength);
 
         builder.Property(x => x.Description)
-            .IsRequired();
+            .IsRequired()
+            .HasMaxLength(Faq.MaxDescriptionLength);
 
         builder.Property(x => x.IsActive)
             .HasDefaultValue(true);

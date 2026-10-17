@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../Whyland.Domain/Whyland.Domain.csproj" />
+    <ProjectReference Include="../Whyland.Shared/Whyland.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -9,8 +9,14 @@ namespace Whyland.Domain.Entities.Identity;
 /// </summary>
 public class User : BaseEntity<Guid>
 {
+    /// <summary>
+    /// The user's first name.
+    /// </summary>
     public string FirstName { get; set; } = string.Empty;
 
+    /// <summary>
+    /// The user's last name.
+    /// </summary>
     public string LastName { get; set; } = string.Empty;
 
     /// <summary>
@@ -38,6 +44,9 @@ public class User : BaseEntity<Guid>
     /// </summary>
     public bool IsActive { get; set; } = true;
 
+    /// <summary>
+    /// UTC time of the user's most recent successful login; null before the first login.
+    /// </summary>
     public DateTime? LastLoginAt { get; set; }
 
     /// <summary>
@@ -50,5 +59,8 @@ public class User : BaseEntity<Guid>
     /// </summary>
     public InstructorProfile? InstructorProfile { get; set; }
 
+    /// <summary>
+    /// The roles assigned to this user.
+    /// </summary>
     public ICollection<UserRole> UserRoles { get; set; } = [];
 }

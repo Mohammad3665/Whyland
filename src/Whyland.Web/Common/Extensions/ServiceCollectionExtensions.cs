@@ -6,8 +6,19 @@ using Whyland.Infrastructure.Identity.Constants;
 
 namespace Whyland.Web.Common.Extensions;
 
+/// <summary>
+/// DI registration helpers for the web layer, shared by the host and
+/// the MVC/Razor Pages endpoints.
+/// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Registers infrastructure and application services, MVC, the HTTP
+    /// context accessor, problem details and the AdminPanelAccess
+    /// authorization policy (requires the Dashboard.View permission).
+    /// </summary>
+    /// <param name="services">The service collection being configured.</param>
+    /// <param name="configuration">Application configuration used by the infrastructure registration.</param>
     public static IServiceCollection AddApplicationServices(
         this IServiceCollection services,
         IConfiguration configuration

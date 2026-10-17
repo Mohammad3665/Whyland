@@ -1,6 +1,9 @@
 
 namespace Whyland.Infrastructure.Persistence.Configurations.Identity;
 
+/// <summary>
+/// Maps the many-to-many assignment of permissions to roles (s6.3).
+/// </summary>
 public sealed class RolePermissionConfiguration : IEntityTypeConfiguration<RolePermission>
 {
     public void Configure(EntityTypeBuilder<RolePermission> builder)

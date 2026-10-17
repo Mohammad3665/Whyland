@@ -1,6 +1,9 @@
 
 namespace Whyland.Infrastructure.Persistence.Configurations.Identity;
 
+/// <summary>
+/// Maps the extended customer profile attached to a user one-to-one (s5.2).
+/// </summary>
 public sealed class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
 {
     public void Configure(EntityTypeBuilder<UserProfile> builder)

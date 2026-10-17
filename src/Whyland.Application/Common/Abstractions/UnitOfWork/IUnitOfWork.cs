@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore.Storage;
+using Whyland.Domain.IRepositories.Content.Faq;
 
 namespace Whyland.Application.Common.Abstractions.UnitOfWork;
 
@@ -11,6 +12,20 @@ namespace Whyland.Application.Common.Abstractions.UnitOfWork;
 /// </remarks>
 public interface IUnitOfWork : IAsyncDisposable
 {
+    #region Repositories
+
+    /// <summary>
+    /// Repository for write (command) operations on FAQ entities.
+    /// </summary>
+    IFaqCommandRepository FaqCommandRepository { get; }
+
+    /// <summary>
+    /// Repository for read (query) operations on FAQ entities.
+    /// </summary>
+    IFaqQueryRepository FaqQueryRepository { get; }
+
+    #endregion
+
     #region Transactions
 
     /// <summary>

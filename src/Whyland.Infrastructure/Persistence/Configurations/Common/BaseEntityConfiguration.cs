@@ -2,6 +2,10 @@ using Whyland.Domain.Entities.Common;
 
 namespace Whyland.Infrastructure.Persistence.Configurations.Common;
 
+/// <summary>
+/// Provides the shared base key configuration (primary key and value generation)
+/// inherited by every entity configuration (s3.8).
+/// </summary>
 public sealed class BaseConfiguration<TEntity, TKey> : IEntityTypeConfiguration<TEntity>
     where TEntity : BaseEntity<TKey>
     where TKey : notnull

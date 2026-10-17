@@ -1,6 +1,9 @@
 
 namespace Whyland.Infrastructure.Persistence.Configurations.Identity;
 
+/// <summary>
+/// Maps an authorization permission with its unique key (s6.2).
+/// </summary>
 public sealed class PermissionConfiguration : IEntityTypeConfiguration<Permission>
 {
     public void Configure(EntityTypeBuilder<Permission> builder)

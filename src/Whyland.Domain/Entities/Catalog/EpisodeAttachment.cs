@@ -1,4 +1,3 @@
-
 namespace Whyland.Domain.Entities.Catalog;
 
 /// <summary>
@@ -8,8 +7,14 @@ namespace Whyland.Domain.Entities.Catalog;
 /// </summary>
 public class EpisodeAttachment : BaseEntity<long>
 {
+    /// <summary>
+    /// The episode the attachment belongs to.
+    /// </summary>
     public long EpisodeId { get; set; }
 
+    /// <summary>
+    /// The episode the attachment belongs to.
+    /// </summary>
     public Episode Episode { get; set; } = null!;
 
     /// <summary>
@@ -23,6 +28,9 @@ public class EpisodeAttachment : BaseEntity<long>
     /// </summary>
     public string StoragePath { get; set; } = string.Empty;
 
+    /// <summary>
+    /// The MIME content type used when serving the download.
+    /// </summary>
     public string ContentType { get; set; } = string.Empty;
 
     /// <summary>

@@ -11,6 +11,11 @@ namespace Whyland.Infrastructure.Identity.Attributes;
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
 public class HasPermissionAttribute : AuthorizeAttribute
 {
+    /// <summary>
+    /// Creates the attribute and authorizes with the dynamic policy matching
+    /// the given permission key (s6.5).
+    /// </summary>
+    /// <param name="permission">The permission key required to access the decorated member.</param>
     public HasPermissionAttribute(string permission) : base(policy: permission)
     {
     }

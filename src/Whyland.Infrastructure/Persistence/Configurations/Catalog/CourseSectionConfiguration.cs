@@ -1,6 +1,9 @@
 
 namespace Whyland.Infrastructure.Persistence.Configurations.Catalog;
 
+/// <summary>
+/// Maps a section (chapter) inside a course that groups its episodes in display order (s7.6).
+/// </summary>
 public sealed class CourseSectionConfiguration : IEntityTypeConfiguration<CourseSection>
 {
     public void Configure(EntityTypeBuilder<CourseSection> builder)

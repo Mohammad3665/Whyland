@@ -12,6 +12,12 @@ namespace Whyland.Infrastructure.Identity.Handlers;
 /// </remarks>
 public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
 {
+    /// <summary>
+    /// Evaluates whether the user carries the permission claim required by the requirement.
+    /// </summary>
+    /// <param name="context">The current authorization context.</param>
+    /// <param name="requirement">The permission requirement being evaluated.</param>
+    /// <returns>A completed task once the requirement has been evaluated.</returns>
     protected override Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
         PermissionRequirement requirement

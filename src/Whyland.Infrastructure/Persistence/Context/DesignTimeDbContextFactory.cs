@@ -15,6 +15,13 @@ namespace Whyland.Infrastructure.Persistence.Context;
 /// </summary>
 public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<WhylandDbContext>
 {
+    /// <summary>
+    /// Creates a <see cref="WhylandDbContext"/> configured with the design-time connection string
+    /// resolved from the environment or Whyland.Web configuration files.
+    /// </summary>
+    /// <param name="args">Command-line arguments passed by the design-time tooling (unused).</param>
+    /// <returns>A configured <see cref="WhylandDbContext"/> instance.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when no connection string can be resolved.</exception>
     public WhylandDbContext CreateDbContext(string[] args)
     {
         var connectionString =

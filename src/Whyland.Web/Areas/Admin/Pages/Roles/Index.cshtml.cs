@@ -9,6 +9,7 @@ namespace Whyland.Web.Areas.Admin.Pages.Roles
     /// </summary>
     public class IndexModel : PageModel
     {
+        /// <summary>Renders the demo roles list; no data layer wired up yet.</summary>
         public void OnGet() { }
     }
 }

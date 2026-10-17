@@ -9,6 +9,7 @@ namespace Whyland.Web.Areas.Admin.Pages.Payments
     /// </summary>
     public class IndexModel : PageModel
     {
+        /// <summary>Renders the demo payments list; no data layer wired up yet.</summary>
         public void OnGet() { }
     }
 }

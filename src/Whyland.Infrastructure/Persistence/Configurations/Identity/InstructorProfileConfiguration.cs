@@ -1,6 +1,9 @@
 
 namespace Whyland.Infrastructure.Persistence.Configurations.Identity;
 
+/// <summary>
+/// Maps the extended instructor profile attached to a user one-to-one (s5.4).
+/// </summary>
 public sealed class InstructorProfileConfiguration : IEntityTypeConfiguration<InstructorProfile>
 {
     public void Configure(EntityTypeBuilder<InstructorProfile> builder)

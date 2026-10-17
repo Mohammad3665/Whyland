@@ -1,5 +1,3 @@
-using Whyland.Domain.Common.Results;
-
 namespace Whyland.Infrastructure.Persistence.UnitOfWork;
 
 /// <summary>
@@ -64,6 +62,9 @@ public class UnitOfWorkTransactionHandler(IUnitOfWork unitOfWork) : IUnitOfWorkT
     #endregion
 
     #region Dispose
+    /// <summary>
+    /// Disposes the wrapped unit of work.
+    /// </summary>
     public async ValueTask DisposeAsync()
     {
         await unitOfWork.DisposeAsync();

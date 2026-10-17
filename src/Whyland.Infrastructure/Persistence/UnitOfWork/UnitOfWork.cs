@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore.Storage;
-using Whyland.Domain.Common.Results;
+using Npgsql;
+using Whyland.Domain.IRepositories.Content.Faq;
+using Whyland.Infrastructure.Persistence.Repositories.Content.Faq;
 
 namespace Whyland.Infrastructure.Persistence.UnitOfWork;
 
@@ -12,10 +14,33 @@ namespace Whyland.Infrastructure.Persistence.UnitOfWork;
 /// explicit <see cref="DisposeAsync"/> only exists to satisfy the <see cref="IUnitOfWork"/> contract
 /// for handlers that manage the unit-of-work lifetime themselves.
 /// </remarks>
-public class UnitOfWork(WhylandDbContext context) : IUnitOfWork
+public class UnitOfWork(WhylandDbContext context, NpgsqlDataSource dataSource) : IUnitOfWork
 {
+    #region Repositories
+
+    private IFaqCommandRepository? _faqCommandRepository;
+    /// <summary>
+    /// Lazily creates the singleton-per-unit-of-work <see cref="IFaqCommandRepository"/>.
+    /// </summary>
+    public IFaqCommandRepository FaqCommandRepository => _faqCommandRepository ??= new FaqCommandRepository(context);
+
+    private IFaqQueryRepository? _faqQueryRepository;
+    /// <summary>
+    /// Lazily creates the singleton-per-unit-of-work <see cref="IFaqQueryRepository"/>,
+    /// built on the pooled Npgsql data source for Dapper queries.
+    /// </summary>
+    public IFaqQueryRepository FaqQueryRepository => _faqQueryRepository ??= new FaqQueryRepository(dataSource);
+    
+    #endregion
+
+
     #region Save
 
+    /// <summary>
+    /// Persists all tracked changes to the database.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the save operation.</param>
+    /// <returns><see cref="Result.Success"/> when the save completed, or the failure result.</returns>
     public async Task<Result> SaveAsync(CancellationToken cancellationToken = default)
     {
         await context.SaveChangesAsync(cancellationToken);
@@ -45,17 +70,32 @@ public class UnitOfWork(WhylandDbContext context) : IUnitOfWork
         return RollbackTransactionAsync(transaction, cancellationToken);
     }
 
+    /// <summary>
+    /// Begins a database transaction for grouping multiple persistence operations.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>The started database transaction.</returns>
     public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
         return await context.Database.BeginTransactionAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Commits the given transaction, making its changes permanent.
+    /// </summary>
+    /// <param name="transaction">The transaction to commit; must not be <c>null</c>.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
     public async Task CommitTransactionAsync(IDbContextTransaction? transaction, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(transaction);
         await transaction.CommitAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Rolls back the given transaction, discarding all of its changes.
+    /// </summary>
+    /// <param name="transaction">The transaction to roll back; must not be <c>null</c>.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
     public async Task RollbackTransactionAsync(IDbContextTransaction? transaction, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(transaction);
@@ -67,6 +107,9 @@ public class UnitOfWork(WhylandDbContext context) : IUnitOfWork
 
     #region Dispose
 
+    /// <summary>
+    /// Disposes the underlying scoped <see cref="WhylandDbContext"/>.
+    /// </summary>
     public async ValueTask DisposeAsync()
     {
         await context.DisposeAsync();

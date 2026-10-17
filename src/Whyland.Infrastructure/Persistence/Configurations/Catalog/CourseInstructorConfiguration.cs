@@ -1,6 +1,9 @@
 
 namespace Whyland.Infrastructure.Persistence.Configurations.Catalog;
 
+/// <summary>
+/// Maps the link between a course and its instructor profiles (s7.3).
+/// </summary>
 public sealed class CourseInstructorConfiguration : IEntityTypeConfiguration<CourseInstructor>
 {
     public void Configure(EntityTypeBuilder<CourseInstructor> builder)

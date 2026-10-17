@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../Whyland.Shared/Whyland.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

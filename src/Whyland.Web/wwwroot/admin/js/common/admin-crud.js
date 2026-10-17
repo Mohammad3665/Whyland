@@ -83,7 +83,7 @@
     var defaults = {
       responsive: true,
       order: [],
-      pageLength: 25,
+      pageLength: 10,
       columnDefs: [{ orderable: false, targets: [-1] }],
       language: FA_LANG,
     };
@@ -369,9 +369,13 @@
       if (cfg.onSubmit) {
         $.when(cfg.onSubmit(data, state.mode))
           .done(success)
-          .fail(function () {
+          .fail(function (xhr) {
             finish();
-            toastr.error("خطا در ذخیره اطلاعات.", "خطا");
+            // Surface the server's message (validation, not-found, ...).
+            var msg =
+              (xhr && xhr.responseJSON && xhr.responseJSON.message) ||
+              "خطا در ذخیره اطلاعات.";
+            toastr.error(msg, "خطا");
           });
       } else {
         // No server handler wired up yet: simulate a successful save.
@@ -396,8 +400,12 @@
       if (cfg.onDelete) {
         $.when(cfg.onDelete(state.deleteId))
           .done(done)
-          .fail(function () {
-            toastr.error("خطا در حذف.", "خطا");
+          .fail(function (xhr) {
+            // Surface the server's message (validation, not-found, ...).
+            var msg =
+              (xhr && xhr.responseJSON && xhr.responseJSON.message) ||
+              "خطا در حذف.";
+            toastr.error(msg, "خطا");
           });
       } else {
         done();

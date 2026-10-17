@@ -10,6 +10,7 @@ namespace Whyland.Web.Areas.Admin.Pages.Coupons
     /// </summary>
     public class IndexModel : PageModel
     {
+        /// <summary>Renders the demo coupons list; no data layer wired up yet.</summary>
         public void OnGet() { }
     }
 }

@@ -13,6 +13,7 @@ namespace Whyland.Web.Areas.Admin.Pages.InstructorProfile
         [BindProperty(SupportsGet = true)]
         public int UserId { get; set; } = 1;
 
+        /// <summary>Display name of the requested instructor, populated by OnGet from the demo lookup.</summary>
         public string InstructorName { get; private set; } = string.Empty;
 
         // TODO: replace the demo lookup with a real query when the data layer is wired up.
@@ -22,6 +23,7 @@ namespace Whyland.Web.Areas.Admin.Pages.InstructorProfile
             [5] = "شیرین جعفری",
         };
 
+        /// <summary>Resolves the demo instructor name for the requested user id so the view can show it while the data layer is not wired up.</summary>
         public void OnGet()
         {
             InstructorName = DemoInstructorNames.TryGetValue(UserId, out var name)

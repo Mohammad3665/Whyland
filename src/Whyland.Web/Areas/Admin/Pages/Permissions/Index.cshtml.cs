@@ -10,6 +10,7 @@ namespace Whyland.Web.Areas.Admin.Pages.Permissions
     /// </summary>
     public class IndexModel : PageModel
     {
+        /// <summary>Renders the demo permissions list; no data layer wired up yet.</summary>
         public void OnGet() { }
     }
 }

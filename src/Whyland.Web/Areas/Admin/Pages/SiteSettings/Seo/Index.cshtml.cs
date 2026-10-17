@@ -15,6 +15,7 @@ namespace Whyland.Web.Areas.Admin.Pages.SiteSettings.Seo
         /// <summary>Demo last-update author shown in the card footer.</summary>
         public string LastUpdatedBy { get; private set; } = string.Empty;
 
+        /// <summary>Populates the demo last-update footer values while the data layer is not wired up.</summary>
         public void OnGet()
         {
             // TODO: replace with the real SiteSetting rows (Group = "SEO").

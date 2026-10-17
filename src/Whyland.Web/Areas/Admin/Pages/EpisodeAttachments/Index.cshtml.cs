@@ -8,29 +8,45 @@ namespace Whyland.Web.Areas.Admin.Pages.EpisodeAttachments
     /// </summary>
     public class IndexModel : PageModel
     {
+        /// <summary>Id of the course of the episode whose attachments are being listed (demo lookup).</summary>
         [BindProperty(SupportsGet = true)]
         public int CourseId { get; set; } = 1;
 
+        /// <summary>Id of the course section of the episode whose attachments are being listed (demo lookup).</summary>
         [BindProperty(SupportsGet = true)]
         public int SectionId { get; set; } = 1;
 
+        /// <summary>Id of the episode whose attachments are being listed (demo lookup).</summary>
         [BindProperty(SupportsGet = true)]
         public int EpisodeId { get; set; } = 1;
 
+        /// <summary>Display title of the requested course, populated by OnGet from the demo lookup.</summary>
         public string CourseTitle { get; private set; } = string.Empty;
+
+        /// <summary>Display title of the requested section, populated by OnGet from the demo lookup.</summary>
         public string SectionTitle { get; private set; } = string.Empty;
+
+        /// <summary>Display title of the requested episode, populated by OnGet from the demo lookup.</summary>
         public string EpisodeTitle { get; private set; } = string.Empty;
 
         // Upload restrictions — configuration-driven in the real system
         // (see SRS section 15: MaxAttachmentsPerEpisode, MaxAttachmentSizeBytes,
         // AllowedAttachmentExtensions). Rendered in the upload modal so the
         // admin sees the limits, and enforced server-side on upload.
+        /// <summary>Demo maximum number of attachments per episode, rendered in the upload modal (configuration-driven in the real system, see SRS section 15).</summary>
         public static int MaxAttachmentsPerEpisodeLimit { get; } = 5;
+
+        /// <summary>Demo maximum attachment size in bytes (20 MB), rendered in the upload modal (configuration-driven in the real system, see SRS section 15).</summary>
         public static long MaxAttachmentSizeBytesLimit = 20 * 1024 * 1024; // 20 MB
 
         // Instance wrappers so the Razor views can read them via @Model.*.
+        /// <summary>Instance wrapper so the Razor view can read the attachment count limit via @Model.</summary>
         public int MaxAttachmentsPerEpisode => MaxAttachmentsPerEpisodeLimit;
+
+        /// <summary>Instance wrapper so the Razor view can read the size limit via @Model.</summary>
         public long MaxAttachmentSizeBytes => MaxAttachmentSizeBytesLimit;
+
+        /// <summary>Instance wrapper so the Razor view can read the allowed extensions via @Model.</summary>
         public string[] AllowedAttachmentExtensions => AllowedAttachmentExtensionsList;
 
         private static readonly string[] AllowedAttachmentExtensionsList =
@@ -78,6 +94,7 @@ namespace Whyland.Web.Areas.Admin.Pages.EpisodeAttachments
             { 3, "اجرای اولین برنامه" },
         };
 
+        /// <summary>Resolves the demo course, section and episode titles for the requested ids so the view can show them while the data layer is not wired up.</summary>
         public void OnGet()
         {
             CourseTitle = DemoCourseTitles.TryGetValue(CourseId, out var course)

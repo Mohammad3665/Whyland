@@ -1,4 +1,3 @@
-
 namespace Whyland.Domain.Entities.Catalog;
 
 /// <summary>
@@ -6,10 +5,19 @@ namespace Whyland.Domain.Entities.Catalog;
 /// </summary>
 public class CourseSection : BaseEntity<long>
 {
+    /// <summary>
+    /// The course the section belongs to.
+    /// </summary>
     public long CourseId { get; set; }
 
+    /// <summary>
+    /// The course the section belongs to.
+    /// </summary>
     public Course Course { get; set; } = null!;
 
+    /// <summary>
+    /// The section title shown in the course curriculum.
+    /// </summary>
     public string Title { get; set; } = string.Empty;
 
     /// <summary>
@@ -17,5 +25,8 @@ public class CourseSection : BaseEntity<long>
     /// </summary>
     public int DisplayOrder { get; set; }
 
+    /// <summary>
+    /// The episodes grouped within this section.
+    /// </summary>
     public ICollection<Episode> Episodes { get; set; } = [];
 }
