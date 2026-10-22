@@ -9,22 +9,8 @@ namespace Whyland.Infrastructure.Persistence.Interceptors;
 /// to <see cref="IAuditable"/> entities and converts hard deletes into soft deletes
 /// for <see cref="ISoftDeletable"/> entities, just before changes are persisted.
 /// </summary>
-public sealed class AuditableEntityInterceptor : SaveChangesInterceptor
+public sealed class AuditableEntityInterceptor(TimeProvider timeProvider, ICurrentUserService currentUser) : SaveChangesInterceptor
 {
-    private readonly TimeProvider _timeProvider;
-    private readonly ICurrentUserService _currentUser;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AuditableEntityInterceptor"/> class.
-    /// </summary>
-    /// <param name="timeProvider">The time source used to stamp audit fields (UTC).</param>
-    /// <param name="currentUser">The current user, used to populate CreatedBy/UpdatedBy/DeletedBy.</param>
-    public AuditableEntityInterceptor(TimeProvider timeProvider, ICurrentUserService currentUser)
-    {
-        _timeProvider = timeProvider;
-        _currentUser = currentUser;
-    }
-
     /// <summary>
     /// Applies audit rules synchronously before saving changes.
     /// </summary>
@@ -62,8 +48,8 @@ public sealed class AuditableEntityInterceptor : SaveChangesInterceptor
     {
         if (context is null) return;
 
-        var now = _timeProvider.GetUtcNow().UtcDateTime;
-        var userId = _currentUser.UserId;
+        var now = timeProvider.GetUtcNow().UtcDateTime;
+        var userId = currentUser.UserId;
 
         // --- Audit: Created / Updated ---
         foreach (var entry in context.ChangeTracker.Entries<IAuditable>())

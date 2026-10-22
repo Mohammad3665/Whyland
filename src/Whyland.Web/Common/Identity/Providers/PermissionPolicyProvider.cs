@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 
-namespace Whyland.Infrastructure.Identity.Providers;
+namespace Whyland.Web.Common.Identity.Providers;
 
 /// <summary>
 /// Provides dynamic authorization policies for permissions.

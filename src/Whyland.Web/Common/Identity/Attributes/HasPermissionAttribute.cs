@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
-
-namespace Whyland.Infrastructure.Identity.Attributes;
+namespace Whyland.Web.Common.Identity.Attributes;
 
 /// <summary>
 /// Authorizes users based on specific permission requirements.

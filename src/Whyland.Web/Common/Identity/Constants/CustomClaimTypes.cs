@@ -1,6 +1,4 @@
-using System;
-
-namespace Whyland.Infrastructure.Identity.Constants;
+namespace Whyland.Web.Common.Identity.Constants;
 
 /// <summary>
 ///     Defines custom claim types used throughout the application

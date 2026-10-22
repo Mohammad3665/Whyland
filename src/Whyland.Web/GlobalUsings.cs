@@ -7,3 +7,4 @@ global using Serilog;                              // Structural logging entry p
 
 // Merged additions (frequent usings found by codebase analysis):
 global using Whyland.Web.Common.Extensions;      // middleware & DI extension methods
+global using Microsoft.AspNetCore.Authorization;

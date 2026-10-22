@@ -1,11 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Npgsql;
 using Whyland.Application.Common.Abstractions;
-using Whyland.Application.Common.Interfaces.Identity;
-using Whyland.Infrastructure.Identity.Handlers;
-using Whyland.Infrastructure.Identity.Providers;
 using Whyland.Infrastructure.Identity.Services;
 using Whyland.Infrastructure.Persistence.Interceptors;
 using Whyland.Infrastructure.Persistence.UnitOfWork;
@@ -56,10 +49,6 @@ public static class DependencyInjection
         // Unit of Work + transaction handling.
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IUnitOfWorkTransactionHandler, UnitOfWorkTransactionHandler>();
-
-        // Authorization: dynamic permission-based policies.
-        services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
-        services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
         // Identity helpers.
         services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();

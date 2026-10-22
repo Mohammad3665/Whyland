@@ -1,5 +1,3 @@
-using Whyland.Application.Common.Interfaces.Identity;
-
 namespace Whyland.Infrastructure.Identity.Services;
 
 /// <summary>
@@ -11,13 +9,7 @@ namespace Whyland.Infrastructure.Identity.Services;
 /// </summary>
 public class NullCurrentUserService : ICurrentUserService
 {
-    /// <summary>
-    /// Always <c>null</c> because no real user is associated with this service.
-    /// </summary>
     public Guid? UserId => null;
 
-    /// <summary>
-    /// Always <c>false</c> because this service represents an anonymous context.
-    /// </summary>
     public bool IsAuthenticated => false;
 }

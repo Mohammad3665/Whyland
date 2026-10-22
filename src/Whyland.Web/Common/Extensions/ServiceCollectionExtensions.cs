@@ -1,8 +1,7 @@
-using System;
 using Whyland.Application;
 using Whyland.Application.Common.Authorization;
 using Whyland.Infrastructure;
-using Whyland.Infrastructure.Identity.Constants;
+using Whyland.Web.Common.Identity.Constants;
 
 namespace Whyland.Web.Common.Extensions;
 
@@ -26,6 +25,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddInfrastructure(configuration);
         services.AddApplication();
+        services.AddPresentation();
         services.AddControllersWithViews();
         services.AddHttpContextAccessor();
         // NOTE: Mapster (mapper + config) is registered once by AddMapping inside

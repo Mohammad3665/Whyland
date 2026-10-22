@@ -1,6 +1,5 @@
-using Microsoft.AspNetCore.Authorization;
-using Whyland.Infrastructure.Identity.Constants;
-using Whyland.Infrastructure.Identity.Providers;
+using Whyland.Web.Common.Identity.Constants;
+using Whyland.Web.Common.Identity.Providers;
 
 namespace Whyland.Infrastructure.Identity.Handlers;
 
