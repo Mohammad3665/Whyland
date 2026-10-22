@@ -1,3 +1,4 @@
+using Whyland.Domain.Common.Primitives;
 using Whyland.Domain.Entities.Content.Errors;
 using Whyland.Shared.Results;
 
@@ -6,7 +7,7 @@ namespace Whyland.Domain.Entities.Content;
 /// <summary>
 /// A standalone FAQ item shown in the general-purpose FAQ section (s4.12).
 /// </summary>
-public class Faq : BaseEntity<long>
+public class Faq : BaseEntity<long>, ISoftDeletable
 {
     #region Properties
 
@@ -133,7 +134,7 @@ public class Faq : BaseEntity<long>
             return FaqErrors.FieldTooLong(nameof(Description), MaxDescriptionLength);
 
         if (displayOrder < 0)
-            return FaqErrors.InvalidValue(nameof(DisplayOrder), "must be zero or greater.");
+            return FaqErrors.GreaterThanOrEqualToZero(nameof(DisplayOrder));
 
         return Result.Success();
     }

@@ -1,5 +1,5 @@
 using Whyland.Domain.Common.Primitives;
-using Whyland.Shared.Errors;
+using Whyland.Shared.Results;
 
 namespace Whyland.Domain.Common.Errors;
 
@@ -9,20 +9,12 @@ namespace Whyland.Domain.Common.Errors;
 /// </summary>
 public sealed record DomainError : Error
 {
-    private DomainError(
-        Type entityType,
-        string name,
-        ErrorType type,
-        string? field,
-        string? description,
-        IReadOnlyDictionary<string, object?> arguments)
-        : base(
-            Code: $"{entityType.Name}.{name}",
-            Description: description ?? name,
-            Type: type)
+    private DomainError(Type entityType, string code, ErrorType type, string? field, IReadOnlyDictionary<string, object?> arguments) 
+        : base(Code:$"{entityType.Name}.{code}", Type:type)
     {
         EntityType = entityType;
-        Name = name;
+        Code = code;
+        Type = type;
         Field = field;
         Arguments = arguments;
     }
@@ -31,7 +23,6 @@ public sealed record DomainError : Error
     public Type EntityType { get; }
 
     /// <summary>The error name within the entity (e.g. <c>"FieldRequired"</c>).</summary>
-    public string Name { get; }
 
     /// <summary>
     /// Creates a <see cref="DomainError"/> bound to <typeparamref name="TEntity"/>.
@@ -45,7 +36,6 @@ public sealed record DomainError : Error
         string code,
         ErrorType type,
         string? field = null,
-        string? description = null,
         params (string Key, object? Value)[] arguments)
         where TEntity : IEntity
     {
@@ -55,9 +45,11 @@ public sealed record DomainError : Error
             ? EmptyArguments
             : arguments.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
 
-        return new DomainError(typeof(TEntity), code, type, field, description, args);
+        return new DomainError(typeof(TEntity), code, type, field, args);
     }
 
     private static readonly IReadOnlyDictionary<string, object?> EmptyArguments =
         new Dictionary<string, object?>(0, StringComparer.Ordinal);
+
+    public static implicit operator Result(DomainError error) => Result.Failure(error);
 }

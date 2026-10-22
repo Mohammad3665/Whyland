@@ -1,5 +1,4 @@
 using Whyland.Domain.Common.Errors;
-using Whyland.Shared.Errors;
 
 namespace Whyland.Domain.Entities.Content.Errors;
 
@@ -19,12 +18,7 @@ public static class FaqErrors
     /// <param name="field">The name of the offending field.</param>
     /// <returns>A <see cref="ErrorType.Validation"/> domain error.</returns>
     public static DomainError FieldRequired(string field) =>
-        DomainError.For<Faq>(
-            code: "FieldRequired",
-            type: ErrorType.Validation,
-            field: field,
-            description: $"فیلد '{field}'  الزامی است.",
-            arguments: ("Field", field));
+        DomainError.For<Faq>(code: nameof(FieldRequired), type: ErrorType.Validation, field: field);
 
     /// <summary>
     /// The specified field exceeds its maximum allowed length.
@@ -33,12 +27,7 @@ public static class FaqErrors
     /// <param name="max">The maximum allowed length.</param>
     /// <returns>A <see cref="ErrorType.Validation"/> domain error.</returns>
     public static DomainError FieldTooLong(string field, int max) =>
-        DomainError.For<Faq>(
-            code: "FieldTooLong",
-            type: ErrorType.Validation,
-            field: field,
-            description: $"فیلد '{field}' نمیتواند بیشتر از '{max}' کاراکتر باشد.",
-            ("Field", (object?)field), ("Max", (object?)max));
+        DomainError.For<Faq>(code: nameof(FieldTooLong), type: ErrorType.Validation, field: field, ("Max", max));
 
     /// <summary>
     /// The specified field has a value that is not valid in this context.
@@ -46,11 +35,9 @@ public static class FaqErrors
     /// <param name="field">The name of the offending field.</param>
     /// <param name="reason">A short human-readable explanation of why the value is invalid.</param>
     /// <returns>A <see cref="ErrorType.Validation"/> domain error.</returns>
-    public static DomainError InvalidValue(string field, string reason) =>
+    public static DomainError GreaterThanOrEqualToZero(string field) =>
         DomainError.For<Faq>(
-            code: "InvalidValue",
+            code: nameof(GreaterThanOrEqualToZero),
             type: ErrorType.Validation,
-            field: field,
-            description: $"فید '{field}' نامعتبر است. '{reason}'",
-            ("Field", (object?)field), ("Reason", reason));
+            field: field);
 }
