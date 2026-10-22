@@ -1,3 +1,5 @@
+using Whyland.Domain.Common.Primitives;
+
 namespace Whyland.Domain.Entities.Catalog;
 
 /// <summary>
@@ -5,7 +7,7 @@ namespace Whyland.Domain.Entities.Catalog;
 /// Count/size/extension limits are configuration-driven and enforced server-side;
 /// file metadata is persisted while the binary lives in protected wwwroot storage (s7.8, s8.1).
 /// </summary>
-public class EpisodeAttachment : BaseEntity<long>
+public class EpisodeAttachment : BaseEntity<long>, ISoftDeletable
 {
     /// <summary>
     /// The episode the attachment belongs to.

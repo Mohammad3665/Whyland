@@ -1,5 +1,3 @@
-using Whyland.Domain.Entities.Catalog;
-
 namespace Whyland.Domain.Entities.Commerce;
 
 /// <summary>

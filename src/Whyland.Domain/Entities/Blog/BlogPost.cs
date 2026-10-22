@@ -1,3 +1,4 @@
+using Whyland.Domain.Common.Primitives;
 using Whyland.Domain.Entities.Identity;
 
 namespace Whyland.Domain.Entities.Blog;
@@ -5,7 +6,7 @@ namespace Whyland.Domain.Entities.Blog;
 /// <summary>
 /// A blog article with author, category and display metadata (s4.10).
 /// </summary>
-public class BlogPost : BaseEntity<long>
+public class BlogPost : BaseEntity<long>, ISoftDeletable
 {
     #region Properties
 

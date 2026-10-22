@@ -1,10 +1,12 @@
+using Whyland.Domain.Common.Primitives;
+
 namespace Whyland.Domain.Entities.Catalog;
 
 /// <summary>
 /// A purchasable or free educational product (s7.2).
 /// The pricing model derives free status from a nullable price; no IsFree column exists (s7.3).
 /// </summary>
-public class Course : BaseEntity<long>
+public class Course : BaseEntity<long>, ISoftDeletable
 {
     /// <summary>
     /// The course display name.

@@ -1,9 +1,11 @@
+using Whyland.Domain.Common.Primitives;
+
 namespace Whyland.Domain.Entities.Catalog;
 
 /// <summary>
 /// A course category supporting a maximum hierarchy depth of three levels (s7.1).
 /// </summary>
-public class Category : BaseEntity<long>
+public class Category : BaseEntity<long>, ISoftDeletable
 {
     /// <summary>
     /// The category name.

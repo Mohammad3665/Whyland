@@ -8,7 +8,7 @@ namespace Whyland.Domain.Entities.Common;
 /// Audit values must always be populated by the server/application layer, never by clients.
 /// </summary>
 /// <typeparam name="TKey">The type of the entity's primary key (e.g. int, Guid, string).</typeparam>
-public abstract class BaseEntity<TKey> : IEntity, IAuditable, ISoftDeletable
+public abstract class BaseEntity<TKey> : IEntity, IAuditable
 {
     /// <summary>
     /// The unique identifier of the entity. A single consistent ID strategy is used across the system.

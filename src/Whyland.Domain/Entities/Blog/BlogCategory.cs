@@ -1,10 +1,12 @@
 
+using Whyland.Domain.Common.Primitives;
+
 namespace Whyland.Domain.Entities.Blog;
 
 /// <summary>
 /// Hierarchical category used to organize blog posts (s4.10). Root categories have no parent.
 /// </summary>
-public class BlogCategory : BaseEntity<long>
+public class BlogCategory : BaseEntity<long>, ISoftDeletable
 {
     #region Properties
 

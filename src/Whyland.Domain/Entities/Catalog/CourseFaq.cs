@@ -1,9 +1,11 @@
+using Whyland.Domain.Common.Primitives;
+
 namespace Whyland.Domain.Entities.Catalog;
 
 /// <summary>
 /// A FAQ item attached to a specific course (s7.10); separate from public FAQs (s12.2).
 /// </summary>
-public class CourseFaq : BaseEntity<long>
+public class CourseFaq : BaseEntity<long>, ISoftDeletable
 {
     /// <summary>
     /// The course the FAQ item belongs to.

@@ -1,4 +1,4 @@
-using Whyland.Domain.Entities.Identity;
+using Whyland.Domain.Common.Primitives;
 
 namespace Whyland.Domain.Entities.Commerce;
 
@@ -6,7 +6,7 @@ namespace Whyland.Domain.Entities.Commerce;
 /// A payable order of one or more courses, created by the purchasing user (s5.5).
 /// Money fields are snapshots; per-course prices are held by <see cref="OrderItem"/>.
 /// </summary>
-public class Order : BaseEntity<Guid>
+public class Order : BaseEntity<Guid>, ISoftDeletable
 {
     #region Properties
 

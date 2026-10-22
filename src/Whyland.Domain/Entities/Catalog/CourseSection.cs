@@ -1,9 +1,11 @@
+using Whyland.Domain.Common.Primitives;
+
 namespace Whyland.Domain.Entities.Catalog;
 
 /// <summary>
 /// A logical grouping of episodes within a course (s7.6).
 /// </summary>
-public class CourseSection : BaseEntity<long>
+public class CourseSection : BaseEntity<long>, ISoftDeletable
 {
     /// <summary>
     /// The course the section belongs to.

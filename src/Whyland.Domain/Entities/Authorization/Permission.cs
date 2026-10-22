@@ -1,10 +1,12 @@
+using Whyland.Domain.Common.Primitives;
+
 namespace Whyland.Domain.Entities.Authorization;
 
 /// <summary>
 /// A named authorization capability identified by a unique key (s6.2).
 /// Permissions are dynamic database records, not hard-coded values.
 /// </summary>
-public class Permission : BaseEntity<long>
+public class Permission : BaseEntity<long>, ISoftDeletable
 {
     /// <summary>
     /// Human-readable permission name (e.g. "Course Creation").

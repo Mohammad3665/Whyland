@@ -1,10 +1,11 @@
+using Whyland.Domain.Common.Primitives;
 
 namespace Whyland.Domain.Entities.Commerce;
 
 /// <summary>
 /// A discount coupon with activation window and usage-limit rules (s5.6).
 /// </summary>
-public class Coupon : BaseEntity<Guid>
+public class Coupon : BaseEntity<Guid>, ISoftDeletable
 {
     #region Properties
 

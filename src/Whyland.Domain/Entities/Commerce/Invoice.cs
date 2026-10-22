@@ -1,4 +1,4 @@
-using Whyland.Domain.Entities.Identity;
+using Whyland.Domain.Common.Primitives;
 
 namespace Whyland.Domain.Entities.Commerce;
 
@@ -6,7 +6,7 @@ namespace Whyland.Domain.Entities.Commerce;
 /// A printable purchase invoice holding immutable snapshots of customer, money and coupon data (s5.8).
 /// Properties are deliberately settable only by the entity itself so snapshots stay unmodifiable.
 /// </summary>
-public class Invoice : BaseEntity<Guid>
+public class Invoice : BaseEntity<Guid>, ISoftDeletable
 {
     #region Properties
 

@@ -1,10 +1,12 @@
 
+using Whyland.Domain.Common.Primitives;
+
 namespace Whyland.Domain.Entities.Settings;
 
 /// <summary>
 /// An editable site configuration entry stored as a key/value pair with metadata (s4.11).
 /// </summary>
-public class SiteSetting : BaseEntity<long>
+public class SiteSetting : BaseEntity<long>, ISoftDeletable
 {
     #region Properties
 

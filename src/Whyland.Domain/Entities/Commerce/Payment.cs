@@ -1,4 +1,3 @@
-
 namespace Whyland.Domain.Entities.Commerce;
 
 /// <summary>

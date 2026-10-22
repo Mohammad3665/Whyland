@@ -1,3 +1,5 @@
+using Whyland.Domain.Common.Primitives;
+
 namespace Whyland.Domain.Entities.Authorization;
 
 /// <summary>
@@ -5,7 +7,7 @@ namespace Whyland.Domain.Entities.Authorization;
 /// Roles must never be hard-coded as the authorization mechanism;
 /// authorization is evaluated through permission keys (s6.5).
 /// </summary>
-public class Role : BaseEntity<long>
+public class Role : BaseEntity<long>, ISoftDeletable
 {
     /// <summary>
     /// Unique role name (e.g. "SuperAdmin").

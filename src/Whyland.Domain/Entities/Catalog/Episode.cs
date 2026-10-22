@@ -1,3 +1,5 @@
+using Whyland.Domain.Common.Primitives;
+
 namespace Whyland.Domain.Entities.Catalog;
 
 /// <summary>
@@ -5,7 +7,7 @@ namespace Whyland.Domain.Entities.Catalog;
 /// Note: per-user watch status is NOT stored here; it lives in a dedicated
 /// per-user progress entity (s7.7.4).
 /// </summary>
-public class Episode : BaseEntity<long>
+public class Episode : BaseEntity<long>, ISoftDeletable
 {
     /// <summary>
     /// The section the episode belongs to.

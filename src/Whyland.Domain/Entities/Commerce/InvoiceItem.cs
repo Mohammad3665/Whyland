@@ -1,3 +1,4 @@
+using Whyland.Domain.Common.Primitives;
 
 namespace Whyland.Domain.Entities.Commerce;
 
