@@ -9,7 +9,7 @@ using Whyland.Infrastructure.Persistence.Context;
 
 #nullable disable
 
-namespace Whyland.Infrastructure.Migrations
+namespace Whyland.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(WhylandDbContext))]
     [Migration("20261020225329_FaqDescriptionMaxLength")]

@@ -96,6 +96,7 @@ public class WhylandDbContext(DbContextOptions<WhylandDbContext> options)
         // global query filters are applied automatically for every ISoftDeletable entity type.
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
+            if (entityType.IsOwned()) continue;
             if (!typeof(ISoftDeletable).IsAssignableFrom(entityType.ClrType)) continue;
 
             var filter = BuildSoftDeleteFilter(entityType.ClrType);

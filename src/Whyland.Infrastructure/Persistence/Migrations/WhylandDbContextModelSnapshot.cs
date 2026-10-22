@@ -2,21 +2,18 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Whyland.Infrastructure.Persistence.Context;
 
 #nullable disable
 
-namespace Whyland.Infrastructure.Migrations
+namespace Whyland.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(WhylandDbContext))]
-    [Migration("20261016170921_EditedUserEntity")]
-    partial class EditedUserEntity
+    partial class WhylandDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1151,7 +1148,8 @@ namespace Whyland.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("integer");

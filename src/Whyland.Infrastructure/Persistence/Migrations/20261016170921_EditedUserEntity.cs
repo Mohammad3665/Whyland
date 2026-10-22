@@ -1,8 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿#nullable disable
 
-#nullable disable
-
-namespace Whyland.Infrastructure.Migrations
+namespace Whyland.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
     public partial class EditedUserEntity : Migration
