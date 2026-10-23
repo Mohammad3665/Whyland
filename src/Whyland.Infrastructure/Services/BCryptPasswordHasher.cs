@@ -1,13 +1,14 @@
 using Whyland.Application.Common.Abstractions;
+using Whyland.Application.Common.Interfaces.Services;
 
 namespace Whyland.Infrastructure.Services;
 
 /// <summary>
-/// BCrypt-based password hashing implementation of <see cref="IPasswordHasher"/> (s5.1.1/s15.1.1).
+/// BCrypt-based password hashing implementation of <see cref="IPasswordHashService"/> (s5.1.1/s15.1.1).
 /// BCrypt hashes embed their salt and work factor; hashes must be rehashed with a stronger
 /// work factor on login if the configured factor has since been increased.
 /// </summary>
-public class BCryptPasswordHasher(int workFactor = 12) : IPasswordHasher
+public class BCryptPasswordHasher(int workFactor = 12) : IPasswordHashService
 {
     /// <summary>
     /// Hashes a password with BCrypt at the configured work factor; the salt is embedded in the hash.

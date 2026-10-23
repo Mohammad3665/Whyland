@@ -3,6 +3,8 @@ metronic_html_v8.3.3_demo1/
 Documentation/Whyland-Development-Guide-fa.md
 Documentation/Whyland-Development-Guide.md
 OtherCodes/
+public-template/
+src/Whyland.Web/wwwroot/public/src/tailwind
 .vscode/
 .env
 

@@ -983,14 +983,9 @@ UserProfile باید در جایی که مرتبط است شامل موارد ز
 | فیلد         | الزام           |
 | ------------ | --------------- |
 | UserId       | کلید اصلی/خارجی |
-| NationalCode | اختیاری         |
 | BirthDate    | اختیاری         |
 | Gender       | اختیاری         |
 | Avatar       | اختیاری         |
-| Address      | اختیاری         |
-| Province     | اختیاری         |
-| City         | اختیاری         |
-| PostalCode   | اختیاری         |
 | CreatedAt    | الزامی          |
 | UpdatedAt    | الزامی          |
 

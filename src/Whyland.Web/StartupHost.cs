@@ -20,10 +20,15 @@ public class StartupHost
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddRazorPages().WithRazorPagesRoot("/Areas/Admin/Pages");
+        builder.Services.AddRazorPages(options =>
+        {
+            options.Conventions.AuthorizeFolder("/", "AdminPanelAccess");
+            options.Conventions.AllowAnonymousToFolder("/Account");
+        }).WithRazorPagesRoot("/Areas/Admin/Pages");
+        builder.Services.AddControllersWithViews();
         builder.Services.AddMapping();
 
-        builder.Services.AddApplicationServices(builder.Configuration);
+        builder.Services.AddApplicationServices(builder.Configuration, builder.Environment);
         builder.Host.UseSerilog(
             (context, services, logger) =>
             {

@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using Whyland.Domain.IRepositories.Content.Faq;
+using Whyland.Domain.IRepositories.Identity.OtpRequest;
+using Whyland.Domain.IRepositories.Identity.User;
 
 namespace Whyland.Application.Common.Abstractions.UnitOfWork;
 
@@ -23,6 +25,21 @@ public interface IUnitOfWork : IAsyncDisposable
     /// Repository for read (query) operations on FAQ entities.
     /// </summary>
     IFaqQueryRepository FaqQueryRepository { get; }
+
+    /// <summary>
+    /// Repository for write (command) operations on OTP request entities.
+    /// </summary>
+    IOtpRequestCommandRepository OtpRequestCommandRepository { get; }
+
+    /// <summary>
+    /// Repository for write (command) operations on User entities.
+    /// </summary>
+    IUserCommandRepository UserCommandRepository { get; }
+
+    /// <summary>
+    /// Repository for read (query) operations on User entities.
+    /// </summary>
+    IUserQueryRepository UserQueryRepository { get; }
 
     #endregion
 

@@ -1,0 +1,340 @@
+@model Whyland.Web.ViewModels.LoginViewModel
+@{
+  ViewData["Title"] = "ورود | ثبت‌نام";
+}
+    <!-- #region BREADCRUMB -->
+    <div class="border-b border-border bg-[#f8f9fa]">
+      <div class="container-whyland px-4 py-4">
+        <nav aria-label="مسیر صفحه">
+          <ol class="flex flex-wrap items-center gap-2 text-xs text-body sm:text-sm">
+            <li>
+              <a href="index.html" class="transition-colors hover:text-primary">صفحه اصلی</a>
+            </li>
+            <li aria-hidden="true" class="text-gray-300">/</li>
+            <li class="font-medium text-dark" aria-current="page">ورود / ثبت‌نام</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+    <!-- endregion -->
+
+    <!-- #region LOGIN SECTION -->
+    <section id="login-section" class="py-12 sm:py-16">
+      <div class="container-whyland flex justify-center px-4">
+        <!-- Card Container -->
+        <div class="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
+          <!-- Section Title -->
+          <h1 class="mb-2 text-xl font-bold text-dark sm:text-2xl">ورود | ثبت‌نام</h1>
+          <p class="mb-6 text-xs leading-relaxed text-body sm:text-sm">
+            ورود و ثبت‌نام هر دو با شماره موبایل انجام می‌شود؛ پس از تایید کد، اگر حساب نداشته باشید به‌صورت خودکار برای
+            شما ساخته می‌شود.
+            <span class="block text-gray-400">کاربرانی که رمز عبور تنظیم کرده‌اند می‌توانند از تب «ورود با رمز عبور»
+              استفاده کنند.</span>
+          </p>
+
+          <!-- Auth Method Switcher (phone+SMS primary / password optional) -->
+          <div class="mb-5 grid grid-cols-2 gap-1 rounded-xl bg-gray-100 p-1" role="tablist" aria-label="روش ورود">
+            <button type="button" id="method-tab-otp"
+              class="method-tab cursor-pointer rounded-lg bg-white py-2 text-center text-xs font-semibold text-primary shadow-sm transition-all sm:text-sm"
+              data-method="otp" role="tab" aria-selected="true">ورود با موبایل</button>
+            <button type="button" id="method-tab-password"
+              class="method-tab cursor-pointer rounded-lg py-2 text-center text-xs font-semibold text-dark/60 transition-all sm:text-sm"
+              data-method="password" role="tab" aria-selected="false">ورود با رمز عبور</button>
+          </div>
+
+          <!-- ============ METHOD 1: PHONE + SMS (PRIMARY) ============ -->
+          <div id="method-otp" class="method-panel space-y-4">
+
+            <!-- ============ STEP 1: MOBILE NUMBER ============ -->
+            <div id="otp-step-1" class="space-y-4">
+              <p class="text-xs leading-relaxed text-body sm:text-sm">
+                شماره موبایل خود را وارد کنید تا کد تایید برای شما ارسال شود.
+              </p>
+              <form id="otp-mobile-form" action="#" method="POST" class="space-y-4">
+                <div class="relative">
+                  <input type="tel" id="mobile-number" name="mobile_number" inputmode="numeric" dir="rtl"
+                    placeholder=" " required
+                    class="peer h-10 w-full rounded-xl border border-gray-200 bg-white px-4 text-right text-xs text-dark outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary sm:text-sm" />
+                  <label for="mobile-number" class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 bg-white px-1 text-sm text-gray-400
+                    transition-all duration-200
+                    peer-focus:right-3 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-primary
+                    peer-focus:text-sm
+                    peer-not-placeholder-shown:right-3
+                    peer-not-placeholder-shown:top-0
+                    peer-not-placeholder-shown:-translate-y-1/2
+                    peer-not-placeholder-shown:text-sm">
+                    شماره موبایل *
+                  </label>
+                </div>
+                <button type="submit"
+                  class="w-full cursor-pointer rounded-full bg-primary py-2.5 text-center text-xs font-semibold text-white transition-all active:scale-[0.98] hover:bg-primary/90 sm:text-sm">
+                  دریافت کد تایید
+                </button>
+
+                <!-- Divider -->
+                <div class="relative flex items-center py-1">
+                  <div class="grow border-t border-gray-200"></div>
+                  <span class="mx-3 text-[10px] text-gray-400 sm:text-xs">یا</span>
+                  <div class="grow border-t border-gray-200"></div>
+                </div>
+
+                <!-- Google Login Button (official brand colors) -->
+                <button type="button"
+                  class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-gray-200 bg-white py-2.5 text-center text-xs font-semibold text-dark transition-all duration-300 hover:border-gray-300 hover:bg-gray-50 active:scale-[0.98] sm:text-sm">
+                  <svg class="size-4 sm:size-5" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#EA4335"
+                      d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                    <path fill="#4285F4"
+                      d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                    <path fill="#FBBC05"
+                      d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                    <path fill="#34A853"
+                      d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                  </svg>
+                  ورود با گوگل
+                </button>
+              </form>
+            </div>
+
+            <!-- Step 2: OTP Code (hidden until number submitted) -->
+            <div id="otp-step-2" class="hidden space-y-4">
+              <p class="text-xs leading-relaxed text-body sm:text-sm">
+                کد ۶ رقمی ارسال شده به شماره
+                <span id="display-mobile" dir="ltr" class="font-semibold text-dark"></span>
+                را وارد کنید.
+              </p>
+              <form id="otp-code-form" action="#" method="POST" class="space-y-4">
+                <!-- OTP Inputs (LTR because digits) -->
+                <div class="flex justify-center gap-2" dir="ltr">
+                  <input type="text" inputmode="numeric" maxlength="1" data-otp
+                    class="otp-input h-11 w-10 rounded-xl border border-gray-200 bg-white text-center text-sm font-semibold text-dark outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary sm:h-12 sm:w-11 sm:text-base" />
+                  <input type="text" inputmode="numeric" maxlength="1" data-otp
+                    class="otp-input h-11 w-10 rounded-xl border border-gray-200 bg-white text-center text-sm font-semibold text-dark outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary sm:h-12 sm:w-11 sm:text-base" />
+                  <input type="text" inputmode="numeric" maxlength="1" data-otp
+                    class="otp-input h-11 w-10 rounded-xl border border-gray-200 bg-white text-center text-sm font-semibold text-dark outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary sm:h-12 sm:w-11 sm:text-base" />
+                  <input type="text" inputmode="numeric" maxlength="1" data-otp
+                    class="otp-input h-11 w-10 rounded-xl border border-gray-200 bg-white text-center text-sm font-semibold text-dark outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary sm:h-12 sm:w-11 sm:text-base" />
+                  <input type="text" inputmode="numeric" maxlength="1" data-otp
+                    class="otp-input h-11 w-10 rounded-xl border border-gray-200 bg-white text-center text-sm font-semibold text-dark outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary sm:h-12 sm:w-11 sm:text-base" />
+                  <input type="text" inputmode="numeric" maxlength="1" data-otp
+                    class="otp-input h-11 w-10 rounded-xl border border-gray-200 bg-white text-center text-sm font-semibold text-dark outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary sm:h-12 sm:w-11 sm:text-base" />
+                </div>
+
+                <!-- Resend + Timer Row -->
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-body">ارسال مجدد کد پس از
+                    <span id="otp-timer" class="font-semibold text-primary">۰۲:۰۰</span>
+                  </span>
+                  <button type="button" id="resend-otp" disabled
+                    class="cursor-not-allowed font-semibold text-dark/40 transition-colors">
+                    ارسال مجدد کد
+                  </button>
+                </div>
+
+                <button type="submit"
+                  class="w-full cursor-pointer rounded-full bg-primary py-2.5 text-center text-xs font-semibold text-white transition-all active:scale-[0.98] hover:bg-primary/90 sm:text-sm">
+                  تایید کد
+                </button>
+                <button type="button" id="back-to-step-1"
+                  class="w-full cursor-pointer rounded-full border border-gray-200 py-2.5 text-center text-xs font-semibold text-dark/70 transition-all hover:border-gray-300 hover:text-dark sm:text-sm">
+                  تغییر شماره موبایل
+                </button>
+              </form>
+            </div>
+
+            <!-- ============ STEP 3: COMPLETE PROFILE (NEW ACCOUNTS) ============ -->
+            <div id="otp-step-3" class="hidden space-y-4">
+              <p class="text-xs leading-relaxed text-body sm:text-sm">
+                حساب شما تایید شد! اطلاعات زیر را تکمیل کنید.
+                <span class="block text-gray-400">اگر قبلاً ثبت‌نام کرده باشید، پس از تایید کد مستقیماً وارد حساب خود
+                  می‌شوید.</span>
+              </p>
+              <form id="profile-form" action="#" method="POST" class="space-y-4">
+                <!-- Full Name Input -->
+                <div class="relative">
+                  <input type="text" id="profile-first-name" name="full_name" placeholder=" " required
+                    class="peer h-10 w-full rounded-xl border border-gray-200 bg-white px-4 text-xs text-dark outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary sm:text-sm" />
+                  <label for="profile-first-name" class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 bg-white px-1 text-sm text-gray-400
+                transition-all duration-200
+                peer-focus:right-3 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-primary
+                peer-focus:text-sm
+                peer-not-placeholder-shown:right-3
+                peer-not-placeholder-shown:top-0
+                peer-not-placeholder-shown:-translate-y-1/2
+                peer-not-placeholder-shown:text-sm">
+                    نام *
+                  </label>
+                </div>
+
+                <div class="relative">
+                  <input type="text" id="profile-last-name" name="full_name" placeholder=" " required
+                    class="peer h-10 w-full rounded-xl border border-gray-200 bg-white px-4 text-xs text-dark outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary sm:text-sm" />
+                  <label for="profile-last-name" class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 bg-white px-1 text-sm text-gray-400
+                transition-all duration-200
+                peer-focus:right-3 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-primary
+                peer-focus:text-sm
+                peer-not-placeholder-shown:right-3
+                peer-not-placeholder-shown:top-0
+                peer-not-placeholder-shown:-translate-y-1/2
+                peer-not-placeholder-shown:text-sm">
+                    نام خانوادگی *
+                  </label>
+                </div>
+
+                <!-- Password Input with Toggle Eye Icon -->
+                <div class="password-wrapper relative">
+                  <input type="password" id="profile-password" name="password" placeholder=" "
+                    class="peer h-10 w-full rounded-xl border border-gray-200 bg-white pl-10 pr-4 text-xs text-dark outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary sm:text-sm" />
+                  <label class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 bg-white px-1 text-sm text-gray-400
+                transition-all duration-200
+                peer-focus:right-3 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-primary
+                peer-focus:text-sm
+                peer-not-placeholder-shown:right-3
+                peer-not-placeholder-shown:top-0
+                peer-not-placeholder-shown:-translate-y-1/2
+                peer-not-placeholder-shown:text-sm">
+                    رمز عبور (اختیاری)
+                  </label>
+                  <button type="button"
+                    class="toggle-password absolute left-3 cursor-pointer top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-dark flex items-center justify-center"
+                    aria-label="نمایش/مخفی‌سازی رمز عبور">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                      stroke="currentColor" class="eye-animated size-4 sm:size-5">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path class="eye-slash" stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18" />
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Confirm Password Input with Toggle Eye Icon -->
+                <div class="password-wrapper relative">
+                  <input type="password" id="profile-password" name="password" placeholder=" "
+                    class="peer h-10 w-full rounded-xl border border-gray-200 bg-white pl-10 pr-4 text-xs text-dark outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary sm:text-sm" />
+                  <label class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 bg-white px-1 text-sm text-gray-400
+                transition-all duration-200
+                peer-focus:right-3 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-primary
+                peer-focus:text-sm
+                peer-not-placeholder-shown:right-3
+                peer-not-placeholder-shown:top-0
+                peer-not-placeholder-shown:-translate-y-1/2
+                peer-not-placeholder-shown:text-sm">
+                    تایید رمز عبور
+                  </label>
+                  <button type="button"
+                    class="toggle-password absolute left-3 cursor-pointer top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-dark flex items-center justify-center"
+                    aria-label="نمایش/مخفی‌سازی رمز عبور">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                      stroke="currentColor" class="eye-animated size-4 sm:size-5">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path class="eye-slash" stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18" />
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit"
+                  class="w-full cursor-pointer rounded-full bg-primary py-2.5 text-center text-xs font-semibold text-white transition-all active:scale-[0.98] hover:bg-primary/90 sm:text-sm">
+                  تکمیل ثبت‌نام و ورود
+                </button>
+              </form>
+            </div>
+            <!-- endregion STEP 3 -->
+          </div>
+          <!-- endregion METHOD 1 -->
+
+          <!-- ============ METHOD 2: EMAIL + PASSWORD (OPTIONAL) ============ -->
+          <div id="method-password" class="method-panel hidden">
+            <form action="#" method="POST" class="space-y-4">
+              <!-- Username / Email Input -->
+              <div class="relative">
+                <input type="text" id="username-or-email" name="username_or_email" placeholder=" " required
+                  class="peer h-10 w-full rounded-xl border border-gray-200 bg-white px-4 text-xs text-dark outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary sm:text-sm" />
+                <label for="username-or-email" class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 bg-white px-1 text-sm text-gray-400
+                transition-all duration-200
+                peer-focus:right-3 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-primary
+                peer-focus:text-sm
+                peer-not-placeholder-shown:right-3
+                peer-not-placeholder-shown:top-0
+                peer-not-placeholder-shown:-translate-y-1/2
+                peer-not-placeholder-shown:text-sm">
+                  ایمیل *
+                </label>
+              </div>
+
+              <!-- Password Input with Toggle Eye Icon -->
+              <div class="password-wrapper relative">
+                <input type="password" placeholder=" "
+                  class="peer h-10 w-full rounded-xl border border-gray-200 bg-white pl-10 pr-4 text-xs text-dark outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary sm:text-sm" />
+                <label class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 bg-white px-1 text-sm text-gray-400
+                transition-all duration-200
+                peer-focus:right-3 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-primary
+                peer-focus:text-sm
+                peer-not-placeholder-shown:right-3
+                peer-not-placeholder-shown:top-0
+                peer-not-placeholder-shown:-translate-y-1/2
+                peer-not-placeholder-shown:text-sm">
+                  رمز عبور *
+                </label>
+                <button type="button"
+                  class="toggle-password absolute left-3 cursor-pointer top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-dark flex items-center justify-center"
+                  aria-label="نمایش/مخفی‌سازی رمز عبور">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                    stroke="currentColor" class="eye-animated size-4 sm:size-5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path class="eye-slash" stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18" />
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Remember Me Checkbox -->
+              <div class="flex items-center gap-2 pt-0.5">
+                <div class="custom-checkbox">
+                  <span class="checkbox">
+                    <input type="checkbox" id="remember-me" name="remember_me" />
+                    <svg>
+                      <use xlink:href="#checkbox-30" class="checkbox"></use>
+                    </svg>
+                  </span>
+                </div>
+                <label for="remember-me" class="select-none text-xs text-body sm:text-sm cursor-pointer">
+                  مرا به خاطر بسپار
+                </label>
+              </div>
+
+              <!-- Submit Button -->
+              <button type="submit"
+                class="w-full cursor-pointer rounded-full bg-primary py-2.5 text-center text-xs font-semibold text-white transition-all active:scale-[0.98] hover:bg-primary/90 sm:text-sm">
+                ورود
+              </button>
+
+              <!-- Forgot Password Link -->
+              <div class="pt-1 text-right">
+                <a href="forgot-password.html"
+                  class="group inline-flex items-center gap-1 text-xs font-medium text-dark/70 transition-colors hover:text-primary focus:text-primary active:text-primary">
+                  رمز عبور خود را فراموش کرده‌اید؟
+                  <span class="font-semibold text-primary transition-colors group-hover:text-primary/80">بازنشانی رمز
+                    عبور</span>
+                </a>
+              </div>
+
+              <p class="pt-1 text-right text-[11px] leading-relaxed text-gray-400">
+                روش اصلی ورود، شماره موبایل است؛ رمز عبور فقط برای کاربرانی که آن را تنظیم کرده‌اند فعال است.
+              </p>
+            </form>
+          </div>
+          <!-- endregion METHOD 2 -->
+        </div>
+      </div>
+    </section>
+    <!-- endregion -->
+
+@section Scripts {
+  <script src="~/public/src/js/password-toggle.js" asp-append-version="true"></script>
+  <script src="~/public/src/js/login.js" asp-append-version="true"></script>
+}

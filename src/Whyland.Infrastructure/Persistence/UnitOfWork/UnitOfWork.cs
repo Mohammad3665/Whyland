@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore.Storage;
-using Npgsql;
-using Whyland.Domain.IRepositories.Content.Faq;
+using Whyland.Domain.IRepositories.Identity.OtpRequest;
+using Whyland.Domain.IRepositories.Identity.User;
 using Whyland.Infrastructure.Persistence.Repositories.Content.Faq;
+using Whyland.Infrastructure.Persistence.Repositories.Identity.OtpRequest;
+using Whyland.Infrastructure.Persistence.Repositories.Identity.User;
 
 namespace Whyland.Infrastructure.Persistence.UnitOfWork;
 
@@ -30,7 +32,34 @@ public class UnitOfWork(WhylandDbContext context, NpgsqlDataSource dataSource) :
     /// built on the pooled Npgsql data source for Dapper queries.
     /// </summary>
     public IFaqQueryRepository FaqQueryRepository => _faqQueryRepository ??= new FaqQueryRepository(dataSource);
-    
+
+    private IOtpRequestCommandRepository? _otpRequestCommandRepository;
+
+    /// <summary>
+    /// Lazily-initialized repository for write (command) operations on OTP request entities.
+    /// The instance is created on first access and cached for the lifetime of the unit of work.
+    /// </summary>
+    public IOtpRequestCommandRepository OtpRequestCommandRepository =>
+        _otpRequestCommandRepository ??= new OtpRequestCommandRepository(context);
+
+    private IUserCommandRepository? _userCommandRepository;
+
+    /// <summary>
+    /// Lazily-initialized repository for write (command) operations on User entities.
+    /// The instance is created on first access and cached for the lifetime of the unit of work.
+    /// </summary>
+    public IUserCommandRepository UserCommandRepository =>
+        _userCommandRepository ??= new UserCommandRepository(context);
+
+    private IUserQueryRepository? _userQueryRepository;
+
+    /// <summary>
+    /// Lazily-initialized repository for read (query) operations on User entities.
+    /// Unlike the command repositories, this one is backed by a Dapper data source
+    /// (<c>dataSource</c>) rather than the EF Core <c>context</c>.
+    /// </summary>
+    public IUserQueryRepository UserQueryRepository =>
+        _userQueryRepository ??= new UserQueryRepository(dataSource);
     #endregion
 
 

@@ -1,0 +1,293 @@
+@using Whyland.Application.Common.Authorization
+@using Whyland.Web.Common.Identity.Constants
+@using Whyland.Web.Common.Identity.Services
+@inject CurrentUserAvatarService CurrentUserAvatar
+@{
+  bool isAuthenticated = User.Identity?.IsAuthenticated == true;
+  // Same "permissions" claim type ClaimsPrincipalFactory writes at sign-in.
+  bool canOpenAdmin = User.HasClaim(CustomClaimTypes.Permissions, Permissions.Dashboard.View);
+  // Profile button (regular users only): avatar image when set, person icon otherwise.
+  string? avatarUrl = isAuthenticated && !canOpenAdmin
+      ? await CurrentUserAvatar.GetAvatarUrlAsync()
+      : null;
+}
+<!doctype html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>@ViewData["Title"] - وایلند</title>
+
+  <!-- #region FavIcon -->
+  <link rel="icon" type="image/png" href="~/public/assets/images/fav-icon.png" asp-append-version="true" />
+  <!-- endregion -->
+
+  <!-- #region Stylesheets -->
+  <link rel="stylesheet" href="~/public/src/css/style.css" asp-append-version="true" />
+  <!-- endregion -->
+
+  <!-- #region Google Fonts (Vazirmatn for Persian) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet" />
+  <!-- endregion -->
+
+  @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body class="bg-white text-dark antialiased font-['Vazirmatn']">
+  <!-- #region HEADER -->
+  <header id="site-header" class="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur-sm">
+    <div class="container-whyland px-4">
+      <div class="flex min-h-16 items-center justify-between sm:min-h-20">
+        <!-- Site Logo -->
+        <a asp-controller="Home" asp-action="Index" class="shrink-0" aria-label="صفحه اصلی وایلند">
+          <img src="~/public/assets/images/logo.png" alt="whyland" class="h-auto w-24 sm:w-28" asp-append-version="true" />
+        </a>
+
+        <!-- #region Desktop Navigation -->
+        <nav class="hidden items-center gap-4 md:flex lg:gap-8" aria-label="منوی اصلی">
+          <a asp-controller="Home" asp-action="Index"
+            class="text-xs font-medium text-dark transition-colors hover:text-primary lg:text-sm">
+            صفحه اصلی
+          </a>
+          <a href="#"
+            class="text-xs font-medium text-dark transition-colors hover:text-primary lg:text-sm">
+            دوره‌ها
+          </a>
+          <a href="#"
+            class="text-xs font-medium text-dark transition-colors hover:text-primary lg:text-sm">
+            بلاگ
+          </a>
+          <a href="#"
+            class="text-xs font-medium text-dark transition-colors hover:text-primary lg:text-sm">
+            سوالات متداول
+          </a>
+          <a href="#"
+            class="text-xs font-medium text-dark transition-colors hover:text-primary lg:text-sm">
+            تماس با ما
+          </a>
+        </nav>
+        <!-- endregion -->
+
+        <div class="flex items-center gap-2">
+          @if (User.Identity?.IsAuthenticated == true)
+          {
+              @if(User.HasClaim(CustomClaimTypes.Permissions, Permissions.Dashboard.View))
+              {
+                <a href="/admin"
+                  class="text-sm py-2 px-3 rounded-full font-medium text-white transition-colors bg-primary hover:bg-primary/90">
+                  پنل مدیریت
+                </a>
+              }
+              else
+              {
+                <a asp-controller="Account" asp-action="Profile" aria-label="پروفایل کاربر"
+                  class="inline-flex items-center justify-center rounded-full border-2 border-border p-1.5 text-blue-600/74 transition-colors hover:border-primary hover:text-primary">
+                  @if (!string.IsNullOrEmpty(avatarUrl))
+                  {
+                    <img src="@avatarUrl" alt="تصویر پروفایل"
+                      class="size-5 rounded-full object-cover sm:size-6" />
+                  }
+                  else
+                  {
+                    <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M7 7.5C8.933 7.5 10.5 5.933 10.5 4C10.5 2.067 8.933 0.5 7 0.5C5.067 0.5 3.5 2.067 3.5 4C3.5 5.933 5.067 7.5 7 7.5ZM7 9.16667C4.6625 9.16667 0 10.3417 0 12.6667V14.5H14V12.6667C14 10.3417 9.3375 9.16667 7 9.16667Z" fill="currentColor"/>
+                    </svg>
+                  }
+                </a>
+              }
+            }
+          else
+          {
+            <a asp-controller="Account" asp-action="Login"
+              class="text-sm py-2 px-3 rounded-full font-medium text-white transition-colors bg-primary hover:bg-primary/90">
+              ورود / ثبت‌نام
+            </a>
+          }
+
+          <!-- Mobile Menu Trigger -->
+          <button type="button" id="mobile-menu-button"
+            class="flex size-9 cursor-pointer items-center justify-center rounded-md transition-all active:scale-95 active:bg-gray-100 md:hidden"
+            aria-label="باز کردن منو">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" class="size-6">
+              <path d="M4 6h16" />
+              <path d="M4 12h16" />
+              <path d="M4 18h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+  <!-- endregion -->
+
+  <!-- #region Backdrop Overlay -->
+  <div id="menu-overlay"
+    class="pointer-events-none fixed inset-0 z-50 bg-black/50 opacity-0 backdrop-blur-sm transition-opacity duration-300 lg:hidden">
+  </div>
+  <!-- endregion -->
+
+  <!-- #region Mobile Navigation Sidebar -->
+  <aside id="mobile-menu"
+    class="fixed inset-y-0 left-0 z-50 flex w-72 -translate-x-full flex-col justify-between bg-white p-6 shadow-2xl transition-transform duration-300 ease-in-out dir-ltr lg:hidden">
+    <div class="flex flex-1 flex-col overflow-y-auto min-h-0 pl-3">
+      <div class="flex items-center justify-between border-b border-border pb-4">
+        <img src="~/public/assets/images/logo.png" alt="whyland" class="h-auto w-24" asp-append-version="true" />
+        <button type="button" id="close-menu-button"
+          class="rounded-lg cursor-pointer p-1 text-gray-500 hover:bg-gray-100" aria-label="بستن منو">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+            class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <nav class="flex flex-col pt-4 dir-rtl" aria-label="منوی موبایل">
+        <a asp-controller="Home" asp-action="Index" class="border-b border-border py-3 text-sm font-medium text-dark">
+          صفحه اصلی
+        </a>
+        <a href="#" class="border-b border-border py-3 text-sm font-medium text-dark hover:text-primary">
+          دوره‌ها
+        </a>
+        <a href="#" class="border-b border-border py-3 text-sm font-medium text-dark hover:text-primary">
+          بلاگ
+        </a>
+        <a href="#" class="border-b border-border py-3 text-sm font-medium text-dark hover:text-primary">
+          سوالات متداول
+        </a>
+        <a href="#" class="border-b border-border py-3 text-sm font-medium text-dark hover:text-primary">
+          تماس با ما
+        </a>
+      </nav>
+    </div>
+
+    <div class="flex flex-col gap-2 pt-6 dir-rtl">
+      @if (isAuthenticated)
+      {
+        if (canOpenAdmin)
+        {
+          <a href="/admin"
+            class="w-full rounded-lg bg-primary py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-primary/90">
+            پنل مدیریت
+          </a>
+        }
+        else
+        {
+          <a asp-controller="Account" asp-action="Profile"
+            class="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-border py-2.5 text-center text-sm font-semibold text-dark transition-colors hover:border-primary hover:text-primary">
+            @if (!string.IsNullOrEmpty(avatarUrl))
+            {
+              <img src="@avatarUrl" alt="تصویر پروفایل" class="size-5 rounded-full object-cover" />
+            }
+            else
+            {
+              <svg width="14" height="15" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 7.5C8.933 7.5 10.5 5.933 10.5 4C10.5 2.067 8.933 0.5 7 0.5C5.067 0.5 3.5 2.067 3.5 4C3.5 5.933 5.067 7.5 7 7.5ZM7 9.16667C4.6625 9.16667 0 10.3417 0 12.6667V14.5H14V12.6667C14 10.3417 9.3375 9.16667 7 9.16667Z" fill="currentColor"/>
+              </svg>
+            }
+            پروفایل
+          </a>
+        }
+      }
+      else
+      {
+        <a asp-controller="Account" asp-action="Login"
+          class="w-full rounded-lg bg-primary py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-primary/90">
+          ورود / ثبت‌نام
+        </a>
+      }
+    </div>
+  </aside>
+  <!-- endregion -->
+
+  <!-- #region MAIN CONTENT -->
+  <main id="main-content">
+    @RenderBody()
+  </main>
+  <!-- endregion -->
+
+  <!-- #region FOOTER -->
+  <footer class="bg-[#f8f9fa] pt-12 pb-8 text-body">
+    <div class="container-whyland">
+      <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-12 lg:gap-12">
+        <!-- Column 1: Brand Info -->
+        <div class="lg:col-span-4">
+          <a href="#" class="inline-block">
+            <img src="~/public/assets/images/logo.png" alt="لوگوی وایلند" class="h-8 w-auto object-contain" asp-append-version="true" />
+          </a>
+          <p class="mt-4 max-w-sm text-xs leading-relaxed text-body sm:text-sm">
+            لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با
+            استفاده از طراحان گرافیک است.
+          </p>
+        </div>
+
+        <!-- Column 2: Help Links -->
+        <div class="lg:col-span-2">
+          <h4 class="text-sm font-bold uppercase tracking-wider text-dark">راهنما</h4>
+          <ul class="mt-4 space-y-2.5 text-xs sm:text-sm">
+            <li><a href="#" class="transition-colors duration-300 hover:text-primary">تماس با ما</a></li>
+            <li><a href="#" class="transition-colors duration-300 hover:text-primary">آخرین مقالات</a></li>
+            <li><a href="#" class="transition-colors duration-300 hover:text-primary">سوالات متداول</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 3: Program Links -->
+        <div class="lg:col-span-3">
+          <h4 class="text-sm font-bold uppercase tracking-wider text-dark">برنامه‌های آموزشی</h4>
+          <ul class="mt-4 space-y-2.5 text-xs sm:text-sm">
+            <li><a href="#" class="transition-colors duration-300 hover:text-primary">هنر و طراحی</a></li>
+            <li><a href="#" class="transition-colors duration-300 hover:text-primary">کسب و کار</a></li>
+            <li><a href="#" class="transition-colors duration-300 hover:text-primary">فناوری اطلاعات و نرم‌افزار</a></li>
+            <li><a href="#" class="transition-colors duration-300 hover:text-primary">زبان‌های خارجی</a></li>
+            <li><a href="#" class="transition-colors duration-300 hover:text-primary">برنامه‌نویسی</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 4: Contact & Social Info -->
+        <div class="lg:col-span-3">
+          <h4 class="text-sm font-bold uppercase tracking-wider text-dark">ارتباط با ما</h4>
+          <div class="mt-4 space-y-2 text-xs leading-relaxed sm:text-sm">
+            <p><span class="font-medium text-dark">آدرس:</span> تهران، خیابان آزادی، پلاک ۱۲۳</p>
+            <p><span class="font-medium text-dark">تلفن:</span> ۰۲۱-۱۲۳۴۵۶۷۸</p>
+            <p><span class="font-medium text-dark">ایمیل:</span> supportlms@gmail.com</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Footer & Copyright -->
+      <div class="relative mt-12 border-t border-gray-200/80 pt-6">
+        <div class="flex items-center justify-between">
+          <p class="w-full text-center text-xs text-body sm:text-sm">
+            توسعه یافته توسط استاد بزرگ محمدمهدی زنگنه(راشد)
+          </p>
+          <button id="scroll-to-top"
+            class="flex size-9 shrink-0 items-center justify-center rounded-full bg-black text-white shadow-md transition-transform duration-300 hover:scale-110 active:scale-95 active:bg-primary/90 sm:size-10"
+            aria-label="بازگشت به بالا">
+            <img src="~/public/assets/icons/arrow-up.svg" alt="" asp-append-version="true" />
+          </button>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!-- endregion -->
+
+  <!-- #region SVG Sprite (checkbox) -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+    <symbol id="checkbox-30" viewBox="0 0 22 22">
+      <path fill="none" stroke="primary"
+        d="M5.5,11.3L9,14.8L20.2,3.3l0,0c-0.5-1-1.5-1.8-2.7-1.8h-13c-1.7,0-3,1.3-3,3v13c0,1.7,1.3,3,3,3h13 c1.7,0,3-1.3,3-3v-13c0-0.4-0.1-0.8-0.3-1.2" />
+    </symbol>
+  </svg>
+  <!-- endregion -->
+
+  <!-- #region Entry JavaScript Module -->
+  <script type="module" src="~/public/src/js/main.js" asp-append-version="true"></script>
+  <!-- endregion -->
+
+  @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

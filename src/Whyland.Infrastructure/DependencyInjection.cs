@@ -1,5 +1,4 @@
-using Whyland.Application.Common.Abstractions;
-using Whyland.Infrastructure.Identity.Services;
+using Whyland.Application.Common.Interfaces.Services;
 using Whyland.Infrastructure.Persistence.Interceptors;
 using Whyland.Infrastructure.Persistence.UnitOfWork;
 using Whyland.Infrastructure.Services;
@@ -51,8 +50,13 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWorkTransactionHandler, UnitOfWorkTransactionHandler>();
 
         // Identity helpers.
-        services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
-        services.AddScoped<ICurrentUserService, NullCurrentUserService>();
+        services.AddSingleton<IPasswordHashService, BCryptPasswordHasher>();
+
+        services.AddScoped<ICodeGeneratorService, CodeGeneratorService>();
+
+        // Single-use registration tickets that bridge "verify code" → "complete registration".
+        services.AddSingleton<IRegistrationTicketService, RegistrationTicketService>();
+        services.AddScoped<ISmsService, StubSmsService>();
 
         // System clock abstraction (used by the audit interceptor for UTC stamps).
         services.AddSingleton(TimeProvider.System);

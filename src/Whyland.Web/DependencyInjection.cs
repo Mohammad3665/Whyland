@@ -1,5 +1,7 @@
+using Whyland.Application.Common.Interfaces.Identity;
 using Whyland.Infrastructure.Identity.Handlers;
 using Whyland.Web.Common.Identity.Providers;
+using Whyland.Web.Common.Identity.Services;
 
 namespace Whyland.Web;
 
@@ -19,6 +21,8 @@ public static class DependencyInjection
         // Authorization: dynamic permission-based policies.
         services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
         services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<CurrentUserAvatarService>();
 
         return services;
     }

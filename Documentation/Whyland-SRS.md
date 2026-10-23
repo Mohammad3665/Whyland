@@ -952,14 +952,9 @@ UserProfile must include, where applicable:
 | Field        | Requirement |
 | ------------ | ----------- |
 | UserId       | PK/FK       |
-| NationalCode | Optional    |
 | BirthDate    | Optional    |
 | Gender       | Optional    |
 | Avatar       | Optional    |
-| Address      | Optional    |
-| Province     | Optional    |
-| City         | Optional    |
-| PostalCode   | Optional    |
 | CreatedAt    | Required    |
 | UpdatedAt    | Required    |
 
