@@ -10,8 +10,10 @@ FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG configuration=Release
 WORKDIR /src
 
+COPY ["src/Whyland.Shared/Whyland.Shared.csproj", "src/Whyland.Shared/"]
 COPY ["src/Whyland.Domain/Whyland.Domain.csproj", "src/Whyland.Domain/"]
 COPY ["src/Whyland.Application/Whyland.Application.csproj", "src/Whyland.Application/"]
+COPY ["src/Whyland.Sms.Provider/Whyland.Sms.Provider.csproj", "src/Whyland.Sms.Provider/"]
 COPY ["src/Whyland.Infrastructure/Whyland.Infrastructure.csproj", "src/Whyland.Infrastructure/"]
 COPY ["src/Whyland.Web/Whyland.Web.csproj", "src/Whyland.Web/"]
 RUN dotnet restore "src/Whyland.Web/Whyland.Web.csproj"

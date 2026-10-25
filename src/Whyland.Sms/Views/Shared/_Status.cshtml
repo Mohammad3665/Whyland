@@ -1,0 +1,11 @@
+@model string
+@{
+    var (label, tone) = Model switch
+    {
+        SmsStatus.Sent => ("ارسال شد", "bg-success-light text-success"),
+        SmsStatus.Pending => ("در انتظار", "bg-warning-light text-warning"),
+        SmsStatus.Failed => ("ناموفق", "bg-danger-light text-danger"),
+        _ => (Model, "bg-light text-body"),
+    };
+}
+<span class="@tone inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold leading-none whitespace-nowrap">@label</span>

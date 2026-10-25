@@ -28,6 +28,16 @@ public static class AuthErrors
         ErrorType.Unexpected
     );
 
+    /// <summary>
+    /// The SMS service did not confirm delivery, so the code was invalidated before the user
+    /// could see it. Retryable — resend is still governed by the cooldown.
+    /// </summary>
+    public static readonly Error SmsSendFailed = new(
+        "Auth.SmsSendFailed",
+        "ارسال پیامک ناموفق بود؛ لطفاً چند لحظه دیگر دوباره تلاش کنید.",
+        ErrorType.Unexpected
+    );
+
     /// <summary>Registration ticket unknown, already used, or expired — user must re-verify by code.</summary>
     public static readonly Error InvalidTicket = new(
         "Auth.InvalidTicket",

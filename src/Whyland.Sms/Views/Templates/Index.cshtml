@@ -1,0 +1,116 @@
+@model IReadOnlyList<SmsTemplateRecord>
+@{
+  ViewData["Title"] = "قالب‌ها";
+
+  var saved = ViewBag.Saved as string;
+  (string Text, string Tone)? banner = saved switch
+  {
+    "created" => ("قالب ساخته شد و از الان با کدش قابل ارسال است.", "bg-success-light text-success"),
+    "updated" => ("قالب به‌روزرسانی شد؛ متن پیام‌های بعدی همین نسخه است.", "bg-success-light text-success"),
+    "deleted" => ("قالب حذف شد. ارسال با کد آن حالا TemplateNotFound برمی‌گرداند.", "bg-warning-light text-warning"),
+    "missing" => ("قالبی که خواسته بودید حذف شود پیدا نشد؛ احتمالاً قبلاً حذف شده است.", "bg-danger-light text-danger"),
+    _ => null,
+  };
+}
+
+<div class="mb-5 flex flex-wrap items-end justify-between gap-3">
+  <div>
+    <h1 class="text-xl font-bold sm:text-2xl">قالب‌های پیامک</h1>
+    <p class="mt-1 text-xs leading-relaxed text-body sm:text-sm">
+      قالب‌ها تنها دادهٔ قابل ویرایش این سرویس‌اند و همان چیزی‌اند که
+      <code dir="ltr">/api/v1/sms/templates</code> نشان می‌دهد. با ری‌استارت سرویس، فقط قالب‌های seed دوباره
+      ساخته می‌شوند و بقیه از بین می‌روند.
+    </p>
+  </div>
+  <a asp-controller="Templates" asp-action="Create"
+    class="cursor-pointer rounded-full bg-primary px-4 py-2.5 text-xs font-semibold text-white transition-all hover:bg-primary/90 active:scale-[0.98] sm:text-sm">
+    قالب جدید
+  </a>
+</div>
+
+@if (banner is not null)
+{
+  <div class="@($"mb-5 rounded-2xl border border-gray-100 p-4 text-xs font-medium leading-relaxed shadow-sm sm:text-sm {banner.Value.Tone}")">
+    @banner.Value.Text
+  </div>
+}
+
+<div class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+  @if (Model.Count == 0)
+  {
+    <p class="p-6 text-xs leading-relaxed text-body sm:text-sm">
+      هیچ قالبی ثبت نشده است. یک قالب بسازید یا سرویس را با seed پیش‌فرض اجرا کنید.
+    </p>
+  }
+  else
+  {
+    <div class="overflow-x-auto">
+      <table class="w-full text-right text-xs sm:text-sm">
+        <thead class="bg-light text-[11px] text-body">
+          <tr>
+            <th class="px-4 py-3 font-semibold">کد</th>
+            <th class="px-4 py-3 font-semibold">نام</th>
+            <th class="px-4 py-3 font-semibold">متن</th>
+            <th class="px-4 py-3 font-semibold">پارامترها</th>
+            <th class="px-4 py-3 font-semibold">وضعیت</th>
+            <th class="px-4 py-3 font-semibold">ویرایش</th>
+            <th class="px-4 py-3 font-semibold">حذف</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach (var template in Model)
+          {
+            <tr class="border-t border-gray-100 transition-colors hover:bg-light/60">
+              <td class="whitespace-nowrap px-4 py-3 font-semibold" dir="ltr">@template.Code</td>
+              <td class="whitespace-nowrap px-4 py-3">@template.Name</td>
+              <td class="min-w-48 px-4 py-3 text-body">@PanelFormat.Preview(template.Content, 70)</td>
+              <td class="px-4 py-3">
+                <div class="flex flex-wrap gap-1" dir="ltr">
+                  @foreach (var parameter in template.Parameters.Values)
+                  {
+                    <span class="rounded-full bg-light px-2 py-0.5 text-[10px] font-medium text-body">
+                      @parameter.Name
+                      @if (!parameter.Required)
+                      {
+                        <span class="text-gray-400">?</span>
+                      }
+                      <span class="text-gray-400">: @parameter.Type</span>
+                    </span>
+                  }
+                </div>
+              </td>
+              <td class="whitespace-nowrap px-4 py-3">
+                @if (template.IsActive)
+                {
+                  <span class="inline-flex items-center rounded-full bg-success-light px-2.5 py-1 text-[11px] font-semibold leading-none text-success">
+                    فعال
+                  </span>
+                }
+                else
+                {
+                  <span class="inline-flex items-center rounded-full bg-light px-2.5 py-1 text-[11px] font-semibold leading-none text-body">
+                    غیرفعال
+                  </span>
+                }
+              </td>
+              <td class="whitespace-nowrap px-4 py-3">
+                <a asp-controller="Templates" asp-action="Edit" asp-route-code="@template.Code"
+                  class="font-semibold text-primary transition-opacity hover:opacity-80">ویرایش</a>
+              </td>
+              <td class="whitespace-nowrap px-4 py-3">
+                <form asp-controller="Templates" asp-action="Delete" method="post"
+                  onsubmit="return confirm('قالب @template.Code حذف شود؟');">
+                  <input type="hidden" name="code" value="@template.Code" />
+                  <button type="submit"
+                    class="cursor-pointer rounded-full border border-gray-200 px-3 py-1.5 text-[11px] font-semibold text-danger transition-all hover:border-danger/40 hover:bg-danger-light active:scale-[0.98]">
+                    حذف
+                  </button>
+                </form>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

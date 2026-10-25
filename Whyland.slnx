@@ -4,6 +4,8 @@
     <Project Path="src/Whyland.Domain/Whyland.Domain.csproj" />
     <Project Path="src/Whyland.Infrastructure/Whyland.Infrastructure.csproj" />
     <Project Path="src/Whyland.Shared/Whyland.Shared.csproj" />
+    <Project Path="src/Whyland.Sms.Provider/Whyland.Sms.Provider.csproj" />
+    <Project Path="src/Whyland.Sms/Whyland.Sms.csproj" />
     <Project Path="src/Whyland.Web/Whyland.Web.csproj" />
   </Folder>
 </Solution>

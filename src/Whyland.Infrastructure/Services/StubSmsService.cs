@@ -13,10 +13,22 @@ namespace Whyland.Infrastructure.Services;
 public sealed class StubSmsService(ILogger<StubSmsService> logger) : ISmsService
 {
     /// <summary>Logs the OTP instead of sending it. In production this logs secrets — swap it out.</summary>
-    public Task SendAsync(string phoneNumber, string message, CancellationToken ct = default)
+    public Task<SendSmsResult> SendAsync(string phoneNumber, string message, CancellationToken ct = default)
     {
         // Development only: surfaces the OTP in logs/console so you can log in.
         logger.LogInformation("STUB SMS → {Phone}: {Message}", phoneNumber, message);
-        return Task.CompletedTask;
+        return Task.FromResult(SendSmsResult.Sent(status: "Stubbed"));
+    }
+
+    /// <summary>Logs the template code and parameters instead of sending them.</summary>
+    public Task<SendSmsResult> SendTemplateAsync(string phoneNumber, string templateCode, IReadOnlyDictionary<string, object?> parameters, CancellationToken ct = default)
+    {
+        // Development only: surfaces the OTP parameters in logs/console so you can log in.
+        logger.LogInformation(
+            "STUB SMS TEMPLATE → {Phone} [{TemplateCode}]: {@Parameters}",
+            phoneNumber,
+            templateCode,
+            parameters);
+        return Task.FromResult(SendSmsResult.Sent(status: "Stubbed"));
     }
 }

@@ -1,0 +1,89 @@
+@model SmsRequestRecord
+@{
+  ViewData["Title"] = "جزئیات درخواست";
+
+  var payloadJson = Model.Payload is null
+    ? "این فراخوان بدنهٔ ثبت‌شده‌ای نداشت."
+    : JsonSerializer.Serialize(
+        Model.Payload,
+        new JsonSerializerOptions(JsonSerializerDefaults.Web)
+        {
+            WriteIndented = true,
+            // Razor HTML-encodes this before it reaches the page, so the JSON can keep
+            // readable Persian text and + signs instead of \uXXXX escapes.
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        });
+}
+
+<div class="mb-5">
+  <a asp-controller="Requests" asp-action="Index"
+    class="inline-flex items-center gap-1 text-xs font-semibold text-body transition-colors hover:text-primary sm:text-sm">
+    ← بازگشت به لاگ درخواست‌ها
+  </a>
+  <h1 class="mt-2 text-xl font-bold sm:text-2xl">
+    درخواست <span dir="ltr" class="font-mono text-base">@Model.RequestId</span>
+  </h1>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorCode))
+{
+  <div class="mb-4 rounded-2xl border border-danger/20 bg-danger-light p-4 text-xs leading-relaxed sm:text-sm">
+    <p class="font-semibold text-danger"><code dir="ltr">@Model.ErrorCode</code></p>
+    <p class="mt-1 text-body">@Model.ErrorMessage</p>
+    <p class="mt-2 text-[11px] text-gray-400">
+      این فراخوان پیام تولید نکرد؛ برای همین در جدول پیام‌ها ردی از آن نیست.
+    </p>
+  </div>
+}
+
+<div class="grid gap-4 lg:grid-cols-3">
+  <div class="lg:col-span-2 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+    <h2 class="mb-3 text-sm font-bold sm:text-base">بدنهٔ درخواست</h2>
+    <pre dir="ltr"
+      class="overflow-x-auto rounded-xl bg-dark p-4 text-left text-[11px] leading-relaxed text-white sm:text-xs">@payloadJson</pre>
+    <p class="mt-3 text-[11px] leading-relaxed text-gray-400">
+      کلید <code dir="ltr">X-Sms-Api-Key</code> هرگز ذخیره نمی‌شود؛ این بدنهٔ JSON همان چیزی است که
+      فراخوان ارسال کرده بود.
+    </p>
+  </div>
+
+  <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+    <h2 class="mb-3 text-sm font-bold sm:text-base">مشخصات</h2>
+    <dl class="space-y-3 text-xs sm:text-sm">
+      <div>
+        <dt class="text-[11px] text-gray-400">مسیر</dt>
+        <dd class="break-all font-medium" dir="ltr">@Model.Endpoint</dd>
+      </div>
+      <div>
+        <dt class="text-[11px] text-gray-400">گیرنده</dt>
+        <dd class="font-medium" dir="ltr">@(Model.Recipient ?? "—")</dd>
+      </div>
+      <div>
+        <dt class="text-[11px] text-gray-400">قالب</dt>
+        <dd class="font-medium" dir="ltr">@(Model.TemplateCode ?? "—")</dd>
+      </div>
+      <div>
+        <dt class="text-[11px] text-gray-400">وضعیت</dt>
+        <dd><partial name="_Status" model="@Model.Status" /></dd>
+      </div>
+      <div>
+        <dt class="text-[11px] text-gray-400">رسیدن (UTC)</dt>
+        <dd dir="ltr">@PanelFormat.Utc(Model.ReceivedAt)</dd>
+      </div>
+      <div>
+        <dt class="text-[11px] text-gray-400">پیام تولیدشده</dt>
+        <dd>
+          @if (string.IsNullOrWhiteSpace(Model.MessageId))
+          {
+            <span class="text-gray-400">—</span>
+          }
+          else
+          {
+            <a asp-controller="Messages" asp-action="Details" asp-route-id="@Model.MessageId"
+              dir="ltr" class="font-semibold text-primary hover:opacity-80">@Model.MessageId</a>
+          }
+        </dd>
+      </div>
+    </dl>
+  </div>
+</div>

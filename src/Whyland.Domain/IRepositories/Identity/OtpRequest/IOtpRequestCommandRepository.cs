@@ -16,4 +16,10 @@ public interface IOtpRequestCommandRepository
     /// mutate AttemptCount / IsUsed and persist via SaveAsync. Null if none.
     /// </summary>
     Task<Entities.Identity.OtpRequest?> GetLatestUsableAsync(string phoneNumber, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns the newest OTP row for a phone number, used or expired. Used for the resend
+    /// cooldown, which must survive a code that was invalidated because it never delivered.
+    /// </summary>
+    Task<Entities.Identity.OtpRequest?> GetLatestAsync(string phoneNumber, CancellationToken ct = default);
 }

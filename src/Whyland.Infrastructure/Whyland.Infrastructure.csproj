@@ -10,6 +10,7 @@
     <ProjectReference Include="../Whyland.Application/Whyland.Application.csproj" />
     <ProjectReference Include="../Whyland.Domain/Whyland.Domain.csproj" />
     <ProjectReference Include="../Whyland.Shared/Whyland.Shared.csproj" />
+    <ProjectReference Include="../Whyland.Sms.Provider/Whyland.Sms.Provider.csproj" />
   </ItemGroup>
 
   <ItemGroup>

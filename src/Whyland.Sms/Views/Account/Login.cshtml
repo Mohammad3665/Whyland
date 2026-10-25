@@ -1,0 +1,58 @@
+@model LoginPanelViewModel
+@{
+  ViewData["Title"] = "ورود به پنل";
+}
+
+<div class="flex justify-center py-6 sm:py-12">
+  <div class="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
+    <h1 class="mb-2 text-xl font-bold sm:text-2xl">ورود به پنل پیامک</h1>
+    <p class="mb-6 text-xs leading-relaxed text-body sm:text-sm">
+      این پنل روی لایهٔ API شبیه‌ساز پیامک سوار است و متن پیام‌ها و کدهای ارسال‌شده را نشان می‌دهد؛
+      به همین دلیل فقط با نام کاربری و رمز تنظیم‌شده در کانفیگ سرویس باز می‌شود.
+    </p>
+
+    @if (!Model.CredentialsConfigured)
+    {
+      <div class="mb-5 rounded-xl border border-warning/30 bg-warning-light p-4 text-xs leading-relaxed text-dark">
+        ورود به پنل فعال نیست، چون <code dir="ltr">SmsService:PanelUsername</code> یا
+        <code dir="ltr">SmsService:PanelPassword</code> مقدار ندارد.
+        در محیط توسعه از <code dir="ltr">dotnet user-secrets</code> استفاده کنید و در داکر، متغیر
+        <code dir="ltr">SmsService__PanelPassword</code> را در <code dir="ltr">.env</code> بگذارید.
+      </div>
+    }
+    else
+    {
+      <partial name="_Validation" />
+
+      <form asp-controller="Account" asp-action="Login" method="post" class="space-y-4">
+        <div>
+          <label asp-for="Username" class="mb-1.5 block text-xs font-semibold sm:text-sm">نام کاربری</label>
+          <input asp-for="Username" autocomplete="username" dir="ltr" placeholder=" "
+            class="h-10 w-full rounded-xl border border-gray-200 bg-white px-4 text-right text-xs text-dark outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary sm:text-sm" />
+        </div>
+
+        <div>
+          <label asp-for="Password" class="mb-1.5 block text-xs font-semibold sm:text-sm">رمز عبور</label>
+          <input asp-for="Password" type="password" autocomplete="current-password" dir="ltr" placeholder=" "
+            class="h-10 w-full rounded-xl border border-gray-200 bg-white px-4 text-right text-xs text-dark outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary sm:text-sm" />
+        </div>
+
+        <label class="flex cursor-pointer items-center gap-2 pt-0.5">
+          <input asp-for="RememberMe"
+            class="size-4 cursor-pointer rounded border-gray-300 accent-[#ff5a1f]" />
+          <span class="select-none text-xs text-body sm:text-sm">مرا به خاطر بسپار</span>
+        </label>
+
+        <button type="submit"
+          class="w-full cursor-pointer rounded-full bg-primary py-2.5 text-center text-xs font-semibold text-white transition-all hover:bg-primary/90 active:scale-[0.98] sm:text-sm">
+          ورود به پنل
+        </button>
+      </form>
+    }
+
+    <p class="pt-4 text-[11px] leading-relaxed text-gray-400">
+      کلید <code dir="ltr">X-Sms-Api-Key</code> مخصوص API است و وارد شدن به پنل را ممکن نمی‌کند؛ این دو مسیر
+      احراز هویت جدا دارند.
+    </p>
+  </div>
+</div>

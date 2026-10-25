@@ -1,0 +1,19 @@
+@*
+  Renders the ModelState errors added by the controllers and the shared SmsTemplateEditor.
+  Rendered without a model so it can sit inside any form; ViewData (and therefore ModelState)
+  is shared with the parent view.
+*@
+@if (ViewData.ModelState.ErrorCount > 0)
+{
+  <div class="mb-5 space-y-2">
+    @foreach (var entry in ViewData.ModelState)
+    {
+      @foreach (var error in entry.Value!.Errors)
+      {
+        <p class="rounded-xl bg-danger-light p-3 text-xs font-medium leading-relaxed text-danger sm:text-sm">
+          @error.ErrorMessage
+        </p>
+      }
+    }
+  </div>
+}

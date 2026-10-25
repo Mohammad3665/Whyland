@@ -19,4 +19,10 @@ public sealed class OtpRequestCommandRepository(WhylandDbContext context) : IOtp
                         && x.AttemptCount < x.MaxAttempts)
             .OrderByDescending(x => x.CreatedAt)
             .FirstOrDefaultAsync(x => x.Id != default, ct);
+
+    public Task<Domain.Entities.Identity.OtpRequest?> GetLatestAsync(string phoneNumber, CancellationToken ct = default)
+        => context.OtpRequests
+            .Where(x => x.PhoneNumber == phoneNumber)
+            .OrderByDescending(x => x.CreatedAt)
+            .FirstOrDefaultAsync(x => x.Id != default, ct);
 }

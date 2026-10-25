@@ -13,11 +13,14 @@ public sealed class AuthOptions
     public int OtpCodeLength { get; set; } = 6;
 
     /// <summary>How long an OTP stays valid, in minutes.</summary>
-    public int OtpExpiryMinutes { get; set; } = 5;
+    public int OtpExpiryMinutes { get; set; } = 2;
 
     /// <summary>Maximum verification attempts before an OTP is exhausted.</summary>
     public int OtpMaxAttempts { get; set; } = 5;
 
     /// <summary>Minimum seconds between two OTP requests for the same number (rate limit).</summary>
     public int OtpResendCooldownSeconds { get; set; } = 60;
+
+    /// <summary>Template code used by the SMS provider to render the OTP message.</summary>
+    public string OtpSmsTemplateCode { get; set; } = "SMS-OTP-001";
 }

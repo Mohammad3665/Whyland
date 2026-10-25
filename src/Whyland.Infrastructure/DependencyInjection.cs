@@ -2,6 +2,7 @@ using Whyland.Application.Common.Interfaces.Services;
 using Whyland.Infrastructure.Persistence.Interceptors;
 using Whyland.Infrastructure.Persistence.UnitOfWork;
 using Whyland.Infrastructure.Services;
+using Whyland.Sms.Provider.DependencyInjection;
 
 namespace Whyland.Infrastructure;
 
@@ -56,7 +57,7 @@ public static class DependencyInjection
 
         // Single-use registration tickets that bridge "verify code" → "complete registration".
         services.AddSingleton<IRegistrationTicketService, RegistrationTicketService>();
-        services.AddScoped<ISmsService, StubSmsService>();
+        services.AddSmsService(configuration);
 
         // System clock abstraction (used by the audit interceptor for UTC stamps).
         services.AddSingleton(TimeProvider.System);
@@ -69,5 +70,21 @@ public static class DependencyInjection
         services.AddSingleton(dataSource);
 
         return services;
+    }
+
+    /// <summary>
+    /// Selects the SMS implementation from the "Sms:Provider" setting: "WhylandSms" wires the
+    /// HTTP client for the standalone SMS service, anything else keeps the development stub (s11).
+    /// </summary>
+    private static IServiceCollection AddSmsService(this IServiceCollection services, IConfiguration configuration)
+    {
+        if (string.Equals(configuration["Sms:Provider"], "WhylandSms", StringComparison.OrdinalIgnoreCase))
+        {
+            services.AddWhylandSmsProvider(configuration);
+            services.AddScoped<ISmsService, WhylandSmsService>();
+            return services;
+        }
+
+        return services.AddScoped<ISmsService, StubSmsService>();
     }
 }

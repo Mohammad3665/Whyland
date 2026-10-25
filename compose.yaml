@@ -22,6 +22,20 @@ services:
       timeout: 5s
       retries: 10
 
+  whylandsms:
+    image: whylandsms
+    build:
+      context: .
+      dockerfile: src/Whyland.Sms/Dockerfile
+    # Published on 5090 so the dashboard and the message feed are reachable from the host.
+    ports:
+      - 5090:8080
+    environment:
+      - SmsService__ApiKey=${WHYLAND_SMS_API_KEY:?Set WHYLAND_SMS_API_KEY (see .env.example)}
+      # Dashboard sign-in. Without a password the panel refuses to open, by design.
+      - SmsService__PanelUsername=${WHYLAND_SMS_PANEL_USERNAME:-panel}
+      - SmsService__PanelPassword=${WHYLAND_SMS_PANEL_PASSWORD:?Set WHYLAND_SMS_PANEL_PASSWORD (see .env.example)}
+
   whylandweb:
     image: whylandweb
     build:
@@ -31,9 +45,14 @@ services:
       - 5000:8080
     environment:
       - ConnectionStrings__Postgres=Host=postgres;Port=5432;Database=whyland;Username=postgres;Password=${WHYLAND_POSTGRES_PASSWORD:?Set WHYLAND_POSTGRES_PASSWORD (see .env.example)}
+      - Sms__Provider=WhylandSms
+      - SmsProvider__BaseUrl=http://whylandsms:8080
+      - SmsProvider__ApiKey=${WHYLAND_SMS_API_KEY:?Set WHYLAND_SMS_API_KEY (see .env.example)}
     depends_on:
       postgres:
         condition: service_healthy
+      whylandsms:
+        condition: service_started
 
 volumes:
   whyland-postgres-data:

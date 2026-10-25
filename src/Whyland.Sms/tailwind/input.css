@@ -1,0 +1,81 @@
+/*
+  Source for the SMS panel stylesheet. The committed artifact is
+  wwwroot/panel/style.css, so the container needs no Node toolchain.
+  Rebuild with: npm run css:build   (from src/Whyland.Sms)
+  Design tokens are copied from src/Whyland.Web so the panel keeps the public template's
+  colors, radii and spacing instead of inventing a second look.
+*/
+@import "tailwindcss";
+
+/* Tailwind only emits utilities it sees in a source file; the views are the sources here. */
+@source "../Views";
+@source "../wwwroot/panel/parameters.js";
+
+@theme {
+  --color-primary: #ff5a1f;
+  --color-dark: #111111;
+  --color-body: #555555;
+  --color-border: #e8e8e8;
+  --color-light: #f7f7f7;
+
+  /* Semantic status colors (same scale as the public/admin templates) */
+  --color-success: #17c653;
+  --color-success-light: #eafff1;
+  --color-danger: #f8285a;
+  --color-danger-light: #ffeef3;
+  --color-warning: #f6b100;
+  --color-warning-light: #fff8dd;
+  --color-info: #7239ea;
+  --color-info-light: #f8f5ff;
+
+  --font-family: "Vazirmatn", sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background-color: #ffffff;
+    color: var(--color-dark);
+    font-family: var(--font-family);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  code,
+  pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+}
+
+@utility container-whyland {
+  width: 100%;
+  max-width: 71.25rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}

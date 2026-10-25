@@ -10,7 +10,8 @@ namespace Whyland.Application.Features.Auth.Commands.Login.RequestLoginCode;
 /// <summary>
 /// Handles <see cref="RequestLoginCodeCommand"/>: normalizes the phone, enforces a resend
 /// cooldown, issues a cryptographically-random code, stores only its hash, and hands the
-/// plaintext to <see cref="ISmsService"/> (s5.1.4).
+/// plaintext to <see cref="ISmsService"/> (s5.1.4). When the service does not confirm
+/// delivery, the stored code is invalidated and the request fails.
 /// </summary>
 /// <param name="unitOfWork">Provides OTP persistence.</param>
 /// <param name="codeGenerator">Generates the random numeric code.</param>
@@ -30,10 +31,11 @@ public sealed class RequestLoginCodeCommandHandler(
     {
         var opts = options.Value;
         var phone = Normalize(command.PhoneNumber);
-        var last = await unitOfWork.OtpRequestCommandRepository.GetLatestUsableAsync(phone, ct);
 
-        if (last is not null && last.ExpiresAt > DateTime.UtcNow &&
-            (DateTime.UtcNow - last.CreatedAt).TotalSeconds < opts.OtpResendCooldownSeconds)
+        // Throttle on the newest row, used or not, so an invalidated code cannot reset the cooldown.
+        var last = await unitOfWork.OtpRequestCommandRepository.GetLatestAsync(phone, ct);
+        if (last is not null
+            && (DateTime.UtcNow - last.CreatedAt).TotalSeconds < opts.OtpResendCooldownSeconds)
         {
             return AuthErrors.OtpCooldown;
         }
@@ -56,7 +58,25 @@ public sealed class RequestLoginCodeCommandHandler(
         if (saveResult.IsFailure)
             return AuthErrors.LoginFailed;
 
-        await sms.SendAsync(phone, $"کد ورود شما: {code}", ct);
+        var sent = await sms.SendTemplateAsync(
+            phone,
+            opts.OtpSmsTemplateCode,
+            new Dictionary<string, object?>
+            {
+                ["code"] = code,
+                ["expirationMinutes"] = opts.OtpExpiryMinutes,
+            },
+            ct);
+        if (!sent.Success)
+        {
+            // Fail closed: a code the user may never have received must not authenticate.
+            // An indeterminate delivery can still mean the SMS arrived, but the sender cannot
+            // prove it, so the row is burned and the user requests a fresh code (s11.3.11).
+            request.IsUsed = true;
+            await unitOfWork.SaveAsync(ct);
+
+            return AuthErrors.SmsSendFailed;
+        }
 
         return Result.Success();
     }
