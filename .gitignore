@@ -8,6 +8,8 @@ src/Whyland.Web/wwwroot/public/src/tailwind
 # npm manifests kept out of the repo; the built panel stylesheet is committed instead.
 src/Whyland.Sms/package.json
 src/Whyland.Sms/package-lock.json
+src/Whyland.Web/package.json
+src/Whyland.Web/package-lock.json
 .vscode/
 .env
 
