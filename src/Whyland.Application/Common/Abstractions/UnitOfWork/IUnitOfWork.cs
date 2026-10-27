@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using Whyland.Domain.IRepositories.Content.Faq;
+using Whyland.Domain.IRepositories.Identity.ExternalLogin;
 using Whyland.Domain.IRepositories.Identity.OtpRequest;
 using Whyland.Domain.IRepositories.Identity.User;
 
@@ -40,6 +41,11 @@ public interface IUnitOfWork : IAsyncDisposable
     /// Repository for read (query) operations on User entities.
     /// </summary>
     IUserQueryRepository UserQueryRepository { get; }
+
+    /// <summary>
+    /// Repository for write (command) operations on external provider links (s5.4).
+    /// </summary>
+    IExternalLoginCommandRepository ExternalLoginCommandRepository { get; }
 
     #endregion
 

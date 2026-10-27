@@ -14,7 +14,6 @@ public class User
     public Guid Id { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
-    public string UserName { get; set; }
     public string? PhoneNumber { get; set; }
     public string? Email { get; set; }
     public string? PasswordHash { get; set; }
@@ -749,23 +748,11 @@ public class OtpRequest
 }
 ```
 ---
-## 32. PasswordResetToken
+## 32. PasswordResetToken (removed)
 
-Password recovery token, inferred from the "Forgot Password" section.
+Password recovery no longer issues tokens: `/Password/Forgot` texts a six-digit OTP code
+(`OtpRequests.Purpose = PasswordReset`) and stores the new password in the same request.
 
-```csharp
-public class PasswordResetToken
-{
-    public Guid Id { get; set; }
-    public Guid UserId { get; set; }
-    public string TokenHash { get; set; }
-    public DateTime ExpiresAt { get; set; }
-    public bool IsUsed { get; set; }
-    public DateTime CreatedAt { get; set; }
-
-    public User User { get; set; }
-}
-```
 ---
 ## 33. Coupon
 

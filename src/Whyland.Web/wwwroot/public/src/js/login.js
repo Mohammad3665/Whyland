@@ -67,6 +67,10 @@
     const otpCodeForm = document.getElementById("otp-code-form");
     const profileForm = document.getElementById("profile-form");
 
+    const passwordForm = document.getElementById("password-login-form");
+    const passwordPhone = document.getElementById("login-phone");
+    const passwordSecret = document.getElementById("password-login-secret");
+
     // Flow state shared across steps (kept in memory — never in the URL).
     const state = { phone: "", ticket: "" };
 
@@ -113,22 +117,9 @@
       return body;
     }
 
-    /** Shows an inline error inside a form (uses a transient element). */
-    function showError(form, message) {
-      let box = form.querySelector(".login-error");
-      if (!box) {
-        box = document.createElement("div");
-        box.className =
-          "login-error rounded-xl bg-red-50 px-4 py-3 text-xs text-red-600";
-        form.prepend(box);
-      }
-      box.textContent = message;
-    }
-
-    /** Clears a previously shown inline error. */
-    function clearError(form) {
-      const box = form.querySelector(".login-error");
-      if (box) box.remove();
+    /** Shows an error through the toast component (loaded before this script). */
+    function notifyError(message) {
+      if (window.showToast) window.showToast("error", message);
     }
 
     function showStep(target) {
@@ -178,11 +169,10 @@
     if (mobileForm) {
       mobileForm.addEventListener("submit", async function (e) {
         e.preventDefault(); // stay on this page — no URL change
-        clearError(mobileForm);
 
         const phone = ((mobileInput && mobileInput.value) || "").trim();
         if (!phone) {
-          showError(mobileForm, "شماره موبایل را وارد کنید.");
+          notifyError("شماره موبایل را وارد کنید.");
           return;
         }
 
@@ -191,7 +181,7 @@
             phoneNumber: phone,
           });
           if (!result.success) {
-            showError(mobileForm, result.error || "خطا در ارسال کد.");
+            notifyError(result.error || "خطا در ارسال کد.");
             return;
           }
 
@@ -205,7 +195,7 @@
           startTimer();
           if (otpInputs && otpInputs.length) otpInputs[0].focus();
         } catch (err) {
-          showError(mobileForm, err.message);
+          notifyError(err.message);
         }
       });
     }
@@ -231,20 +221,19 @@
     if (resendBtn) {
       resendBtn.addEventListener("click", async function () {
         if (resendBtn.disabled) return;
-        clearError(otpCodeForm);
         try {
           const result = await postJson("/Account/SendCode", {
             phoneNumber: state.phone,
           });
           if (!result.success) {
-            showError(otpCodeForm, result.error || "خطا در ارسال کد.");
+            notifyError(result.error || "خطا در ارسال کد.");
             return;
           }
           otpInputs.forEach((i) => (i.value = ""));
           otpInputs[0].focus();
           startTimer();
         } catch (err) {
-          showError(otpCodeForm, err.message);
+          notifyError(err.message);
         }
       });
     }
@@ -265,13 +254,12 @@
     if (otpCodeForm) {
       otpCodeForm.addEventListener("submit", async function (e) {
         e.preventDefault(); // stay on this page — no URL change
-        clearError(otpCodeForm);
 
         const code = Array.from(otpInputs)
           .map((i) => i.value)
           .join("");
         if (code.length !== 6) {
-          showError(otpCodeForm, "کد ۶ رقمی را کامل وارد کنید.");
+          notifyError("کد ۶ رقمی را کامل وارد کنید.");
           return;
         }
 
@@ -282,7 +270,7 @@
           });
 
           if (!result.success) {
-            showError(otpCodeForm, result.error || "کد نامعتبر است.");
+            notifyError(result.error || "کد نامعتبر است.");
             return;
           }
 
@@ -304,7 +292,7 @@
             window.location.href = result.redirectUrl || "/";
           }
         } catch (err) {
-          showError(otpCodeForm, err.message);
+          notifyError(err.message);
         }
       });
     }
@@ -314,7 +302,6 @@
     if (profileForm) {
       profileForm.addEventListener("submit", async function (e) {
         e.preventDefault(); // stay on this page — no URL change
-        clearError(profileForm);
 
         const firstNameInput = document.getElementById("profile-first-name");
         const lastNameInput = document.getElementById("profile-last-name");
@@ -324,19 +311,24 @@
         ).trim();
         const lastName = ((lastNameInput && lastNameInput.value) || "").trim();
         if (!firstName) {
-          showError(profileForm, "نام را وارد کنید.");
+          notifyError("نام را وارد کنید.");
           return;
         }
         if (!lastName) {
-          showError(profileForm, "نام خانوادگی را وارد کنید.");
+          notifyError("نام خانوادگی را وارد کنید.");
           return;
         }
 
-        const pwFields = profileForm.querySelectorAll('input[name="password"]');
-        const password = pwFields[0] ? pwFields[0].value : "";
-        const confirm = pwFields[1] ? pwFields[1].value : "";
+        const passwordField = profileForm.querySelector(
+          'input[name="password"]',
+        );
+        const confirmPasswordField = profileForm.querySelector(
+          'input[name="confirm_password"]',
+        );
+        const password = (passwordField && passwordField.value) || "";
+        const confirm = (confirmPasswordField && confirmPasswordField.value) || "";
         if (password && password !== confirm) {
-          showError(profileForm, "رمز عبور و تایید آن یکسان نیستند.");
+          notifyError("رمز عبور و تایید آن یکسان نیستند.");
           return;
         }
 
@@ -357,14 +349,43 @@
               showStep(step1);
               return;
             }
-            showError(profileForm, result.error || "خطا در ثبت‌نام.");
+            notifyError(result.error || "خطا در ثبت‌نام.");
             return;
           }
 
           // Account created + signed in → final navigation to the index.
           window.location.href = result.redirectUrl || "/";
         } catch (err) {
-          showError(profileForm, err.message);
+          notifyError(err.message);
+        }
+      });
+    }
+    //#endregion
+
+    //#region Password tab — POST /Account/LoginWithPassword
+    if (passwordForm) {
+      passwordForm.addEventListener("submit", async function (e) {
+        e.preventDefault(); // stay on this page — no URL change
+
+        const phone = ((passwordPhone && passwordPhone.value) || "").trim();
+        const secret = (passwordSecret && passwordSecret.value) || "";
+        if (!phone || !secret) {
+          notifyError("شماره موبایل و رمز عبور را وارد کنید.");
+          return;
+        }
+
+        try {
+          const result = await postJson("/Account/LoginWithPassword", {
+            phoneNumber: phone,
+            password: secret,
+          });
+          if (!result.success) {
+            notifyError(result.error || "ورود ناموفق بود.");
+            return;
+          }
+          window.location.href = result.redirectUrl || "/";
+        } catch (err) {
+          notifyError(err.message);
         }
       });
     }

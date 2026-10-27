@@ -36,8 +36,6 @@ public sealed class CompleteRegistrationCommandHandler(
         {
             Id = Guid.NewGuid(),
             PhoneNumber = phone,
-            // UserName is unique; the verified phone is a safe, collision-free value.
-            UserName = phone,
             FirstName = command.FirstName.Trim(),
             LastName = command.LastName.Trim(),
             // A password is stored only when the user chose one; otherwise OTP-only (s5.1.1).
@@ -49,6 +47,7 @@ public sealed class CompleteRegistrationCommandHandler(
         };
 
         await unitOfWork.UserCommandRepository.AddAsync(user, ct);
+
         var saveResult = await unitOfWork.SaveAsync(ct);
         if (saveResult.IsFailure)
             return AuthErrors.LoginFailed;

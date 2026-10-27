@@ -44,10 +44,17 @@ services:
     ports:
       - 5000:8080
     environment:
+      # Development so the auth cookie is not marked Secure: this container is only published as
+      # plain http on :5000, and a Secure cookie would never come back (Google and password logins
+      # would both loop).
+      - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__Postgres=Host=postgres;Port=5432;Database=whyland;Username=postgres;Password=${WHYLAND_POSTGRES_PASSWORD:?Set WHYLAND_POSTGRES_PASSWORD (see .env.example)}
       - Sms__Provider=WhylandSms
       - SmsProvider__BaseUrl=http://whylandsms:8080
       - SmsProvider__ApiKey=${WHYLAND_SMS_API_KEY:?Set WHYLAND_SMS_API_KEY (see .env.example)}
+      # Empty keeps Google sign-in off (the login page renders no Google button).
+      - Auth__GoogleClientId=${WHYLAND_GOOGLE_CLIENT_ID:-}
+      - Auth__GoogleClientSecret=${WHYLAND_GOOGLE_CLIENT_SECRET:-}
     depends_on:
       postgres:
         condition: service_healthy

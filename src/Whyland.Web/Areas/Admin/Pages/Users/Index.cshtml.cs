@@ -9,7 +9,7 @@ namespace Whyland.Web.Areas.Admin.Pages.Users
     public class IndexModel : PageModel
     {
         // TODO: replace the demo rows with real queries when the data layer is wired up.
-        // Columns mirror the User entity: FirstName, LastName, UserName,
+        // Columns mirror the User entity: FirstName, LastName,
         // Email, PhoneNumber, IsActive, LastLoginAt, CreatedAt.
         /// <summary>Renders the demo users list; the data layer is not wired up yet.</summary>
         public void OnGet() { }

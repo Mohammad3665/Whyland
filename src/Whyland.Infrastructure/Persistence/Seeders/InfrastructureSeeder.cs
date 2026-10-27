@@ -1,4 +1,7 @@
+using Microsoft.Extensions.Logging;
 using Whyland.Application.Common.Authorization;
+using Whyland.Application.Common.Options;
+using Whyland.Application.Common.Validation;
 using Whyland.Infrastructure.Services;
 
 namespace Whyland.Infrastructure.Persistence.Seeders;
@@ -13,17 +16,21 @@ namespace Whyland.Infrastructure.Persistence.Seeders;
 public static class InfrastructureSeeder
 {
     private const string SuperAdminRoleName = "SuperAdmin";
-    private const string SuperAdminUserName = "admin@whyland.local";
 
     /// <summary>
     /// Seeds the database with default roles, permissions, and a super admin user.
     /// </summary>
     /// <param name="context">The database context.</param>
-    public static async Task SeedDatabaseAsync(this WhylandDbContext context)
+    /// <param name="admin">The account the seeder creates or keeps, read from configuration.</param>
+    /// <param name="logger">Reports the cases where the configured admin cannot be used.</param>
+    public static async Task SeedDatabaseAsync(
+        this WhylandDbContext context,
+        AdminAccountOptions admin,
+        ILogger logger)
     {
         await SeedRolesAsync(context);
         await SeedPermissionsAsync(context);
-        await SeedSuperAdminAsync(context);
+        await SeedSuperAdminAsync(context, admin, logger);
         await SeedRolePermissionsAsync(context);
     }
 
@@ -80,10 +87,15 @@ public static class InfrastructureSeeder
     }
 
     /// <summary>
-    /// Creates the super admin user with full system access if it does not exist.
-    /// The password is a development placeholder and must never be committed for production use.
+    /// Creates or keeps the super admin account. It is recognised by the role it holds rather than by
+    /// any hard-coded handle, because the account has no username any more and password sign-in
+    /// resolves it by phone number alone (s5.1.1). Moving the admin to a new number is therefore a
+    /// settings change, not a code change.
     /// </summary>
-    private static async Task SeedSuperAdminAsync(WhylandDbContext context)
+    private static async Task SeedSuperAdminAsync(
+        WhylandDbContext context,
+        AdminAccountOptions admin,
+        ILogger logger)
     {
         var superAdminRole = await context.Roles.FirstOrDefaultAsync(x =>
             x.Name == SuperAdminRoleName
@@ -92,55 +104,102 @@ public static class InfrastructureSeeder
         if (superAdminRole is null)
             return;
 
-        var user = await context.Users.FirstOrDefaultAsync(x => x.UserName == SuperAdminUserName);
+        // Normalized exactly like the login flow normalizes what the admin types, or the two values
+        // would never match.
+        var phoneNumber = string.IsNullOrWhiteSpace(admin.PhoneNumber)
+            ? null
+            : PhoneNormalizer.Normalize(admin.PhoneNumber);
 
-        if (user is not null)
+        var adminUserId = await context.UserRoles
+            .Where(x => x.RoleId == superAdminRole.Id)
+            .Select(x => x.UserId)
+            .FirstOrDefaultAsync();
+
+        var user = adminUserId == Guid.Empty
+            ? null
+            : await context.Users.FirstOrDefaultAsync(x => x.Id == adminUserId);
+
+        if (user is null)
         {
-            // Ensure the existing super admin holds the super admin role,
-            // without re-inserting an assignment that would violate the composite key.
-            var hasAssignment = await context.UserRoles.AnyAsync(x =>
-                x.UserId == user.Id && x.RoleId == superAdminRole.Id
-            );
-
-            if (!hasAssignment)
+            if (phoneNumber is null)
             {
-                await context.UserRoles.AddAsync(
-                    new UserRole
-                    {
-                        UserId = user.Id,
-                        RoleId = superAdminRole.Id,
-                        CreatedAt = DateTime.UtcNow,
-                    }
-                );
-                await context.SaveChangesAsync();
+                logger.LogWarning(
+                    "Admin:PhoneNumber is not configured, so no super admin was created. Password " +
+                    "sign-in needs a phone number; see Documentation/Whyland-Auth-Setup.md.");
+                return;
             }
 
+            if (await context.Users.AnyAsync(x => x.PhoneNumber == phoneNumber))
+            {
+                logger.LogWarning(
+                    "Admin:PhoneNumber {PhoneNumber} already belongs to another account, so no super " +
+                    "admin was created.", phoneNumber);
+                return;
+            }
+
+            user = new User
+            {
+                Id = Guid.NewGuid(),
+                FirstName = admin.FirstName,
+                LastName = admin.LastName,
+                PhoneNumber = phoneNumber,
+                Email = string.IsNullOrWhiteSpace(admin.Email) ? null : admin.Email.Trim(),
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+            };
+
+            // A development default, hashed only while the account is being created: an existing
+            // password is never overwritten by a restart.
+            user.PasswordHash = new BCryptPasswordHasher().Hash(admin.Password);
+
+            await context.Users.AddAsync(user);
+            await context.UserRoles.AddAsync(
+                new UserRole
+                {
+                    UserId = user.Id,
+                    RoleId = superAdminRole.Id,
+                    CreatedAt = DateTime.UtcNow,
+                }
+            );
+            await context.SaveChangesAsync();
             return;
         }
 
-        user = new User
-        {
-            Id = Guid.NewGuid(),
-            FirstName = "Whyland",
-            LastName = "Admin",
-            UserName = SuperAdminUserName,
-            Email = SuperAdminUserName,
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-        };
-
-        user.PasswordHash = new BCryptPasswordHasher().Hash("Whyland@1234");
-
-        await context.Users.AddAsync(user);
-        await context.UserRoles.AddAsync(
-            new UserRole
-            {
-                UserId = user.Id,
-                RoleId = superAdminRole.Id,
-                CreatedAt = DateTime.UtcNow,
-            }
+        // Ensure the existing super admin holds the super admin role, without re-inserting an
+        // assignment that would violate the composite key.
+        var hasAssignment = await context.UserRoles.AnyAsync(x =>
+            x.UserId == user.Id && x.RoleId == superAdminRole.Id
         );
+
+        if (!hasAssignment)
+        {
+            await context.UserRoles.AddAsync(
+                new UserRole
+                {
+                    UserId = user.Id,
+                    RoleId = superAdminRole.Id,
+                    CreatedAt = DateTime.UtcNow,
+                }
+            );
+        }
+
+        if (phoneNumber is not null && user.PhoneNumber != phoneNumber)
+        {
+            if (await context.Users.AnyAsync(x => x.Id != user.Id && x.PhoneNumber == phoneNumber))
+            {
+                logger.LogWarning(
+                    "Admin:PhoneNumber {PhoneNumber} belongs to another account, so the super admin " +
+                    "keeps its current number.", phoneNumber);
+            }
+            else
+            {
+                user.PhoneNumber = phoneNumber;
+                user.UpdatedAt = DateTime.UtcNow;
+                logger.LogInformation("Super admin sign-in number set to {PhoneNumber}.", phoneNumber);
+            }
+        }
+
         await context.SaveChangesAsync();
     }
 

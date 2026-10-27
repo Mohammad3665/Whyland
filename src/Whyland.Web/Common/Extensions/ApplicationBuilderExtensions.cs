@@ -21,7 +21,16 @@ public static class ApplicationBuilderExtensions
             app.UseExceptionHandler("/Home/Error");
             app.UseHsts();
         }
-        app.UseSerilogRequestLogging();
+        // The path is logged without its query string: password reset links carry a live single-use
+        // token there, and the log pipeline must not accumulate credentials (s14.2).
+        app.UseSerilogRequestLogging(options =>
+        {
+            options.MessageTemplate =
+                "HTTP {RequestMethod} {SafePath} responded {StatusCode} in {Elapsed:0.0000} ms";
+
+            options.EnrichDiagnosticContext = (enricher, httpContext) =>
+                enricher.Set("SafePath", httpContext.Request.Path.ToString());
+        });
 
         app.UseStaticFiles();
         app.UseHttpsRedirection();

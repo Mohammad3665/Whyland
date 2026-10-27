@@ -27,12 +27,21 @@ public sealed class OtpRequestConfiguration : IEntityTypeConfiguration<OtpReques
         builder.Property(x => x.IsUsed)
             .HasDefaultValue(false);
 
+        // Codes are purpose-scoped: a login code must never be accepted as proof of a phone
+        // binding, or the reverse. Rows issued before this column keep the default (Login).
+        builder.Property(x => x.Purpose)
+            .HasConversion<int>()
+            .HasDefaultValue(OtpPurpose.Login);
+
         #endregion
 
         #region Indexes
 
         // Cleanup queries target expired requests by phone number (s5.1.4)
         builder.HasIndex(x => new { x.PhoneNumber, x.ExpiresAt });
+
+        // Every verification and cooldown read takes one number and one purpose.
+        builder.HasIndex(x => new { x.PhoneNumber, x.Purpose, x.CreatedAt });
 
         #endregion
     }

@@ -744,23 +744,10 @@ public class OtpRequest
 }
 ```
 ---
-## 32. PasswordResetToken
+## 32. PasswordResetToken (حذف شد)
 
-توکن بازیابی رمز عبور — از بخش «فراموشی رمز عبور» استنتاج شده است.
-
-```csharp
-public class PasswordResetToken
-{
-    public Guid Id { get; set; }
-    public Guid UserId { get; set; }
-    public string TokenHash { get; set; }
-    public DateTime ExpiresAt { get; set; }
-    public bool IsUsed { get; set; }
-    public DateTime CreatedAt { get; set; }
-
-    public User User { get; set; }
-}
-```
+بازیابی رمز عبور دیگر توکن نمی‌دهد: صفحهٔ «فراموشی رمز عبور» کد شش‌رقمی OTP با
+`OtpRequests.Purpose = PasswordReset` پیامک می‌کند و رمز جدید را در همان درخواست ذخیره می‌کند.
 
 ## 33. Coupon
 

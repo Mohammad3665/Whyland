@@ -30,7 +30,6 @@
     --color-emerald-600: oklch(59.6% 0.145 163.225);
     --color-blue-400: oklch(70.7% 0.165 254.624);
     --color-blue-500: oklch(62.3% 0.214 259.815);
-    --color-blue-600: oklch(54.6% 0.245 262.881);
     --color-gray-50: oklch(98.5% 0.002 247.839);
     --color-gray-100: oklch(96.7% 0.003 264.542);
     --color-gray-200: oklch(92.8% 0.006 264.531);
@@ -351,6 +350,9 @@
   }
   .left-0 {
     left: 0px;
+  }
+  .left-2 {
+    left: calc(var(--spacing) * 2);
   }
   .left-3 {
     left: calc(var(--spacing) * 3);
@@ -1064,6 +1066,11 @@
     margin-block-start: calc(calc(var(--spacing) * 2.5) * var(--tw-space-y-reverse));
     margin-block-end: calc(calc(var(--spacing) * 2.5) * calc(1 - var(--tw-space-y-reverse)));
   }
+  :where(.space-y-3 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-block-start: calc(calc(var(--spacing) * 3) * var(--tw-space-y-reverse));
+    margin-block-end: calc(calc(var(--spacing) * 3) * calc(1 - var(--tw-space-y-reverse)));
+  }
   :where(.space-y-3\.5 > :not(:last-child)) {
     --tw-space-y-reverse: 0;
     margin-block-start: calc(calc(var(--spacing) * 3.5) * var(--tw-space-y-reverse));
@@ -1315,9 +1322,6 @@
   }
   .bg-primary {
     background-color: var(--color-primary);
-  }
-  .bg-red-50 {
-    background-color: var(--color-red-50);
   }
   .bg-red-500 {
     background-color: var(--color-red-500);
@@ -1609,6 +1613,9 @@
   .pl-10 {
     padding-left: calc(var(--spacing) * 10);
   }
+  .pl-28 {
+    padding-left: calc(var(--spacing) * 28);
+  }
   .text-center {
     text-align: center;
   }
@@ -1741,9 +1748,6 @@
   .text-body {
     color: var(--color-body);
   }
-  .text-border {
-    color: var(--color-border);
-  }
   .text-danger {
     color: var(--color-danger);
   }
@@ -1868,6 +1872,9 @@
   }
   .opacity-50 {
     opacity: 50%;
+  }
+  .opacity-60 {
+    opacity: 60%;
   }
   .opacity-75 {
     opacity: 75%;
@@ -2095,6 +2102,14 @@
     }
     .hover\:bg-primary:hover {
       background-color: var(--color-primary);
+    }
+    .hover\:bg-primary\/10:hover {
+      background-color: color-mix(in srgb, #ff5a1f 10%, transparent);
+    }
+    @supports (color: color-mix(in lab, red, red)) {
+      .hover\:bg-primary\/10:hover {
+        background-color: color-mix(in oklab, var(--color-primary) 10%, transparent);
+      }
     }
     .hover\:bg-primary\/90:hover {
       background-color: color-mix(in srgb, #ff5a1f 90%, transparent);

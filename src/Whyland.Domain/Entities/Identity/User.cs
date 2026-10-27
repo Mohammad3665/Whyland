@@ -20,12 +20,9 @@ public class User : BaseEntity<Guid>
     public string LastName { get; set; } = string.Empty;
 
     /// <summary>
-    /// Unique username of the account.
-    /// </summary>
-    public string UserName { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Unique when present. Mandatory before creating a payable order (s5.5).
+    /// Unique when present. It is the identifier password sign-in resolves by, the number an OTP is
+    /// sent to, and the channel a forgotten password is recovered through (s5.1.1, s5.4). It is also
+    /// mandatory before creating a payable order (s5.5).
     /// </summary>
     public string? PhoneNumber { get; set; }
 
@@ -48,6 +45,17 @@ public class User : BaseEntity<Guid>
     /// UTC time of the user's most recent successful login; null before the first login.
     /// </summary>
     public DateTime? LastLoginAt { get; set; }
+
+    /// <summary>
+    /// Consecutive failed password logins, cleared by a successful one (s15.1.4).
+    /// </summary>
+    public int FailedLoginAttempts { get; set; }
+
+    /// <summary>
+    /// UTC time until which password login is blocked after too many failures; null when not locked.
+    /// OTP and external login are not affected — they have their own throttling.
+    /// </summary>
+    public DateTime? LockoutUntilUtc { get; set; }
 
     /// <summary>
     /// The extended, non-authentication profile data (s5.1.2).

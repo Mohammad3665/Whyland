@@ -23,4 +23,19 @@ public sealed class AuthOptions
 
     /// <summary>Template code used by the SMS provider to render the OTP message.</summary>
     public string OtpSmsTemplateCode { get; set; } = "SMS-OTP-001";
+
+    /// <summary>Minimum length accepted for any locally chosen password (s5.1.1).</summary>
+    public int PasswordMinLength { get; set; } = 8;
+
+    /// <summary>Failed password logins tolerated before the account is temporarily locked (s15.1.4).</summary>
+    public int PasswordMaxFailedAttempts { get; set; } = 5;
+
+    /// <summary>How long an account stays locked after the failed-attempt threshold is reached.</summary>
+    public int PasswordLockoutMinutes { get; set; } = 15;
+
+    /// <summary>Google OAuth client id; when empty the external login is not registered at all (s5.4).</summary>
+    public string? GoogleClientId { get; set; }
+
+    /// <summary>Google OAuth client secret. Must come from user-secrets or environment, never from a committed file.</summary>
+    public string? GoogleClientSecret { get; set; }
 }

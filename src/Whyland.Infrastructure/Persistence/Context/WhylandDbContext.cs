@@ -24,8 +24,6 @@ public class WhylandDbContext(DbContextOptions<WhylandDbContext> options)
     public DbSet<InstructorProfile> InstructorProfiles => Set<InstructorProfile>();
     /// <summary>One-time password codes issued for verification flows.</summary>
     public DbSet<OtpRequest> OtpRequests => Set<OtpRequest>();
-    /// <summary>Single-use tokens issued for password reset flows.</summary>
-    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     /// <summary>External (social) login identities linked to a user.</summary>
     public DbSet<ExternalLogin> ExternalLogins => Set<ExternalLogin>();
     /// <summary>System roles assignable to users and permissions.</summary>

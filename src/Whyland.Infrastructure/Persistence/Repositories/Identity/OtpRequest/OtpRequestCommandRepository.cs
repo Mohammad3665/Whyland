@@ -11,18 +11,26 @@ public sealed class OtpRequestCommandRepository(WhylandDbContext context) : IOtp
     public async Task AddAsync(Domain.Entities.Identity.OtpRequest request, CancellationToken ct = default)
         => await context.OtpRequests.AddAsync(request, ct);
 
-    public Task<Domain.Entities.Identity.OtpRequest?> GetLatestUsableAsync(string phoneNumber, CancellationToken ct = default)
+    public Task<Domain.Entities.Identity.OtpRequest?> GetLatestUsableAsync(
+        string phoneNumber,
+        Domain.Entities.Identity.OtpPurpose purpose,
+        CancellationToken ct = default)
         => context.OtpRequests
             .Where(x => x.PhoneNumber == phoneNumber
+                        && x.Purpose == purpose
                         && !x.IsUsed
                         && x.ExpiresAt > DateTime.UtcNow
                         && x.AttemptCount < x.MaxAttempts)
             .OrderByDescending(x => x.CreatedAt)
             .FirstOrDefaultAsync(x => x.Id != default, ct);
 
-    public Task<Domain.Entities.Identity.OtpRequest?> GetLatestAsync(string phoneNumber, CancellationToken ct = default)
+    public Task<Domain.Entities.Identity.OtpRequest?> GetLatestAsync(
+        string phoneNumber,
+        Domain.Entities.Identity.OtpPurpose purpose,
+        CancellationToken ct = default)
         => context.OtpRequests
-            .Where(x => x.PhoneNumber == phoneNumber)
+            .Where(x => x.PhoneNumber == phoneNumber
+                        && x.Purpose == purpose)
             .OrderByDescending(x => x.CreatedAt)
             .FirstOrDefaultAsync(x => x.Id != default, ct);
 }

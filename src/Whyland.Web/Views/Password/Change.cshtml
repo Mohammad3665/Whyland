@@ -1,0 +1,135 @@
+@model Whyland.Web.ViewModels.ChangePasswordViewModel
+@{
+  ViewData["Title"] = "تغییر رمز عبور";
+  string? message = TempData["PasswordMessage"] as string;
+  string? error = ViewData["Error"] as string;
+}
+    <!-- #region BREADCRUMB -->
+    <div class="border-b border-border bg-[#f8f9fa]">
+      <div class="container-whyland px-4 py-4">
+        <nav aria-label="مسیر صفحه">
+          <ol class="flex flex-wrap items-center gap-2 text-xs text-body sm:text-sm">
+            <li>
+              <a href="/" class="transition-colors hover:text-primary">صفحه اصلی</a>
+            </li>
+            <li aria-hidden="true" class="text-gray-300">/</li>
+            <li class="font-medium text-dark" aria-current="page">تغییر رمز عبور</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+    <!-- endregion -->
+
+    <!-- #region CHANGE PASSWORD -->
+    <section class="py-12 sm:py-16">
+      <div class="container-whyland flex justify-center px-4">
+        <div class="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
+          <h1 class="mb-2 text-xl font-bold text-dark sm:text-2xl">تغییر رمز عبور</h1>
+          <p class="mb-6 text-xs leading-relaxed text-body sm:text-sm">
+            رمز عبور جدید باید حداقل ۸ نویسه باشد و شامل حرف و عدد باشد.
+            <span class="block text-gray-400">شماره موبایل تأییدشدهٔ حساب شما در این صفحه تغییر نمی‌کند.</span>
+          </p>
+
+          @* Messages are shown by the toast component (page-toast.js spends these). *@
+          @if (message is not null)
+          {
+            <div hidden data-toast="success">@message</div>
+          }
+          @if (error is not null)
+          {
+            <div hidden data-toast="error">@error</div>
+          }
+
+          <form method="post" asp-controller="Password" asp-action="Change" class="space-y-4">
+            <div class="password-wrapper relative">
+              <input type="password" name="CurrentPassword" id="change-current-password" placeholder=" " required
+                autocomplete="current-password"
+                class="peer h-10 w-full rounded-xl border border-gray-200 bg-white pl-10 pr-4 text-xs text-dark outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary sm:text-sm" />
+              <label for="change-current-password"
+                class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 bg-white px-1 text-sm text-gray-400
+                transition-all duration-200
+                peer-focus:right-3 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-primary peer-focus:text-sm
+                peer-not-placeholder-shown:right-3 peer-not-placeholder-shown:top-0 peer-not-placeholder-shown:-translate-y-1/2 peer-not-placeholder-shown:text-sm">
+                رمز عبور فعلی *
+              </label>
+              <button type="button"
+                class="toggle-password absolute left-3 top-1/2 flex cursor-pointer -translate-y-1/2 items-center justify-center text-gray-400 transition-colors hover:text-dark"
+                aria-label="نمایش/مخفی‌سازی رمز عبور">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                  stroke="currentColor" class="eye-animated size-4 sm:size-5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path class="eye-slash" stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="password-wrapper relative">
+              <input type="password" name="NewPassword" id="change-new-password" placeholder=" " required
+                autocomplete="new-password"
+                class="peer h-10 w-full rounded-xl border border-gray-200 bg-white pl-10 pr-4 text-xs text-dark outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary sm:text-sm" />
+              <label for="change-new-password"
+                class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 bg-white px-1 text-sm text-gray-400
+                transition-all duration-200
+                peer-focus:right-3 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-primary peer-focus:text-sm
+                peer-not-placeholder-shown:right-3 peer-not-placeholder-shown:top-0 peer-not-placeholder-shown:-translate-y-1/2 peer-not-placeholder-shown:text-sm">
+                رمز عبور جدید *
+              </label>
+              <button type="button"
+                class="toggle-password absolute left-3 top-1/2 flex cursor-pointer -translate-y-1/2 items-center justify-center text-gray-400 transition-colors hover:text-dark"
+                aria-label="نمایش/مخفی‌سازی رمز عبور">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                  stroke="currentColor" class="eye-animated size-4 sm:size-5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path class="eye-slash" stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="password-wrapper relative">
+              <input type="password" name="ConfirmPassword" id="change-confirm-password" placeholder=" " required
+                autocomplete="new-password"
+                class="peer h-10 w-full rounded-xl border border-gray-200 bg-white pl-10 pr-4 text-xs text-dark outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary sm:text-sm" />
+              <label for="change-confirm-password"
+                class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 bg-white px-1 text-sm text-gray-400
+                transition-all duration-200
+                peer-focus:right-3 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-primary peer-focus:text-sm
+                peer-not-placeholder-shown:right-3 peer-not-placeholder-shown:top-0 peer-not-placeholder-shown:-translate-y-1/2 peer-not-placeholder-shown:text-sm">
+                تایید رمز عبور جدید *
+              </label>
+              <button type="button"
+                class="toggle-password absolute left-3 top-1/2 flex cursor-pointer -translate-y-1/2 items-center justify-center text-gray-400 transition-colors hover:text-dark"
+                aria-label="نمایش/مخفی‌سازی رمز عبور">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                  stroke="currentColor" class="eye-animated size-4 sm:size-5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path class="eye-slash" stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18" />
+                </svg>
+              </button>
+            </div>
+
+            <button type="submit"
+              class="w-full cursor-pointer rounded-full bg-primary py-2.5 text-center text-xs font-semibold text-white transition-all active:scale-[0.98] hover:bg-primary/90 sm:text-sm">
+              ذخیره تغییرات
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+    <!-- endregion -->
+
+@section Styles {
+  <!-- Toast keyframes: without them the progress bar never finishes and the toast stays on screen. -->
+  <link rel="stylesheet" href="~/public/src/css/admin-toast.css" asp-append-version="true" />
+}
+
+@section Scripts {
+  <script src="~/public/src/js/admin/admin-toast.js" asp-append-version="true"></script>
+  <script src="~/public/src/js/page-toast.js" asp-append-version="true"></script>
+  <script src="~/public/src/js/password-toggle.js" asp-append-version="true"></script>
+}

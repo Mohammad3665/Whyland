@@ -38,5 +38,10 @@ public class OtpRequest : BaseEntity<Guid>
     /// </summary>
     public bool IsUsed { get; set; }
 
+    /// <summary>
+    /// What the code proves. Login codes and phone-binding codes are never interchangeable.
+    /// </summary>
+    public OtpPurpose Purpose { get; set; } = OtpPurpose.Login;
+
     #endregion
 }

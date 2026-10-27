@@ -11,15 +11,22 @@ public interface IOtpRequestCommandRepository
     Task AddAsync(Entities.Identity.OtpRequest request, CancellationToken ct = default);
 
     /// <summary>
-    /// Returns the most recent *usable* OTP for a phone number: not used,
+    /// Returns the most recent *usable* OTP of one purpose for a phone number: not used,
     /// not expired, and with attempts remaining. Tracked, so the caller can
     /// mutate AttemptCount / IsUsed and persist via SaveAsync. Null if none.
     /// </summary>
-    Task<Entities.Identity.OtpRequest?> GetLatestUsableAsync(string phoneNumber, CancellationToken ct = default);
+    Task<Entities.Identity.OtpRequest?> GetLatestUsableAsync(
+        string phoneNumber,
+        Entities.Identity.OtpPurpose purpose,
+        CancellationToken ct = default);
 
     /// <summary>
-    /// Returns the newest OTP row for a phone number, used or expired. Used for the resend
-    /// cooldown, which must survive a code that was invalidated because it never delivered.
+    /// Returns the newest OTP row of one purpose for a phone number, used or expired. Used for the
+    /// resend cooldown, which must survive a code that was invalidated because it never delivered.
+    /// A binding code must not throttle a login code for the same number, hence the per-purpose read.
     /// </summary>
-    Task<Entities.Identity.OtpRequest?> GetLatestAsync(string phoneNumber, CancellationToken ct = default);
+    Task<Entities.Identity.OtpRequest?> GetLatestAsync(
+        string phoneNumber,
+        Entities.Identity.OtpPurpose purpose,
+        CancellationToken ct = default);
 }

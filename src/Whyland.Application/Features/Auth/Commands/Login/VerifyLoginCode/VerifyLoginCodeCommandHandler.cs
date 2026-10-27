@@ -1,6 +1,7 @@
 using Whyland.Application.Common.Interfaces.Services;
 using Whyland.Application.Features.Auth.Errors;
 using Whyland.Application.Features.Auth.Login.VerifyLoginCode;
+using Whyland.Domain.Entities.Identity;
 using Whyland.Shared.Dtos.Identity;
 
 namespace Whyland.Application.Features.Auth.Commands.Login.VerifyLoginCode;
@@ -31,7 +32,8 @@ public sealed class VerifyLoginCodeCommandHandler(
     public async Task<Result<VerifyLoginResultDto>> Handle(VerifyLoginCodeCommand command, CancellationToken ct)
     {
         var phone = command.PhoneNumber.Trim();
-        var otp = await unitOfWork.OtpRequestCommandRepository.GetLatestUsableAsync(phone, ct);
+        var otp = await unitOfWork.OtpRequestCommandRepository.GetLatestUsableAsync(
+            phone, OtpPurpose.Login, ct);
 
         // One generic failure for missing / used / expired / exhausted (anti-enumeration).
         if (otp is null || otp.IsUsed || otp.ExpiresAt <= DateTime.UtcNow)

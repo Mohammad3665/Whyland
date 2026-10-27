@@ -10,4 +10,5 @@ namespace Whyland.Application.Features.Auth.Login.VerifyLoginCode;
 /// </summary>
 /// <param name="PhoneNumber">The phone number the code was issued for.</param>
 /// <param name="Code">The login code entered by the user.</param>
-public sealed record VerifyLoginCodeCommand(string PhoneNumber, string Code) : ICommand<VerifyLoginResultDto>;
+public sealed record VerifyLoginCodeCommand(string PhoneNumber, string Code)
+    : ICommand<VerifyLoginResultDto>;

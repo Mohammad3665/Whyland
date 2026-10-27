@@ -1,6 +1,3 @@
-using Whyland.Application.Common.Abstractions.CQRS.Command;
-using Whyland.Application.Common.Abstractions.CQRS.Query;
-
 namespace Whyland.Application.Common.Abstractions.CQRS.Dispatchers;
 
 /// <summary>

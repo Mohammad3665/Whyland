@@ -1,12 +1,20 @@
 @{
   ViewData["Title"] = "وایلند | سامانه یادگیری آنلاین";
+  string? passwordMessage = TempData["PasswordMessage"] as string;
 }
 
 <!-- TODO: static "featured courses / articles" data below comes from the template;
      wire each section to real catalog/blog queries when those features land. -->
 @section Styles {
   <link rel="stylesheet" href="~/public/src/css/swiper.min.css" asp-append-version="true" />
+  <!-- Toast keyframes: without them the progress bar never finishes and the toast stays on screen. -->
+  <link rel="stylesheet" href="~/public/src/css/admin-toast.css" asp-append-version="true" />
 }
+    @if (passwordMessage is not null)
+    {
+      <!-- Landing here after a password flow: the message is spent by page-toast.js. -->
+      <div hidden data-toast="success">@passwordMessage</div>
+    }
     <!-- #region HERO SECTION (DESKTOP) -->
     <section id="hero-desktop" class="relative hidden overflow-hidden py-16 sm:py-20 lg:block lg:min-h-175 lg:py-0">
       <!-- Background Image -->
@@ -1273,6 +1281,8 @@
     </section>
     <!-- endregion -->
 @section Scripts {
+  <script src="~/public/src/js/admin/admin-toast.js" asp-append-version="true"></script>
+  <script src="~/public/src/js/page-toast.js" asp-append-version="true"></script>
   <script src="~/public/src/js/swiper.min.js" asp-append-version="true"></script>
   <script src="~/public/src/js/sliders.js" asp-append-version="true"></script>
 }

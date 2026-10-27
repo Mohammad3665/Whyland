@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore.Storage;
+using Whyland.Domain.IRepositories.Identity.ExternalLogin;
 using Whyland.Domain.IRepositories.Identity.OtpRequest;
 using Whyland.Domain.IRepositories.Identity.User;
 using Whyland.Infrastructure.Persistence.Repositories.Content.Faq;
+using Whyland.Infrastructure.Persistence.Repositories.Identity.ExternalLogin;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.OtpRequest;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.User;
 
@@ -60,6 +62,14 @@ public class UnitOfWork(WhylandDbContext context, NpgsqlDataSource dataSource) :
     /// </summary>
     public IUserQueryRepository UserQueryRepository =>
         _userQueryRepository ??= new UserQueryRepository(dataSource);
+
+    private IExternalLoginCommandRepository? _externalLoginCommandRepository;
+
+    /// <summary>
+    /// Lazily-initialized repository for external provider links (s5.4).
+    /// </summary>
+    public IExternalLoginCommandRepository ExternalLoginCommandRepository =>
+        _externalLoginCommandRepository ??= new ExternalLoginCommandRepository(context);
     #endregion
 
 

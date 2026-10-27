@@ -1,10 +1,16 @@
+using Microsoft.Extensions.Options;
+using Whyland.Application.Common.Options;
+using Whyland.Application.Common.Validation;
+
 namespace Whyland.Application.Features.Auth.Registration.CompleteRegistration;
 
-/// <summary>Validates the registration-completion fields before any work happens.</summary>
+/// <summary>
+/// Validates the registration-completion fields before any work happens.
+/// </summary>
 public sealed class CompleteRegistrationCommandValidator : AbstractValidator<CompleteRegistrationCommand>
 {
-    /// <summary>Configures rules: ticket required, first/last name required, password optional but min-length when set.</summary>
-    public CompleteRegistrationCommandValidator()
+    /// <summary>Configures rules: ticket required, first/last name required, password optional but strong when set.</summary>
+    public CompleteRegistrationCommandValidator(IOptions<AuthOptions> options)
     {
         RuleFor(x => x.Ticket)
             .WhylandRequired()
@@ -20,11 +26,14 @@ public sealed class CompleteRegistrationCommandValidator : AbstractValidator<Com
             .WhylandMaxLen(100)
             .WithName("نام خانوادگی");
 
-        // Password is optional (OTP-only account); but when provided it must be strong.
+        // Password is optional (an OTP-only account is valid); when provided it must pass the same
+        // strength rules as change and reset, so the three flows cannot disagree about a password.
+        var minLength = options.Value.PasswordMinLength;
+
         RuleFor(x => x.Password)
-            .MinimumLength(8)
-                .When(x => !string.IsNullOrWhiteSpace(x.Password))
-                .WithMessage("رمز عبور باید حداقل ۸ کاراکتر باشد.")
+            .Must(password => string.IsNullOrWhiteSpace(password) || PasswordRules.Satisfies(password, minLength))
+            .WithErrorCode(ValidationErrors.InvalidFormat.Code)
+            .WithMessage($"رمز عبور باید حداقل {minLength} کاراکتر باشد و شامل حرف و رقم باشد.")
             .WithName("رمز عبور");
     }
 }

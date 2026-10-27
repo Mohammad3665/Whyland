@@ -20,10 +20,6 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.Property(x => x.UserName)
-            .IsRequired()
-            .HasMaxLength(100);
-
         builder.Property(x => x.PhoneNumber)
             .HasMaxLength(20);
 
@@ -39,9 +35,6 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         #endregion
 
         #region Indexes
-
-        builder.HasIndex(x => x.UserName)
-            .IsUnique();
 
         // Unique when present (s5.1.1) - partial unique indexes for nullable columns in PostgreSQL
         builder.HasIndex(x => x.PhoneNumber)

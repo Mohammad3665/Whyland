@@ -23,6 +23,21 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
             new CommandDefinition(sql, new { PhoneNumber = phoneNumber }, cancellationToken: ct));
     }
 
+    public async Task<Domain.Entities.Identity.User?> GetByIdAsync(Guid userId, CancellationToken ct = default)
+    {
+        const string sql = """
+            SELECT *
+            FROM identity."Users"
+            WHERE "Id" = @UserId
+              AND "IsDeleted" = FALSE
+            LIMIT 1
+            """;
+
+        using var connection = await dataSource.OpenConnectionAsync(ct);
+        return await connection.QueryFirstOrDefaultAsync<Domain.Entities.Identity.User>(
+            new CommandDefinition(sql, new { UserId = userId }, cancellationToken: ct));
+    }
+
     public async Task<IReadOnlyList<string>> GetPermissionKeysAsync(Guid userId, CancellationToken ct = default)
     {
         const string sql = """

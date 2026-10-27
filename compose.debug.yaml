@@ -16,6 +16,9 @@ services:
       # it must be overridden to listen on the port published above (matches launchSettings.json).
       - ASPNETCORE_URLS=http://+:5182
       - ConnectionStrings__Postgres=Host=postgres;Port=5432;Database=whyland;Username=postgres;Password=${WHYLAND_POSTGRES_PASSWORD:?Set WHYLAND_POSTGRES_PASSWORD (see .env.example)}
+      # Optional Google sign-in; with this file the redirect URI is http://localhost:5182/signin-google.
+      - Auth__GoogleClientId=${WHYLAND_GOOGLE_CLIENT_ID:-}
+      - Auth__GoogleClientSecret=${WHYLAND_GOOGLE_CLIENT_SECRET:-}
     volumes:
       - ~/.vsdbg:/remote_debugger:rw
     depends_on:

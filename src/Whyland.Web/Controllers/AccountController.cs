@@ -1,6 +1,9 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Whyland.Application.Common.Abstractions.CQRS.Dispatchers;
+using Whyland.Application.Features.Auth.ExternalLogin;
+using Whyland.Application.Features.Auth.Login.LoginWithPassword;
 using Whyland.Application.Features.Auth.Login.RequestLoginCode;
 using Whyland.Application.Features.Auth.Login.VerifyLoginCode;
 using Whyland.Application.Features.Auth.Registration.CompleteRegistration;
@@ -28,8 +31,10 @@ namespace Whyland.Web.Controllers;
 /// with a same-origin check on Origin/Referer; the auth cookie itself is SameSite=Lax.
 /// </summary>
 [AllowAnonymous]
-public class AccountController(IDispatcher dispatcher) : Controller
+public class AccountController(IDispatcher dispatcher, ILogger<AccountController> logger) : Controller
 {
+    /// <summary>The only external provider wired so far (s5.4).</summary>
+    private const string GoogleProvider = "Google";
     /// <summary>Renders the single login page (step 1 shown; steps 2 and 3 are toggled by JS).</summary>
     [HttpGet]
     public IActionResult Login() => View(new LoginViewModel());
@@ -97,7 +102,11 @@ public class AccountController(IDispatcher dispatcher) : Controller
             return Json(new { success = false, error = "نام و نام خانوادگی را وارد کنید." });
 
         var result = await dispatcher.Send(
-            new CompleteRegistrationCommand(model.Ticket, model.FirstName.Trim(), model.LastName.Trim(), model.Password),
+            new CompleteRegistrationCommand(
+                model.Ticket,
+                model.FirstName.Trim(),
+                model.LastName.Trim(),
+                model.Password),
             ct);
 
         if (result.IsFailure)
@@ -111,6 +120,98 @@ public class AccountController(IDispatcher dispatcher) : Controller
 
         await SignInAsync(result.Data!);
         return Json(new { success = true, redirectUrl = "/" });
+    }
+
+    /// <summary>Password tab — signs in with the locally stored password, by phone number only (s5.1.1).</summary>
+    [HttpPost]
+    public async Task<IActionResult> LoginWithPassword([FromBody] LoginViewModel model, CancellationToken ct)
+    {
+        if (!IsSameOriginRequest())
+            return StatusCode(StatusCodes.Status403Forbidden, new { success = false, error = "درخواست نامعتبر است." });
+
+        if (model is null || string.IsNullOrWhiteSpace(model.PhoneNumber) || string.IsNullOrWhiteSpace(model.Password))
+            return Json(new { success = false, error = "شماره موبایل و رمز عبور را وارد کنید." });
+
+        var result = await dispatcher.Send(
+            new LoginWithPasswordCommand(model.PhoneNumber, model.Password), ct);
+
+        if (result.IsFailure)
+            return Json(new { success = false, error = result.Error.Description ?? "ورود ناموفق بود." });
+
+        await SignInAsync(result.Data!);
+        return Json(new { success = true, redirectUrl = "/" });
+    }
+
+    /// <summary>
+    /// Starts the Google round trip. The provider never signs anyone in directly: it produces a
+    /// temporary external principal that <see cref="ExternalCallback"/> resolves to a local account
+    /// (s5.4).
+    /// </summary>
+    /// <param name="provider">Authentication scheme to challenge, currently always "Google".</param>
+    [HttpGet]
+    public IActionResult ExternalChallenge(string provider = GoogleProvider)
+    {
+        if (!string.Equals(provider, GoogleProvider, StringComparison.Ordinal))
+            return NotFound();
+
+        return Challenge(new AuthenticationProperties { RedirectUri = "/Account/ExternalCallback" }, provider);
+    }
+
+    /// <summary>
+    /// Receives the external principal after Google redirected back and signs in the account it
+    /// resolves to — an existing link, or a fresh phone-less one created on this first visit (s5.4).
+    /// </summary>
+    [HttpGet]
+    public async Task<IActionResult> ExternalCallback(CancellationToken ct)
+    {
+        var external = await HttpContext.AuthenticateAsync(ServiceCollectionExtensions.ExternalAuthenticationScheme);
+
+        if (!external.Succeeded || external.Principal is null)
+        {
+            // Google did redirect back to us, so the round trip worked and this is about the
+            // short-lived ticket: without a line here the whole flow looks like a silent no-op.
+            logger.LogWarning(
+                "External sign-in ticket could not be read: {Failure}",
+                external.Failure?.Message ?? "no ticket cookie was presented");
+
+            return RedirectToAction(nameof(Login));
+        }
+
+        // The temporary principal is dropped as soon as it has been read; it must not survive
+        // in a cookie that a later request could replay.
+        await HttpContext.SignOutAsync(ServiceCollectionExtensions.ExternalAuthenticationScheme);
+
+        var identity = new ExternalIdentityDto(
+            Provider: GoogleProvider,
+            ProviderKey: external.Principal.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty,
+            Email: external.Principal.FindFirstValue(ClaimTypes.Email),
+            FirstName: external.Principal.FindFirstValue(ClaimTypes.GivenName) ?? string.Empty,
+            LastName: external.Principal.FindFirstValue(ClaimTypes.Surname) ?? string.Empty);
+
+        if (string.IsNullOrEmpty(identity.ProviderKey))
+        {
+            // Only the claim types are logged — never the values.
+            logger.LogWarning(
+                "External principal carried no subject id; claims received: {Claims}",
+                string.Join(", ", external.Principal.Claims.Select(c => c.Type)));
+
+            return RedirectToAction(nameof(Login));
+        }
+
+        var result = await dispatcher.Send(new ExternalLoginCallbackCommand(identity), ct);
+
+        if (result.IsFailure)
+        {
+            logger.LogWarning(
+                "External sign-in rejected ({ErrorCode}): {ErrorDescription}",
+                result.Error.Code,
+                result.Error.Description);
+
+            return RedirectToAction(nameof(Login));
+        }
+
+        await SignInAsync(result.Data!);
+        return RedirectToAction("Index", "Home");
     }
 
     /// <summary>Signs the user out and returns to the public index (s5.3).</summary>

@@ -57,6 +57,7 @@ public static class DependencyInjection
 
         // Single-use registration tickets that bridge "verify code" → "complete registration".
         services.AddSingleton<IRegistrationTicketService, RegistrationTicketService>();
+
         services.AddSmsService(configuration);
 
         // System clock abstraction (used by the audit interceptor for UTC stamps).

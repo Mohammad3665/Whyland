@@ -11,5 +11,8 @@ namespace Whyland.Application.Features.Auth.Registration.CompleteRegistration;
 /// <param name="FirstName">The user's first name.</param>
 /// <param name="LastName">The user's last name.</param>
 /// <param name="Password">An optional password; when empty the account stays OTP-only.</param>
-public sealed record CompleteRegistrationCommand(string Ticket, string FirstName, string LastName, string? Password)
-    : ICommand<AuthenticatedUserDto>;
+public sealed record CompleteRegistrationCommand(
+    string Ticket,
+    string FirstName,
+    string LastName,
+    string? Password) : ICommand<AuthenticatedUserDto>;

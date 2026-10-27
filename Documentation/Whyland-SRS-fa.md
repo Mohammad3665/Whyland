@@ -963,8 +963,7 @@ UpdatedBy
 | Id           | شناسه یکتا                              |
 | FirstName    | الزامی                                  |
 | LastName     | الزامی                                  |
-| UserName     | یکتا                                    |
-| PhoneNumber  | یکتا در صورت وجود                       |
+| PhoneNumber  | یکتا در صورت وجود؛ شناسهٔ ورود          |
 | Email        | یکتا در صورت وجود                       |
 | PasswordHash | برای حساب‌های فقط با ورود خارجی اختیاری |
 | IsActive     | الزامی                                  |

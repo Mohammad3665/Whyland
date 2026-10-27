@@ -1332,6 +1332,11 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<int>("Purpose")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -1342,57 +1347,9 @@ namespace Whyland.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("PhoneNumber", "ExpiresAt");
 
+                    b.HasIndex("PhoneNumber", "Purpose", "CreatedAt");
+
                     b.ToTable("OtpRequests", "identity");
-                });
-
-            modelBuilder.Entity("Whyland.Domain.Entities.Identity.PasswordResetToken", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsUsed")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("TokenHash")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("PasswordResetTokens", "identity");
                 });
 
             modelBuilder.Entity("Whyland.Domain.Entities.Identity.User", b =>
@@ -1417,6 +1374,9 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
+                    b.Property<int>("FailedLoginAttempts")
+                        .HasColumnType("integer");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -1438,6 +1398,9 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<DateTime?>("LockoutUntilUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("PasswordHash")
                         .HasMaxLength(512)
                         .HasColumnType("character varying(512)");
@@ -1452,11 +1415,6 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
@@ -1468,9 +1426,6 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.HasIndex("PhoneNumber")
                         .IsUnique()
                         .HasFilter("\"PhoneNumber\" IS NOT NULL AND \"IsDeleted\" = FALSE");
-
-                    b.HasIndex("UserName")
-                        .IsUnique();
 
                     b.ToTable("Users", "identity");
                 });
@@ -1932,17 +1887,6 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.HasOne("Whyland.Domain.Entities.Identity.User", "User")
                         .WithOne("InstructorProfile")
                         .HasForeignKey("Whyland.Domain.Entities.Identity.InstructorProfile", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Whyland.Domain.Entities.Identity.PasswordResetToken", b =>
-                {
-                    b.HasOne("Whyland.Domain.Entities.Identity.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

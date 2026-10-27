@@ -932,8 +932,7 @@ The authentication-centric User entity must include the following:
 | Id           | Unique identifier                         |
 | FirstName    | Required                                  |
 | LastName     | Required                                  |
-| UserName     | Unique                                    |
-| PhoneNumber  | Unique when present                       |
+| PhoneNumber  | Unique when present; the sign-in identifier |
 | Email        | Unique when present                       |
 | PasswordHash | Optional for external-login-only accounts |
 | IsActive     | Required                                  |

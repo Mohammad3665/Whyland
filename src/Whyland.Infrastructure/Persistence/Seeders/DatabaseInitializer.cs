@@ -1,4 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Whyland.Application.Common.Options;
 using Whyland.Infrastructure.Common.Extensions;
 using Whyland.Infrastructure.Persistence.Seeders;
 
@@ -23,6 +26,13 @@ public static class DatabaseInitializer
 
         scope.ServiceProvider.ApplyMigrations();
 
-        await context.SeedDatabaseAsync();
+        // The super admin account is seeded from configuration so rotating its number or password
+        // never means editing code.
+        var admin = scope.ServiceProvider.GetRequiredService<IOptions<AdminAccountOptions>>().Value;
+        var logger = scope.ServiceProvider
+            .GetRequiredService<ILoggerFactory>()
+            .CreateLogger(nameof(InfrastructureSeeder));
+
+        await context.SeedDatabaseAsync(admin, logger);
     }
 }
