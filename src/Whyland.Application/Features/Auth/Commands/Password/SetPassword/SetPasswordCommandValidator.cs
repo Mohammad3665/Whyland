@@ -19,7 +19,9 @@ public sealed class SetPasswordCommandValidator : AbstractValidator<SetPasswordC
             .WithName("رمز عبور جدید");
 
         RuleFor(x => x.PhoneNumber)
-            .Matches(@"^\+?[0-9]{10,15}$")
+            // The shape check runs on Latin digits, so a number typed in Persian is accepted
+            // exactly like the same number typed in English.
+            .Must(PhoneNormalizer.HasValidShape)
                 .WithMessage("شماره تلفن معتبر وارد کنید.")
                 .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber))
             .WithName("شماره تلفن");

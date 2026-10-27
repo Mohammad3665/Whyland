@@ -1,4 +1,5 @@
 using Whyland.Application.Common.Interfaces.Services;
+using Whyland.Application.Common.Validation;
 using Whyland.Application.Features.Auth.Errors;
 using Whyland.Application.Features.Auth.Login.VerifyLoginCode;
 using Whyland.Domain.Entities.Identity;
@@ -31,7 +32,9 @@ public sealed class VerifyLoginCodeCommandHandler(
     /// <summary>Verifies the login code and returns either the signed-in user or a registration ticket.</summary>
     public async Task<Result<VerifyLoginResultDto>> Handle(VerifyLoginCodeCommand command, CancellationToken ct)
     {
-        var phone = command.PhoneNumber.Trim();
+        // Normalized, not merely trimmed: the code row was stored under the canonical spelling, so
+        // a Persian-digit retry would otherwise read as an unknown number.
+        var phone = PhoneNormalizer.Normalize(command.PhoneNumber);
         var otp = await unitOfWork.OtpRequestCommandRepository.GetLatestUsableAsync(
             phone, OtpPurpose.Login, ct);
 

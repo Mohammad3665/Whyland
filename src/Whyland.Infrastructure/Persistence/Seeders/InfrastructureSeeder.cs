@@ -15,7 +15,7 @@ namespace Whyland.Infrastructure.Persistence.Seeders;
 /// </summary>
 public static class InfrastructureSeeder
 {
-    private const string SuperAdminRoleName = "SuperAdmin";
+    private const string SuperAdminRoleName = RoleNames.SuperAdmin;
 
     /// <summary>
     /// Seeds the database with default roles, permissions, and a super admin user.
@@ -47,25 +47,25 @@ public static class InfrastructureSeeder
             new()
             {
                 Name = SuperAdminRoleName,
-                Title = "Super Administrator",
+                Title = "مدیر ارشد",
                 IsSystem = true,
             },
             new()
             {
                 Name = "Admin",
-                Title = "Administrator",
+                Title = "مدیر",
                 IsSystem = true,
             },
             new()
             {
                 Name = "Instructor",
-                Title = "Instructor",
+                Title = "مدرس",
                 IsSystem = true,
             },
             new()
             {
                 Name = "User",
-                Title = "Regular User",
+                Title = "کاربر عادی",
                 IsSystem = true,
             },
         };

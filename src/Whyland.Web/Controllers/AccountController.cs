@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Whyland.Application.Common.Abstractions.CQRS.Dispatchers;
+using Whyland.Application.Common.Validation;
 using Whyland.Application.Features.Auth.ExternalLogin;
 using Whyland.Application.Features.Auth.Login.LoginWithPassword;
 using Whyland.Application.Features.Auth.Login.RequestLoginCode;
@@ -255,13 +256,7 @@ public class AccountController(IDispatcher dispatcher, ILogger<AccountController
         Uri.TryCreate(url, UriKind.Absolute, out var uri) &&
         string.Equals(uri.Host, Request.Host.Host, StringComparison.OrdinalIgnoreCase);
 
-    /// <summary>Normalizes Persian/international formats to 09xxxxxxxxx (idempotent; matches
-    /// the normalization inside RequestLoginCodeCommandHandler).</summary>
-    private static string Normalize(string phone)
-    {
-        var digits = new string(phone.Where(char.IsDigit).ToArray());
-        if (digits.StartsWith("98")) return "0" + digits[2..];
-        if (digits.StartsWith("0098")) return "0" + digits[4..];
-        return digits;
-    }
+    /// <summary>Normalizes Persian/international formats to 09xxxxxxxxx (idempotent; the same
+    /// helper the command handlers use, so one number has exactly one spelling everywhere).</summary>
+    private static string Normalize(string phone) => PhoneNormalizer.Normalize(phone);
 }

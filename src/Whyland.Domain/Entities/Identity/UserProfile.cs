@@ -1,3 +1,5 @@
+using Whyland.Domain.Entities.Identity.Enums; // Gender lives next to the identity entities
+
 namespace Whyland.Domain.Entities.Identity;
 
 /// <summary>

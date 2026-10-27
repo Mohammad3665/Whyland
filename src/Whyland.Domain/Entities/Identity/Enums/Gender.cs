@@ -1,4 +1,4 @@
-namespace Whyland.Domain.Common.Enums;
+namespace Whyland.Domain.Entities.Identity.Enums;
 
 /// <summary>
 /// Optional gender information collected in the user profile (s5.1.2).

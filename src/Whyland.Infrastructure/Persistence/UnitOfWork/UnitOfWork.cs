@@ -57,8 +57,8 @@ public class UnitOfWork(WhylandDbContext context, NpgsqlDataSource dataSource) :
 
     /// <summary>
     /// Lazily-initialized repository for read (query) operations on User entities.
-    /// Unlike the command repositories, this one is backed by a Dapper data source
-    /// (<c>dataSource</c>) rather than the EF Core <c>context</c>.
+    /// Every read — the single-row auth ones and the admin catalog — runs on the Dapper
+    /// <c>dataSource</c>; query repositories never take the EF Core <c>context</c>.
     /// </summary>
     public IUserQueryRepository UserQueryRepository =>
         _userQueryRepository ??= new UserQueryRepository(dataSource);

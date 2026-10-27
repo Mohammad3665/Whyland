@@ -1,14 +1,19 @@
 namespace Whyland.Domain.IRepositories.Identity.User;
 
 /// <summary>
-/// Command-side repository for the User aggregate (auth-related writes only).
-/// The full User CRUD belongs to the admin catalog feature; this contract
-/// covers just what the login flow needs (s5.1.3).
+/// Command-side repository for the User aggregate: the writes the login flow needs (s5.1.3)
+/// plus the account mutations made from the admin users page.
 /// </summary>
 public interface IUserCommandRepository
 {
     /// <summary>Stages a new user (auto-registration on first verified OTP); persisted on SaveAsync.</summary>
     Task AddAsync(Entities.Identity.User user, CancellationToken ct = default);
+
+    /// <summary>
+    /// Replaces a user's role assignments with <paramref name="roleIds"/>; persisted on SaveAsync.
+    /// Roles are the only authorization mechanism, so the assignment is edited as a whole set (s6.4).
+    /// </summary>
+    Task ReplaceRolesAsync(Guid userId, IReadOnlyCollection<long> roleIds, CancellationToken ct = default);
     
     /// <summary>Stamps LastLoginAt on the tracked user; persisted on SaveAsync.</summary>
     void TouchLastLogin(Entities.Identity.User user);
@@ -28,4 +33,10 @@ public interface IUserCommandRepository
 
     /// <summary>Returns the tracked, non-deleted user with the given id, or null.</summary>
     Task<Entities.Identity.User?> GetTrackedByIdAsync(Guid id, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns true when the account holds the role named <paramref name="roleName"/>, so the
+    /// admin page can refuse to lock itself out of the panel.
+    /// </summary>
+    Task<bool> IsInRoleAsync(Guid userId, string roleName, CancellationToken ct = default);
 }

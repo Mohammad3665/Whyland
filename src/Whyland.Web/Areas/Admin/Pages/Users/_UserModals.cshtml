@@ -1,4 +1,11 @@
-﻿<!--begin::Create/Edit Modal (section 4.2)-->
+﻿@model Whyland.Web.Areas.Admin.Pages.Users.IndexModel
+@{
+    // The password row is create-only: credentials have their own flows (SetPassword /
+    // ChangePassword), so editing an account never rewrites its hash. The profile fields
+    // (تاریخ تولد، جنسیت) belong to the user's own profile page, not to this catalog.
+    var roles = Model.Roles;
+}
+<!--begin::Create/Edit Modal (section 4.2)-->
 <div class="modal fade" id="kt_modal_user" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content rounded">
@@ -88,46 +95,26 @@
                     </div>
                     <!--end::Input group-->
 
-                    <!--begin::Profile info (section 4.2: BirthDate + Gender only)-->
-                    <div class="separator separator-dashed my-8"></div>
-                    <h3 class="mb-6 text-gray-900 fw-bold fs-5">پروفایل کاربر</h3>
-
-                    <!--begin::Input group - BirthDate & Gender-->
-                    <div class="row g-9 mb-10">
-                        <div class="col-md-6 fv-row">
-                            <label class="fs-6 fw-semibold mb-2">تاریخ تولد</label>
-                            <input type="text" id="Form_BirthDate" name="Form_BirthDate"
-                                   class="form-control form-control-solid"
-                                   placeholder="مثال: ۱۳۷۰/۰۵/۱۵" />
-                        </div>
-                        <div class="col-md-6 fv-row">
-                            <label class="fs-6 fw-semibold mb-2">جنسیت</label>
-                            <select id="Form_Gender" name="Form_Gender" class="form-select form-select-solid" data-control="select2" data-hide-search="true">
-                                <option value="">انتخاب نشده</option>
-                                <option value="male">مرد</option>
-                                <option value="female">زن</option>
-                            </select>
-                        </div>
-                    </div>
-                    <!--end::Input group-->
-
                     <!--begin::Roles-->
                     <div class="separator separator-dashed my-8"></div>
-                    <h3 class="mb-2 text-gray-900 fw-bold fs-5">نقش‌ها</h3>
-                    <div class="text-muted fs-7 mb-6">
-                        نقش‌های مورد نظر کاربر را انتخاب کنید (چندگانه)
-                    </div>
 
-                    <div class="fv-row mb-10">
-                        <select id="Form_Roles" name="Form_Roles" class="form-select form-select-solid"
-                                data-control="select2" data-close-on-select="false" multiple
-                                data-placeholder="انتخاب نقش‌ها...">
-                            <option value="student">دانشجو</option>
-                            <option value="instructor">مدرس</option>
-                            <option value="support">پشتیبان</option>
-                            <option value="admin">مدیر</option>
-                        </select>
-                    </div>
+                    <div class="fv-row mb-8">
+    <label class="fs-6 fw-semibold mb-2">نقش‌ها</label>
+
+    <!-- کانتینر نسبت‌دار برای Select2 -->
+    <div id="roles-select-container" style="position: relative;">
+        <select id="Form_Roles" name="Form_Roles"
+        class="form-select form-select-solid"
+        data-placeholder="انتخاب نقش‌ها" multiple>
+    @foreach (var role in roles)
+    {
+        <option value="@role.Id">@role.Title</option>
+    }
+</select>
+    </div>
+
+    <div class="text-muted fs-7 mt-1">اگر نقشی انتخاب نشود، حساب یک کاربر عادی است</div>
+</div>
                     <!--end::Roles-->
 
                     <!--begin::Actions-->
@@ -196,3 +183,126 @@
 </div>
 
 <!--end::Toggle Status Confirmation Modal-->
+
+<!--begin::User Details Modal-->
+<div class="modal fade" id="kt_modal_user_details" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded">
+            <!--begin::Modal header-->
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+            <!--end::Modal header-->
+
+            <!--begin::Modal body-->
+            <div class="modal-body scroll-y px-10 px-lg-15 pt-0 pb-15">
+                <!--begin::Summary-->
+                <div class="d-flex flex-center flex-column mb-8">
+                    <div class="symbol symbol-75px symbol-circle mb-4" id="ud-symbol"></div>
+                    <h3 class="mb-1 text-gray-900 fw-bold fs-4" id="ud-name">-</h3>
+                    <div class="text-muted fs-7" id="ud-subtitle">-</div>
+                </div>
+                <!--end::Summary-->
+
+                <!--begin::Account-->
+                <h3 class="mb-4 text-gray-900 fw-bold fs-5">حساب کاربری</h3>
+                <div class="table-responsive mb-6">
+                    <table class="table table-row-dashed table-row-border fs-6 align-middle m-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted w-200px">وضعیت</td>
+                                <td id="ud-status">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">رمز عبور</td>
+                                <td id="ud-password">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">نقش‌ها</td>
+                                <td id="ud-roles">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">ورود با پروایدر</td>
+                                <td id="ud-providers">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">شناسه کاربر</td>
+                                <td id="ud-id" class="text-gray-900" dir="ltr">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--end::Account-->
+
+                <!--begin::Profile-->
+                <h3 class="mb-4 text-gray-900 fw-bold fs-5">اطلاعات پروفایل</h3>
+                <div class="table-responsive mb-6">
+                    <table class="table table-row-dashed table-row-border fs-6 align-middle m-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted w-200px">ایمیل</td>
+                                <td id="ud-email" dir="ltr">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">شماره موبایل</td>
+                                <td id="ud-phone" dir="ltr">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">تاریخ تولد</td>
+                                <td id="ud-birthdate">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">جنسیت</td>
+                                <td id="ud-gender">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--end::Profile-->
+
+                <!--begin::Security & dates-->
+                <h3 class="mb-4 text-gray-900 fw-bold fs-5">امنیت و تاریخ‌ها</h3>
+                <div class="table-responsive mb-8">
+                    <table class="table table-row-dashed table-row-border fs-6 align-middle m-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted w-200px">آخرین ورود</td>
+                                <td id="ud-last-login">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">تلاش‌های ناموفق ورود</td>
+                                <td id="ud-failed">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">قفل حساب تا</td>
+                                <td id="ud-lockout">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">تاریخ ایجاد</td>
+                                <td id="ud-created">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">آخرین ویرایش</td>
+                                <td id="ud-updated">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--end::Security & dates-->
+
+                <!--begin::Actions-->
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">بستن</button>
+                    <button type="button" class="btn btn-primary" id="ud-edit" onclick="openUserEditFromDetails()">
+                        ویرایش کاربر
+                    </button>
+                </div>
+                <!--end::Actions-->
+            </div>
+            <!--end::Modal body-->
+        </div>
+    </div>
+</div>
+<!--end::User Details Modal-->

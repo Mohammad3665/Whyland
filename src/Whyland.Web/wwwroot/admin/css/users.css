@@ -1,0 +1,10 @@
+#kt_modal_user .select2-dropdown {   /* به‌جای 42.5%، چون عرض فیلد Roles متفاوت است */
+  left: 0 !important;
+  right: auto !important;
+  z-index: 1056;
+}
+
+#kt_modal_user .select2-search--dropdown .select2-search__field {
+  direction: rtl;
+  text-align: right;
+}

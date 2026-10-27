@@ -17,12 +17,14 @@ public static class DataTableExtensions
     /// <typeparam name="TEntity">The entity type.</typeparam>
     /// <param name="source">The queryable data source.</param>
     /// <param name="filter">The DataTable filter containing paging and sorting parameters.</param>
+    /// <param name="extraFilters">Additional field/operator/value conditions, ANDed with the search.</param>
     /// <returns>A DataTableResult with paginated and sorted data.</returns>
     public static async Task<DataTableResult<TEntity>> ToDataTableAsync<TEntity>(
         this IQueryable<TEntity> source,
-        DataTableFilter filter)
+        DataTableFilter filter,
+        IEnumerable<FilterCondition>? extraFilters = null)
     {
-        return await source.ToDataTableAsync<TEntity, TEntity>(filter);
+        return await source.ToDataTableAsync<TEntity, TEntity>(filter, extraFilters);
     }
 
     /// <summary>
@@ -33,13 +35,21 @@ public static class DataTableExtensions
     /// <typeparam name="TResult">The result DTO type.</typeparam>
     /// <param name="source">The queryable data source.</param>
     /// <param name="filter">The DataTable filter containing paging and sorting parameters.</param>
+    /// <param name="extraFilters">Additional field/operator/value conditions, ANDed with the search.</param>
     /// <returns>A DataTableResult with paginated, sorted, and projected data.</returns>
     public static async Task<DataTableResult<TResult>> ToDataTableAsync<TEntity, TResult>(
         this IQueryable<TEntity> source,
-        DataTableFilter filter)
+        DataTableFilter filter,
+        IEnumerable<FilterCondition>? extraFilters = null)
     {
         var recordsTotal = await source.CountAsync();
+
+        // The generic search box and the field/operator/value pickers both become
+        // FilterConditions, so a list page never needs its own per-field filter code.
         var queryRequest = filter.ToQueryRequest<TEntity>();
+        if (extraFilters is not null)
+            (queryRequest.Filters ??= []).AddRange(extraFilters);
+
         var filteredQuery = source.ApplyFilters(queryRequest.Filters);
         var recordsFiltered = await filteredQuery.CountAsync();
         ConfigPaging(ref filter, recordsFiltered);
@@ -70,6 +80,13 @@ public static class DataTableExtensions
     /// <param name="recordsTotal">Total number of records.</param>
     private static void ConfigPaging(ref DataTableFilter filter, int recordsTotal)
     {
+        // DataTables sends paging as strings; normalize them here so every caller gets a
+        // usable PageSize/Skip pair instead of having to parse them per page.
+        if (filter.PageSize == 0 && int.TryParse(filter.Length, out var length))
+            filter.PageSize = length;
+        if (filter.Skip == 0 && int.TryParse(filter.Start, out var start))
+            filter.Skip = start;
+
         if (filter.PageSize == -1)
         {
             filter.PageSize = recordsTotal;
