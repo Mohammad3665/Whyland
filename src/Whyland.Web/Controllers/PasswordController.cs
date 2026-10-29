@@ -5,6 +5,7 @@ using Whyland.Application.Features.Auth.Password.ForgotPassword;
 using Whyland.Application.Features.Auth.Password.RequestPhoneBindingCode;
 using Whyland.Application.Features.Auth.Password.SetPassword;
 using Whyland.Application.Features.Auth.Queries.PasswordState;
+using Whyland.Shared.Text;
 using Whyland.Web.ViewModels;
 
 namespace Whyland.Web.Controllers;
@@ -77,8 +78,7 @@ public class PasswordController(IDispatcher dispatcher, ICurrentUserService curr
             return ForgotWithError("رمز عبور و تایید آن یکسان نیستند.", model.PhoneNumber, model.Code);
 
         var result = await dispatcher.Send(
-            new ForgotPasswordConfirmCommand(model.PhoneNumber, model.Code ?? string.Empty, model.NewPassword ?? string.Empty),
-            ct);
+            new ForgotPasswordConfirmCommand(model.PhoneNumber, Digits.ToLatin(model.Code), model.NewPassword ?? string.Empty), ct);
 
         if (result.IsFailure)
             return ForgotWithError(result.Error.Description, model.PhoneNumber, model.Code);
@@ -121,7 +121,7 @@ public class PasswordController(IDispatcher dispatcher, ICurrentUserService curr
             return await SetPasswordWithErrorAsync("رمز عبور و تایید آن یکسان نیستند.", userId.Value, model, ct);
 
         var result = await dispatcher.Send(
-            new SetPasswordCommand(userId.Value, model.PhoneNumber, model.Code, model.NewPassword), ct);
+            new SetPasswordCommand(userId.Value, model.PhoneNumber, Digits.ToLatin(model.Code), model.NewPassword), ct);
 
         if (result.IsFailure)
             return await SetPasswordWithErrorAsync(result.Error.Description, userId.Value, model, ct);

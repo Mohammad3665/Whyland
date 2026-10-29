@@ -9,6 +9,7 @@ using Whyland.Application.Features.Auth.Login.RequestLoginCode;
 using Whyland.Application.Features.Auth.Login.VerifyLoginCode;
 using Whyland.Application.Features.Auth.Registration.CompleteRegistration;
 using Whyland.Shared.Dtos.Identity;
+using Whyland.Shared.Text;
 using Whyland.Web.Common.Identity;
 using Whyland.Web.ViewModels;
 
@@ -71,7 +72,9 @@ public class AccountController(IDispatcher dispatcher, ILogger<AccountController
             return Json(new { success = false, error = "کد تأیید را وارد کنید." });
 
         var result = await dispatcher.Send(
-            new VerifyLoginCodeCommand(model.PhoneNumber.Trim(), model.Code.Trim()), ct);
+            // The code is compared against a hash, so its digits are converted here: a code typed
+            // or pasted with a Persian keyboard verifies exactly like its Latin spelling.
+            new VerifyLoginCodeCommand(model.PhoneNumber.Trim(), Digits.ToLatin(model.Code)), ct);
 
         if (result.IsFailure)
             return Json(new { success = false, error = result.Error.Description ?? "کد نامعتبر است." });

@@ -2,8 +2,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Whyland.Application.Common.Interfaces.Services;
 using Whyland.Application.Common.Options;
-using Whyland.Application.Common.Validation;
-using Whyland.Application.Features.Auth.Errors;
 using Whyland.Application.Features.Auth.Otp;
 using Whyland.Domain.Entities.Identity;
 

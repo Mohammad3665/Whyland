@@ -9,6 +9,6 @@ namespace Whyland.Application.Features.Auth.Login.VerifyLoginCode;
 /// can complete registration in a follow-up step (s5.3).
 /// </summary>
 /// <param name="PhoneNumber">The phone number the code was issued for.</param>
-/// <param name="Code">The login code entered by the user.</param>
+/// <param name="Code">The login code entered by the user, already reduced to Latin digits by the web layer.</param>
 public sealed record VerifyLoginCodeCommand(string PhoneNumber, string Code)
     : ICommand<VerifyLoginResultDto>;

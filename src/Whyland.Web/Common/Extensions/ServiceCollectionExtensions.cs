@@ -9,6 +9,7 @@ using Whyland.Application.Common.Authorization;
 using Whyland.Application.Common.Options;
 using Whyland.Infrastructure;
 using Whyland.Web.Common.Identity.Constants;
+using Whyland.Web.Common.ModelBinding;
 
 namespace Whyland.Web.Common.Extensions;
 
@@ -59,6 +60,13 @@ public static class ServiceCollectionExtensions
         services.AddApplication();
         services.AddPresentation();
         services.AddControllersWithViews();
+
+        // Numbers may be typed with Persian or Arabic-Indic digits anywhere in the UI, so the
+        // numeric binders used by Razor Pages and MVC convert them before parsing. Options are
+        // shared by both, which is why this is registered once here instead of per Add* call.
+        services.Configure<MvcOptions>(options =>
+            options.ModelBinderProviders.Insert(0, new EasternDigitsModelBinderProvider()));
+
         services.AddHttpContextAccessor();
 
         services.Configure<AuthOptions>(configuration.GetSection(AuthOptions.SectionName));

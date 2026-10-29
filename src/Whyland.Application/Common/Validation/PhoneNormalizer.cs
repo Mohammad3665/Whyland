@@ -1,3 +1,5 @@
+using Whyland.Shared.Text;
+
 namespace Whyland.Application.Common.Validation;
 
 /// <summary>
@@ -6,44 +8,16 @@ namespace Whyland.Application.Common.Validation;
 /// </summary>
 public static class PhoneNormalizer
 {
-    /// <summary>Persian (۰-۹) and Arabic-Indic (٠-٩) digits, in ascending order from zero.</summary>
-    private const string PersianDigits = "۰۱۲۳۴۵۶۷۸۹";
-
-    private const string ArabicIndicDigits = "٠١٢٣٤٥٦٧٨٩";
-
     /// <summary>
-    /// Replaces Persian and Arabic-Indic digits with their Latin equivalents and drops the
-    /// separator characters people type between them. Unicode-aware digit tests are not enough:
-    /// <c>char.IsDigit('۰')</c> is true, so a Persian number would survive every later step and
-    /// be stored, compared and rate-limited as a different string from the same Latin number.
+    /// Returns the Latin digits of a typed number and drops everything else (spaces, dashes,
+    /// brackets). The digit conversion itself lives in <see cref="Digits.ToLatin"/>, which every
+    /// numeric input in the system goes through: a Unicode-aware digit test is not enough, because
+    /// <c>char.IsDigit('۰')</c> is true, so a Persian number would otherwise be stored, compared
+    /// and rate-limited as a different string from the same Latin number.
     /// </summary>
     /// <param name="value">Any text, typically a number typed by the user.</param>
     public static string ToLatinDigits(string? value)
-    {
-        if (string.IsNullOrEmpty(value))
-            return string.Empty;
-
-        var chars = new char[value.Length];
-        var length = 0;
-
-        foreach (var character in value)
-        {
-            var digit = PersianDigits.IndexOf(character);
-            if (digit < 0)
-                digit = ArabicIndicDigits.IndexOf(character);
-
-            if (digit >= 0)
-            {
-                chars[length++] = (char)('0' + digit);
-                continue;
-            }
-
-            if (char.IsAsciiDigit(character))
-                chars[length++] = character;
-        }
-
-        return new string(chars, 0, length);
-    }
+        => new(Digits.ToLatin(value).Where(char.IsAsciiDigit).ToArray());
 
     /// <summary>Normalizes 0912…, +98912…, 98912… and 0098912… to 09xxxxxxxxx.</summary>
     /// <param name="phone">The raw value typed by the user.</param>

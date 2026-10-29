@@ -11,7 +11,8 @@ namespace Whyland.Application.Features.Auth.Password.SetPassword;
 /// </summary>
 /// <param name="UserId">The signed-in user, taken from the cookie claims by the web layer.</param>
 /// <param name="PhoneNumber">The number to bind; required only when the account has none.</param>
-/// <param name="Code">The SMS code proving <paramref name="PhoneNumber"/> belongs to this user.</param>
+/// <param name="Code">The SMS code, already reduced to Latin digits by the web layer, proving
+/// <paramref name="PhoneNumber"/> belongs to this user.</param>
 /// <param name="NewPassword">The password to store; never logged or persisted in plaintext.</param>
 public sealed record SetPasswordCommand(
     Guid UserId,

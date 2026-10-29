@@ -85,6 +85,13 @@
       return String(num).replace(/\d/g, (d) => persian[d]);
     }
 
+    /** Rewrites Persian (۰-۹) and Arabic-Indic (٠-٩) digits as Latin ones. */
+    function toLatinDigits(value) {
+      return String(value === null || value === undefined ? "" : value)
+        .replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
+        .replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
+    }
+
     function formatTime(seconds) {
       const m = Math.floor(seconds / 60)
         .toString()
@@ -201,10 +208,30 @@
     }
     //#endregion
 
-    //#region Step 2 — OTP Inputs (auto-focus between boxes)
+    //#region Step 2 — OTP Inputs (auto-focus, Persian digits, paste)
+    /** Spreads digits across the boxes from `from` and focuses the next free one. */
+    function fillFrom(from, digits) {
+      for (let i = 0; i < digits.length && from + i < otpInputs.length; i++) {
+        otpInputs[from + i].value = digits[i];
+      }
+      otpInputs[Math.min(from + digits.length, otpInputs.length - 1)].focus();
+    }
+
     otpInputs.forEach((input, idx) => {
       input.addEventListener("input", (e) => {
-        e.target.value = e.target.value.replace(/[^0-9]/g, "");
+        // Persian digits become Latin first, otherwise the strip below would delete them and a
+        // code typed in Persian could never be verified.
+        const digits = toLatinDigits(e.target.value).replace(/[^0-9]/g, "");
+
+        if (digits.length > 1) {
+          // More than one digit landed in one box (a paste into a box without a paste event,
+          // or a drag-drop): spread it from here instead of losing the rest.
+          e.target.value = "";
+          fillFrom(idx, digits);
+          return;
+        }
+
+        e.target.value = digits;
         if (e.target.value && idx < otpInputs.length - 1) {
           otpInputs[idx + 1].focus();
         }
@@ -213,6 +240,14 @@
         if (e.key === "Backspace" && !e.target.value && idx > 0) {
           otpInputs[idx - 1].focus();
         }
+      });
+      // The six digits normally arrive from the clipboard: fill every box with one paste.
+      input.addEventListener("paste", (e) => {
+        e.preventDefault();
+        const digits = toLatinDigits(
+          (e.clipboardData || window.clipboardData).getData("text"),
+        ).replace(/[^0-9]/g, "");
+        if (digits) fillFrom(idx, digits);
       });
     });
     //#endregion
