@@ -1,5 +1,7 @@
-using Dapper;
+using Whyland.Infrastructure.Persistence.Extensions;
+using Whyland.Infrastructure.Persistence.Queries;
 using Whyland.Shared.Dtos.Content.Faq;
+using FaqEntity = Whyland.Domain.Entities.Content.Faq;
 
 namespace Whyland.Infrastructure.Persistence.Repositories.Content.Faq;
 
@@ -11,109 +13,41 @@ namespace Whyland.Infrastructure.Persistence.Repositories.Content.Faq;
 /// </param>
 public class FaqQueryRepository(NpgsqlDataSource dataSource) : IFaqQueryRepository
 {
+    const string content = SchemaConstants.Content;
+
     /// <summary>
-    /// A whitelist of sortable columns that maps client-provided sort keys to
-    /// their corresponding quoted SQL identifiers.
+    /// The admin list of FAQs. Paging, sorting and both record counts are produced by the shared
+    /// data-table engine, so a new column is one whitelist entry here and never a new query.
+    /// A free-text search is matched across the title and the answer, which is what the box
+    /// under the table promises.
     /// </summary>
-    public static readonly Dictionary<string, string> SortableColumns = 
-        new(StringComparer.OrdinalIgnoreCase)
-        {
-            ["id"]           = "\"Id\"",
-            ["title"]        = "\"Title\"",
-            ["displayorder"] = "\"DisplayOrder\"",
-            ["isactive"]     = "\"IsActive\"",
-            ["createdat"]    = "\"CreatedAt\"",
-            ["updatedat"]    = "\"UpdatedAt\"",
-        };
+    private static readonly SqlDataTableSpec TableSpec = new(
+        from: $"""
+            {content}."Faqs" f
+            """,
+        baseWhere: """f."IsDeleted" = FALSE""",
+        defaultOrder: """f."DisplayOrder" ASC, f."Id" ASC""",
+        columns: SqlDataTableSpec.ColumnsOf<FaqEntity>("f"),
+        searchColumns: ["Title", "Description"]);
 
-    public async Task<IReadOnlyList<FaqPublicItemDto>> GetActiveListAsync(CancellationToken ct = default)
-    {
-        const string sql = """
-            SELECT "Title", "Description"
-            FROM content."Faqs"
-            WHERE "IsDeleted" = FALSE
-              AND "IsActive"  = TRUE
-            ORDER BY "DisplayOrder" ASC, "Id" ASC;
-            """;
+    public Task<IReadOnlyList<FaqPublicItemDto>> GetActiveListAsync(CancellationToken ct = default)
+        => DapperFluentQueryBuilder<FaqEntity>.Create(
+                $"{content}.Faqs", x => x.Title, x => x.Description)
+            .Where(x => x.IsActive, true)
+            .Sortable(x => x.DisplayOrder)
+            .OrderBy(nameof(FaqEntity.DisplayOrder))
+            .TieBreakBy(x => x.Id)
+            .GetAllAsync<FaqPublicItemDto>(dataSource, ct);
 
-        await using var connection = await dataSource.OpenConnectionAsync(ct);
-        var rows = await connection.QueryAsync<FaqPublicItemDto>(
-            new CommandDefinition(sql, cancellationToken: ct));
+    public Task<FaqDto?> GetByIdAsync(long id, CancellationToken ct = default)
+        => DapperFluentQueryBuilder<FaqEntity>.Create(
+                $"{content}.Faqs", x => x.Id, x => x.Title, x => x.Description,
+                x => x.DisplayOrder, x => x.IsActive, x => x.CreatedAt, x => x.UpdatedAt)
+            .Where(x => x.Id, id)
+            .GetFirstOrDefaultAsync<FaqDto>(dataSource, ct);
 
-        return rows.AsList();
-    }
-
-    public async Task<FaqDto?> GetByIdAsync(long id, CancellationToken ct = default)
-    {
-        const string sql = """
-            SELECT "Id", "Title", "Description", "DisplayOrder", "IsActive", "CreatedAt", "UpdatedAt"
-            FROM content."Faqs"
-            WHERE "Id" = @Id
-              AND "IsDeleted" = FALSE;
-            """;
-
-        await using var connection = await dataSource.OpenConnectionAsync(ct);
-
-        return await connection.QueryFirstOrDefaultAsync<FaqDto>(
-            new CommandDefinition(sql, new { Id = id }, cancellationToken: ct));
-    }
-    
-    public async Task<DataTableResult<FaqListItemDto>> GetForDataTableAsync(DataTableFilter filter, CancellationToken ct = default)
-    {
-        const string baseWhere = "\"IsDeleted\" = FALSE";
-
-        var parameters = new DynamicParameters();
-        string searchWhere = baseWhere;
-
-        if (!string.IsNullOrEmpty(filter.SearchValue))
-        {
-            searchWhere +=
-                " AND (\"Title\" ILIKE @Search OR \"Description\" ILIKE @Search)";
-            parameters.Add("Search", $"%{filter.SearchValue.Trim()}%");
-        }
-
-        parameters.Add("PageSize",
-            int.TryParse(filter.Length, out var length) && length > 0
-                ? Math.Min(length, 10000)   // Hard cap guards one-shot "all rows" page loads.
-                : filter.PageSize > 0 ? filter.PageSize : 10);
-        parameters.Add("Skip",
-            int.TryParse(filter.Start, out var start) && start >= 0
-                ? start
-                : filter.Skip >= 0 ? filter.Skip : 0);
-
-        var sortColumn =
-            SortableColumns.TryGetValue(filter.SortColumn ?? "createdAt", out var column)
-                ? column : "\"CreatedAt\"";
-        var direction = string.Equals(
-            filter.SortColumnDirection, "desc", StringComparison.OrdinalIgnoreCase)
-                ? "DESC" : "ASC";
-
-        var sql = $"""
-            SELECT COUNT(*) FROM content."Faqs" WHERE {baseWhere};
-
-            SELECT COUNT(*) FROM content."Faqs" WHERE {searchWhere};
-
-            SELECT "Id", "Title", "Description", "DisplayOrder", "IsActive", "CreatedAt"
-            FROM content."Faqs"
-            WHERE {searchWhere}
-            ORDER BY {sortColumn} {direction}
-            LIMIT @PageSize OFFSET @Skip;
-            """;
-
-        await using var connection = await dataSource.OpenConnectionAsync(ct);
-        await using var multi = await connection.QueryMultipleAsync(
-            new CommandDefinition(sql, parameters, cancellationToken: ct));
-
-        var recordsTotal = await multi.ReadFirstAsync<int>();
-        var recordsFiltered = await multi.ReadFirstAsync<int>();
-        var rows = (await multi.ReadAsync<FaqListItemDto>()).ToList();
-
-        return new DataTableResult<FaqListItemDto>
-        {
-            Draw = filter.Draw,
-            RecordsTotal = recordsTotal,
-            RecordsFiltered = recordsFiltered,
-            Data = rows,
-        };
-    }
+    public Task<DataTableResult<FaqListItemDto>> GetForDataTableAsync(
+        DataTableFilter filter,
+        CancellationToken ct = default)
+        => TableSpec.GetDataTableAsync<FaqListItemDto>(dataSource, filter, null, ct);
 }

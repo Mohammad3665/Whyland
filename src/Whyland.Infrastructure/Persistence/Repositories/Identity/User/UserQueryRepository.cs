@@ -3,134 +3,111 @@ using Dapper;
 using Whyland.Domain.Entities.Identity.Enums;
 using Whyland.Domain.IRepositories.Identity.User;
 using Whyland.Infrastructure.Persistence.Extensions;
+using Whyland.Infrastructure.Persistence.Queries;
 using Whyland.Shared.Dtos.Authorization.Role;
 using Whyland.Shared.Dtos.Identity.User;
+using UserEntity = Whyland.Domain.Entities.Identity.User;
+using ExternalLoginEntity = Whyland.Domain.Entities.Identity.ExternalLogin;
 
 namespace Whyland.Infrastructure.Persistence.Repositories.Identity.User;
 
 /// <summary>
 /// Query repository for the User aggregate. Every read is Dapper over
-/// <paramref name="dataSource"/>: the single-row auth reads use plain SQL and the admin
-/// catalog uses the generic data-table builder, so no field has its own query here and the
-/// EF Core context never appears in this class.
+/// <paramref name="dataSource"/>: the statements are written as builder calls and the admin
+/// catalog runs on the generic data-table engine, so no field has its own query here and the
+/// EF Core context never appears in this class. <see cref="GetDetailsAsync"/> sends its three
+/// statements as one <see cref="DapperSqlBatch"/>, which keeps that read at one round-trip.
 /// </summary>
 /// <param name="dataSource">
 /// The <see cref="NpgsqlDataSource"/> used to open pooled connections to the PostgreSQL database.
 /// </param>
 public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQueryRepository
 {
+    const string identity = SchemaConstants.Identity;
+
     /// <summary>
     /// The users catalog: one account row joined to its profile, with every scalar account
     /// column whitelisted for filtering and sorting. <c>IsDeleted</c> is excluded by the base
     /// predicate, so the only visible rows are live accounts.
     /// </summary>
     private static readonly SqlDataTableSpec TableSpec = new(
-        from: """
-            identity."Users" u
-            LEFT JOIN identity."UserProfiles" p ON p."UserId" = u."Id"
+        from: $"""
+            {identity}."Users" u
+            LEFT JOIN {identity}."UserProfiles" p ON p."UserId" = u."Id"
             """,
         baseWhere: """u."IsDeleted" = FALSE""",
         defaultOrder: """u."CreatedAt" DESC""",
         columns: SqlDataTableSpec.WithExtras(
             // The hash stays out of the whitelist: a listed column is reachable by name from a
             // request, so it must never contain secret material.
-            SqlDataTableSpec.ColumnsOf<Domain.Entities.Identity.User>("u", ["PasswordHash"]),
+            SqlDataTableSpec.ColumnsOf<UserEntity>("u", ["PasswordHash"]),
             [("Avatar", "p.\"Avatar\"", typeof(string))]));
 
-    public async Task<Domain.Entities.Identity.User?> GetByPhoneAsync(string phoneNumber, CancellationToken ct = default)
-    {
-        const string sql = """
-            SELECT *
-            FROM identity."Users"
-            WHERE "PhoneNumber" = @PhoneNumber
-              AND "IsActive" = true
-            LIMIT 1
-            """;
+    public Task<UserEntity?> GetByPhoneAsync(string phoneNumber, CancellationToken ct = default)
+        => DapperFluentQueryBuilder<UserEntity>.Create($"{identity}.Users")
+            .Where(x => x.PhoneNumber, phoneNumber)
+            .Where(x => x.IsActive, true)
+            .Limit(1)
+            .GetFirstOrDefaultAsync<UserEntity>(dataSource, ct);
 
-        await using var connection = await dataSource.OpenConnectionAsync(ct);
-        return await connection.QueryFirstOrDefaultAsync<Domain.Entities.Identity.User>(
-            new CommandDefinition(sql, new { PhoneNumber = phoneNumber }, cancellationToken: ct));
-    }
+    public Task<UserEntity?> GetByIdAsync(Guid userId, CancellationToken ct = default)
+        => DapperFluentQueryBuilder<UserEntity>.Create($"{identity}.Users")
+            .Where(x => x.Id, userId)
+            .Limit(1)
+            .GetFirstOrDefaultAsync<UserEntity>(dataSource, ct);
 
-    public async Task<Domain.Entities.Identity.User?> GetByIdAsync(Guid userId, CancellationToken ct = default)
-    {
-        const string sql = """
-            SELECT *
-            FROM identity."Users"
-            WHERE "Id" = @UserId
-              AND "IsDeleted" = FALSE
-            LIMIT 1
-            """;
+    // The assignment table has no soft-delete column of its own, so the guard is written on the
+    // role and the permission instead - which is what the statement used to say.
+    public Task<IReadOnlyList<string>> GetPermissionKeysAsync(Guid userId, CancellationToken ct = default)
+        => DapperFluentQueryBuilder<UserRole>.Create($"{identity}.UserRoles", x => x.UserId)
+            .IgnoreQueryFilters()
+            .Where(x => x.UserId, userId)
+            .Join<RolePermission>($"{identity}.RolePermissions", ur => ur.RoleId, rp => rp.RoleId)
+            .Join<Role>($"{identity}.Roles", ur => ur.RoleId, r => r.Id)
+            .Join<RolePermission, Permission>($"{identity}.Permissions", rp => rp.PermissionId, p => p.Id)
+            .WhereFrom<Role>(r => r.IsDeleted, false)
+            .WhereFrom<Permission>(p => p.IsDeleted, false)
+            .Distinct()
+            .ClearSelect()
+            .SelectFrom<Permission>(p => p.Key)
+            .GetAllAsync<string>(dataSource, ct);
 
-        await using var connection = await dataSource.OpenConnectionAsync(ct);
-        return await connection.QueryFirstOrDefaultAsync<Domain.Entities.Identity.User>(
-            new CommandDefinition(sql, new { UserId = userId }, cancellationToken: ct));
-    }
+    // The dropdown only ever needs the three identifying columns, so they are listed instead of
+    // letting the builder emit every scalar column of the entity.
+    public Task<IReadOnlyList<RoleOptionDto>> GetAssignableRolesAsync(CancellationToken ct = default)
+        => DapperFluentQueryBuilder<Role>.Create(
+                $"{identity}.Roles", x => x.Id, x => x.Name, x => x.Title)
+            .Sortable(x => x.Title)
+            .OrderBy(nameof(Role.Title))
+            .GetAllAsync<RoleOptionDto>(dataSource, ct);
 
-    public async Task<IReadOnlyList<string>> GetPermissionKeysAsync(Guid userId, CancellationToken ct = default)
-    {
-        const string sql = """
-            SELECT DISTINCT p."Key"
-            FROM identity."UserRoles" ur
-            INNER JOIN identity."RolePermissions" rp ON rp."RoleId" = ur."RoleId"
-            INNER JOIN identity."Roles" r ON r."Id" = ur."RoleId"
-            INNER JOIN identity."Permissions" p ON p."Id" = rp."PermissionId"
-            WHERE ur."UserId" = @UserId
-              AND r."IsDeleted" = FALSE
-              AND p."IsDeleted" = FALSE
-            """;
-
-        await using var connection = await dataSource.OpenConnectionAsync(ct);
-        var keys = await connection.QueryAsync<string>(
-            new CommandDefinition(sql, new { UserId = userId }, cancellationToken: ct));
-
-        return keys.AsList();
-    }
-
-    public async Task<IReadOnlyList<RoleOptionDto>> GetAssignableRolesAsync(CancellationToken ct = default)
-    {
-        const string sql = """
-            SELECT "Id", "Name", "Title"
-            FROM identity."Roles"
-            WHERE "IsDeleted" = FALSE
-            ORDER BY "Title" ASC
-            """;
-
-        await using var connection = await dataSource.OpenConnectionAsync(ct);
-        var roles = await connection.QueryAsync<RoleOptionDto>(
-            new CommandDefinition(sql, cancellationToken: ct));
-
-        return roles.AsList();
-    }
-
-    public async Task<IReadOnlyList<UserOptionDto>> GetUserOptionsAsync(
+    // Only the accounts that really can do the action behind the picker: the key resolves through
+    // the same role graph that issues the "permissions" claims at login, and a revoked role or a
+    // retired key stays out because both tables are guarded here (Dapper applies no filter itself).
+    public Task<IReadOnlyList<UserOptionDto>> GetUserOptionsAsync(
         string permissionKey,
         CancellationToken ct = default)
     {
-        // Only the accounts that really can do the action behind the picker: the key resolves
-        // through the same role graph that issues the "permissions" claims at login. Roles and
-        // permissions are soft-deletable, so a revoked role or a retired key must not resurface
-        // here (Dapper applies no query filter of its own).
-        const string sql = """
-            SELECT DISTINCT u."Id", u."FirstName" || ' ' || u."LastName" AS "Name"
-            FROM identity."Users" u
-            INNER JOIN identity."UserRoles" ur ON ur."UserId" = u."Id"
-            INNER JOIN identity."Roles" r ON r."Id" = ur."RoleId"
-            INNER JOIN identity."RolePermissions" rp ON rp."RoleId" = ur."RoleId"
-            INNER JOIN identity."Permissions" p ON p."Id" = rp."PermissionId"
-            WHERE p."Key" = @PermissionKey
-              AND u."IsDeleted" = FALSE
-              AND u."IsActive" = TRUE
-              AND r."IsDeleted" = FALSE
-              AND p."IsDeleted" = FALSE
-            ORDER BY "Name" ASC
-            """;
+        Func<string, string> column = DapperFluentQueryBuilder<UserEntity>.RootColumn;
 
-        await using var connection = await dataSource.OpenConnectionAsync(ct);
-        var options = await connection.QueryAsync<UserOptionDto>(
-            new CommandDefinition(sql, new { PermissionKey = permissionKey }, cancellationToken: ct));
-
-        return options.AsList();
+        return DapperFluentQueryBuilder<UserEntity>.Create($"{identity}.Users", x => x.Id)
+            .Where(x => x.IsActive, true)
+            .Join<UserRole>($"{identity}.UserRoles", u => u.Id, ur => ur.UserId)
+            .Join<UserRole, Role>($"{identity}.Roles", ur => ur.RoleId, r => r.Id)
+            .Join<Role, RolePermission>($"{identity}.RolePermissions", r => r.Id, rp => rp.RoleId)
+            .Join<RolePermission, Permission>($"{identity}.Permissions", rp => rp.PermissionId, p => p.Id)
+            .WhereFrom<Permission>(p => p.Key, permissionKey)
+            .WhereFrom<Role>(r => r.IsDeleted, false)
+            .WhereFrom<Permission>(p => p.IsDeleted, false)
+            .Distinct()
+            .SelectExpression(
+                $"{column(nameof(UserEntity.FirstName))} || ' ' || {column(nameof(UserEntity.LastName))}",
+                "Name")
+            // PostgreSQL reads the output alias here, so the picker is ordered by the joined name
+            // and a request may sort or filter by it under that same key.
+            .SortableExpression("\"Name\"", "Name", typeof(string))
+            .OrderBy("Name")
+            .GetAllAsync<UserOptionDto>(dataSource, ct);
     }
 
     public Task<DataTableResult<UserListItemDto>> GetForDataTableAsync(
@@ -138,86 +115,103 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
         IReadOnlyList<FilterCondition>? conditions = null,
         CancellationToken ct = default)
     {
-        // Paging, sorting, the searched field and every chip are resolved by the generic
-        // builder against TableSpec, so a new column is a whitelist entry, never a new query.
-        return dataSource.ToDataTableAsync<UserListItemDto>(TableSpec, filter, conditions, ct);
+        // Paging, sorting, the searched field and every chip are resolved by the generic engine
+        // against TableSpec, so a new column is a whitelist entry, never a new query.
+        return TableSpec.GetDataTableAsync<UserListItemDto>(dataSource, filter, conditions, ct);
     }
 
-    public async Task<UserDetailsDto?> GetDetailsAsync(Guid userId, CancellationToken ct = default)
+    public Task<UserDetailsDto?> GetDetailsAsync(Guid userId, CancellationToken ct = default)
     {
-        // One round-trip, three readers: the account row (with its joined profile), the
-        // assigned roles and the linked external providers. A missing profile row is a left
-        // join on purpose, so the labels fall back to their defaults instead of hiding the user.
-        const string sql = """
-            SELECT u."Id", u."FirstName", u."LastName", u."Email", u."PhoneNumber", u."IsActive",
-                   (u."PasswordHash" IS NOT NULL) AS "HasPassword",
-                   u."LastLoginAt", u."FailedLoginAttempts", u."LockoutUntilUtc",
-                   u."CreatedAt", u."UpdatedAt",
-                   p."BirthDate", p."Gender", p."Avatar"
-            FROM identity."Users" u
-            LEFT JOIN identity."UserProfiles" p ON p."UserId" = u."Id"
-            WHERE u."Id" = @UserId
-              AND u."IsDeleted" = FALSE
-            LIMIT 1;
+        // One round-trip, three readers: the account row (with its joined profile), the assigned
+        // roles and the linked external providers. A missing profile row is a left join on purpose,
+        // so the labels fall back to their defaults instead of hiding the user.
+        //
+        // The row types are positional records, so the columns are listed in the order their
+        // constructor declares them: Dapper matches a result set onto that constructor and says so
+        // when the shapes disagree.
+        var account = DapperFluentQueryBuilder<UserEntity>.Create($"{identity}.Users", x => x.Id)
+            .LeftJoin<UserProfile>($"{identity}.UserProfiles", u => u.Id, p => p.UserId)
+            .Where(x => x.Id, userId)
+            .ClearSelect()
+            .Select(x => x.Id)
+            .Select(x => x.FirstName)
+            .Select(x => x.LastName)
+            .Select(x => x.Email)
+            .Select(x => x.PhoneNumber)
+            .Select(x => x.IsActive)
+            // The hash is never a column of this read; only whether one exists is shown.
+            .SelectExpression($"""({DapperFluentQueryBuilder<UserEntity>.RootColumn(nameof(UserEntity.PasswordHash))} IS NOT NULL)""", nameof(UserDetailsRow.HasPassword))
+            .Select(x => x.LastLoginAt)
+            .Select(x => x.FailedLoginAttempts)
+            .Select(x => x.LockoutUntilUtc)
+            .Select(x => x.CreatedAt)
+            .Select(x => x.UpdatedAt)
+            .SelectFrom<UserProfile>(p => p.BirthDate)
+            .SelectFrom<UserProfile>(p => p.Gender)
+            .SelectFrom<UserProfile>(p => p.Avatar)
+            .Limit(1);
 
-            SELECT r."Id", r."Title"
-            FROM identity."UserRoles" ur
-            INNER JOIN identity."Roles" r ON r."Id" = ur."RoleId"
-            WHERE ur."UserId" = @UserId
-              AND r."IsDeleted" = FALSE
-            ORDER BY r."Title" ASC;
+        var roles = DapperFluentQueryBuilder<UserRole>.Create($"{identity}.UserRoles", x => x.UserId)
+            .IgnoreQueryFilters()
+            .Where(x => x.UserId, userId)
+            .Join<Role>($"{identity}.Roles", ur => ur.RoleId, r => r.Id)
+            .WhereFrom<Role>(r => r.IsDeleted, false)
+            .ClearSelect()
+            .SelectFrom<Role>(r => r.Id)
+            .SelectFrom<Role>(r => r.Title)
+            .SortableFrom<Role>(r => r.Title)
+            .OrderBy(nameof(Role.Title));
 
-            SELECT DISTINCT "Provider"
-            FROM identity."ExternalLogins"
-            WHERE "UserId" = @UserId;
-            """;
+        var providers = DapperFluentQueryBuilder<ExternalLoginEntity>.Create($"{identity}.ExternalLogins", x => x.Provider)
+            .IgnoreQueryFilters()
+            .Where(x => x.UserId, userId)
+            .Distinct();
 
-        await using var connection = await dataSource.OpenConnectionAsync(ct);
-        await using var multi = await connection.QueryMultipleAsync(
-            new CommandDefinition(sql, new { UserId = userId }, cancellationToken: ct));
+        return DapperSqlBatch.RunAsync(
+            dataSource,
+            multi =>
+            {
+                var row = multi.ReadFirstOrDefault<UserDetailsRow>();
+                if (row is null)
+                    return null;
 
-        var account = await multi.ReadFirstOrDefaultAsync<UserDetailsRow>();
-        if (account is null)
-            return null;
+                var assigned = multi.Read<UserRoleRow>().AsList();
+                var links = multi.Read<string>().AsList();
 
-        var roles = (await multi.ReadAsync<UserRoleRow>()).AsList();
-        var providers = (await multi.ReadAsync<string>()).AsList();
-
-        return new UserDetailsDto(
-            account.Id,
-            account.FirstName,
-            account.LastName,
-            account.Email,
-            account.PhoneNumber,
-            account.IsActive,
-            account.HasPassword,
-            roles.Select(x => x.Title).ToList(),
-            roles.Select(x => x.Id).ToList(),
-            account.Avatar,
-            account.BirthDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-            account.Gender is null ? null : Enum.GetName(typeof(Gender), account.Gender.Value),
-            providers,
-            account.LastLoginAt,
-            account.FailedLoginAttempts,
-            account.LockoutUntilUtc,
-            account.CreatedAt,
-            account.UpdatedAt);
+                return new UserDetailsDto(
+                    row.Id,
+                    row.FirstName,
+                    row.LastName,
+                    row.Email,
+                    row.PhoneNumber,
+                    row.IsActive,
+                    row.HasPassword,
+                    assigned.Select(x => x.Title).ToList(),
+                    assigned.Select(x => x.Id).ToList(),
+                    row.Avatar,
+                    row.BirthDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    row.Gender is null ? null : Enum.GetName(typeof(Gender), row.Gender.Value),
+                    links,
+                    row.LastLoginAt,
+                    row.FailedLoginAttempts,
+                    row.LockoutUntilUtc,
+                    row.CreatedAt,
+                    row.UpdatedAt);
+            },
+            ct,
+            account,
+            roles,
+            providers);
     }
 
-    public async Task<string?> GetAvatarAsync(Guid userId, CancellationToken ct = default)
-    {
-        const string sql = """
-            SELECT p."Avatar"
-            FROM identity."UserProfiles" p
-            WHERE p."UserId" = @UserId
-              AND p."Avatar" IS NOT NULL
-            LIMIT 1
-            """;
-
-        await using var connection = await dataSource.OpenConnectionAsync(ct);
-        return await connection.QueryFirstOrDefaultAsync<string>(
-            new CommandDefinition(sql, new { UserId = userId }, cancellationToken: ct));
-    }
+    // One-to-one with the account, so one row is all this can read; the null check keeps an
+    // account without an uploaded avatar reading as no avatar.
+    public Task<string?> GetAvatarAsync(Guid userId, CancellationToken ct = default)
+        => DapperFluentQueryBuilder<UserProfile>.Create($"{identity}.UserProfiles", x => x.Avatar)
+            .Where(x => x.UserId, userId)
+            .Where(x => x.Avatar, SqlComparisonType.NotEqual, null)
+            .Limit(1)
+            .GetFirstOrDefaultAsync<string>(dataSource, ct);
 
     /// <summary>The account row of the details read; profile columns are null without a profile.</summary>
     private sealed record UserDetailsRow(

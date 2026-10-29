@@ -39,16 +39,27 @@ public sealed class SqlDataTableSpec
     /// <param name="baseWhere">The predicate that always applies, e.g. the not-deleted filter.</param>
     /// <param name="defaultOrder">The ORDER BY used when the client did not pick a column.</param>
     /// <param name="columns">The whitelist of usable columns, keyed by property name.</param>
+    /// <param name="searchColumns">
+    /// Columns a free-text search is matched against when the request names no field. With none,
+    /// the first text column of the whitelist is used.
+    /// </param>
     public SqlDataTableSpec(
         string from,
         string baseWhere,
         string defaultOrder,
-        IReadOnlyDictionary<string, SqlColumn> columns)
+        IReadOnlyDictionary<string, SqlColumn> columns,
+        IEnumerable<string>? searchColumns = null)
     {
         From = from;
         BaseWhere = baseWhere;
         DefaultOrder = defaultOrder;
         Columns = columns;
+
+        var group = new List<SqlColumn>();
+        foreach (var name in searchColumns ?? [])
+            if (columns.TryGetValue(name, out var column)) group.Add(column);
+
+        SearchColumns = group;
     }
 
     /// <summary>The table and its joins, without the FROM keyword.</summary>
@@ -62,6 +73,9 @@ public sealed class SqlDataTableSpec
 
     /// <summary>The usable columns, matched case-insensitively (clients send camelCase).</summary>
     public IReadOnlyDictionary<string, SqlColumn> Columns { get; }
+
+    /// <summary>The ORed group a fieldless free-text search reads.</summary>
+    public IReadOnlyList<SqlColumn> SearchColumns { get; }
 
     /// <summary>Resolves a client-supplied column name, or null when it is not whitelisted.</summary>
     /// <param name="name">The property name coming from the request.</param>

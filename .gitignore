@@ -4,6 +4,7 @@ Documentation/Whyland-Development-Guide-fa.md
 Documentation/Whyland-Development-Guide.md
 OtherCodes/
 public-template/
+QueryBuilder/
 src/Whyland.Web/wwwroot/public/src/tailwind
 # npm manifests kept out of the repo; the built panel stylesheet is committed instead.
 src/Whyland.Sms/package.json

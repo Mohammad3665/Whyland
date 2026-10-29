@@ -459,7 +459,7 @@ var AVATAR_COLORS = [
   "bg-light-danger text-danger",
   "bg-light-warning text-warning",
   "bg-light-info text-info",
-  "bg-light-secondary text-secondary",
+  "bg-light-secondary",
 ];
 
 function avatarColor(id) {
@@ -693,7 +693,7 @@ function initPage() {
         searching: false, // the generic picker above is the search and filter UI
         order: [],
         pageLength: 10,
-        lengthMenu: [10, 25, 50],
+        lengthMenu: [10, 25, 50, 100],
         ajax: {
           url: handlerUrl("Rows"),
           type: "GET",
