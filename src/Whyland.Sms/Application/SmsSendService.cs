@@ -26,11 +26,13 @@ public sealed record SendOutcome(int StatusCode, SendSmsResponse Response)
 /// <param name="renderer">Template placeholder renderer.</param>
 /// <param name="options">Simulator limits.</param>
 /// <param name="timeProvider">UTC clock.</param>
+/// <param name="audience">Watchers notified as soon as a message is stored.</param>
 public sealed class SmsSendService(
     ISmsStore store,
     SmsTemplateRenderer renderer,
     IOptions<SmsServiceOptions> options,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    ISmsMessageAudience audience)
 {
     private long _sequence;
 
@@ -112,14 +114,17 @@ public sealed class SmsSendService(
         var now = timeProvider.GetUtcNow().UtcDateTime;
         var messageId = NextMessageId(now);
 
-        store.AddMessage(new SmsMessageRecord(
+        var record = new SmsMessageRecord(
             MessageId: messageId,
             Recipient: recipient,
             Message: text,
             Status: SmsStatus.Sent,
             CreatedAt: now,
             TemplateCode: templateCode,
-            SentAt: now));
+            SentAt: now);
+
+        store.AddMessage(record);
+        audience.MessageStored(record);
 
         store.AddRequest(new SmsRequestRecord(
             RequestId: requestId,

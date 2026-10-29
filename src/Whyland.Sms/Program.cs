@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Whyland.Sms;
 using Whyland.Sms.Application;
 using Whyland.Sms.Endpoints;
+using Whyland.Sms.Hubs;
 using Whyland.Sms.Security;
 using Whyland.Sms.Storage;
 using Whyland.Sms.Templates;
@@ -21,6 +22,7 @@ builder.Services.AddSingleton<ISmsStore, InMemorySmsStore>();
 builder.Services.AddSingleton<SmsTemplateRenderer>();
 builder.Services.AddSingleton<SmsTemplateSeeder>();
 builder.Services.AddSingleton<SmsSendService>();
+builder.Services.AddSingleton<ISmsMessageAudience, HubSmsMessageAudience>();
 
 // Two separate identities: services present the API key, a person signing into the
 // dashboard gets a cookie. Neither policy accepts the other's credential.
@@ -50,6 +52,8 @@ builder.Services.AddAuthorizationBuilder()
             .AddAuthenticationSchemes(PanelAuthentication.Scheme)
             .RequireAuthenticatedUser());
 
+builder.Services.AddSignalR();
+
 // The dashboard (MVC + Razor) is hosted here; its views live in Views/.
 builder.Services.AddControllersWithViews();
 builder.Services.AddProblemDetails();
@@ -66,6 +70,7 @@ app.UseAuthorization();
 app.UseAntiforgery();
 
 app.MapSmsApi();
+app.MapHub<SmsPanelHub>("/hubs/sms");
 app.MapOpenApi();
 
 // '/' opens the dashboard rather than a missing Home controller.

@@ -10,6 +10,7 @@
 /* Tailwind only emits utilities it sees in a source file; the views are the sources here. */
 @source "../Views";
 @source "../wwwroot/panel/parameters.js";
+@source "../wwwroot/panel/live-messages.js";
 
 @theme {
   --color-primary: #ff5a1f;
