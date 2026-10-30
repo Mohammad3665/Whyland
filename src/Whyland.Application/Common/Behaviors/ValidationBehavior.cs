@@ -1,6 +1,4 @@
 using FluentValidation.Results;
-using Whyland.Application.Common.Validation;
-using Whyland.Domain.Common.Errors;
 
 namespace Whyland.Application.Common.Behaviors;
 
@@ -72,11 +70,14 @@ public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TReq
     /// Builds a failure result from the collected validation failures.
     /// A single failure is returned as-is; multiple failures are collapsed into
     /// one aggregate error whose <c>Arguments["Errors"]</c> contains the full list.
+    /// Neither carries wording: <see cref="ErrorLocalizationBehavior{TRequest,TResponse}"/> resolves the
+    /// message from the code the rule was given.
     /// </summary>
     /// <typeparam name="TRes">The concrete result type to create (<see cref="Result"/> or <see cref="Result{T}"/>).</typeparam>
     /// <param name="failures">The non-empty list of validation failures.</param>
     /// <returns>A failed <typeparamref name="TRes"/> instance.</returns>
     private static TRes CreateValidationErrorResult<TRes>(List<ValidationFailure> failures)
+        where TRes : BaseResult
     {
         Error error;
 
@@ -92,7 +93,6 @@ public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TReq
 
             error = new Error(
                 Code: ValidationErrors.Failed.Code,
-                Description: ValidationErrors.Failed.Description,
                 Type: ErrorType.Validation,
                 Arguments: new Dictionary<string, object?>
                 {
@@ -100,13 +100,15 @@ public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TReq
                 });
         }
 
-        return CreateFailureResult<TRes>(error);
+        return ResultFactory.Failure<TRes>(error);
     }
 
     /// <summary>
-    /// Maps a FluentValidation <see cref="ValidationFailure"/> to an <see cref="Error"/>,
-    /// preserving the error code, message, property (field) name, and any custom state.
+    /// Maps a FluentValidation <see cref="ValidationFailure"/> to an <see cref="Error"/>: the code the rule
+    /// was given, the property it failed on, and any custom state as templating arguments.
     /// <para>
+    /// <see cref="ValidationFailure.ErrorMessage"/> is left out on purpose — it is wording authored in the
+    /// validator, and the localization catalog owns the sentence instead.
     /// <see cref="ValidationFailure.CustomState"/> is typed as <see cref="object"/>;
     /// it is only accepted when it is a dictionary of string keys to nullable objects.
     /// </para>
@@ -125,50 +127,8 @@ public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TReq
 
         return new Error(
             Code: failure.ErrorCode,
-            Description: failure.ErrorMessage,
             Type: ErrorType.Validation,
             Field: failure.PropertyName,
             Arguments: args);
-    }
-
-    /// <summary>
-    /// Creates a failed instance of <typeparamref name="TRes"/>.
-    /// Supports <see cref="Result"/> and <see cref="Result{T}"/> only.
-    /// </summary>
-    /// <typeparam name="TRes">The concrete result type to create.</typeparam>
-    /// <param name="error">The error to wrap in a failed result.</param>
-    /// <returns>A failed <typeparamref name="TRes"/> instance.</returns>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown when <typeparamref name="TRes"/> is neither <see cref="Result"/> nor <see cref="Result{T}"/>,
-    /// or when the expected <c>Failure(Error)</c> factory method cannot be found.
-    /// </exception>
-    private static TRes CreateFailureResult<TRes>(Error error)
-    {
-        // Non-generic Result: call the concrete Failure(Error) factory directly.
-        if (typeof(TRes) == typeof(Result))
-            return (TRes)(object)Result.Failure(error);
-
-        var resultType = typeof(TRes);
-
-        // Generic Result<T>: build the closed generic type and invoke its Failure(Error) factory.
-        if (resultType.IsGenericType && resultType.GetGenericTypeDefinition() == typeof(Result<>))
-        {
-            var dataType = resultType.GetGenericArguments()[0];
-
-            var failureMethod = typeof(Result<>)
-                .MakeGenericType(dataType)
-                .GetMethod(nameof(Result<object>.Failure), [typeof(Error)]);
-
-            if (failureMethod is null)
-                throw new InvalidOperationException(
-                    $"Result<{dataType.Name}>.Failure(Error) not found.");
-
-            var result = failureMethod.Invoke(null, [error]);
-            return (TRes)result!;
-        }
-
-        throw new InvalidOperationException(
-            $"Unsupported result type: {typeof(TRes)}. " +
-            "ValidationBehavior supports Result and Result<T> only.");
     }
 }

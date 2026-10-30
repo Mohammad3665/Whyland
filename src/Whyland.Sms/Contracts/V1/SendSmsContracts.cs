@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace Whyland.Sms.Contracts.V1;
 
 /// <summary>

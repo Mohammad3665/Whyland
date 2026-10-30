@@ -1,5 +1,3 @@
-using Whyland.Domain.Common.Primitives;
-
 namespace Whyland.Domain.Entities.Catalog;
 
 /// <summary>
@@ -8,6 +6,31 @@ namespace Whyland.Domain.Entities.Catalog;
 /// </summary>
 public class Course : BaseEntity<long>, ISoftDeletable
 {
+    #region Limits
+
+    // Every column length is declared once on the entity that owns the column, so the
+    // EF mapping, the request validators and the domain rules all read the same number.
+    // Changing a size means editing one line here.
+
+    /// <summary>Maximum allowed length of <see cref="IntroductionVideo"/>; also the database column size.</summary>
+    public const int MaxIntroductionVideoLength = 512;
+
+    /// <summary>Maximum allowed length of <see cref="LatinName"/>; also the database column size.</summary>
+    public const int MaxLatinNameLength = 200;
+
+    /// <summary>Maximum allowed length of <see cref="MainImage"/>; also the database column size.</summary>
+    public const int MaxMainImageLength = 512;
+
+    /// <summary>Maximum allowed length of <see cref="Name"/>; also the database column size.</summary>
+    public const int MaxNameLength = 200;
+
+    /// <summary>Maximum allowed length of <see cref="ShortDescription"/>; also the database column size.</summary>
+    public const int MaxShortDescriptionLength = 500;
+
+    /// <summary>Maximum allowed length of <see cref="Slug"/>; also the database column size.</summary>
+    public const int MaxSlugLength = 300;
+
+    #endregion
     /// <summary>
     /// The course display name.
     /// </summary>

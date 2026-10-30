@@ -1,4 +1,3 @@
-
 namespace Whyland.Infrastructure.Persistence.Configurations.Identity;
 
 /// <summary>
@@ -13,7 +12,7 @@ public sealed class UserProfileConfiguration : IEntityTypeConfiguration<UserProf
         #region Properties
 
         builder.Property(x => x.Avatar)
-            .HasMaxLength(256);
+            .HasMaxLength(UserProfile.MaxAvatarLength);
 
         #endregion
 

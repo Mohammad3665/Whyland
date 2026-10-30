@@ -1,9 +1,4 @@
-using Whyland.Application.Common.Interfaces.Services;
-using Whyland.Application.Common.Validation;
-using Whyland.Application.Features.Auth.Errors;
 using Whyland.Application.Features.Auth.Login.VerifyLoginCode;
-using Whyland.Domain.Entities.Identity;
-using Whyland.Shared.Dtos.Identity;
 
 namespace Whyland.Application.Features.Auth.Commands.Login.VerifyLoginCode;
 
@@ -40,7 +35,7 @@ public sealed class VerifyLoginCodeCommandHandler(
 
         // One generic failure for missing / used / expired / exhausted (anti-enumeration).
         if (otp is null || otp.IsUsed || otp.ExpiresAt <= DateTime.UtcNow)
-            return AuthErrors.InvalidOtp;
+            return UserErrors.InvalidOtp();
 
         // Wrong code: burn one attempt, then persist.
         if (!passwordHasher.Verify(command.Code, otp.CodeHash))
@@ -50,7 +45,7 @@ public sealed class VerifyLoginCodeCommandHandler(
                 otp.IsUsed = true;
 
             await unitOfWork.SaveAsync(ct);
-            return AuthErrors.InvalidOtp;
+            return UserErrors.InvalidOtp();
         }
 
         // Correct code: burn it so it can never be replayed.
@@ -61,7 +56,7 @@ public sealed class VerifyLoginCodeCommandHandler(
 
         // Existing but deactivated account must never authenticate (s5.1.3).
         if (user is not null && !user.IsActive)
-            return AuthErrors.InvalidOtp;
+            return UserErrors.InvalidOtp();
 
         // Existing account → stamp login time and return the identity for the cookie.
         if (user is not null)

@@ -1,5 +1,3 @@
-using Whyland.Application.Common.Validation;
-
 namespace Whyland.Application.Features.Admin.Users.Commands.Update;
 
 /// <summary>
@@ -12,12 +10,12 @@ public sealed class UpdateUserCommandValidator : AbstractValidator<UpdateUserCom
     {
         RuleFor(x => x.FirstName)
             .WhylandRequired()
-            .WhylandMaxLen(100)
+            .WhylandMaxLen(User.MaxFirstNameLength)
             .WithName("نام");
 
         RuleFor(x => x.LastName)
             .WhylandRequired()
-            .WhylandMaxLen(100)
+            .WhylandMaxLen(User.MaxLastNameLength)
             .WithName("نام خانوادگی");
 
         RuleFor(x => x.PhoneNumber)

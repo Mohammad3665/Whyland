@@ -1,6 +1,4 @@
-using Whyland.Domain.Entities.Catalog;
 using Whyland.Domain.Entities.Commerce;
-using Whyland.Domain.Entities.Identity;
 
 namespace Whyland.Domain.Entities.Learning;
 

@@ -1,4 +1,3 @@
-
 namespace Whyland.Infrastructure.Persistence.Configurations.Identity;
 
 /// <summary>
@@ -14,11 +13,11 @@ public sealed class ExternalLoginConfiguration : IEntityTypeConfiguration<Extern
 
         builder.Property(x => x.Provider)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(ExternalLogin.MaxProviderLength);
 
         builder.Property(x => x.ProviderKey)
             .IsRequired()
-            .HasMaxLength(256);
+            .HasMaxLength(ExternalLogin.MaxProviderKeyLength);
 
         #endregion
 

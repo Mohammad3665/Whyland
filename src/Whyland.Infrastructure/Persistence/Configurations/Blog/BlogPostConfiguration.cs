@@ -1,4 +1,3 @@
-
 namespace Whyland.Infrastructure.Persistence.Configurations.Blog;
 
 /// <summary>
@@ -14,21 +13,21 @@ public sealed class BlogPostConfiguration : IEntityTypeConfiguration<BlogPost>
 
         builder.Property(x => x.Title)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(BlogPost.MaxTitleLength);
 
         builder.Property(x => x.ShortDescription)
             .IsRequired()
-            .HasMaxLength(500);
+            .HasMaxLength(BlogPost.MaxShortDescriptionLength);
 
         builder.Property(x => x.Content)
             .IsRequired();
 
         builder.Property(x => x.Slug)
             .IsRequired()
-            .HasMaxLength(300);
+            .HasMaxLength(BlogPost.MaxSlugLength);
 
         builder.Property(x => x.Image)
-            .HasMaxLength(512);
+            .HasMaxLength(BlogPost.MaxImageLength);
 
         #endregion
 

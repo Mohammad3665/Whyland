@@ -1,7 +1,3 @@
-using Microsoft.Extensions.Options;
-using Whyland.Application.Common.Options;
-using Whyland.Application.Common.Validation;
-
 namespace Whyland.Application.Features.Auth.Registration.CompleteRegistration;
 
 /// <summary>
@@ -18,12 +14,12 @@ public sealed class CompleteRegistrationCommandValidator : AbstractValidator<Com
 
         RuleFor(x => x.FirstName)
             .WhylandRequired()
-            .WhylandMaxLen(100)
+            .WhylandMaxLen(User.MaxFirstNameLength)
             .WithName("نام");
 
         RuleFor(x => x.LastName)
             .WhylandRequired()
-            .WhylandMaxLen(100)
+            .WhylandMaxLen(User.MaxLastNameLength)
             .WithName("نام خانوادگی");
 
         // Password is optional (an OTP-only account is valid); when provided it must pass the same

@@ -1,4 +1,3 @@
-using Whyland.Domain.Common.Primitives;
 using Whyland.Domain.Entities.Content.Errors;
 using Whyland.Shared.Results;
 
@@ -14,22 +13,22 @@ public class Faq : BaseEntity<long>, ISoftDeletable
     /// <summary>
     /// The question text.
     /// </summary>
-    public string Title { get; set; } = string.Empty;
+    public string Title { get; private set; } = string.Empty;
 
     /// <summary>
     /// The answer text.
     /// </summary>
-    public string Description { get; set; } = string.Empty;
+    public string Description { get; private set; } = string.Empty;
 
     /// <summary>
     /// Manual ordering weight (s4.12).
     /// </summary>
-    public int DisplayOrder { get; set; }
+    public int DisplayOrder { get; private set; }
 
     /// <summary>
     /// Inactive FAQs are hidden from the site but kept for editing.
     /// </summary>
-    public bool IsActive { get; set; }
+    public bool IsActive { get; private set; }
 
     #endregion
 
@@ -108,6 +107,19 @@ public class Faq : BaseEntity<long>, ISoftDeletable
         IsActive = isActive;
 
         return Result.Success();
+    }
+
+    /// <summary>
+    /// Moves the FAQ to a new position, as the reorder operation rewrites the weight of every item in the list.
+    /// </summary>
+    /// <param name="displayOrder">The new ordering weight; must be zero or greater.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when the position is negative.</exception>
+    public void SetDisplayOrder(int displayOrder)
+    {
+        if (displayOrder < 0)
+            throw new ArgumentOutOfRangeException(nameof(displayOrder), displayOrder, "A position cannot be negative.");
+
+        DisplayOrder = displayOrder;
     }
 
     /// <summary>

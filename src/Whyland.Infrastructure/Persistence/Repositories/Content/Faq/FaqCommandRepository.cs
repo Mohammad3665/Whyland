@@ -1,6 +1,3 @@
-using System;
-using Whyland.Domain.IRepositories.Content.Faq;
-
 namespace Whyland.Infrastructure.Persistence.Repositories.Content.Faq;
 
 /// <summary>
@@ -43,7 +40,7 @@ public class FaqCommandRepository(WhylandDbContext context) : IFaqCommandReposit
 
         for (var i = 0; i < orderedIds.Count; i++)
             if (rows.TryGetValue(orderedIds[i], out var faq))
-                faq.DisplayOrder = i + 1;
+                faq.SetDisplayOrder(i + 1);
     }
 
     /// <summary>
@@ -60,6 +57,6 @@ public class FaqCommandRepository(WhylandDbContext context) : IFaqCommandReposit
             .ToListAsync(ct);
 
         for (var i = 0; i < faqs.Count; i++)
-            faqs[i].DisplayOrder = i + 1;
+            faqs[i].SetDisplayOrder(i + 1);
     }
 }

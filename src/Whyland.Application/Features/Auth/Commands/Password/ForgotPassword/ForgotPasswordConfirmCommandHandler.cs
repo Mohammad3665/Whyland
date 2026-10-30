@@ -1,8 +1,3 @@
-using Whyland.Application.Common.Interfaces.Services;
-using Whyland.Application.Common.Validation;
-using Whyland.Application.Features.Auth.Errors;
-using Whyland.Domain.Entities.Identity;
-
 namespace Whyland.Application.Features.Auth.Password.ForgotPassword;
 
 /// <summary>
@@ -34,7 +29,7 @@ public sealed class ForgotPasswordConfirmCommandHandler(
 
         // One generic failure for missing / used / expired (anti-enumeration).
         if (otp is null || otp.IsUsed || otp.ExpiresAt <= DateTime.UtcNow)
-            return AuthErrors.InvalidOtp;
+            return UserErrors.InvalidOtp();
 
         if (!passwordHasher.Verify(command.Code, otp.CodeHash))
         {
@@ -43,7 +38,7 @@ public sealed class ForgotPasswordConfirmCommandHandler(
                 otp.IsUsed = true;
 
             await unitOfWork.SaveAsync(ct);
-            return AuthErrors.InvalidOtp;
+            return UserErrors.InvalidOtp();
         }
 
         otp.IsUsed = true;
@@ -54,14 +49,12 @@ public sealed class ForgotPasswordConfirmCommandHandler(
         if (user is null || !user.IsActive)
         {
             await unitOfWork.SaveAsync(ct);
-            return AuthErrors.InvalidOtp;
+            return UserErrors.InvalidOtp();
         }
 
-        user.PasswordHash = passwordHasher.Hash(command.NewPassword);
-        user.FailedLoginAttempts = 0;
-        user.LockoutUntilUtc = null;
+        user.SetPassword(passwordHasher.Hash(command.NewPassword));
 
         var saveResult = await unitOfWork.SaveAsync(ct);
-        return saveResult.IsFailure ? AuthErrors.LoginFailed : Result.Success();
+        return saveResult.IsFailure ? UserErrors.LoginFailed() : Result.Success();
     }
 }

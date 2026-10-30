@@ -1,7 +1,3 @@
-using Microsoft.Extensions.Options;
-using Whyland.Application.Common.Options;
-using Whyland.Application.Common.Validation;
-
 namespace Whyland.Application.Features.Admin.Users.Commands.Create;
 
 /// <summary>
@@ -15,12 +11,12 @@ public sealed class CreateUserCommandValidator : AbstractValidator<CreateUserCom
     {
         RuleFor(x => x.FirstName)
             .WhylandRequired()
-            .WhylandMaxLen(100)
+            .WhylandMaxLen(User.MaxFirstNameLength)
             .WithName("نام");
 
         RuleFor(x => x.LastName)
             .WhylandRequired()
-            .WhylandMaxLen(100)
+            .WhylandMaxLen(User.MaxLastNameLength)
             .WithName("نام خانوادگی");
 
         RuleFor(x => x.Password)

@@ -3,8 +3,6 @@ using Whyland.Sms;
 using Whyland.Sms.Application;
 using Whyland.Sms.Endpoints;
 using Whyland.Sms.Hubs;
-using Whyland.Sms.Security;
-using Whyland.Sms.Storage;
 using Whyland.Sms.Templates;
 
 var builder = WebApplication.CreateBuilder(args);

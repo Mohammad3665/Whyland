@@ -1,4 +1,5 @@
-using Whyland.Application.Common.Interfaces.Services;
+using Whyland.Application.Common.Interfaces.Localization;
+using Whyland.Infrastructure.Localization;
 using Whyland.Infrastructure.Persistence.Interceptors;
 using Whyland.Infrastructure.Persistence.UnitOfWork;
 using Whyland.Infrastructure.Services;
@@ -52,6 +53,10 @@ public static class DependencyInjection
 
         // Identity helpers.
         services.AddSingleton<IPasswordHashService, BCryptPasswordHasher>();
+
+        // Error wording, read from the localization resources embedded in this assembly. The catalog is
+        // immutable once loaded, so one instance serves the whole process.
+        services.AddSingleton<IErrorLocalizer, JsonErrorLocalizer>();
 
         services.AddScoped<ICodeGeneratorService, CodeGeneratorService>();
 

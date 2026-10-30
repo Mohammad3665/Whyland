@@ -1,5 +1,3 @@
-using Whyland.Domain.Entities.Content;
-
 namespace Whyland.Application.Features.Admin.Faqs.Commands.Create;
 
 /// <summary>
@@ -27,7 +25,7 @@ public sealed class CreateFaqCommandHandler(IUnitOfWork unitOfWork) : ICommandHa
         await unitOfWork.FaqCommandRepository.AddAsync(faq, ct);
         var saveResult = await unitOfWork.SaveAsync(ct);
         if (saveResult.IsFailure)
-            return FaqErrors.CreateFailed(command.Title);
+            return FaqErrors.CreateFailed();
 
         // Compact 1..n: whatever order the client picked (10, 17, 100, ...),
         // the FAQ lands on the sequence slot matching its sorted position.
@@ -35,7 +33,7 @@ public sealed class CreateFaqCommandHandler(IUnitOfWork unitOfWork) : ICommandHa
 
         saveResult = await unitOfWork.SaveAsync(ct);
         return saveResult.IsFailure ?
-            FaqErrors.CreateFailed(command.Title) :
+            FaqErrors.CreateFailed() :
             faq.Id;
     }
 }

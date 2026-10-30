@@ -1,6 +1,3 @@
-using System.Security.Claims;
-using Whyland.Application.Common.Interfaces.Identity;
-
 namespace Whyland.Web.Common.Identity.Services;
 
 /// <summary>

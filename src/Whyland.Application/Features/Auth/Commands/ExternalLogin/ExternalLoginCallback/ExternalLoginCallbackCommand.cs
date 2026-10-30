@@ -1,5 +1,3 @@
-using Whyland.Shared.Dtos.Identity;
-
 namespace Whyland.Application.Features.Auth.ExternalLogin;
 
 /// <summary>

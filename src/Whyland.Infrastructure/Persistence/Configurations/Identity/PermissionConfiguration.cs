@@ -1,4 +1,3 @@
-
 namespace Whyland.Infrastructure.Persistence.Configurations.Identity;
 
 /// <summary>
@@ -14,11 +13,11 @@ public sealed class PermissionConfiguration : IEntityTypeConfiguration<Permissio
 
         builder.Property(x => x.Name)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(Permission.MaxNameLength);
 
         builder.Property(x => x.Key)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(Permission.MaxKeyLength);
 
         #endregion
 

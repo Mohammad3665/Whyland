@@ -1,6 +1,5 @@
 using Whyland.Infrastructure.Persistence;
 using Whyland.Web;
-using Whyland.Web.Common.Extensions;
 
 try
 {

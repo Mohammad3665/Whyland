@@ -1,4 +1,3 @@
-
 namespace Whyland.Infrastructure.Persistence.Configurations.Commerce;
 
 /// <summary>

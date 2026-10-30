@@ -1,5 +1,3 @@
-using System;
-
 namespace Whyland.Web.Areas.Admin.Models;
 
 /// <summary>

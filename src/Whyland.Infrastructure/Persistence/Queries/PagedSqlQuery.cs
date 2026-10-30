@@ -1,5 +1,3 @@
-using Dapper;
-
 namespace Whyland.Infrastructure.Persistence.Queries;
 
 /// <summary>

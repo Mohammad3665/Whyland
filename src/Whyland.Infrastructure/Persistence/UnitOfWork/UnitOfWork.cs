@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using Whyland.Domain.IRepositories.Identity.ExternalLogin;
 using Whyland.Domain.IRepositories.Identity.OtpRequest;
-using Whyland.Domain.IRepositories.Identity.User;
 using Whyland.Infrastructure.Persistence.Repositories.Content.Faq;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.ExternalLogin;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.OtpRequest;

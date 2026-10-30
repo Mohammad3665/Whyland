@@ -1,7 +1,5 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Whyland.Application.Common.Abstractions.CQRS.Dispatchers;
 using Whyland.Application.Common.Validation;
 using Whyland.Application.Features.Auth.ExternalLogin;
 using Whyland.Application.Features.Auth.Login.LoginWithPassword;
@@ -9,7 +7,6 @@ using Whyland.Application.Features.Auth.Login.RequestLoginCode;
 using Whyland.Application.Features.Auth.Login.VerifyLoginCode;
 using Whyland.Application.Features.Auth.Registration.CompleteRegistration;
 using Whyland.Shared.Dtos.Identity;
-using Whyland.Shared.Text;
 using Whyland.Web.Common.Identity;
 using Whyland.Web.ViewModels;
 
@@ -116,7 +113,7 @@ public class AccountController(IDispatcher dispatcher, ILogger<AccountController
         if (result.IsFailure)
         {
             // Stale/expired ticket → the page restarts the flow at step 1 (still same URL).
-            if (result.Error.Code == "Auth.InvalidTicket")
+            if (result.Error.Code == "User.InvalidTicket")
                 return Json(new { success = false, error = result.Error.Description, restart = true });
 
             return Json(new { success = false, error = result.Error.Description ?? "خطا در ثبت‌نام." });

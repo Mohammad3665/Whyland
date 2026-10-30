@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using Dapper;
 
 namespace Whyland.Infrastructure.Persistence.Queries;
 

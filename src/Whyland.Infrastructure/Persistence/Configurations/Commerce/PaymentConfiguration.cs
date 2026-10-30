@@ -1,4 +1,3 @@
-
 namespace Whyland.Infrastructure.Persistence.Configurations.Commerce;
 
 /// <summary>
@@ -24,7 +23,7 @@ public sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .HasDefaultValue(PaymentStatus.Pending);
 
         builder.Property(x => x.TrackingNumber)
-            .HasMaxLength(100);
+            .HasMaxLength(Payment.MaxTrackingNumberLength);
 
         #endregion
 

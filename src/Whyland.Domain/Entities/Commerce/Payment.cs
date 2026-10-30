@@ -5,6 +5,17 @@ namespace Whyland.Domain.Entities.Commerce;
 /// </summary>
 public class Payment : BaseEntity<Guid>
 {
+    #region Limits
+
+    // Every column length is declared once on the entity that owns the column, so the
+    // EF mapping, the request validators and the domain rules all read the same number.
+    // Changing a size means editing one line here.
+
+    /// <summary>Maximum allowed length of <see cref="TrackingNumber"/>; also the database column size.</summary>
+    public const int MaxTrackingNumberLength = 100;
+
+    #endregion
+
     #region Properties
 
     /// <summary>

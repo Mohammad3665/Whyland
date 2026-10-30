@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-using Whyland.Application.Features.Admin.Users.Errors;
 using Whyland.Shared.Dtos.Authorization.Role;
 
 namespace Whyland.Application.Features.Admin.Users.Queries.GetRoles;
@@ -33,7 +31,7 @@ public sealed class GetAssignableRolesQueryHandler(
                 throw;
 
             logger.LogError(ex, "Reading assignable roles failed.");
-            return Result<IReadOnlyList<RoleOptionDto>>.Failure(UserAdminErrors.RolesListFailed());
+            return Result<IReadOnlyList<RoleOptionDto>>.Failure(UserErrors.RolesListFailed());
         }
     }
 }

@@ -1,5 +1,4 @@
 using System.Data;
-using Dapper;
 
 namespace Whyland.Infrastructure.Persistence.Queries;
 

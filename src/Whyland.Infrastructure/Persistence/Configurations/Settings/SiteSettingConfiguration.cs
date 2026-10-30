@@ -15,10 +15,10 @@ public sealed class SiteSettingConfiguration : IEntityTypeConfiguration<SiteSett
 
         builder.Property(x => x.Key)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(SiteSetting.MaxKeyLength);
 
         builder.Property(x => x.Value)
-            .HasMaxLength(2000);
+            .HasMaxLength(SiteSetting.MaxValueLength);
 
         builder.Property(x => x.Group)
             .IsRequired();
@@ -30,7 +30,7 @@ public sealed class SiteSettingConfiguration : IEntityTypeConfiguration<SiteSett
             .HasDefaultValue(false);
 
         builder.Property(x => x.Description)
-            .HasMaxLength(500);
+            .HasMaxLength(SiteSetting.MaxDescriptionLength);
 
         #endregion
 

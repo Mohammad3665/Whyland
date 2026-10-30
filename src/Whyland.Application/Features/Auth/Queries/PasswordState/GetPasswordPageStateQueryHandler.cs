@@ -1,5 +1,3 @@
-using Whyland.Application.Features.Auth.Errors;
-
 namespace Whyland.Application.Features.Auth.Queries.PasswordState;
 
 /// <summary>
@@ -15,7 +13,7 @@ public sealed class GetPasswordPageStateQueryHandler(
     {
         var user = await unitOfWork.UserQueryRepository.GetByIdAsync(query.UserId, ct);
         if (user is null)
-            return AuthErrors.InvalidCredentials;
+            return UserErrors.InvalidCredentials();
 
         return new PasswordPageStateDto(
             RequiresPhoneNumber: string.IsNullOrWhiteSpace(user.PhoneNumber),

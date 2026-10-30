@@ -1,7 +1,5 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Whyland.Shared.Dtos.Identity;
-using Whyland.Web.Common.Identity.Constants;
 
 namespace Whyland.Web.Common.Identity;
 

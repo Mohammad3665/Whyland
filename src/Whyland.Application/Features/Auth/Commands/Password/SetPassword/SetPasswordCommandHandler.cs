@@ -1,8 +1,3 @@
-using Whyland.Application.Common.Interfaces.Services;
-using Whyland.Application.Common.Validation;
-using Whyland.Application.Features.Auth.Errors;
-using Whyland.Domain.Entities.Identity;
-
 namespace Whyland.Application.Features.Auth.Password.SetPassword;
 
 /// <summary>
@@ -31,24 +26,21 @@ public sealed class SetPasswordCommandHandler(
     {
         var user = await unitOfWork.UserCommandRepository.GetTrackedByIdAsync(command.UserId, ct);
         if (user is null)
-            return AuthErrors.InvalidCredentials;
+            return UserErrors.InvalidCredentials();
 
         // Wrong page for an account that already has a password: that form demands the old one.
         if (!string.IsNullOrWhiteSpace(user.PasswordHash))
-            return AuthErrors.AlreadyHasPassword;
+            return UserErrors.AlreadyHasPassword();
 
         var bindResult = await BindPhoneAsync(user, command, ct);
         if (bindResult.IsFailure)
             return bindResult;
 
-        user.PasswordHash = passwordHasher.Hash(command.NewPassword);
-
         // A first password cannot have accumulated a lockout, but clearing it keeps the write honest.
-        user.FailedLoginAttempts = 0;
-        user.LockoutUntilUtc = null;
+        user.SetPassword(passwordHasher.Hash(command.NewPassword));
 
         var saveResult = await unitOfWork.SaveAsync(ct);
-        return saveResult.IsFailure ? AuthErrors.LoginFailed : Result.Success();
+        return saveResult.IsFailure ? UserErrors.LoginFailed() : Result.Success();
     }
 
     /// <summary>
@@ -62,7 +54,7 @@ public sealed class SetPasswordCommandHandler(
             return Result.Success();
 
         if (string.IsNullOrWhiteSpace(command.PhoneNumber) || string.IsNullOrWhiteSpace(command.Code))
-            return AuthErrors.PhoneRequired;
+            return UserErrors.PhoneRequired();
 
         var phone = PhoneNormalizer.Normalize(command.PhoneNumber);
         var otp = await unitOfWork.OtpRequestCommandRepository.GetLatestUsableAsync(
@@ -70,7 +62,7 @@ public sealed class SetPasswordCommandHandler(
 
         // One generic failure for missing / used / expired / exhausted, as on the login step.
         if (otp is null || otp.IsUsed || otp.ExpiresAt <= DateTime.UtcNow)
-            return AuthErrors.InvalidOtp;
+            return UserErrors.InvalidOtp();
 
         if (!passwordHasher.Verify(command.Code, otp.CodeHash))
         {
@@ -79,16 +71,16 @@ public sealed class SetPasswordCommandHandler(
                 otp.IsUsed = true;
 
             await unitOfWork.SaveAsync(ct);
-            return AuthErrors.InvalidOtp;
+            return UserErrors.InvalidOtp();
         }
 
         var owner = await unitOfWork.UserQueryRepository.GetByPhoneAsync(phone, ct);
         if (owner is not null && owner.Id != user.Id)
-            return AuthErrors.PhoneTaken;
+            return UserErrors.PhoneTaken(phone);
 
         // Correct code: burn it so it can never be replayed, then store the verified number.
         otp.IsUsed = true;
-        user.PhoneNumber = phone;
+        user.BindPhoneNumber(phone);
 
         return Result.Success();
     }

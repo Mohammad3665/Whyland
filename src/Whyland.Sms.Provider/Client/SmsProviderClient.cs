@@ -1,8 +1,5 @@
 using System.Net;
 using Microsoft.Extensions.Logging;
-using Refit;
-using Whyland.Sms.Provider.Abstractions;
-using Whyland.Sms.Provider.Contracts;
 
 namespace Whyland.Sms.Provider.Client;
 

@@ -1,4 +1,3 @@
-
 namespace Whyland.Infrastructure.Persistence.Configurations.Identity;
 
 /// <summary>
@@ -14,12 +13,12 @@ public sealed class OtpRequestConfiguration : IEntityTypeConfiguration<OtpReques
 
         builder.Property(x => x.PhoneNumber)
             .IsRequired()
-            .HasMaxLength(20);
+            .HasMaxLength(OtpRequest.MaxPhoneNumberLength);
 
         // Never store the plain OTP code; only its hash (s5.1.4)
         builder.Property(x => x.CodeHash)
             .IsRequired()
-            .HasMaxLength(256);
+            .HasMaxLength(OtpRequest.MaxCodeHashLength);
 
         builder.Property(x => x.MaxAttempts)
             .HasDefaultValue(5);

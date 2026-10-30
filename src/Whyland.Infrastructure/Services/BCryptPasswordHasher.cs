@@ -1,5 +1,4 @@
 using Whyland.Application.Common.Abstractions;
-using Whyland.Application.Common.Interfaces.Services;
 
 namespace Whyland.Infrastructure.Services;
 

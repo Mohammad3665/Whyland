@@ -1,5 +1,4 @@
 using System.Net.Http.Headers;
-using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -8,7 +7,6 @@ using Whyland.Application;
 using Whyland.Application.Common.Authorization;
 using Whyland.Application.Common.Options;
 using Whyland.Infrastructure;
-using Whyland.Web.Common.Identity.Constants;
 using Whyland.Web.Common.ModelBinding;
 
 namespace Whyland.Web.Common.Extensions;

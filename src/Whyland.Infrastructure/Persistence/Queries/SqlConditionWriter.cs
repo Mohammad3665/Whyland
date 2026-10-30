@@ -1,7 +1,4 @@
 using System.Globalization;
-using Dapper;
-using Whyland.Infrastructure.Persistence.Extensions;
-using Whyland.Shared.Enums;
 
 namespace Whyland.Infrastructure.Persistence.Queries;
 

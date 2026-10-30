@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
 using Whyland.Sms.Application;
-using Whyland.Sms.Storage;
-using Whyland.Sms.ViewModels;
 
 namespace Whyland.Sms.Hubs;
 

@@ -1,0 +1,12 @@
+{
+  "Validation.Failed": "اعتبارسنجی ناموفق بود.",
+  "Validation.Required": "فیلد '{Field}' نمی‌تواند خالی باشد.",
+  "Validation.TooLong": "فیلد '{Field}' نمی‌تواند بیشتر از {Max} کاراکتر باشد.",
+  "Validation.TooShort": "فیلد '{Field}' نمی‌تواند کمتر از {Min} کاراکتر باشد.",
+  "Validation.InvalidEmail": "فیلد '{Field}' باید یک ایمیل معتبر باشد.",
+  "Validation.InvalidFormat": "فرمت فیلد '{Field}' معتبر نیست.",
+  "Validation.GreaterThan": "فیلد '{Field}' باید بزرگ‌تر از {ComparisonValue} باشد.",
+  "Validation.GreaterThanOrEqual": "فیلد '{Field}' باید بزرگ‌تر یا مساوی با {ComparisonValue} باشد.",
+  "Validation.LessThan": "فیلد '{Field}' باید کمتر از {ComparisonValue} باشد.",
+  "Validation.LessThanOrEqual": "فیلد '{Field}' باید کمتر یا مساوی با {ComparisonValue} باشد."
+}

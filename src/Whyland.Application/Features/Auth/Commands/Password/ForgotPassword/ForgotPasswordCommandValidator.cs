@@ -1,5 +1,3 @@
-using Whyland.Application.Common.Validation;
-
 namespace Whyland.Application.Features.Auth.Password.ForgotPassword;
 
 /// <summary>

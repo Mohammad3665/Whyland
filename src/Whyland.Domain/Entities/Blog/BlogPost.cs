@@ -1,6 +1,3 @@
-using Whyland.Domain.Common.Primitives;
-using Whyland.Domain.Entities.Identity;
-
 namespace Whyland.Domain.Entities.Blog;
 
 /// <summary>
@@ -8,6 +5,26 @@ namespace Whyland.Domain.Entities.Blog;
 /// </summary>
 public class BlogPost : BaseEntity<long>, ISoftDeletable
 {
+    #region Limits
+
+    // Every column length is declared once on the entity that owns the column, so the
+    // EF mapping, the request validators and the domain rules all read the same number.
+    // Changing a size means editing one line here.
+
+    /// <summary>Maximum allowed length of <see cref="Image"/>; also the database column size.</summary>
+    public const int MaxImageLength = 512;
+
+    /// <summary>Maximum allowed length of <see cref="ShortDescription"/>; also the database column size.</summary>
+    public const int MaxShortDescriptionLength = 500;
+
+    /// <summary>Maximum allowed length of <see cref="Slug"/>; also the database column size.</summary>
+    public const int MaxSlugLength = 300;
+
+    /// <summary>Maximum allowed length of <see cref="Title"/>; also the database column size.</summary>
+    public const int MaxTitleLength = 200;
+
+    #endregion
+
     #region Properties
 
     /// <summary>

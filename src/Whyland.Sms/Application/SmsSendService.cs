@@ -1,7 +1,4 @@
 using System.Globalization;
-using Microsoft.Extensions.Options;
-using Whyland.Sms.Contracts.V1;
-using Whyland.Sms.Storage;
 using Whyland.Sms.Templates;
 
 namespace Whyland.Sms.Application;

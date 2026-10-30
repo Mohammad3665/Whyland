@@ -1,8 +1,5 @@
 using System.Globalization;
-using Dapper;
 using Whyland.Domain.Entities.Identity.Enums;
-using Whyland.Domain.IRepositories.Identity.User;
-using Whyland.Infrastructure.Persistence.Extensions;
 using Whyland.Infrastructure.Persistence.Queries;
 using Whyland.Shared.Dtos.Authorization.Role;
 using Whyland.Shared.Dtos.Identity.User;

@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Options;
-using Whyland.Application.Common.Interfaces.Services;
 using Whyland.Application.Common.Options;
 
 namespace Whyland.Infrastructure.Services;

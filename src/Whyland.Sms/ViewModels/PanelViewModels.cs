@@ -1,6 +1,3 @@
-using Whyland.Sms.Contracts.V1;
-using Whyland.Sms.Storage;
-
 namespace Whyland.Sms.ViewModels;
 
 /// <summary>Row count the dashboard reads when it summarizes traffic.</summary>

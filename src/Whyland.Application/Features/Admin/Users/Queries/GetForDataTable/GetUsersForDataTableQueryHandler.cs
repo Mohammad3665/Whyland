@@ -1,7 +1,3 @@
-using Microsoft.Extensions.Logging;
-using Whyland.Application.Features.Admin.Users.Errors;
-using Whyland.Shared.Dtos.Identity.User;
-
 namespace Whyland.Application.Features.Admin.Users.Queries.GetForDataTable;
 
 /// <summary>
@@ -17,7 +13,7 @@ public sealed class GetUsersForDataTableQueryHandler(
 {
     /// <summary>
     /// Runs the listing and returns the paged result; a database failure is logged and
-    /// masked behind <see cref="UserAdminErrors.ListFailed"/> instead of bubbling up.
+    /// masked behind <see cref="UserErrors.ListFailed"/> instead of bubbling up.
     /// </summary>
     /// <param name="query">The query carrying the DataTable filter.</param>
     /// <param name="ct">A token to cancel the operation.</param>
@@ -40,7 +36,7 @@ public sealed class GetUsersForDataTableQueryHandler(
                 "Data Table listing failed for users (Draw={Draw}, Start={Start}).",
                 query.Filter.Draw, query.Filter.Start);
 
-            return Result<DataTableResult<UserListItemDto>>.Failure(UserAdminErrors.ListFailed());
+            return Result<DataTableResult<UserListItemDto>>.Failure(UserErrors.ListFailed());
         }
     }
 }

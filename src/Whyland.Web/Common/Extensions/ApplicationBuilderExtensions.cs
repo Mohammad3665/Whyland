@@ -1,5 +1,3 @@
-using System;
-
 namespace Whyland.Web.Common.Extensions;
 
 /// <summary>

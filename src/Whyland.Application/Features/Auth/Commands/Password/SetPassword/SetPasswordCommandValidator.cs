@@ -1,7 +1,3 @@
-using Microsoft.Extensions.Options;
-using Whyland.Application.Common.Options;
-using Whyland.Application.Common.Validation;
-
 namespace Whyland.Application.Features.Auth.Password.SetPassword;
 
 /// <summary>

@@ -1,8 +1,3 @@
-using Microsoft.Extensions.Options;
-using Whyland.Application.Common.Options;
-using Whyland.Application.Common.Validation;
-using Whyland.Application.Features.Auth.Errors;
-
 namespace Whyland.Application.Features.Auth.Password.ChangePassword;
 
 /// <summary>
@@ -25,7 +20,7 @@ public sealed class ChangePasswordCommandValidator : AbstractValidator<ChangePas
 
         RuleFor(x => x)
             .Must(x => !string.Equals(x.CurrentPassword, x.NewPassword, StringComparison.Ordinal))
-            .WithErrorCode(AuthErrors.WrongPassword.Code)
+            .WithErrorCode(UserErrors.WrongPassword().Code)
             .WithMessage("رمز عبور جدید باید با رمز فعلی متفاوت باشد.");
     }
 }

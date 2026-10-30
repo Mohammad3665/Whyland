@@ -1,4 +1,3 @@
-
 namespace Whyland.Infrastructure.Persistence.Configurations.Catalog;
 
 /// <summary>
@@ -14,15 +13,15 @@ public sealed class EpisodeAttachmentConfiguration : IEntityTypeConfiguration<Ep
 
         builder.Property(x => x.FileName)
             .IsRequired()
-            .HasMaxLength(256);
+            .HasMaxLength(EpisodeAttachment.MaxFileNameLength);
 
         builder.Property(x => x.StoragePath)
             .IsRequired()
-            .HasMaxLength(512);
+            .HasMaxLength(EpisodeAttachment.MaxStoragePathLength);
 
         builder.Property(x => x.ContentType)
             .IsRequired()
-            .HasMaxLength(128);
+            .HasMaxLength(EpisodeAttachment.MaxContentTypeLength);
 
         #endregion
     }

@@ -1,6 +1,3 @@
-using Whyland.Application.Common.Interfaces.Services;
-using Whyland.Application.Features.Admin.Users.Errors;
-
 namespace Whyland.Application.Features.Admin.Users.Commands.Create;
 
 /// <summary>
@@ -30,35 +27,32 @@ public sealed class CreateUserCommandHandler(
 
         if (phone is not null &&
             await unitOfWork.UserCommandRepository.GetTrackedByPhoneAsync(phone, ct) is not null)
-            return UserAdminErrors.PhoneTaken(phone);
+            return UserErrors.PhoneTaken(phone);
 
         if (email is not null &&
             await unitOfWork.UserCommandRepository.GetTrackedByEmailAsync(email, ct) is not null)
-            return UserAdminErrors.EmailTaken(email);
+            return UserErrors.EmailTaken(email);
 
-        var user = new Domain.Entities.Identity.User
-        {
-            Id = Guid.NewGuid(),
-            FirstName = command.FirstName.Trim(),
-            LastName = command.LastName.Trim(),
-            PhoneNumber = phone,
-            Email = email,
-            PasswordHash = passwordHasher.Hash(command.Password),
-            IsActive = command.IsActive,
-        };
+        var user = Domain.Entities.Identity.User.Create(
+            command.FirstName.Trim(),
+            command.LastName.Trim(),
+            phoneNumber: phone,
+            email: email,
+            passwordHash: passwordHasher.Hash(command.Password),
+            isActive: command.IsActive);
 
         await unitOfWork.UserCommandRepository.AddAsync(user, ct);
 
         var fullName = $"{user.FirstName} {user.LastName}";
         var saveResult = await unitOfWork.SaveAsync(ct);
         if (saveResult.IsFailure)
-            return UserAdminErrors.CreateFailed(fullName);
+            return UserErrors.CreateFailed();
 
         await unitOfWork.UserCommandRepository.ReplaceRolesAsync(user.Id, command.RoleIds, ct);
 
         saveResult = await unitOfWork.SaveAsync(ct);
         return saveResult.IsFailure
-            ? UserAdminErrors.CreateFailed(fullName)
+            ? UserErrors.CreateFailed()
             : user.Id;
     }
 }

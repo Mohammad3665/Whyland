@@ -1,5 +1,3 @@
-using Whyland.Shared.Dtos.Identity.User;
-
 namespace Whyland.Application.Features.Admin.Users.Queries.GetDetails;
 
 /// <summary>

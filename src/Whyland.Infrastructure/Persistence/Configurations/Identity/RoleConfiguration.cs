@@ -1,4 +1,3 @@
-
 namespace Whyland.Infrastructure.Persistence.Configurations.Identity;
 
 /// <summary>
@@ -14,11 +13,11 @@ public sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
 
         builder.Property(x => x.Name)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(Role.MaxNameLength);
 
         builder.Property(x => x.Title)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(Role.MaxTitleLength);
 
         #endregion
 

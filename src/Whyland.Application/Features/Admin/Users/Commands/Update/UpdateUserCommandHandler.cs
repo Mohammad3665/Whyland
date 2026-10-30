@@ -1,5 +1,3 @@
-using Whyland.Application.Features.Admin.Users.Errors;
-
 namespace Whyland.Application.Features.Admin.Users.Commands.Update;
 
 /// <summary>
@@ -20,7 +18,7 @@ public sealed class UpdateUserCommandHandler(IUnitOfWork unitOfWork) : ICommandH
     {
         var user = await unitOfWork.UserCommandRepository.GetTrackedByIdAsync(command.Id, ct);
         if (user is null)
-            return UserAdminErrors.NotFound(command.Id);
+            return UserErrors.NotFound(command.Id);
 
         var phone = string.IsNullOrWhiteSpace(command.PhoneNumber)
             ? null
@@ -33,25 +31,22 @@ public sealed class UpdateUserCommandHandler(IUnitOfWork unitOfWork) : ICommandH
             ? null
             : await unitOfWork.UserCommandRepository.GetTrackedByPhoneAsync(phone, ct);
         if (phoneOwner is not null && phoneOwner.Id != user.Id)
-            return UserAdminErrors.PhoneTaken(phone!);
+            return UserErrors.PhoneTaken(phone!);
 
         var emailOwner = email is null
             ? null
             : await unitOfWork.UserCommandRepository.GetTrackedByEmailAsync(email, ct);
         if (emailOwner is not null && emailOwner.Id != user.Id)
-            return UserAdminErrors.EmailTaken(email!);
+            return UserErrors.EmailTaken(email!);
 
-        user.FirstName = command.FirstName.Trim();
-        user.LastName = command.LastName.Trim();
-        user.PhoneNumber = phone;
-        user.Email = email;
-        user.IsActive = command.IsActive;
+        user.UpdateProfile(
+            command.FirstName.Trim(), command.LastName.Trim(), phone, email, command.IsActive);
 
         await unitOfWork.UserCommandRepository.ReplaceRolesAsync(user.Id, command.RoleIds, ct);
 
         var saveResult = await unitOfWork.SaveAsync(ct);
         return saveResult.IsFailure
-            ? UserAdminErrors.UpdateFailed(user.Id)
+            ? UserErrors.UpdateFailed()
             : Result.Success();
     }
 }

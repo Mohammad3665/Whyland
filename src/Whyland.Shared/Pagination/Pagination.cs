@@ -1,5 +1,3 @@
-using System;
-
 namespace Whyland.Shared.Pagination;
 
 /// <summary>

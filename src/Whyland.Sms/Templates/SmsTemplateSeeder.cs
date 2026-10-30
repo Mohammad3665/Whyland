@@ -1,5 +1,3 @@
-using Whyland.Sms.Storage;
-
 namespace Whyland.Sms.Templates;
 
 /// <summary>

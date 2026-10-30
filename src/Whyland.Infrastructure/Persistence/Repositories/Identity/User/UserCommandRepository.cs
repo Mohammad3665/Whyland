@@ -1,5 +1,3 @@
-using Whyland.Domain.IRepositories.Identity.User;
-
 namespace Whyland.Infrastructure.Persistence.Repositories.Identity.User;
 
 /// <summary>
@@ -29,7 +27,7 @@ public sealed class UserCommandRepository(WhylandDbContext context) : IUserComma
 
     public void TouchLastLogin(Domain.Entities.Identity.User user)
     {
-        user.LastLoginAt = DateTime.UtcNow;
+        user.RecordSuccessfulLogin(DateTime.UtcNow);
         context.Users.Update(user);
     }
 

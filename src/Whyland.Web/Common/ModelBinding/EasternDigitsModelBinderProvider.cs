@@ -1,6 +1,5 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Whyland.Shared.Text;
 
 namespace Whyland.Web.Common.ModelBinding;
 

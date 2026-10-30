@@ -1,4 +1,3 @@
-
 namespace Whyland.Web.Areas.Admin.Pages.Home
 {
     /// <summary>

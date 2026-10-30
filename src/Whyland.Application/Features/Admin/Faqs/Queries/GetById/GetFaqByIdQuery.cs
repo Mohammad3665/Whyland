@@ -1,5 +1,3 @@
-using Whyland.Shared.Dtos.Content.Faq;
-
 namespace Whyland.Application.Features.Admin.Faqs.Queries.GetById;
 
 /// <summary>

@@ -1,10 +1,5 @@
-using Microsoft.Extensions.Options;
-using Whyland.Application.Common.Interfaces.Services;
-using Whyland.Application.Common.Options;
-using Whyland.Application.Features.Auth.Errors;
 using Whyland.Application.Features.Auth.Login.RequestLoginCode;
 using Whyland.Application.Features.Auth.Otp;
-using Whyland.Domain.Entities.Identity;
 
 namespace Whyland.Application.Features.Auth.Commands.Login.RequestLoginCode;
 

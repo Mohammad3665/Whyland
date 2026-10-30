@@ -1,5 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Whyland.Application.Common.Options;
 using Whyland.Infrastructure.Common.Extensions;

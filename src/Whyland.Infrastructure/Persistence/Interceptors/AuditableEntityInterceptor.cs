@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Whyland.Application.Common.Interfaces.Identity;
 using Whyland.Domain.Common.Primitives;
 
 namespace Whyland.Infrastructure.Persistence.Interceptors;

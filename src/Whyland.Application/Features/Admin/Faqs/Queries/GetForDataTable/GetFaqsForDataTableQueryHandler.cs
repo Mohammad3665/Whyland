@@ -1,6 +1,3 @@
-using Microsoft.Extensions.Logging;
-using Whyland.Shared.Dtos.Content.Faq;
-
 namespace Whyland.Application.Features.Admin.Faqs.Queries.GetForDataTable;
 
 /// <summary>

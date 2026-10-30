@@ -1,7 +1,4 @@
-using Microsoft.Extensions.Logging;
 using Whyland.Application.Common.Authorization;
-using Whyland.Application.Features.Admin.Users.Errors;
-using Whyland.Shared.Dtos.Identity.User;
 
 namespace Whyland.Application.Features.Admin.Users.Queries.GetOptions;
 
@@ -52,7 +49,7 @@ public sealed class GetUserOptionsQueryHandler(
                 throw;
 
             logger.LogError(ex, "Reading the user option list failed.");
-            return Result<IReadOnlyList<UserOptionDto>>.Failure(UserAdminErrors.ListFailed());
+            return Result<IReadOnlyList<UserOptionDto>>.Failure(UserErrors.ListFailed());
         }
     }
 }

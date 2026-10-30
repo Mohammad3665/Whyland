@@ -1,4 +1,3 @@
-
 namespace Whyland.Infrastructure.Persistence.Configurations.Catalog;
 
 /// <summary>
@@ -14,7 +13,7 @@ public sealed class CourseSectionConfiguration : IEntityTypeConfiguration<Course
 
         builder.Property(x => x.Title)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(CourseSection.MaxTitleLength);
 
         #endregion
 

@@ -1,4 +1,3 @@
-using Whyland.Infrastructure.Persistence.Extensions;
 using Whyland.Infrastructure.Persistence.Queries;
 using Whyland.Shared.Dtos.Content.Faq;
 using FaqEntity = Whyland.Domain.Entities.Content.Faq;

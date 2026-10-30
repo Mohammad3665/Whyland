@@ -1,5 +1,3 @@
-using Whyland.Shared.Filters;
-
 namespace Whyland.Application.Features.Admin.Users.Queries.GetFilterFields;
 
 /// <summary>

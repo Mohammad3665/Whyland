@@ -1,5 +1,3 @@
-using System.Reflection;
-
 namespace Whyland.Infrastructure.Persistence.Extensions;
 
 /// <summary>

@@ -1,6 +1,3 @@
-using Whyland.Application.Common.Validation;
-using Whyland.Domain.Entities.Content;
-
 namespace Whyland.Application.Features.Admin.Faqs.Commands.Create;
 
 /// <summary>

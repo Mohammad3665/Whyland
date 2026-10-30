@@ -1,5 +1,3 @@
-using Whyland.Domain.Common.Primitives;
-
 namespace Whyland.Domain.Entities.Catalog;
 
 /// <summary>
@@ -7,6 +5,16 @@ namespace Whyland.Domain.Entities.Catalog;
 /// </summary>
 public class CourseSection : BaseEntity<long>, ISoftDeletable
 {
+    #region Limits
+
+    // Every column length is declared once on the entity that owns the column, so the
+    // EF mapping, the request validators and the domain rules all read the same number.
+    // Changing a size means editing one line here.
+
+    /// <summary>Maximum allowed length of <see cref="Title"/>; also the database column size.</summary>
+    public const int MaxTitleLength = 200;
+
+    #endregion
     /// <summary>
     /// The course the section belongs to.
     /// </summary>

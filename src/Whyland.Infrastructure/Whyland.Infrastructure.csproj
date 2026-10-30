@@ -14,6 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Error wording ships inside the assembly, so a deployed build cannot serve a message the code has no key for. -->
+    <EmbeddedResource Include="Localization\Resources\*.localization.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
     <PackageReference Include="Dapper" Version="2.1.89" />
     <PackageReference Include="Mapster" Version="10.0.13" />

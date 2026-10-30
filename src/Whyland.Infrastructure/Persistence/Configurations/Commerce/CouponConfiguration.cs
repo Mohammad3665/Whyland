@@ -1,4 +1,3 @@
-
 namespace Whyland.Infrastructure.Persistence.Configurations.Commerce;
 
 /// <summary>
@@ -14,7 +13,7 @@ public sealed class CouponConfiguration : IEntityTypeConfiguration<Coupon>
 
         builder.Property(x => x.Code)
             .IsRequired()
-            .HasMaxLength(50);
+            .HasMaxLength(Coupon.MaxCodeLength);
 
         builder.Property(x => x.Type)
             .IsRequired();

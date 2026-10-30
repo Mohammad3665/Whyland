@@ -1,9 +1,6 @@
-using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Refit;
-using Whyland.Sms.Provider.Abstractions;
 using Whyland.Sms.Provider.Client;
 
 namespace Whyland.Sms.Provider.DependencyInjection;

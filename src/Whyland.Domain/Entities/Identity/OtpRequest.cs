@@ -1,4 +1,3 @@
-
 namespace Whyland.Domain.Entities.Identity;
 
 /// <summary>
@@ -6,6 +5,20 @@ namespace Whyland.Domain.Entities.Identity;
 /// </summary>
 public class OtpRequest : BaseEntity<Guid>
 {
+    #region Limits
+
+    // Every column length is declared once on the entity that owns the column, so the
+    // EF mapping, the request validators and the domain rules all read the same number.
+    // Changing a size means editing one line here.
+
+    /// <summary>Maximum allowed length of <see cref="CodeHash"/>; also the database column size.</summary>
+    public const int MaxCodeHashLength = 256;
+
+    /// <summary>Maximum allowed length of <see cref="PhoneNumber"/>; also the database column size.</summary>
+    public const int MaxPhoneNumberLength = 20;
+
+    #endregion
+
     #region Properties
 
     /// <summary>

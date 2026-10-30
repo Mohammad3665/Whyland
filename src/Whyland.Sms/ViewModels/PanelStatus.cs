@@ -1,5 +1,3 @@
-using Whyland.Sms.Contracts.V1;
-
 namespace Whyland.Sms.ViewModels;
 
 /// <summary>

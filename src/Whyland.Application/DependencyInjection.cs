@@ -24,7 +24,10 @@ public static class DependencyInjection
         // Pipeline behaviors. LoggingBehavior is registered exactly once (outermost)
         // to avoid duplicate log entries; ValidationBehavior then returns validation
         // failures as failure results without reaching the handler.
+        // ErrorLocalizationBehavior sits above the validator so a validation failure is described too —
+        // ValidationBehavior short-circuits the pipeline, and anything registered below it never runs.
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ErrorLocalizationBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         // ValidationBehavior only validates what DI can hand it, so without this registration every

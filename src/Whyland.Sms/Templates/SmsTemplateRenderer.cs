@@ -1,7 +1,4 @@
-using System.Text.Json;
 using System.Text.RegularExpressions;
-using Whyland.Sms.Contracts.V1;
-using Whyland.Sms.Storage;
 
 namespace Whyland.Sms.Templates;
 

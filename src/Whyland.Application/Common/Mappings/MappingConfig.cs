@@ -1,5 +1,3 @@
-using Mapster;
-
 namespace Whyland.Application.Common.Mappings;
 
 /// <summary>

@@ -1,4 +1,3 @@
-
 namespace Whyland.Infrastructure.Persistence.Configurations.Identity;
 
 /// <summary>
@@ -13,28 +12,28 @@ public sealed class InstructorProfileConfiguration : IEntityTypeConfiguration<In
         #region Properties
 
         builder.Property(x => x.ProfileImage)
-            .HasMaxLength(256);
+            .HasMaxLength(InstructorProfile.MaxProfileImageLength);
 
         builder.Property(x => x.Bio)
-            .HasMaxLength(1000);
+            .HasMaxLength(InstructorProfile.MaxBioLength);
 
         builder.Property(x => x.Specialization)
-            .HasMaxLength(200);
+            .HasMaxLength(InstructorProfile.MaxSpecializationLength);
 
         builder.Property(x => x.Website)
-            .HasMaxLength(256);
+            .HasMaxLength(InstructorProfile.MaxWebsiteLength);
 
         builder.Property(x => x.LinkedIn)
-            .HasMaxLength(256);
+            .HasMaxLength(InstructorProfile.MaxLinkedInLength);
 
         builder.Property(x => x.Instagram)
-            .HasMaxLength(256);
+            .HasMaxLength(InstructorProfile.MaxInstagramLength);
 
         builder.Property(x => x.ShebaNumber)
-            .HasMaxLength(26);
+            .HasMaxLength(InstructorProfile.MaxShebaNumberLength);
 
         builder.Property(x => x.BankAccountNumber)
-            .HasMaxLength(26);
+            .HasMaxLength(InstructorProfile.MaxBankAccountNumberLength);
 
         #endregion
 

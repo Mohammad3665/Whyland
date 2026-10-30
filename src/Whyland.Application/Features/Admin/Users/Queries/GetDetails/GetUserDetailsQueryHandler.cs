@@ -1,7 +1,3 @@
-using Microsoft.Extensions.Logging;
-using Whyland.Application.Features.Admin.Users.Errors;
-using Whyland.Shared.Dtos.Identity.User;
-
 namespace Whyland.Application.Features.Admin.Users.Queries.GetDetails;
 
 /// <summary>
@@ -26,7 +22,7 @@ public sealed class GetUserDetailsQueryHandler(
         {
             var details = await unitOfWork.UserQueryRepository.GetDetailsAsync(query.Id, ct);
             return details is null
-                ? Result<UserDetailsDto>.Failure(UserAdminErrors.NotFound(query.Id))
+                ? Result<UserDetailsDto>.Failure(UserErrors.NotFound(query.Id))
                 : Result<UserDetailsDto>.Success(details);
         }
         catch (Exception ex)
@@ -35,7 +31,7 @@ public sealed class GetUserDetailsQueryHandler(
                 throw;
 
             logger.LogError(ex, "Reading user details failed for {UserId}.", query.Id);
-            return Result<UserDetailsDto>.Failure(UserAdminErrors.ListFailed());
+            return Result<UserDetailsDto>.Failure(UserErrors.ListFailed());
         }
     }
 }

@@ -1,5 +1,3 @@
-using Whyland.Sms.Storage;
-
 namespace Whyland.Sms.Contracts.V1;
 
 /// <summary>

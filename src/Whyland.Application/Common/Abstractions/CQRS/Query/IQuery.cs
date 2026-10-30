@@ -1,5 +1,3 @@
-using Whyland.Shared.Results;
-
 namespace Whyland.Application.Common.Abstractions.CQRS.Query;
 
 /// <summary>

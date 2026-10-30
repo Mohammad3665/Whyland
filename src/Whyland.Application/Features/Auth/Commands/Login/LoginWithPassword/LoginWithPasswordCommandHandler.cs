@@ -1,17 +1,10 @@
-using Microsoft.Extensions.Options;
-using Whyland.Application.Common.Interfaces.Services;
-using Whyland.Application.Common.Options;
-using Whyland.Application.Common.Validation;
-using Whyland.Application.Features.Auth.Errors;
-using Whyland.Shared.Dtos.Identity;
-
 namespace Whyland.Application.Features.Auth.Login.LoginWithPassword;
 
 /// <summary>
 /// Handles <see cref="LoginWithPasswordCommand"/> (s5.1.1, s15.1.4).
 /// <para>
 /// Unknown number, an account without a password and a wrong password all produce the same
-/// <see cref="AuthErrors.InvalidCredentials"/> answer, so the endpoint cannot enumerate accounts.
+/// <see cref="UserErrors.InvalidCredentials()"/> answer, so the endpoint cannot enumerate accounts.
 /// Repeated failures accumulate on the user row and temporarily block password login; OTP and
 /// external login keep their own throttling and stay available.
 /// </para>
@@ -35,30 +28,22 @@ public sealed class LoginWithPasswordCommandHandler(
 
         // Accounts created through OTP or Google have no hash; they must use those flows.
         if (user is null || user.PasswordHash is null)
-            return AuthErrors.InvalidCredentials;
+            return UserErrors.InvalidCredentials();
 
-        var locked = user.LockoutUntilUtc is { } until && until > DateTime.UtcNow;
+        var locked = user.IsLockedOut(DateTime.UtcNow);
 
         if (!passwordHasher.Verify(command.Password, user.PasswordHash))
         {
-            user.FailedLoginAttempts++;
-
-            if (user.FailedLoginAttempts >= opts.PasswordMaxFailedAttempts)
-            {
-                user.LockoutUntilUtc = DateTime.UtcNow.AddMinutes(opts.PasswordLockoutMinutes);
-                user.FailedLoginAttempts = 0;
-            }
+            user.RecordFailedAttempt(opts.PasswordMaxFailedAttempts, opts.PasswordLockoutMinutes, DateTime.UtcNow);
 
             await unitOfWork.SaveAsync(ct);
-            return AuthErrors.InvalidCredentials;
+            return UserErrors.InvalidCredentials();
         }
 
         // Only revealed to someone who just proved the password, so it leaks nothing new.
         if (locked || !user.IsActive)
-            return locked ? AuthErrors.AccountLockedOut : AuthErrors.InvalidCredentials;
+            return locked ? UserErrors.AccountLockedOut() : UserErrors.InvalidCredentials();
 
-        user.FailedLoginAttempts = 0;
-        user.LockoutUntilUtc = null;
         unitOfWork.UserCommandRepository.TouchLastLogin(user);
         await unitOfWork.SaveAsync(ct);
 

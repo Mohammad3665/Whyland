@@ -1,8 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-using Whyland.Sms.Contracts.V1;
-using Whyland.Sms.Storage;
-using Whyland.Sms.ViewModels;
-
 namespace Whyland.Sms.Controllers;
 
 /// <summary>

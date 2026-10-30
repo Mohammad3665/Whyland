@@ -1,4 +1,3 @@
-
 namespace Whyland.Infrastructure.Persistence.Configurations.Catalog;
 
 /// <summary>
@@ -14,25 +13,25 @@ public sealed class CourseConfiguration : IEntityTypeConfiguration<Course>
 
         builder.Property(x => x.Name)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(Course.MaxNameLength);
 
         builder.Property(x => x.LatinName)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(Course.MaxLatinNameLength);
 
         builder.Property(x => x.ShortDescription)
             .IsRequired()
-            .HasMaxLength(500);
+            .HasMaxLength(Course.MaxShortDescriptionLength);
 
         builder.Property(x => x.Slug)
             .IsRequired()
-            .HasMaxLength(300);
+            .HasMaxLength(Course.MaxSlugLength);
 
         builder.Property(x => x.MainImage)
-            .HasMaxLength(512);
+            .HasMaxLength(Course.MaxMainImageLength);
 
         builder.Property(x => x.IntroductionVideo)
-            .HasMaxLength(512);
+            .HasMaxLength(Course.MaxIntroductionVideoLength);
 
         // Decimal-compatible money type; float/double are forbidden for money (s7.2.4)
         builder.Property(x => x.Price)

@@ -1,7 +1,3 @@
-using Whyland.Application.Common.Interfaces.Services;
-using Whyland.Application.Features.Auth.Errors;
-using Whyland.Shared.Dtos.Identity;
-
 namespace Whyland.Application.Features.Auth.ExternalLogin;
 
 /// <summary>
@@ -31,7 +27,7 @@ public sealed class ExternalLoginCallbackCommandHandler(
 
         // A deactivated or deleted account must not authenticate through its provider link.
         if (user is null || !user.IsActive)
-            return AuthErrors.InvalidCredentials;
+            return UserErrors.InvalidCredentials();
 
         return await AuthenticatedAsync(user, ct);
     }
@@ -61,17 +57,11 @@ public sealed class ExternalLoginCallbackCommandHandler(
         if (firstName.Length == 0 && email is not null)
             firstName = email.Split('@')[0];
 
-        var user = new Domain.Entities.Identity.User
-        {
-            Id = Guid.NewGuid(),
-            // No phone number and no password: this account signs in through the provider link only,
-            // and a number is asked for if and when it decides to have a password (s5.4).
-            Email = Clip(email, 256),
-            FirstName = Clip(firstName, 100)!,
-            LastName = Clip(lastName, 100)!,
-            IsActive = true,
-            LastLoginAt = DateTime.UtcNow,
-        };
+        // No phone number and no password: this account signs in through the provider link only,
+        // and a number is asked for if and when it decides to have a password (s5.4).
+        var user = Domain.Entities.Identity.User.Create(
+            Clip(firstName, Domain.Entities.Identity.User.MaxFirstNameLength)!, Clip(lastName, Domain.Entities.Identity.User.MaxLastNameLength)!, email: Clip(email, Domain.Entities.Identity.User.MaxEmailLength));
+        user.RecordSuccessfulLogin(DateTime.UtcNow);
 
         await unitOfWork.UserCommandRepository.AddAsync(user, ct);
         await unitOfWork.ExternalLoginCommandRepository.AddAsync(new Domain.Entities.Identity.ExternalLogin
@@ -85,7 +75,7 @@ public sealed class ExternalLoginCallbackCommandHandler(
 
         var saveResult = await unitOfWork.SaveAsync(ct);
         if (saveResult.IsFailure)
-            return AuthErrors.LoginFailed;
+            return UserErrors.LoginFailed();
 
         return await AuthenticatedAsync(user, ct);
     }

@@ -1,9 +1,3 @@
-using Microsoft.Extensions.Options;
-using Whyland.Application.Common.Interfaces.Services;
-using Whyland.Application.Common.Options;
-using Whyland.Application.Features.Auth.Errors;
-using Whyland.Domain.Entities.Identity;
-
 namespace Whyland.Application.Features.Auth.Otp;
 
 /// <summary>
@@ -36,7 +30,7 @@ internal static class OtpCodeIssuer
         if (last is not null
             && (DateTime.UtcNow - last.CreatedAt).TotalSeconds < opts.OtpResendCooldownSeconds)
         {
-            return AuthErrors.OtpCooldown;
+            return UserErrors.OtpCooldown();
         }
 
         var code = codeGenerator.Generate();
@@ -56,7 +50,7 @@ internal static class OtpCodeIssuer
 
         var saveResult = await unitOfWork.SaveAsync(ct);
         if (saveResult.IsFailure)
-            return AuthErrors.LoginFailed;
+            return UserErrors.LoginFailed();
 
         var sent = await sms.SendTemplateAsync(
             phone,
@@ -76,7 +70,7 @@ internal static class OtpCodeIssuer
             request.IsUsed = true;
             await unitOfWork.SaveAsync(ct);
 
-            return AuthErrors.SmsSendFailed;
+            return SystemErrors.SmsNotSent();
         }
 
         return Result.Success();

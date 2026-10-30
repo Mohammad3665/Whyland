@@ -1,4 +1,3 @@
-
 namespace Whyland.Infrastructure.Persistence.Configurations.Identity;
 
 /// <summary>
@@ -14,20 +13,20 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(x => x.FirstName)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(User.MaxFirstNameLength);
 
         builder.Property(x => x.LastName)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(User.MaxLastNameLength);
 
         builder.Property(x => x.PhoneNumber)
-            .HasMaxLength(20);
+            .HasMaxLength(User.MaxPhoneNumberLength);
 
         builder.Property(x => x.Email)
-            .HasMaxLength(256);
+            .HasMaxLength(User.MaxEmailLength);
 
         builder.Property(x => x.PasswordHash)
-            .HasMaxLength(512);
+            .HasMaxLength(User.MaxPasswordHashLength);
 
         builder.Property(x => x.IsActive)
             .HasDefaultValue(true);

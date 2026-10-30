@@ -6,12 +6,6 @@ namespace Whyland.Application.Common.Validation;
 /// </summary>
 public static class PasswordRules
 {
-    /// <summary>Matches at least one Latin or Persian letter.</summary>
-    private const string LetterPattern = @"[\p{L}]";
-
-    /// <summary>Matches at least one digit (Latin or Persian).</summary>
-    private const string DigitPattern = @"[\p{Nd}]";
-
     /// <summary>
     /// The same rules as <see cref="WhylandStrongPassword"/>, as a plain predicate, for callers
     /// that must accept an optional value (registration) and cannot use a rule builder there.
@@ -33,13 +27,10 @@ public static class PasswordRules
         public IRuleBuilderOptions<T, string> WhylandStrongPassword(int minLength)
             => rule
                 .MinimumLength(minLength)
-                    .WithErrorCode(ValidationErrors.TooShort.Code)
-                    .WithMessage($"رمز عبور نمی‌تواند کمتر از {minLength} کاراکتر باشد.")
-                .Matches(LetterPattern)
-                    .WithErrorCode(ValidationErrors.InvalidFormat.Code)
-                    .WithMessage("رمز عبور باید حداقل یک حرف داشته باشد.")
-                .Matches(DigitPattern)
-                    .WithErrorCode(ValidationErrors.InvalidFormat.Code)
-                    .WithMessage("رمز عبور باید حداقل یک رقم داشته باشد.");
+                    .WhylandWithError(ValidationErrors.TooShort, ("Min", minLength))
+                // One failure for the whole shape: a password missing both a letter and a digit would
+                // otherwise report the same code twice.
+                .Must(password => string.IsNullOrEmpty(password) || Satisfies(password, minLength))
+                    .WhylandWithError(UserErrors.PasswordTooWeak());
     }
 }

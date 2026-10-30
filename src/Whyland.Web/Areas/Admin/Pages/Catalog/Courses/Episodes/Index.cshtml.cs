@@ -1,4 +1,3 @@
-
 namespace Whyland.Web.Areas.Admin.Pages.Catalog.Courses.Episodes
 {
     /// <summary>

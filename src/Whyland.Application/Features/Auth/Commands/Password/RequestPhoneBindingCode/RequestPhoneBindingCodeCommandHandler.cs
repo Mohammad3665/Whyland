@@ -1,10 +1,4 @@
-using Microsoft.Extensions.Options;
-using Whyland.Application.Common.Interfaces.Services;
-using Whyland.Application.Common.Options;
-using Whyland.Application.Common.Validation;
-using Whyland.Application.Features.Auth.Errors;
 using Whyland.Application.Features.Auth.Otp;
-using Whyland.Domain.Entities.Identity;
 
 namespace Whyland.Application.Features.Auth.Password.RequestPhoneBindingCode;
 
@@ -32,16 +26,16 @@ public sealed class RequestPhoneBindingCodeCommandHandler(
     {
         var user = await unitOfWork.UserCommandRepository.GetTrackedByIdAsync(command.UserId, ct);
         if (user is null)
-            return AuthErrors.InvalidCredentials;
+            return UserErrors.InvalidCredentials();
 
         if (!string.IsNullOrWhiteSpace(user.PhoneNumber))
-            return AuthErrors.PhoneAlreadySet;
+            return UserErrors.PhoneAlreadySet();
 
         var phone = PhoneNormalizer.Normalize(command.PhoneNumber);
 
         var owner = await unitOfWork.UserQueryRepository.GetByPhoneAsync(phone, ct);
         if (owner is not null)
-            return AuthErrors.PhoneTaken;
+            return UserErrors.PhoneTaken(phone);
 
         return await OtpCodeIssuer.SendAsync(
             unitOfWork, codeGenerator, sms, passwordHasher, options,

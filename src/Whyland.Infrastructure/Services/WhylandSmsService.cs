@@ -1,6 +1,4 @@
 using Mapster;
-using Microsoft.Extensions.Logging;
-using Whyland.Application.Common.Interfaces.Services;
 using Whyland.Sms.Provider.Client;
 
 namespace Whyland.Infrastructure.Services;

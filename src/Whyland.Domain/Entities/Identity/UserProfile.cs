@@ -8,6 +8,17 @@ namespace Whyland.Domain.Entities.Identity;
 /// </summary>
 public class UserProfile : BaseEntity<Guid>
 {
+    #region Limits
+
+    // Every column length is declared once on the entity that owns the column, so the
+    // EF mapping, the request validators and the domain rules all read the same number.
+    // Changing a size means editing one line here.
+
+    /// <summary>Maximum allowed length of <see cref="Avatar"/>; also the database column size.</summary>
+    public const int MaxAvatarLength = 256;
+
+    #endregion
+
     #region Identity
 
     /// <summary>

@@ -1,5 +1,3 @@
-using Whyland.Domain.Common.Primitives;
-
 namespace Whyland.Domain.Entities.Authorization;
 
 /// <summary>
@@ -8,6 +6,19 @@ namespace Whyland.Domain.Entities.Authorization;
 /// </summary>
 public class Permission : BaseEntity<long>, ISoftDeletable
 {
+    #region Limits
+
+    // Every column length is declared once on the entity that owns the column, so the
+    // EF mapping, the request validators and the domain rules all read the same number.
+    // Changing a size means editing one line here.
+
+    /// <summary>Maximum allowed length of <see cref="Key"/>; also the database column size.</summary>
+    public const int MaxKeyLength = 100;
+
+    /// <summary>Maximum allowed length of <see cref="Name"/>; also the database column size.</summary>
+    public const int MaxNameLength = 100;
+
+    #endregion
     /// <summary>
     /// Human-readable permission name (e.g. "Course Creation").
     /// </summary>

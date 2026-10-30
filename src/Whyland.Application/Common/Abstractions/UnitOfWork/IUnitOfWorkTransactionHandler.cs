@@ -1,4 +1,3 @@
-
 namespace Whyland.Application.Common.Abstractions.UnitOfWork;
 
 /// <summary>

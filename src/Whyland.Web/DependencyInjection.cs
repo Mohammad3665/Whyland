@@ -1,4 +1,3 @@
-using Whyland.Application.Common.Interfaces.Identity;
 using Whyland.Application.Common.Interfaces.Services;
 using Whyland.Infrastructure.Identity.Handlers;
 using Whyland.Web.Common.Identity.Providers;

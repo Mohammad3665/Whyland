@@ -1,6 +1,3 @@
-using Refit;
-using Whyland.Sms.Provider.Contracts;
-
 namespace Whyland.Sms.Provider.Abstractions;
 
 /// <summary>

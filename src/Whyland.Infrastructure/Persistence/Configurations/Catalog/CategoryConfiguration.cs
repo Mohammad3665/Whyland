@@ -1,4 +1,3 @@
-
 namespace Whyland.Infrastructure.Persistence.Configurations.Catalog;
 
 /// <summary>
@@ -14,11 +13,11 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 
         builder.Property(x => x.Name)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(Category.MaxNameLength);
 
         builder.Property(x => x.LatinName)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(Category.MaxLatinNameLength);
 
         builder.Property(x => x.IsActive)
             .HasDefaultValue(true);

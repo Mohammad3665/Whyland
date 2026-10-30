@@ -1,8 +1,5 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using Whyland.Sms.Application;
-using Whyland.Sms.Contracts.V1;
-using Whyland.Sms.Security;
-using Whyland.Sms.Storage;
 using Whyland.Sms.Templates;
 
 namespace Whyland.Sms.Endpoints;

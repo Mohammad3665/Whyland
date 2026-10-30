@@ -1,5 +1,4 @@
 using Whyland.Application.Common.Abstractions.UnitOfWork;
-using Whyland.Application.Common.Interfaces.Identity;
 
 namespace Whyland.Web.Common.Identity.Services;
 

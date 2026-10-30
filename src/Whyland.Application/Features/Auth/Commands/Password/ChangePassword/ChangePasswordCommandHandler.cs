@@ -1,6 +1,3 @@
-using Whyland.Application.Common.Interfaces.Services;
-using Whyland.Application.Features.Auth.Errors;
-
 namespace Whyland.Application.Features.Auth.Password.ChangePassword;
 
 /// <summary>
@@ -24,22 +21,19 @@ public sealed class ChangePasswordCommandHandler(
     {
         var user = await unitOfWork.UserCommandRepository.GetTrackedByIdAsync(command.UserId, ct);
         if (user is null)
-            return AuthErrors.InvalidCredentials;
+            return UserErrors.InvalidCredentials();
 
         // Nothing to prove and nothing to replace: this account belongs to the other flow.
         if (string.IsNullOrWhiteSpace(user.PasswordHash))
-            return AuthErrors.PasswordNotSet;
+            return UserErrors.PasswordNotSet();
 
         if (!passwordHasher.Verify(command.CurrentPassword, user.PasswordHash))
-            return AuthErrors.WrongPassword;
+            return UserErrors.WrongPassword();
 
-        user.PasswordHash = passwordHasher.Hash(command.NewPassword);
-
-        // A password change clears any lockout the old password may have accumulated (s15.1.4).
-        user.FailedLoginAttempts = 0;
-        user.LockoutUntilUtc = null;
+        // Storing the new password also clears any lockout the old one may have accumulated (s15.1.4).
+        user.SetPassword(passwordHasher.Hash(command.NewPassword));
 
         var saveResult = await unitOfWork.SaveAsync(ct);
-        return saveResult.IsFailure ? AuthErrors.LoginFailed : Result.Success();
+        return saveResult.IsFailure ? UserErrors.LoginFailed() : Result.Success();
     }
 }

@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 using Whyland.Shared.Enums;
 
 namespace Whyland.Shared.Filters;

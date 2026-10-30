@@ -1,7 +1,3 @@
-using Microsoft.Extensions.Logging;
-using Whyland.Application.Common.Interfaces.Identity;
-using Whyland.Application.Common.Interfaces.Services;
-
 namespace Whyland.Infrastructure.Services;
 
 /// <summary>

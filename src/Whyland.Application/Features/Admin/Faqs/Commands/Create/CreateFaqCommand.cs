@@ -1,5 +1,3 @@
-using Whyland.Application.Common.Abstractions.CQRS.Command;
-
 namespace Whyland.Application.Features.Admin.Faqs.Commands.Create;
 
 /// <summary>

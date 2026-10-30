@@ -1,4 +1,3 @@
-using Whyland.Application.Features.Admin.Users.Errors;
 using Whyland.Domain.Entities.Authorization;
 
 namespace Whyland.Application.Features.Admin.Users.Commands.ToggleStatus;
@@ -25,17 +24,17 @@ public sealed class ToggleUserStatusCommandHandler(
     {
         var user = await unitOfWork.UserCommandRepository.GetTrackedByIdAsync(command.Id, ct);
         if (user is null)
-            return UserAdminErrors.NotFound(command.Id);
+            return UserErrors.NotFound(command.Id);
 
         if (user.IsActive &&
             await unitOfWork.UserCommandRepository.IsInRoleAsync(user.Id, RoleNames.SuperAdmin, ct))
-            return UserAdminErrors.SuperAdminProtected();
+            return UserErrors.SuperAdminProtected();
 
-        user.IsActive = !user.IsActive;
+        user.SetActive(!user.IsActive);
 
         var saveResult = await unitOfWork.SaveAsync(ct);
         return saveResult.IsFailure
-            ? UserAdminErrors.UpdateFailed(user.Id)
+            ? UserErrors.UpdateFailed()
             : user.IsActive;
     }
 }

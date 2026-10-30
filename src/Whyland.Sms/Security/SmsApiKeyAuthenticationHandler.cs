@@ -1,10 +1,7 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Options;
-using Whyland.Sms.Contracts.V1;
 
 namespace Whyland.Sms.Security;
 

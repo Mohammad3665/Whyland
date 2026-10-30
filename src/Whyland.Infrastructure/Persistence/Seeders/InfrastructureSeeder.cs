@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Whyland.Application.Common.Authorization;
 using Whyland.Application.Common.Options;
 using Whyland.Application.Common.Validation;
@@ -137,21 +136,17 @@ public static class InfrastructureSeeder
                 return;
             }
 
-            user = new User
-            {
-                Id = Guid.NewGuid(),
-                FirstName = admin.FirstName,
-                LastName = admin.LastName,
-                PhoneNumber = phoneNumber,
-                Email = string.IsNullOrWhiteSpace(admin.Email) ? null : admin.Email.Trim(),
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-            };
+            user = User.Create(
+                admin.FirstName,
+                admin.LastName,
+                phoneNumber: phoneNumber,
+                email: string.IsNullOrWhiteSpace(admin.Email) ? null : admin.Email.Trim());
+            user.CreatedAt = DateTime.UtcNow;
+            user.UpdatedAt = DateTime.UtcNow;
 
             // A development default, hashed only while the account is being created: an existing
             // password is never overwritten by a restart.
-            user.PasswordHash = new BCryptPasswordHasher().Hash(admin.Password);
+            user.SetPassword(new BCryptPasswordHasher().Hash(admin.Password));
 
             await context.Users.AddAsync(user);
             await context.UserRoles.AddAsync(
@@ -194,7 +189,7 @@ public static class InfrastructureSeeder
             }
             else
             {
-                user.PhoneNumber = phoneNumber;
+                user.BindPhoneNumber(phoneNumber);
                 user.UpdatedAt = DateTime.UtcNow;
                 logger.LogInformation("Super admin sign-in number set to {PhoneNumber}.", phoneNumber);
             }

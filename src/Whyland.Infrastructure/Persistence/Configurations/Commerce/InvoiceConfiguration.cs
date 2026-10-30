@@ -1,4 +1,3 @@
-
 namespace Whyland.Infrastructure.Persistence.Configurations.Commerce;
 
 /// <summary>
@@ -14,17 +13,17 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
 
         builder.Property(x => x.InvoiceNumber)
             .IsRequired()
-            .HasMaxLength(50);
+            .HasMaxLength(Invoice.MaxInvoiceNumberLength);
 
         builder.Property(x => x.CustomerName)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(Invoice.MaxCustomerNameLength);
 
         builder.Property(x => x.CustomerPhone)
-            .HasMaxLength(20);
+            .HasMaxLength(Invoice.MaxCustomerPhoneLength);
 
         builder.Property(x => x.CustomerEmail)
-            .HasMaxLength(256);
+            .HasMaxLength(Invoice.MaxCustomerEmailLength);
 
         // Money columns must be decimal-compatible, never float/double (s7.2.4)
         builder.Property(x => x.Subtotal)
@@ -34,7 +33,7 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
             .HasPrecision(18, 2);
 
         builder.Property(x => x.CouponCode)
-            .HasMaxLength(50);
+            .HasMaxLength(Invoice.MaxCouponCodeLength);
 
         builder.Property(x => x.CouponDiscount)
             .HasPrecision(18, 2);

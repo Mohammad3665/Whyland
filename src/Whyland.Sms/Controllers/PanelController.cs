@@ -1,7 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Whyland.Sms.Security;
-
 namespace Whyland.Sms.Controllers;
 
 /// <summary>

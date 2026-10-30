@@ -1,4 +1,3 @@
-
 namespace Whyland.Infrastructure.Persistence.Configurations.Commerce;
 
 /// <summary>
@@ -14,7 +13,7 @@ public sealed class InvoiceItemConfiguration : IEntityTypeConfiguration<InvoiceI
 
         builder.Property(x => x.ProductName)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(InvoiceItem.MaxProductNameLength);
 
         builder.Property(x => x.Quantity)
             .HasDefaultValue(1);

@@ -1,5 +1,3 @@
-using Whyland.Domain.Common.Primitives;
-
 namespace Whyland.Domain.Entities.Commerce;
 
 /// <summary>
@@ -8,6 +6,29 @@ namespace Whyland.Domain.Entities.Commerce;
 /// </summary>
 public class Invoice : BaseEntity<Guid>, ISoftDeletable
 {
+    #region Limits
+
+    // Every column length is declared once on the entity that owns the column, so the
+    // EF mapping, the request validators and the domain rules all read the same number.
+    // Changing a size means editing one line here.
+
+    /// <summary>Maximum allowed length of <see cref="CouponCode"/>; also the database column size.</summary>
+    public const int MaxCouponCodeLength = 50;
+
+    /// <summary>Maximum allowed length of <see cref="CustomerEmail"/>; also the database column size.</summary>
+    public const int MaxCustomerEmailLength = 256;
+
+    /// <summary>Maximum allowed length of <see cref="CustomerName"/>; also the database column size.</summary>
+    public const int MaxCustomerNameLength = 200;
+
+    /// <summary>Maximum allowed length of <see cref="CustomerPhone"/>; also the database column size.</summary>
+    public const int MaxCustomerPhoneLength = 20;
+
+    /// <summary>Maximum allowed length of <see cref="InvoiceNumber"/>; also the database column size.</summary>
+    public const int MaxInvoiceNumberLength = 50;
+
+    #endregion
+
     #region Properties
 
     /// <summary>

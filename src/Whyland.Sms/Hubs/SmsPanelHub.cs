@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using Whyland.Sms.Security;
 
 namespace Whyland.Sms.Hubs;
 

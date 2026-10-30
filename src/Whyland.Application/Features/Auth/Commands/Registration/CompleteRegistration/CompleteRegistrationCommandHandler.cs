@@ -1,7 +1,4 @@
-using Whyland.Application.Common.Interfaces.Services;
-using Whyland.Application.Features.Auth.Errors;
 using Whyland.Application.Features.Auth.Registration.CompleteRegistration;
-using Whyland.Shared.Dtos.Identity;
 
 namespace Whyland.Application.Features.Auth.Commands.Registration.CompleteRegistration;
 
@@ -25,32 +22,28 @@ public sealed class CompleteRegistrationCommandHandler(
         // The ticket proves the phone was verified in the prior step; it is burned here.
         var phone = tickets.Consume(command.Ticket);
         if (phone is null)
-            return AuthErrors.InvalidTicket;
+            return UserErrors.InvalidTicket();
 
         // Guard against a race: the account may have been created since the ticket was issued.
         var existing = await unitOfWork.UserQueryRepository.GetByPhoneAsync(phone, ct);
         if (existing is not null)
-            return AuthErrors.RegistrationConflict;
+            return UserErrors.RegistrationConflict();
 
-        var user = new Domain.Entities.Identity.User
-        {
-            Id = Guid.NewGuid(),
-            PhoneNumber = phone,
-            FirstName = command.FirstName.Trim(),
-            LastName = command.LastName.Trim(),
-            // A password is stored only when the user chose one; otherwise OTP-only (s5.1.1).
-            PasswordHash = string.IsNullOrWhiteSpace(command.Password)
+        // A password is stored only when the user chose one; otherwise OTP-only (s5.1.1).
+        var user = Domain.Entities.Identity.User.Create(
+            command.FirstName.Trim(),
+            command.LastName.Trim(),
+            phoneNumber: phone,
+            passwordHash: string.IsNullOrWhiteSpace(command.Password)
                 ? null
-                : passwordHasher.Hash(command.Password),
-            IsActive = true,
-            LastLoginAt = DateTime.UtcNow,
-        };
+                : passwordHasher.Hash(command.Password));
+        user.RecordSuccessfulLogin(DateTime.UtcNow);
 
         await unitOfWork.UserCommandRepository.AddAsync(user, ct);
 
         var saveResult = await unitOfWork.SaveAsync(ct);
         if (saveResult.IsFailure)
-            return AuthErrors.LoginFailed;
+            return UserErrors.LoginFailed();
 
         // A freshly-registered public user holds no admin permissions; the cookie is still issued.
         var permissions = await unitOfWork.UserQueryRepository.GetPermissionKeysAsync(user.Id, ct);

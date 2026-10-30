@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using Microsoft.Extensions.Options;
 
 namespace Whyland.Sms.Storage;
 

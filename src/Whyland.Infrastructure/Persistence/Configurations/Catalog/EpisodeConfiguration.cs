@@ -1,4 +1,3 @@
-
 namespace Whyland.Infrastructure.Persistence.Configurations.Catalog;
 
 /// <summary>
@@ -14,10 +13,10 @@ public sealed class EpisodeConfiguration : IEntityTypeConfiguration<Episode>
 
         builder.Property(x => x.Title)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(Episode.MaxTitleLength);
 
         builder.Property(x => x.Video)
-            .HasMaxLength(512);
+            .HasMaxLength(Episode.MaxVideoLength);
 
         #endregion
 

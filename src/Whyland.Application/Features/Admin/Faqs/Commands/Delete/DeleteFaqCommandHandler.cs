@@ -28,12 +28,12 @@ public sealed class DeleteFaqCommandHandler(IUnitOfWork unitOfWork) : ICommandHa
         // include (and renumber around) the deleted row.
         var saveResult = await unitOfWork.SaveAsync(ct);
         if (saveResult.IsFailure)
-            return FaqErrors.SoftDeleteFailed(command.Id);
+            return FaqErrors.SoftDeleteFailed();
 
         // Close any DisplayOrder gap left behind, then persist the new numbering.
         await unitOfWork.FaqCommandRepository.RenumberAsync(ct);
 
         saveResult = await unitOfWork.SaveAsync(ct);
-        return saveResult.IsFailure ? FaqErrors.SoftDeleteFailed(command.Id) : Result.Success();
+        return saveResult.IsFailure ? FaqErrors.SoftDeleteFailed() : Result.Success();
     }
 }

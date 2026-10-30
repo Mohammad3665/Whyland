@@ -18,7 +18,7 @@ public sealed class UpdateFaqCommandHandler(IUnitOfWork unitOfWork) : ICommandHa
     {
         var faq = await unitOfWork.FaqCommandRepository.GetByIdAsync(command.Id, ct);
         if(faq is null)
-            return FaqErrors.NotFound(command.Title);
+            return FaqErrors.NotFoundByTitle(command.Title);
         
         var updated = faq.Update(
             command.Title,
@@ -32,13 +32,13 @@ public sealed class UpdateFaqCommandHandler(IUnitOfWork unitOfWork) : ICommandHa
         unitOfWork.FaqCommandRepository.Update(faq);
         var saveResult = await unitOfWork.SaveAsync(ct);
         if (saveResult.IsFailure)
-            return FaqErrors.UpdateFailed(command.Title);
+            return FaqErrors.UpdateFailed();
 
         // Compact 1..n so a client-entered order (10, 17, 100, ...) still
         // yields a clean sequence matching each FAQ's sorted position.
         await unitOfWork.FaqCommandRepository.RenumberAsync(ct);
 
         saveResult = await unitOfWork.SaveAsync(ct);
-        return saveResult.IsFailure ? FaqErrors.UpdateFailed(command.Title) : Result.Success();
+        return saveResult.IsFailure ? FaqErrors.UpdateFailed() : Result.Success();
     }
 }

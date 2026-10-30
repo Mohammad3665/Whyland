@@ -1,0 +1,12 @@
+{
+  "Faq.FieldRequired": "فیلد {Field} نمی‌تواند خالی باشد.",
+  "Faq.FieldTooLong": "فیلد {Field} نمی‌تواند بیشتر از {Max} کاراکتر باشد.",
+  "Faq.GreaterThanOrEqualToZero": "فیلد {Field} نمی‌تواند کمتر از صفر باشد.",
+  "Faq.NotFound": "سوالی با شناسه {Id} یافت نشد.",
+  "Faq.NotFoundByTitle": "سوالی با عنوان {Title} یافت نشد.",
+  "Faq.CreateFailed": "خطا در ایجاد سوال، لطفاً مجدداً تلاش کنید.",
+  "Faq.UpdateFailed": "خطا در ویرایش سوال، لطفاً مجدداً تلاش کنید.",
+  "Faq.SoftDeleteFailed": "خطا در حذف سوال، لطفاً مجدداً تلاش کنید.",
+  "Faq.ListFailed": "خطا در دریافت لیست سوالات، لطفاً مجدداً تلاش کنید.",
+  "Faq.ReorderFailed": "خطا در ذخیره ترتیب سوالات، لطفاً مجدداً تلاش کنید."
+}
