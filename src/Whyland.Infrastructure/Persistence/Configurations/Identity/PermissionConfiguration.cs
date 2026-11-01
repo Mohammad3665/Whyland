@@ -23,8 +23,10 @@ public sealed class PermissionConfiguration : IEntityTypeConfiguration<Permissio
 
         #region Indexes
 
+        // Filtered on the soft-delete flag, so a removed permission frees its key for a new one.
         builder.HasIndex(x => x.Key)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter($"\"{nameof(Permission.IsDeleted)}\" = FALSE");
 
         #endregion
 

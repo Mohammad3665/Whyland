@@ -6,6 +6,7 @@ OtherCodes/
 public-template/
 QueryBuilder/
 src/Whyland.Web/wwwroot/public/src/tailwind
+.idea/
 # npm manifests kept out of the repo; the built panel stylesheet is committed instead.
 src/Whyland.Sms/package.json
 src/Whyland.Sms/package-lock.json

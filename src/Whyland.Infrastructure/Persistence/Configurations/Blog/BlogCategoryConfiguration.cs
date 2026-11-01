@@ -30,8 +30,10 @@ public sealed class BlogCategoryConfiguration : IEntityTypeConfiguration<BlogCat
 
         #region Indexes
 
+        // Filtered on the soft-delete flag, so a removed category frees its slug for a new one.
         builder.HasIndex(x => x.Slug)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter($"\"{nameof(BlogCategory.IsDeleted)}\" = FALSE");
 
         builder.HasIndex(x => new { x.ParentId, x.DisplayOrder });
 

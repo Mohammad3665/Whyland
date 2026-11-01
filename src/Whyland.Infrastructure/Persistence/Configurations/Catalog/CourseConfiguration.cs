@@ -44,8 +44,10 @@ public sealed class CourseConfiguration : IEntityTypeConfiguration<Course>
 
         #region Indexes
 
+        // Filtered on the soft-delete flag, so a removed course frees its slug for a new one.
         builder.HasIndex(x => x.Slug)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter($"\"{nameof(Course.IsDeleted)}\" = FALSE");
 
         builder.HasIndex(x => x.DisplayStatus);
 

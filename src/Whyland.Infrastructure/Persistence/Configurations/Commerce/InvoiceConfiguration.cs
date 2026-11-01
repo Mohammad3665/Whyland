@@ -53,8 +53,10 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         #region Indexes
 
         // An invoice number must be unique across the whole system (s5.8)
+        // Soft-deleted rows stay out of the constraint, so a removed invoice never blocks reissuing its number.
         builder.HasIndex(x => x.InvoiceNumber)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter($"\"{nameof(Invoice.IsDeleted)}\" = FALSE");
 
         builder.HasIndex(x => x.UserId);
 

@@ -23,8 +23,10 @@ public sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
 
         #region Indexes
 
+        // Filtered on the soft-delete flag, so a removed role frees its name for a new one.
         builder.HasIndex(x => x.Name)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter($"\"{nameof(Role.IsDeleted)}\" = FALSE");
 
         #endregion
 

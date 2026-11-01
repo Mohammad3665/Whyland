@@ -37,8 +37,10 @@ public sealed class SiteSettingConfiguration : IEntityTypeConfiguration<SiteSett
         #region Indexes
 
         // Setting keys must be unique; lookups always go through the key (s4.11)
+        // Filtered on the soft-delete flag, so a removed setting frees its key for a new one.
         builder.HasIndex(x => x.Key)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter($"\"{nameof(SiteSetting.IsDeleted)}\" = FALSE");
 
         builder.HasIndex(x => x.Group);
 

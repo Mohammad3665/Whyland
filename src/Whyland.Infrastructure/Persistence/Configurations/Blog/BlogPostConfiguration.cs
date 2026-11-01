@@ -33,8 +33,10 @@ public sealed class BlogPostConfiguration : IEntityTypeConfiguration<BlogPost>
 
         #region Indexes
 
+        // Filtered on the soft-delete flag, so a removed post frees its slug for a new one.
         builder.HasIndex(x => x.Slug)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter($"\"{nameof(BlogPost.IsDeleted)}\" = FALSE");
 
         builder.HasIndex(x => x.CategoryId);
 

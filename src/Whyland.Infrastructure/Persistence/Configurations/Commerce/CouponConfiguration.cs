@@ -36,8 +36,10 @@ public sealed class CouponConfiguration : IEntityTypeConfiguration<Coupon>
         #region Indexes
 
         // A coupon code must be unique and is looked up case-sensitively (s5.6)
+        // Soft-deleted rows stay out of the constraint, so a removed coupon frees its code for reuse.
         builder.HasIndex(x => x.Code)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter($"\"{nameof(Coupon.IsDeleted)}\" = FALSE");
 
         builder.HasIndex(x => x.StartDate);
 
