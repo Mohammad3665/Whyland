@@ -182,7 +182,9 @@
    *   successMsg: toastr message shown after the demo save
    *   onSave:     optional function(rows) to persist [{ id, displayOrder }];
    *               when provided it replaces the demo console/toast behavior
-   * @returns {{getNextOrder: Function, renumber: Function, collect: Function}}
+   * @returns {{getNextOrder: Function, renumber: Function, collect: Function, orderOf: Function}}
+   *               orderOf(id, fallback) reads the number the badge currently shows, which is
+   *               what an edit form has to fill in after a drag & drop.
    */
   function bindRowReorder(table, opts) {
     opts = $.extend(
@@ -243,6 +245,24 @@
         .get();
     }
 
+    /**
+     * The order a row currently shows on the table, or `fallback` when the row
+     * is not in the DOM. After a drag & drop the badge holds the new number
+     * while the row object cached from ?handler=Rows still holds the one the
+     * server sent, so an edit form opened from the cache would show a stale
+     * «ترتیب نمایش» and the operator reads that as a broken reorder.
+     */
+    function orderOf(id, fallback) {
+      var $badge = orderedRowNodes()
+        .filter('[data-id="' + id + '"]')
+        .find(opts.badge);
+
+      if (!$badge.length) return fallback;
+
+      var order = parseInt($badge.text(), 10);
+      return isNaN(order) ? fallback : order;
+    }
+
     // `row-reorder` fires at drop time, after the plugin has already
     // placed the dragged <tr> in its new DOM position — exactly what the
     // DOM-order renumbering needs. The post-drop `row-reordered` event is
@@ -262,7 +282,12 @@
       }
     });
 
-    return { getNextOrder: getNextOrder, renumber: renumber, collect: collect };
+    return {
+      getNextOrder: getNextOrder,
+      renumber: renumber,
+      collect: collect,
+      orderOf: orderOf,
+    };
   }
   //#endregion
 

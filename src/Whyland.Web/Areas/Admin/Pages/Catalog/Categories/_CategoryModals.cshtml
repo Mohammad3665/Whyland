@@ -1,4 +1,124 @@
-﻿<!--begin::Create/Edit Modal-->
+<!--begin::Category Details Modal-->
+<div class="modal fade" id="kt_modal_category_details" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded">
+            <!--begin::Modal header-->
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+            <!--end::Modal header-->
+
+            <!--begin::Modal body-->
+            <div class="modal-body scroll-y px-10 px-lg-15 pt-0 pb-15">
+                <!--begin::Summary-->
+                <div class="d-flex flex-center flex-column mb-8">
+                    <h3 class="mb-1 text-gray-900 fw-bold fs-4" id="cd-name">-</h3>
+                    <div class="text-muted fs-7" id="cd-latin-name">-</div>
+                </div>
+                <!--end::Summary-->
+
+                <!--begin::Category-->
+                <h3 class="mb-4 text-gray-900 fw-bold fs-5">اطلاعات دسته‌بندی</h3>
+                <div class="table-responsive mb-6">
+                    <table class="table table-row-dashed table-row-border fs-6 align-middle m-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted w-200px">نام</td>
+                                <td id="cd-name-full">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">نام لاتین</td>
+                                <td id="cd-latin-name-full" dir="ltr">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">ترتیب نمایش</td>
+                                <td id="cd-display-order">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">والد</td>
+                                <td id="cd-parent">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">سطح</td>
+                                <td id="cd-depth">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">وضعیت</td>
+                                <td id="cd-status">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">شناسه</td>
+                                <td id="cd-id" class="text-gray-900" dir="ltr">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--end::Category-->
+
+                <!--begin::Audit-->
+                <h3 class="mb-4 text-gray-900 fw-bold fs-5">تاریخچه تغییرات</h3>
+                <div class="table-responsive mb-6">
+                    <table class="table table-row-dashed table-row-border fs-6 align-middle m-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted w-200px">تاریخ ایجاد</td>
+                                <td id="cd-created-at">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">کاربر ایجادکننده</td>
+                                <td id="cd-created-by" class="text-gray-900" dir="ltr">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">آخرین ویرایش</td>
+                                <td id="cd-updated-at">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">کاربر ویرایشکننده</td>
+                                <td id="cd-updated-by" class="text-gray-900" dir="ltr">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--end::Audit-->
+
+                <!--begin::Soft delete-->
+                <h3 class="mb-4 text-gray-900 fw-bold fs-5">حذف نرم</h3>
+                <div class="table-responsive mb-8">
+                    <table class="table table-row-dashed table-row-border fs-6 align-middle m-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted w-200px">حذف شده؟</td>
+                                <td id="cd-is-deleted">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">تاریخ حذف</td>
+                                <td id="cd-deleted-at">-</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">کاربر حذفکننده</td>
+                                <td id="cd-deleted-by" class="text-gray-900" dir="ltr">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--end::Soft delete-->
+
+                <!--begin::Actions-->
+                <div class="d-flex justify-content-end gap-3">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">بستن</button>
+                    <button type="button" class="btn btn-primary" id="cd-edit">ویرایش دسته‌بندی</button>
+                </div>
+                <!--end::Actions-->
+            </div>
+            <!--end::Modal body-->
+        </div>
+    </div>
+</div>
+<!--end::Category Details Modal-->
+
+<!--begin::Create/Edit Modal-->
 <div class="modal fade" id="kt_modal_category" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered mw-650px">
         <div class="modal-content rounded">
@@ -28,12 +148,14 @@
                             <label class="required fs-6 fw-semibold mb-2">نام</label>
                             <input type="text" id="Form_Name" name="Form_Name"
                                    class="form-control form-control-solid"
+                                   maxlength="200"
                                    placeholder="مثال: برنامه‌نویسی" />
                         </div>
                         <div class="col-md-6 fv-row">
                             <label class="required fs-6 fw-semibold mb-2">نام لاتین</label>
                             <input type="text" id="Form_LatinName" name="Form_LatinName"
                                    class="form-control form-control-solid"
+                                   maxlength="200"
                                    placeholder="Example: Programming" dir="ltr" />
                         </div>
                     </div>
@@ -44,21 +166,27 @@
                         <div class="col-md-6 fv-row">
                             <label class="fs-6 fw-semibold mb-2">ترتیب نمایش</label>
                             <input type="number" id="Form_DisplayOrder" name="Form_DisplayOrder"
-                                   class="form-control form-control-solid" value="0" />
+                                   class="form-control form-control-solid" value="1" />
+                            <div class="text-muted fs-7 mt-1">
+                                ترتیب دسته‌بندی‌ها همچنین با درگ کردن سطرها در جدول قابل تغییر است
+                            </div>
                         </div>
                         <div class="col-md-6 fv-row">
                             <label class="fs-6 fw-semibold mb-2">والد</label>
+                            <!-- Options are filled by categories.js from the loaded rows, so the
+                                 list never drifts away from the table. The Select2 list is attached
+                                 to the modal itself (dropdownParent in categories.js): attaching it
+                                 to the field or the modal body would clip it against the scrollable
+                                 body, and the list has to be able to cross the modal header. -->
                             <select id="Form_ParentId" name="Form_ParentId"
-                                    class="form-select form-select-solid" data-control="select2"
+                                    class="form-select form-select-solid"
                                     data-placeholder="بدون والد (سطح اول)">
                                 <option value="">بدون والد (سطح اول)</option>
-                                <option value="1">برنامه‌نویسی</option>
-                                <option value="2">— برنامه‌نویسی وب</option>
-                                <option value="5">طراحی گرافیک</option>
-                                <option value="6">کسب و کار</option>
-                                <option value="7">زبان‌های خارجی</option>
                             </select>
-                            <div class="text-muted fs-7 mt-1">حداکثر ۳ سطح مجاز است</div>
+                            <div class="text-muted fs-7 mt-1">
+                                حداکثر ۳ سطح مجاز است و هر دسته‌بندی بیش از ۳ زیرمجموعه ندارد؛
+                                گزینه‌های پر یا روی سطح سوم غیرقابل انتخاب‌اند.
+                            </div>
                         </div>
                     </div>
                     <!--end::Input group-->
@@ -67,7 +195,7 @@
                     <div class="d-flex flex-stack mb-8">
                         <div class="me-5">
                             <label class="fs-6 fw-semibold">وضعیت فعال</label>
-                            <div class="text-muted fs-7">دسته‌بندی غیرفعال در سایت نمایش داده نمی‌شود</div>
+                            <div class="text-muted fs-7">با غیرفعال کردن، زیرمجموعه‌های این دسته‌بندی هم غیرفعال می‌شوند</div>
                         </div>
                         <label class="form-check form-switch form-check-custom form-check-solid">
                             <input class="form-check-input" type="checkbox" id="Form_IsActive" checked />
@@ -95,7 +223,6 @@
         </div>
     </div>
 </div>
-
 <!--end::Create/Edit Modal-->
 
 <!--begin::Delete Confirmation Modal-->

@@ -244,7 +244,10 @@ function openEditModal(id, title, duration, isFree, displayOrder) {
   $("#Form_Duration").val(duration);
   unlockDuration();
   $("#Form_IsFree").prop("checked", isFree);
-  $("#Form_DisplayOrder").val(displayOrder);
+  // A drag & drop renumbers the badges, but the values this button closes over
+  // still hold the order the server sent, so the form reads the table: without
+  // this the operator drags a row, reopens it and sees the old number.
+  $("#Form_DisplayOrder").val(reorder.orderOf(id, displayOrder));
   AdminCrud.Utils.showModal("kt_modal_episode");
 }
 //#endregion

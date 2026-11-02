@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore.Storage;
+using Whyland.Domain.IRepositories.Catalog.Category;
 using Whyland.Domain.IRepositories.Identity.ExternalLogin;
 using Whyland.Domain.IRepositories.Identity.OtpRequest;
+using Whyland.Infrastructure.Persistence.Repositories.Catalog.Category;
 using Whyland.Infrastructure.Persistence.Repositories.Content.Faq;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.ExternalLogin;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.OtpRequest;
@@ -33,6 +35,21 @@ public class UnitOfWork(WhylandDbContext context, NpgsqlDataSource dataSource) :
     /// built on the pooled Npgsql data source for Dapper queries.
     /// </summary>
     public IFaqQueryRepository FaqQueryRepository => _faqQueryRepository ??= new FaqQueryRepository(dataSource);
+
+    private ICategoryCommandRepository? _categoryCommandRepository;
+    /// <summary>
+    /// Lazily creates the singleton-per-unit-of-work <see cref="ICategoryCommandRepository"/>.
+    /// </summary>
+    public ICategoryCommandRepository CategoryCommandRepository =>
+        _categoryCommandRepository ??= new CategoryCommandRepository(context);
+
+    private ICategoryQueryRepository? _categoryQueryRepository;
+    /// <summary>
+    /// Lazily creates the singleton-per-unit-of-work <see cref="ICategoryQueryRepository"/>,
+    /// built on the pooled Npgsql data source for Dapper queries.
+    /// </summary>
+    public ICategoryQueryRepository CategoryQueryRepository =>
+        _categoryQueryRepository ??= new CategoryQueryRepository(dataSource);
 
     private IOtpRequestCommandRepository? _otpRequestCommandRepository;
 

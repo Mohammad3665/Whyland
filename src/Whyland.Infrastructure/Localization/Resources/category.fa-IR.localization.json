@@ -1,0 +1,17 @@
+{
+  "Category.FieldRequired": "فیلد {Field} نمی‌تواند خالی باشد.",
+  "Category.FieldTooLong": "فیلد {Field} نمی‌تواند بیشتر از {Max} کاراکتر باشد.",
+  "Category.GreaterThanOrEqualToZero": "فیلد {Field} نمی‌تواند کمتر از صفر باشد.",
+  "Category.NotFound": "دسته‌بندی با شناسه {Id} یافت نشد.",
+  "Category.ParentNotFound": "دسته‌بندی والد با شناسه {ParentId} یافت نشد.",
+  "Category.NameTaken": "نام «{Name}» در همین سطح قبلاً استفاده شده است.",
+  "Category.CircularParent": "یک دسته‌بندی نمی‌تواند والد خودش یا یکی از فرزندانش باشد.",
+  "Category.MaxDepthExceeded": "حداکثر {MaxDepth} سطح دسته‌بندی مجاز است.",
+  "Category.MaxChildrenExceeded": "هر دسته‌بندی حداکثر می‌تواند {Max} زیرمجموعه داشته باشد.",
+  "Category.CreateFailed": "خطا در ایجاد دسته‌بندی، لطفاً مجدداً تلاش کنید.",
+  "Category.UpdateFailed": "خطا در ویرایش دسته‌بندی، لطفاً مجدداً تلاش کنید.",
+  "Category.SoftDeleteFailed": "خطا در حذف دسته‌بندی، لطفاً مجدداً تلاش کنید.",
+  "Category.ListFailed": "خطا در دریافت لیست دسته‌بندی‌ها، لطفاً مجدداً تلاش کنید.",
+  "Category.HasChildren": "این دسته‌بندی {ChildCount} زیرمجموعه فعال دارد؛ ابتدا آن‌ها را حذف کنید.",
+  "Category.ReorderFailed": "خطا در ذخیره ترتیب دسته‌بندی‌ها، لطفاً مجدداً تلاش کنید."
+}

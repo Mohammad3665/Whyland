@@ -1,0 +1,46 @@
+/* =========================================================
+ * categories.css — Select2 styling for the «والد» picker inside the category
+ * create/edit modal. Same approach as users.css: the list is attached to the
+ * modal (dropdownParent in categories.js) and pinned to its own box instead of
+ * the corner of the page. Two extras this picker needs: the list opens upwards
+ * (that part is measured in JS, not here) and it stops growing at five rows and
+ * scrolls instead.
+ * ========================================================= */
+
+//#region Dropdown placement
+/* No width rule here on purpose: Select2 clones the control's classes onto the list, so a
+   ".select2-container { width }" rule would stretch the list too. The control is sized by the
+   width: "100%" option and the list by dropdownAutoWidth: false (see categories.js). */
+
+/* Select2 leaves the list at left:-100000px until it positions it; the vertical
+   offset is written on the wrapper by positionAboveField() in categories.js, so
+   this only pins the list horizontally to that wrapper — which is what makes it
+   line up with the field rather than with the modal. The z-index is the modal
+   overlay level, so a list that reaches the header paints over it. */
+#kt_modal_category .select2-dropdown {
+  left: 0 !important;
+  right: auto !important;
+  z-index: 1056;
+}
+
+/* Persian search field inside the dropdown. */
+#kt_modal_category .select2-search--dropdown .select2-search__field {
+  direction: rtl;
+  text-align: right;
+}
+//#endregion
+
+//#region Five rows, then scroll
+/* Metronic gives each row 0.75rem of vertical padding; pinned to a known height
+   (7 + 20 + 7 = 34px) the cap below is exactly five of them. */
+#kt_modal_category .select2-results__option {
+  padding: 7px 12px;
+  line-height: 20px;
+}
+
+#kt_modal_category .select2-results,
+#kt_modal_category .select2-results__options {
+  max-height: 170px;
+  overflow-y: auto !important;
+}
+//#endregion

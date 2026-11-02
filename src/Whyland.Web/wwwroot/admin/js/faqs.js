@@ -352,7 +352,10 @@ function openEditModal(id, title, description, displayOrder, isActive) {
   $("#modal-faq-title").text("ویرایش سوال متداول");
   $("#Form_Title").val(title);
   $("#Form_Description").val(description);
-  $("#Form_DisplayOrder").val(displayOrder);
+  // A drag & drop renumbers the badges, but the values this button closes over
+  // still hold the order the server sent, so the form reads the table: without
+  // this the operator drags a row, reopens it and sees the old number.
+  $("#Form_DisplayOrder").val(reorder.orderOf(id, displayOrder));
   $("#Form_IsActive").prop("checked", isActive);
   AdminCrud.Utils.showModal("kt_modal_faq");
 }

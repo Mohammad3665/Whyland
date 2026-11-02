@@ -92,7 +92,10 @@ function openEditModal(id, title, displayOrder) {
   page.state.editId = id;
   $("#modal-section-title").text("ویرایش سرفصل");
   $("#Form_Title").val(title);
-  $("#Form_DisplayOrder").val(displayOrder);
+  // A drag & drop renumbers the badges, but the values this button closes over
+  // still hold the order the server sent, so the form reads the table: without
+  // this the operator drags a row, reopens it and sees the old number.
+  $("#Form_DisplayOrder").val(reorder.orderOf(id, displayOrder));
   AdminCrud.Utils.showModal("kt_modal_section");
 }
 //#endregion

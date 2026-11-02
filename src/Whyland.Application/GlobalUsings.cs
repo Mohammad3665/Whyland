@@ -46,6 +46,8 @@ global using Whyland.Shared.Dtos.Content;           // content DTOs
 
 global using Whyland.Shared.Dtos.Content.Faq;       // FAQ DTOs and filters
 
+global using Whyland.Shared.Dtos.Catalog.Category;  // category listing DTOs
+
 global using Whyland.Shared.Dtos.Identity;          // identity DTOs
 
 global using Whyland.Shared.Dtos.Identity.User;     // user administration DTOs
@@ -59,6 +61,10 @@ global using Whyland.Domain.Common.Errors;          // DomainError base contract
 global using Whyland.Domain.Entities.Content;       // Faq and the other content entities
 
 global using Whyland.Domain.Entities.Content.Errors; // FaqErrors code catalog
+
+global using Whyland.Domain.Entities.Catalog;       // Category and the other catalog entities
+
+global using Whyland.Domain.Entities.Catalog.Errors; // CategoryErrors code catalog
 
 global using Whyland.Domain.Entities.Identity;      // User and the other identity entities
 

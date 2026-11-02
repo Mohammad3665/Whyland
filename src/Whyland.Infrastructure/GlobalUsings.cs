@@ -78,6 +78,8 @@ global using Whyland.Domain.Entities.Identity;      // identity entities
 
 global using Whyland.Domain.Entities.Learning;      // learning entities
 
+global using Whyland.Domain.IRepositories.Catalog.Category; // Category repository contracts
+
 global using Whyland.Domain.IRepositories.Content.Faq; // Faq repository contracts
 
 global using Whyland.Shared.Enums;                  // FilterOperator, SortType, ...

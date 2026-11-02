@@ -11,9 +11,13 @@ namespace Whyland.Shared.Filters;
 /// <param name="Kind">Input kind: string, bool, number, date, guid or enum.</param>
 /// <param name="Operators">Operator names accepted for this field, matching <see cref="Whyland.Shared.Enums.FilterOperator"/>.</param>
 /// <param name="Options">Fixed values for closed domains (bool/enum); empty when the value is free-form.</param>
+/// <param name="Min">Smallest value the field can ever hold; the picker refuses anything below it. Null = unbounded.</param>
+/// <param name="Max">Largest value the field can ever hold; the picker refuses anything above it. Null = unbounded.</param>
 public sealed record FilterFieldDto(
     string Property,
     string Label,
     string Kind,
     IReadOnlyList<string> Operators,
-    IReadOnlyList<string>? Options = null);
+    IReadOnlyList<string>? Options = null,
+    int? Min = null,
+    int? Max = null);

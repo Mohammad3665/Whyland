@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore.Storage;
+using Whyland.Domain.IRepositories.Catalog.Category;
 using Whyland.Domain.IRepositories.Content.Faq;
 using Whyland.Domain.IRepositories.Identity.ExternalLogin;
 using Whyland.Domain.IRepositories.Identity.OtpRequest;
@@ -26,6 +27,16 @@ public interface IUnitOfWork : IAsyncDisposable
     /// Repository for read (query) operations on FAQ entities.
     /// </summary>
     IFaqQueryRepository FaqQueryRepository { get; }
+
+    /// <summary>
+    /// Repository for write (command) operations on Category entities.
+    /// </summary>
+    ICategoryCommandRepository CategoryCommandRepository { get; }
+
+    /// <summary>
+    /// Repository for read (query) operations on Category entities.
+    /// </summary>
+    ICategoryQueryRepository CategoryQueryRepository { get; }
 
     /// <summary>
     /// Repository for write (command) operations on OTP request entities.
