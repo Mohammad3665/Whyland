@@ -9,20 +9,20 @@ public class CourseCategory
     /// <summary>
     /// The course this relation links to the category.
     /// </summary>
-    public long CourseId { get; set; }
+    public long CourseId { get; private set; }
 
     /// <summary>
     /// The course this relation links to the category.
     /// </summary>
-    public Course Course { get; set; } = null!;
+    public Course Course { get; private set; } = null!;
 
     /// <summary>
     /// The category this relation links to the course.
     /// </summary>
-    public long CategoryId { get; set; }
+    public long CategoryId { get; private set; }
 
     /// <summary>
     /// The category this relation links to the course.
     /// </summary>
-    public Category Category { get; set; } = null!;
+    public Category Category { get; private set; } = null!;
 }

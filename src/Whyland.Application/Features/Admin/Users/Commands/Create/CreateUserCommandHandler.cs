@@ -33,17 +33,22 @@ public sealed class CreateUserCommandHandler(
             await unitOfWork.UserCommandRepository.GetTrackedByEmailAsync(email, ct) is not null)
             return UserErrors.EmailTaken(email);
 
-        var user = Domain.Entities.Identity.User.Create(
-            command.FirstName.Trim(),
-            command.LastName.Trim(),
+        // The entity trims the names and enforces the column sizes, so the handler passes them as typed.
+        var created = User.Create(
+            command.FirstName,
+            command.LastName,
             phoneNumber: phone,
             email: email,
             passwordHash: passwordHasher.Hash(command.Password),
             isActive: command.IsActive);
 
+        if (created.IsFailure)
+            return created.Error;
+
+        var user = created.Data!;
+
         await unitOfWork.UserCommandRepository.AddAsync(user, ct);
 
-        var fullName = $"{user.FirstName} {user.LastName}";
         var saveResult = await unitOfWork.SaveAsync(ct);
         if (saveResult.IsFailure)
             return UserErrors.CreateFailed();

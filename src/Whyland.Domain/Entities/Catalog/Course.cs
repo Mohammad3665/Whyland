@@ -34,33 +34,33 @@ public class Course : BaseEntity<long>, ISoftDeletable
     /// <summary>
     /// The course display name.
     /// </summary>
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; private set; } = string.Empty;
 
     /// <summary>
     /// Latin equivalent of the name, used to generate URL-friendly slugs.
     /// </summary>
-    public string LatinName { get; set; } = string.Empty;
+    public string LatinName { get; private set; } = string.Empty;
 
     /// <summary>
     /// Short excerpt shown in listings before the full description.
     /// </summary>
-    public string ShortDescription { get; set; } = string.Empty;
+    public string ShortDescription { get; private set; } = string.Empty;
 
     /// <summary>
     /// Full description supporting HTML-editor content. Must be sanitized against an
     /// explicit allowlist before public display (s7.2.2).
     /// </summary>
-    public string? Description { get; set; }
+    public string? Description { get; private set; }
 
     /// <summary>
     /// Unique, URL-safe and stable slug used for public course URLs (s7.2.3).
     /// </summary>
-    public string Slug { get; set; } = string.Empty;
+    public string Slug { get; private set; } = string.Empty;
 
     /// <summary>
     /// Path or URL of the main cover image shown in listings.
     /// </summary>
-    public string? MainImage { get; set; }
+    public string? MainImage { get; private set; }
 
     /// <summary>
     /// Null means the course is free; a non-null value greater than zero means it is paid (s7.3).
@@ -71,58 +71,73 @@ public class Course : BaseEntity<long>, ISoftDeletable
     /// <summary>
     /// The kind of discount applied to the course (s7.2.5).
     /// </summary>
-    public DiscountType DiscountType { get; set; } = DiscountType.None;
+    public DiscountType DiscountType { get; private set; } = DiscountType.None;
 
     /// <summary>
     /// Required when the discount is active. Percentages: 0..100;
     /// fixed amounts: must not make the final price negative (s7.2.5).
     /// </summary>
-    public decimal? DiscountValue { get; set; }
+    public decimal? DiscountValue { get; private set; }
 
     /// <summary>
     /// Controls whether the course can currently be purchased; independent of display status (s7.2.6).
     /// </summary>
-    public bool IsSaleActive { get; set; }
+    public bool IsSaleActive { get; private set; }
 
     /// <summary>
     /// Public visibility status of the course (s7.2.7). Only published courses are discoverable.
     /// </summary>
-    public DisplayStatus DisplayStatus { get; set; } = DisplayStatus.Draft;
+    public DisplayStatus DisplayStatus { get; private set; } = DisplayStatus.Draft;
 
     /// <summary>
     /// Featured courses are promoted in the site's highlighted sections.
     /// </summary>
-    public bool IsFeatured { get; set; }
+    public bool IsFeatured { get; private set; }
 
     /// <summary>
     /// Amazing (special-offer) courses appear in the site's promotional deals section.
     /// </summary>
-    public bool IsAmazing { get; set; }
+    public bool IsAmazing { get; private set; }
 
     /// <summary>
     /// Reference to the course introduction video shown on the landing page.
     /// </summary>
-    public string? IntroductionVideo { get; set; }
+    public string? IntroductionVideo { get; private set; }
+
+    /// <summary>
+    /// The identifier of the user who performed the soft-delete operation.
+    /// </summary>
+    public Guid? DeletedBy { get; private set; }
+
+    /// <summary>
+    /// Indicates whether the entity has been soft-deleted and must be excluded from ordinary queries.
+    /// </summary>
+    public bool IsDeleted { get; private set; }
+
+    /// <summary>
+    /// The UTC time at which the entity was soft-deleted.
+    /// </summary>
+    public DateTime? DeletedAt { get; private set; }
 
     /// <summary>
     /// The categories the course belongs to (s7.4).
     /// </summary>
-    public ICollection<CourseCategory> CourseCategories { get; set; } = [];
+    public ICollection<CourseCategory> CourseCategories { get; } = [];
 
     /// <summary>
     /// The instructors assigned to this course (s7.5).
     /// </summary>
-    public ICollection<CourseInstructor> CourseInstructors { get; set; } = [];
+    public ICollection<CourseInstructor> CourseInstructors { get; } = [];
 
     /// <summary>
     /// The logical sections grouping the course episodes (s7.6).
     /// </summary>
-    public ICollection<CourseSection> Sections { get; set; } = [];
+    public ICollection<CourseSection> Sections { get; } = [];
 
     /// <summary>
     /// FAQ items attached to this course (s7.10).
     /// </summary>
-    public ICollection<CourseFaq> CourseFaqs { get; set; } = [];
+    public ICollection<CourseFaq> CourseFaqs { get; } = [];
 
     /// <summary>
     /// Domain-derived free status. Captured at run time only; never stored (s7.3.2).

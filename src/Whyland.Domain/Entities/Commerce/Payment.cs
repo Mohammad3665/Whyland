@@ -21,32 +21,32 @@ public class Payment : BaseEntity<Guid>
     /// <summary>
     /// The order being paid.
     /// </summary>
-    public Guid OrderId { get; set; }
+    public Guid OrderId { get; private set; }
 
     /// <summary>
     /// The payment channel used (e.g. online gateway).
     /// </summary>
-    public PaymentMethod PaymentMethod { get; set; }
+    public PaymentMethod PaymentMethod { get; private set; }
 
     /// <summary>
     /// Amount of this payment attempt.
     /// </summary>
-    public decimal Amount { get; set; }
+    public decimal Amount { get; private set; }
 
     /// <summary>
     /// The outcome of the payment attempt.
     /// </summary>
-    public PaymentStatus Status { get; set; }
+    public PaymentStatus Status { get; private set; }
 
     /// <summary>
     /// Unique reference returned by the payment gateway; null until the bank responds (s5.7).
     /// </summary>
-    public string? TrackingNumber { get; set; }
+    public string? TrackingNumber { get; private set; }
 
     /// <summary>
     /// UTC time at which payment succeeded; null until then.
     /// </summary>
-    public DateTime? PaidAt { get; set; }
+    public DateTime? PaidAt { get; private set; }
 
     #endregion
 
@@ -55,7 +55,7 @@ public class Payment : BaseEntity<Guid>
     /// <summary>
     /// The parent order.
     /// </summary>
-    public Order Order { get; set; } = null!;
+    public Order Order { get; private set; } = null!;
 
     #endregion
 }

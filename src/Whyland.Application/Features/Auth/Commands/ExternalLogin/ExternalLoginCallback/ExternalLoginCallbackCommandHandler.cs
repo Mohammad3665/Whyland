@@ -59,19 +59,29 @@ public sealed class ExternalLoginCallbackCommandHandler(
 
         // No phone number and no password: this account signs in through the provider link only,
         // and a number is asked for if and when it decides to have a password (s5.4).
-        var user = Domain.Entities.Identity.User.Create(
-            Clip(firstName, Domain.Entities.Identity.User.MaxFirstNameLength)!, Clip(lastName, Domain.Entities.Identity.User.MaxLastNameLength)!, email: Clip(email, Domain.Entities.Identity.User.MaxEmailLength));
+        var created = User.Create(
+            Clip(firstName, User.MaxFirstNameLength)!, Clip(lastName, User.MaxLastNameLength)!, email: Clip(email, User.MaxEmailLength));
+
+        // A provider that releases neither a name nor an e-mail cannot become an account with anything
+        // to show in the header. The sign-in path answers one generic failure for every reason it
+        // cannot let someone in, so it does here either.
+        if (created.IsFailure)
+            return UserErrors.LoginFailed();
+
+        var user = created.Data!;
         user.RecordSuccessfulLogin(DateTime.UtcNow);
 
         await unitOfWork.UserCommandRepository.AddAsync(user, ct);
-        await unitOfWork.ExternalLoginCommandRepository.AddAsync(new Domain.Entities.Identity.ExternalLogin
-        {
-            Id = Guid.NewGuid(),
-            UserId = user.Id,
-            Provider = identity.Provider,
-            ProviderKey = identity.ProviderKey,
-            CreatedAt = DateTime.UtcNow,
-        }, ct);
+
+        // The two claim values come from the provider, so the entity checks their shape. Nothing is
+        // persisted on a refusal: the account staged above is only written by the save below.
+        var link = Domain.Entities.Identity.ExternalLogin.Create(
+            user.Id, identity.Provider, identity.ProviderKey);
+
+        if (link.IsFailure)
+            return UserErrors.LoginFailed();
+
+        await unitOfWork.ExternalLoginCommandRepository.AddAsync(link.Data!, ct);
 
         var saveResult = await unitOfWork.SaveAsync(ct);
         if (saveResult.IsFailure)
@@ -82,7 +92,7 @@ public sealed class ExternalLoginCallbackCommandHandler(
 
     /// <summary>Shapes the cookie payload for a user, including its effective permissions.</summary>
     private async Task<Result<AuthenticatedUserDto>> AuthenticatedAsync(
-        Domain.Entities.Identity.User user,
+        User user,
         CancellationToken ct)
     {
         var permissions = await unitOfWork.UserQueryRepository.GetPermissionKeysAsync(user.Id, ct);

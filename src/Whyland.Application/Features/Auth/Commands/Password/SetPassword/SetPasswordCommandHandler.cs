@@ -66,9 +66,7 @@ public sealed class SetPasswordCommandHandler(
 
         if (!passwordHasher.Verify(command.Code, otp.CodeHash))
         {
-            otp.AttemptCount++;
-            if (otp.AttemptCount >= otp.MaxAttempts)
-                otp.IsUsed = true;
+            otp.RegisterFailedAttempt();
 
             await unitOfWork.SaveAsync(ct);
             return UserErrors.InvalidOtp();
@@ -79,7 +77,7 @@ public sealed class SetPasswordCommandHandler(
             return UserErrors.PhoneTaken(phone);
 
         // Correct code: burn it so it can never be replayed, then store the verified number.
-        otp.IsUsed = true;
+        otp.MarkUsed();
         user.BindPhoneNumber(phone);
 
         return Result.Success();

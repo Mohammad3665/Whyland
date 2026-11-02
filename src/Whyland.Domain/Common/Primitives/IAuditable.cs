@@ -9,21 +9,21 @@ public interface IAuditable
     /// <summary>
     /// The UTC time at which the entity was created.
     /// </summary>
-    DateTime CreatedAt { get; set; }
+    DateTime CreatedAt { get; }
 
     /// <summary>
     /// The identifier of the user responsible for creating the record.
     /// Null for system-generated records.
     /// </summary>
-    Guid? CreatedBy { get; set; }
+    Guid? CreatedBy { get; }
 
     /// <summary>
     /// The UTC time of the latest modification of the entity.
     /// </summary>
-    DateTime UpdatedAt { get; set; }
+    DateTime UpdatedAt { get; }
 
     /// <summary>
     /// The identifier of the user responsible for the latest change.
     /// </summary>
-    Guid? UpdatedBy { get; set; }
+    Guid? UpdatedBy { get; }
 }

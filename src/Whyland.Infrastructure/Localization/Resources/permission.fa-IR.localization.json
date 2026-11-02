@@ -1,0 +1,4 @@
+{
+  "Permission.FieldRequired": "فیلد {Field} نمی‌تواند خالی باشد.",
+  "Permission.FieldTooLong": "فیلد {Field} نمی‌تواند بیشتر از {Max} کاراکتر باشد."
+}

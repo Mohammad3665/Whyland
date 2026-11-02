@@ -35,14 +35,16 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         #region Indexes
 
-        // Unique when present (s5.1.1) - partial unique indexes for nullable columns in PostgreSQL
+        // Unique when present (s5.1.1) - partial unique indexes for nullable columns in PostgreSQL.
+        // An account is never soft-deleted (disabling is the supported state change), so unlike the
+        // other aggregates there is no deletion flag to keep out of the uniqueness check.
         builder.HasIndex(x => x.PhoneNumber)
             .IsUnique()
-            .HasFilter($"\"{nameof(User.PhoneNumber)}\" IS NOT NULL AND \"{nameof(User.IsDeleted)}\" = FALSE");
+            .HasFilter($"\"{nameof(User.PhoneNumber)}\" IS NOT NULL");
 
         builder.HasIndex(x => x.Email)
             .IsUnique()
-            .HasFilter($"\"{nameof(User.Email)}\" IS NOT NULL AND \"{nameof(User.IsDeleted)}\" = FALSE");
+            .HasFilter($"\"{nameof(User.Email)}\" IS NOT NULL");
 
         builder.HasIndex(x => x.IsActive);
 

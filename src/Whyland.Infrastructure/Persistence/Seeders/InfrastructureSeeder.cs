@@ -43,30 +43,10 @@ public static class InfrastructureSeeder
 
         var roles = new List<Role>
         {
-            new()
-            {
-                Name = SuperAdminRoleName,
-                Title = "مدیر ارشد",
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Admin",
-                Title = "مدیر",
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Instructor",
-                Title = "مدرس",
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "User",
-                Title = "کاربر عادی",
-                IsSystem = true,
-            },
+            Created(Role.Create(SuperAdminRoleName, "مدیر ارشد", true)),
+            Created(Role.Create("Admin", "مدیر", true)),
+            Created(Role.Create("Instructor", "مدرس", true)),
+            Created(Role.Create("User", "کاربر عادی", true)),
         };
 
         await context.Roles.AddRangeAsync(roles);
@@ -136,26 +116,34 @@ public static class InfrastructureSeeder
                 return;
             }
 
-            user = User.Create(
+            var created = User.Create(
                 admin.FirstName,
                 admin.LastName,
                 phoneNumber: phoneNumber,
                 email: string.IsNullOrWhiteSpace(admin.Email) ? null : admin.Email.Trim());
-            user.CreatedAt = DateTime.UtcNow;
-            user.UpdatedAt = DateTime.UtcNow;
+
+            // Both names come from settings, so a pair the account rules refuse is a configuration
+            // mistake to report — not a row to force into the table.
+            if (created.IsFailure)
+            {
+                logger.LogWarning(
+                    "Admin:FirstName/LastName were refused by the account rules ({Code}), so no super " +
+                    "admin was created.", created.Error?.Code);
+                return;
+            }
+
+            user = created.Data!;
 
             // A development default, hashed only while the account is being created: an existing
             // password is never overwritten by a restart.
             user.SetPassword(new BCryptPasswordHasher().Hash(admin.Password));
 
             await context.Users.AddAsync(user);
+
+            // The audit columns are not set here: the interceptor stamps CreatedAt/UpdatedAt for
+            // every IAuditable entry on save, and UserRole takes its own timestamp on creation.
             await context.UserRoles.AddAsync(
-                new UserRole
-                {
-                    UserId = user.Id,
-                    RoleId = superAdminRole.Id,
-                    CreatedAt = DateTime.UtcNow,
-                }
+                UserRole.Create(user.Id, superAdminRole.Id)
             );
             await context.SaveChangesAsync();
             return;
@@ -170,12 +158,7 @@ public static class InfrastructureSeeder
         if (!hasAssignment)
         {
             await context.UserRoles.AddAsync(
-                new UserRole
-                {
-                    UserId = user.Id,
-                    RoleId = superAdminRole.Id,
-                    CreatedAt = DateTime.UtcNow,
-                }
+                UserRole.Create(user.Id, superAdminRole.Id)
             );
         }
 
@@ -190,7 +173,6 @@ public static class InfrastructureSeeder
             else
             {
                 user.BindPhoneNumber(phoneNumber);
-                user.UpdatedAt = DateTime.UtcNow;
                 logger.LogInformation("Super admin sign-in number set to {PhoneNumber}.", phoneNumber);
             }
         }
@@ -223,12 +205,9 @@ public static class InfrastructureSeeder
             return;
 
         await context.RolePermissions.AddRangeAsync(
-            missingPermissions.Select(permission => new RolePermission
-            {
-                RoleId = superAdminRole.Id,
-                PermissionId = permission.Id,
-                CreatedAt = DateTime.UtcNow,
-            })
+            missingPermissions.Select(permission =>
+                RolePermission.Create(superAdminRole.Id, permission.Id)
+            )
         );
 
         await context.SaveChangesAsync();
@@ -241,206 +220,59 @@ public static class InfrastructureSeeder
     private static List<Permission> GetPermissionsList() =>
         [
             // Course
-            new()
-            {
-                Name = "Course View",
-                Key = Permissions.Courses.View,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Course Create",
-                Key = Permissions.Courses.Create,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Course Edit",
-                Key = Permissions.Courses.Edit,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Course Delete",
-                Key = Permissions.Courses.Delete,
-                IsSystem = true,
-            },
+            Created(Permission.Create("Course View", Permissions.Courses.View)),
+            Created(Permission.Create("Course Create", Permissions.Courses.Create)),
+            Created(Permission.Create("Course Edit", Permissions.Courses.Edit)),
+            Created(Permission.Create("Course Delete", Permissions.Courses.Delete)),
             // Category
-            new()
-            {
-                Name = "Category View",
-                Key = Permissions.Categories.View,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Category Create",
-                Key = Permissions.Categories.Create,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Category Edit",
-                Key = Permissions.Categories.Edit,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Category Delete",
-                Key = Permissions.Categories.Delete,
-                IsSystem = true,
-            },
+            Created(Permission.Create("Category View", Permissions.Categories.View)),
+            Created(Permission.Create("Category Create", Permissions.Categories.Create)),
+            Created(Permission.Create("Category Edit", Permissions.Categories.Edit)),
+            Created(Permission.Create("Category Delete", Permissions.Categories.Delete)),
             // User
-            new()
-            {
-                Name = "User View",
-                Key = Permissions.Users.View,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "User Create",
-                Key = Permissions.Users.Create,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "User Edit",
-                Key = Permissions.Users.Edit,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "User Delete",
-                Key = Permissions.Users.Delete,
-                IsSystem = true,
-            },
+            Created(Permission.Create("User View", Permissions.Users.View)),
+            Created(Permission.Create("User Create", Permissions.Users.Create)),
+            Created(Permission.Create("User Edit", Permissions.Users.Edit)),
+            Created(Permission.Create("User Delete", Permissions.Users.Delete)),
             // Role
-            new()
-            {
-                Name = "Role View",
-                Key = Permissions.Roles.View,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Role Create",
-                Key = Permissions.Roles.Create,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Role Edit",
-                Key = Permissions.Roles.Edit,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Role Delete",
-                Key = Permissions.Roles.Delete,
-                IsSystem = true,
-            },
+            Created(Permission.Create("Role View", Permissions.Roles.View)),
+            Created(Permission.Create("Role Create", Permissions.Roles.Create)),
+            Created(Permission.Create("Role Edit", Permissions.Roles.Edit)),
+            Created(Permission.Create("Role Delete", Permissions.Roles.Delete)),
             // Permission
-            new()
-            {
-                Name = "Permission View",
-                Key = Permissions.PermissionManagement.View,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Permission Create",
-                Key = Permissions.PermissionManagement.Create,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Permission Edit",
-                Key = Permissions.PermissionManagement.Edit,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Permission Delete",
-                Key = Permissions.PermissionManagement.Delete,
-                IsSystem = true,
-            },
+            Created(Permission.Create("Permission View", Permissions.PermissionManagement.View)),
+            Created(Permission.Create("Permission Create", Permissions.PermissionManagement.Create)),
+            Created(Permission.Create("Permission Edit", Permissions.PermissionManagement.Edit)),
+            Created(Permission.Create("Permission Delete", Permissions.PermissionManagement.Delete)),
             // Order
-            new()
-            {
-                Name = "Order View",
-                Key = Permissions.Orders.View,
-                IsSystem = true,
-            },
+            Created(Permission.Create("Order View", Permissions.Orders.View)),
             // Payment
-            new()
-            {
-                Name = "Payment View",
-                Key = Permissions.Payments.View,
-                IsSystem = true,
-            },
+            Created(Permission.Create("Payment View", Permissions.Payments.View)),
             // Coupon
-            new()
-            {
-                Name = "Coupon View",
-                Key = Permissions.Coupons.View,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Coupon Create",
-                Key = Permissions.Coupons.Create,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Coupon Edit",
-                Key = Permissions.Coupons.Edit,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Coupon Delete",
-                Key = Permissions.Coupons.Delete,
-                IsSystem = true,
-            },
+            Created(Permission.Create("Coupon View", Permissions.Coupons.View)),
+            Created(Permission.Create("Coupon Create", Permissions.Coupons.Create)),
+            Created(Permission.Create("Coupon Edit", Permissions.Coupons.Edit)),
+            Created(Permission.Create("Coupon Delete", Permissions.Coupons.Delete)),
             // Blog
-            new()
-            {
-                Name = "Blog View",
-                Key = Permissions.Blogs.View,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Blog Create",
-                Key = Permissions.Blogs.Create,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Blog Edit",
-                Key = Permissions.Blogs.Edit,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Blog Delete",
-                Key = Permissions.Blogs.Delete,
-                IsSystem = true,
-            },
+            Created(Permission.Create("Blog View", Permissions.Blogs.View)),
+            Created(Permission.Create("Blog Create", Permissions.Blogs.Create)),
+            Created(Permission.Create("Blog Edit", Permissions.Blogs.Edit)),
+            Created(Permission.Create("Blog Delete", Permissions.Blogs.Delete)),
             // Setting
-            new()
-            {
-                Name = "Setting View",
-                Key = Permissions.Settings.View,
-                IsSystem = true,
-            },
-            new()
-            {
-                Name = "Setting Edit",
-                Key = Permissions.Settings.Edit,
-                IsSystem = true,
-            },
+            Created(Permission.Create("Setting View", Permissions.Settings.View)),
+            Created(Permission.Create("Setting Edit", Permissions.Settings.Edit)),
         ];
+
+    /// <summary>
+    /// Reads the entity out of a factory result. A seeded definition that breaks the invariants of its
+    /// own aggregate is a mistake in this file rather than user input, so the seeder stops the startup
+    /// with the rejected code instead of inserting a row the domain refuses to build.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity the factory was building.</typeparam>
+    /// <param name="result">The result of the entity factory.</param>
+    private static TEntity Created<TEntity>(Result<TEntity> result) =>
+        result.IsFailure
+            ? throw new InvalidOperationException(
+                $"The seeded {typeof(TEntity).Name} is refused by its own invariants ({result.Error?.Code}).")
+            : result.Data!;
 }

@@ -16,11 +16,7 @@ public class FaqCommandRepository(WhylandDbContext context) : IFaqCommandReposit
     public Task<Domain.Entities.Content.Faq?> GetByIdAsync(long id, CancellationToken ct = default)
         => context.Faqs.FirstOrDefaultAsync(x => x.Id == id, ct);
 
-    public void SoftDelete(Domain.Entities.Content.Faq faq)
-    {
-        faq.IsDeleted = true;
-        faq.DeletedAt ??= DateTime.UtcNow;
-    }
+    public void SoftDelete(Domain.Entities.Content.Faq faq) => faq.MarkDeleted();
 
     public void Update(Domain.Entities.Content.Faq faq)
         => context.Entry(faq).State = EntityState.Modified;

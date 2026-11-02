@@ -1,4 +1,6 @@
 using Whyland.Domain.Entities.Authorization;
+using Whyland.Domain.Entities.Identity.Errors;
+using Whyland.Shared.Results;
 
 namespace Whyland.Domain.Entities.Identity;
 
@@ -101,7 +103,7 @@ public class User : BaseEntity<Guid>
     /// <summary>
     /// The roles assigned to this user. Assignments are added and removed by the persistence layer.
     /// </summary>
-    public ICollection<UserRole> UserRoles { get; private set; } = [];
+    public ICollection<UserRole> UserRoles { get; } = [];
 
     #endregion
 
@@ -115,52 +117,122 @@ public class User : BaseEntity<Guid>
 
     /// <summary>
     /// Opens an account from already-normalised values: the number is the one the caller verified, the
-    /// hash the one the caller produced (an external-login account has none), and neither is re-checked here.
+    /// hash the one the caller produced (an external-login account has none), and neither is re-checked
+    /// here. What is checked is the shape this row owns — a name to show and the size of each column.
     /// </summary>
-    /// <param name="firstName">The given name.</param>
-    /// <param name="lastName">The family name.</param>
+    /// <param name="firstName">The given name; an account always carries one. Will be trimmed.</param>
+    /// <param name="lastName">The family name. Will be trimmed; a provider that releases no surname leaves it empty.</param>
     /// <param name="phoneNumber">The sign-in number, already verified by the calling flow.</param>
     /// <param name="email">The e-mail address, when the flow knows one.</param>
     /// <param name="passwordHash">The hashed local password, or null when the account has no password.</param>
     /// <param name="isActive">Whether the account may sign in; an administrator can open a disabled one.</param>
-    public static User Create(
+    /// <returns>
+    /// A successful <see cref="Result{T}"/> containing the new account,
+    /// or a failure describing the first violated invariant.
+    /// </returns>
+    public static Result<User> Create(
         string firstName,
         string lastName,
         string? phoneNumber = null,
         string? email = null,
         string? passwordHash = null,
         bool isActive = true)
-        => new()
+    {
+        var trimmedFirstName = firstName?.Trim();
+        var trimmedLastName = lastName?.Trim();
+
+        var validation = Validate(trimmedFirstName, trimmedLastName, phoneNumber, email, passwordHash);
+        if (validation.IsFailure)
+            return validation.Error;
+
+        return new User
         {
             Id = Guid.NewGuid(),
-            FirstName = firstName,
-            LastName = lastName,
+            FirstName = trimmedFirstName!,
+            LastName = trimmedLastName!,
             PhoneNumber = phoneNumber,
             Email = email,
             PasswordHash = passwordHash,
             IsActive = isActive,
         };
+    }
+
+    /// <summary>
+    /// Validates the inputs against the invariants this row can judge on its own: the name shown in
+    /// the header and the size of every column. Uniqueness and the shape of the number belong to the
+    /// callers — an entity cannot see the other accounts, and the number arrives already normalized.
+    /// </summary>
+    /// <param name="firstName">The trimmed given name to validate.</param>
+    /// <param name="lastName">The trimmed family name to validate.</param>
+    /// <param name="phoneNumber">The sign-in number, or null when the account has none.</param>
+    /// <param name="email">The e-mail address, or null when the account has none.</param>
+    /// <param name="passwordHash">The stored hash, or null when the account has no local password.</param>
+    /// <returns>A successful <see cref="Result"/> if all rules pass; otherwise a validation failure.</returns>
+    private static Result Validate(
+        string? firstName,
+        string? lastName,
+        string? phoneNumber,
+        string? email,
+        string? passwordHash)
+    {
+        // Every flow that reaches this point either asks for the given name or synthesises one from
+        // the provider claims, so an account without a name to show is a caller mistake, not user input.
+        if (string.IsNullOrWhiteSpace(firstName))
+            return UserErrors.FieldRequired(nameof(FirstName));
+
+        if (firstName.Length > MaxFirstNameLength)
+            return UserErrors.FieldTooLong(nameof(FirstName), MaxFirstNameLength);
+
+        if (lastName?.Length > MaxLastNameLength)
+            return UserErrors.FieldTooLong(nameof(LastName), MaxLastNameLength);
+
+        if (phoneNumber?.Length > MaxPhoneNumberLength)
+            return UserErrors.FieldTooLong(nameof(PhoneNumber), MaxPhoneNumberLength);
+
+        if (email?.Length > MaxEmailLength)
+            return UserErrors.FieldTooLong(nameof(Email), MaxEmailLength);
+
+        if (passwordHash?.Length > MaxPasswordHashLength)
+            return UserErrors.FieldTooLong(nameof(PasswordHash), MaxPasswordHashLength);
+
+        return Result.Success();
+    }
 
     #endregion
 
     #region Behaviour
 
     /// <summary>
-    /// Rewrites the account details from the admin edit form. Uniqueness of the number and the e-mail is
-    /// checked by the caller against the store, not here — an entity cannot see the other accounts.
+    /// Rewrites the account details from the admin edit form, after the same shape rules the account
+    /// was opened with. Uniqueness of the number and the e-mail is checked by the caller against the
+    /// store, not here — an entity cannot see the other accounts.
     /// </summary>
-    /// <param name="firstName">The given name.</param>
-    /// <param name="lastName">The family name.</param>
+    /// <param name="firstName">The given name. Will be trimmed.</param>
+    /// <param name="lastName">The family name. Will be trimmed.</param>
     /// <param name="phoneNumber">The sign-in number, or null to clear it.</param>
     /// <param name="email">The e-mail address, or null to clear it.</param>
     /// <param name="isActive">Whether the account may sign in.</param>
-    public void UpdateProfile(string firstName, string lastName, string? phoneNumber, string? email, bool isActive)
+    /// <returns>
+    /// A successful <see cref="Result"/> when the update succeeds,
+    /// or a failure describing the first violated invariant. On failure, the instance is left unchanged.
+    /// </returns>
+    public Result UpdateProfile(string firstName, string lastName, string? phoneNumber, string? email, bool isActive)
     {
-        FirstName = firstName;
-        LastName = lastName;
+        var trimmedFirstName = firstName?.Trim();
+        var trimmedLastName = lastName?.Trim();
+
+        // The hash is not part of this edit, so it is passed only so the column rule covers it.
+        var validation = Validate(trimmedFirstName, trimmedLastName, phoneNumber, email, PasswordHash);
+        if (validation.IsFailure)
+            return validation.Error;
+
+        FirstName = trimmedFirstName!;
+        LastName = trimmedLastName!;
         PhoneNumber = phoneNumber;
         Email = email;
         IsActive = isActive;
+
+        return Result.Success();
     }
 
     /// <summary>

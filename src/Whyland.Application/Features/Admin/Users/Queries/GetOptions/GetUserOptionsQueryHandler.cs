@@ -14,13 +14,15 @@ public sealed class GetUserOptionsQueryHandler(
     ILogger<GetUserOptionsQueryHandler> logger) :
     IQueryHandler<GetUserOptionsQuery, IReadOnlyList<UserOptionDto>>
 {
-    /// <summary>The permission each audit-author filter implies.</summary>
+    /// <summary>
+    /// The permission each audit-author filter implies. An account is never soft-deleted — disabling
+    /// is the supported state change — so there is no «حذف شده توسط» column to fill.
+    /// </summary>
     private static readonly Dictionary<string, string> FieldPermissions =
         new(StringComparer.OrdinalIgnoreCase)
         {
-            [nameof(Domain.Entities.Identity.User.CreatedBy)] = Permissions.Users.Create,
-            [nameof(Domain.Entities.Identity.User.UpdatedBy)] = Permissions.Users.Edit,
-            [nameof(Domain.Entities.Identity.User.DeletedBy)] = Permissions.Users.Delete,
+            [nameof(User.CreatedBy)] = Permissions.Users.Create,
+            [nameof(User.UpdatedBy)] = Permissions.Users.Edit,
         };
 
     /// <summary>

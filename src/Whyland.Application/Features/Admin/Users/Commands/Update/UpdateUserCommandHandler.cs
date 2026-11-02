@@ -39,8 +39,13 @@ public sealed class UpdateUserCommandHandler(IUnitOfWork unitOfWork) : ICommandH
         if (emailOwner is not null && emailOwner.Id != user.Id)
             return UserErrors.EmailTaken(email!);
 
-        user.UpdateProfile(
-            command.FirstName.Trim(), command.LastName.Trim(), phone, email, command.IsActive);
+        // The entity trims the names and enforces the column sizes; on a rejected edit nothing is
+        // written and no role assignment is staged.
+        var profileResult = user.UpdateProfile(
+            command.FirstName, command.LastName, phone, email, command.IsActive);
+
+        if (profileResult.IsFailure)
+            return profileResult.Error;
 
         await unitOfWork.UserCommandRepository.ReplaceRolesAsync(user.Id, command.RoleIds, ct);
 

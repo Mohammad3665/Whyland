@@ -37,63 +37,64 @@ public class InstructorProfile : BaseEntity<Guid>
     public const int MaxWebsiteLength = 256;
 
     #endregion
+
     /// <summary>
     /// The user the instructor information belongs to; shares the user's identifier.
     /// </summary>
-    public Guid UserId { get; set; }
+    public Guid UserId { get; private set; }
 
     /// <summary>
     /// The user the instructor information belongs to.
     /// </summary>
-    public User User { get; set; } = null!;
+    public User User { get; private set; } = null!;
 
     /// <summary>
     /// Path or URL of the profile image shown in instructor listings.
     /// </summary>
-    public string? ProfileImage { get; set; }
+    public string? ProfileImage { get; private set; }
 
     /// <summary>
     /// Short bio used in listings and public instructor summaries.
     /// </summary>
-    public string? Bio { get; set; }
+    public string? Bio { get; private set; }
 
     /// <summary>
     /// Full biography with extended details shown on the instructor page.
     /// </summary>
-    public string? Biography { get; set; }
+    public string? Biography { get; private set; }
 
     /// <summary>
     /// The instructor's area of expertise.
     /// </summary>
-    public string? Specialization { get; set; }
+    public string? Specialization { get; private set; }
 
     /// <summary>
     /// Personal website link, if provided.
     /// </summary>
-    public string? Website { get; set; }
+    public string? Website { get; private set; }
 
     /// <summary>
     /// LinkedIn profile link, if provided.
     /// </summary>
-    public string? LinkedIn { get; set; }
+    public string? LinkedIn { get; private set; }
 
     /// <summary>
     /// Instagram profile link, if provided.
     /// </summary>
-    public string? Instagram { get; set; }
+    public string? Instagram { get; private set; }
 
     /// <summary>
     /// Sheba (IBAN) number for banking information (s5.2). Profile data only in this version.
     /// </summary>
-    public string? ShebaNumber { get; set; }
+    public string? ShebaNumber { get; private set; }
 
     /// <summary>
     /// Bank account number for banking information (s5.2). Profile data only in this version.
     /// </summary>
-    public string? BankAccountNumber { get; set; }
+    public string? BankAccountNumber { get; private set; }
 
     /// <summary>
     /// The courses this instructor is assigned to teach.
     /// </summary>
-    public ICollection<CourseInstructor> CourseInstructors { get; set; } = [];
+    public ICollection<CourseInstructor> CourseInstructors { get; } = [];
 }

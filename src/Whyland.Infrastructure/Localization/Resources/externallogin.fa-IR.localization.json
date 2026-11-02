@@ -1,0 +1,4 @@
+{
+  "ExternalLogin.FieldRequired": "فیلد {Field} نمی‌تواند خالی باشد.",
+  "ExternalLogin.FieldTooLong": "فیلد {Field} نمی‌تواند بیشتر از {Max} کاراکتر باشد."
+}

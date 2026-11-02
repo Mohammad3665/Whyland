@@ -56,18 +56,18 @@ public sealed class AuditableEntityInterceptor(TimeProvider timeProvider, ICurre
             switch (entry.State)
             {
                 case EntityState.Added:
-                    entry.Entity.CreatedAt = now;
-                    entry.Entity.CreatedBy = userId;
-                    entry.Entity.UpdatedAt = now;
-                    entry.Entity.UpdatedBy = userId;
+                    entry.Property(nameof(IAuditable.CreatedAt)).CurrentValue = now;
+                    entry.Property(nameof(IAuditable.CreatedBy)).CurrentValue = userId;
+                    entry.Property(nameof(IAuditable.UpdatedAt)).CurrentValue = now;
+                    entry.Property(nameof(IAuditable.UpdatedBy)).CurrentValue = userId;
                     break;
 
                 case EntityState.Modified:
-                    entry.Entity.UpdatedAt = now;
-                    entry.Entity.UpdatedBy = userId;
+                    entry.Property(nameof(IAuditable.UpdatedAt)).CurrentValue = now;
+                    entry.Property(nameof(IAuditable.UpdatedBy)).CurrentValue = userId;
 
-                    entry.Property(e => e.CreatedAt).IsModified = false;
-                    entry.Property(e => e.CreatedBy).IsModified = false;
+                    entry.Property(nameof(IAuditable.CreatedAt)).IsModified = false;
+                    entry.Property(nameof(IAuditable.CreatedBy)).IsModified = false;
                     break;
             }
         }
@@ -78,9 +78,9 @@ public sealed class AuditableEntityInterceptor(TimeProvider timeProvider, ICurre
             if (entry.State != EntityState.Deleted) continue;
 
             entry.State = EntityState.Modified;
-            entry.Entity.IsDeleted = true;
-            entry.Entity.DeletedAt = now;
-            entry.Entity.DeletedBy = userId;
+            entry.Property(nameof(ISoftDeletable.IsDeleted)).CurrentValue = true;
+            entry.Property(nameof(ISoftDeletable.DeletedAt)).CurrentValue = now;
+            entry.Property(nameof(ISoftDeletable.DeletedBy)).CurrentValue = userId;
         }
     }
 }

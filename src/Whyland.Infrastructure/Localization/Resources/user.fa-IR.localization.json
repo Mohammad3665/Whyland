@@ -15,6 +15,8 @@
   "User.PhoneRequired": "برای تعیین رمز عبور، شماره موبایل و کد تأیید آن لازم است.",
   "User.NotFound": "کاربری با شناسه {Id} یافت نشد.",
   "User.EmailTaken": "ایمیل {Email} برای کاربر دیگری ثبت شده است.",
+  "User.FieldRequired": "فیلد {Field} نمی‌تواند خالی باشد.",
+  "User.FieldTooLong": "فیلد {Field} نمی‌تواند بیشتر از {Max} کاراکتر باشد.",
   "User.RolesNotFound": "نقش انتخاب‌شده معتبر نیست.",
   "User.SuperAdminProtected": "حساب مدیر کل سیستم غیرفعال نمی‌شود.",
   "User.CreateFailed": "خطا در ایجاد کاربر، لطفاً مجدداً تلاش کنید.",

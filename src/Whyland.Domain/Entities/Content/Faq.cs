@@ -30,6 +30,21 @@ public class Faq : BaseEntity<long>, ISoftDeletable
     /// </summary>
     public bool IsActive { get; private set; }
 
+    /// <summary>
+    /// The identifier of the user who performed the soft-delete operation.
+    /// </summary>
+    public Guid? DeletedBy { get; private set; }
+
+    /// <summary>
+    /// Indicates whether the entity has been soft-deleted and must be excluded from ordinary queries.
+    /// </summary>
+    public bool IsDeleted { get; private set; }
+
+    /// <summary>
+    /// The UTC time at which the entity was soft-deleted.
+    /// </summary>
+    public DateTime? DeletedAt { get; private set; }
+
     #endregion
 
     #region Construction
@@ -120,6 +135,16 @@ public class Faq : BaseEntity<long>, ISoftDeletable
             throw new ArgumentOutOfRangeException(nameof(displayOrder), displayOrder, "A position cannot be negative.");
 
         DisplayOrder = displayOrder;
+    }
+
+    /// <summary>
+    /// Marks the FAQ as deleted so the global query filter hides it. The first deletion time wins;
+    /// re-deleting an already hidden row leaves its original stamp intact.
+    /// </summary>
+    public void MarkDeleted()
+    {
+        IsDeleted = true;
+        DeletedAt ??= DateTime.UtcNow;
     }
 
     /// <summary>

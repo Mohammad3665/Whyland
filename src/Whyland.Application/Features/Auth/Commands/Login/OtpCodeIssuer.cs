@@ -34,17 +34,12 @@ internal static class OtpCodeIssuer
         }
 
         var code = codeGenerator.Generate();
-        var request = new OtpRequest
-        {
-            Id = Guid.NewGuid(),
-            PhoneNumber = phone,
-            CodeHash = passwordHasher.Hash(code),
-            AttemptCount = 0,
-            MaxAttempts = opts.OtpMaxAttempts,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(opts.OtpExpiryMinutes),
-            IsUsed = false,
-            Purpose = purpose,
-        };
+        var request = OtpRequest.Create(
+            phone,
+            passwordHasher.Hash(code),
+            opts.OtpMaxAttempts,
+            DateTime.UtcNow.AddMinutes(opts.OtpExpiryMinutes),
+            purpose);
 
         await unitOfWork.OtpRequestCommandRepository.AddAsync(request, ct);
 
@@ -67,7 +62,7 @@ internal static class OtpCodeIssuer
             // Fail closed: a code the user may never have received must not authenticate.
             // An indeterminate delivery can still mean the SMS arrived, but the sender cannot
             // prove it, so the row is burned and the user requests a fresh code (s11.3.11).
-            request.IsUsed = true;
+            request.MarkUsed();
             await unitOfWork.SaveAsync(ct);
 
             return SystemErrors.SmsNotSent();

@@ -67,16 +67,6 @@ public class Category : BaseEntity<long>, ISoftDeletable
     public long? ParentId { get; private set; }
 
     /// <summary>
-    /// The parent category, when this is a nested category.
-    /// </summary>
-    public Category? Parent { get; set; }
-
-    /// <summary>
-    /// The child categories nested under this one.
-    /// </summary>
-    public ICollection<Category> Children { get; set; } = [];
-
-    /// <summary>
     /// Inactive categories must not be selectable as the category of new courses (s7.1.3).
     /// Switching one off also switches off its whole branch, so a disabled parent never
     /// leaves live children hanging above it.
@@ -84,9 +74,34 @@ public class Category : BaseEntity<long>, ISoftDeletable
     public bool IsActive { get; private set; }
 
     /// <summary>
+    /// The identifier of the user who performed the soft-delete operation.
+    /// </summary>
+    public Guid? DeletedBy { get; private set; }
+
+    /// <summary>
+    /// Indicates whether the entity has been soft-deleted and must be excluded from ordinary queries.
+    /// </summary>
+    public bool IsDeleted { get; private set; }
+
+    /// <summary>
+    /// The UTC time at which the entity was soft-deleted.
+    /// </summary>
+    public DateTime? DeletedAt { get; private set; }
+
+    /// <summary>
+    /// The parent category, when this is a nested category.
+    /// </summary>
+    public Category? Parent { get; private set; }
+
+    /// <summary>
+    /// The child categories nested under this one.
+    /// </summary>
+    public ICollection<Category> Children { get; } = [];
+
+    /// <summary>
     /// The categories this course belongs to.
     /// </summary>
-    public ICollection<CourseCategory> CourseCategories { get; set; } = [];
+    public ICollection<CourseCategory> CourseCategories { get; } = [];
 
     #endregion
 
@@ -197,6 +212,17 @@ public class Category : BaseEntity<long>, ISoftDeletable
     /// cascades down to its branch.
     /// </summary>
     public void Deactivate() => IsActive = false;
+
+    /// <summary>
+    /// Marks the category as deleted so the global query filter hides it, keeping the row for the
+    /// courses still linked to it. The first deletion time wins; re-deleting an already hidden row
+    /// leaves its original stamp intact.
+    /// </summary>
+    public void MarkDeleted()
+    {
+        IsDeleted = true;
+        DeletedAt ??= DateTime.UtcNow;
+    }
 
     /// <summary>
     /// Validates the trimmed inputs against the invariants this row can judge on its own:

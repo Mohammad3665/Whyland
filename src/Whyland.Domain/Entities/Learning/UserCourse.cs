@@ -13,22 +13,22 @@ public class UserCourse
     /// <summary>
     /// The user who purchased the course.
     /// </summary>
-    public Guid UserId { get; set; }
+    public Guid UserId { get; private set; }
 
     /// <summary>
     /// The purchased course.
     /// </summary>
-    public long CourseId { get; set; }
+    public long CourseId { get; private set; }
 
     /// <summary>
     /// The order from which the purchase originated, for bookkeeping and refunds.
     /// </summary>
-    public Guid OrderId { get; set; }
+    public Guid OrderId { get; private set; }
 
     /// <summary>
     /// UTC time of the successful purchase.
     /// </summary>
-    public DateTime PurchasedAt { get; set; }
+    public DateTime PurchasedAt { get; private set; }
 
     #endregion
 
@@ -37,17 +37,17 @@ public class UserCourse
     /// <summary>
     /// The owning user.
     /// </summary>
-    public User User { get; set; } = null!;
+    public User User { get; private set; } = null!;
 
     /// <summary>
     /// The purchased course.
     /// </summary>
-    public Course Course { get; set; } = null!;
+    public Course Course { get; private set; } = null!;
 
     /// <summary>
     /// The originating order.
     /// </summary>
-    public Order Order { get; set; } = null!;
+    public Order Order { get; private set; } = null!;
 
     #endregion
 }

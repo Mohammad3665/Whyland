@@ -36,7 +36,22 @@ public class CourseSection : BaseEntity<long>, ISoftDeletable
     public int DisplayOrder { get; set; }
 
     /// <summary>
+    /// The identifier of the user who performed the soft-delete operation.
+    /// </summary>
+    public Guid? DeletedBy { get; private set; }
+
+    /// <summary>
+    /// Indicates whether the entity has been soft-deleted and must be excluded from ordinary queries.
+    /// </summary>
+    public bool IsDeleted { get; private set; }
+
+    /// <summary>
+    /// The UTC time at which the entity was soft-deleted.
+    /// </summary>
+    public DateTime? DeletedAt { get; private set; }
+
+    /// <summary>
     /// The episodes grouped within this section.
     /// </summary>
-    public ICollection<Episode> Episodes { get; set; } = [];
+    public ICollection<Episode> Episodes { get; } = [];
 }

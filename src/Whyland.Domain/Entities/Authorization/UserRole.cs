@@ -7,28 +7,56 @@ namespace Whyland.Domain.Entities.Authorization;
 /// </summary>
 public class UserRole
 {
+    #region Construction
+
+    /// <summary>ORM constructor. New records are built through <see cref="Create"/>.</summary>
+    private UserRole() { }
+
+    /// <summary>
+    /// Links a user to a role. This row is not <see cref="IAuditable"/>, so its own timestamp is
+    /// taken from the property initialiser rather than from the audit interceptor.
+    /// </summary>
+    /// <param name="userId">The user receiving the role.</param>
+    /// <param name="roleId">The role assigned to the user.</param>
+    public static UserRole Create(Guid userId, long roleId) =>
+        new()
+        {
+            UserId = userId,
+            RoleId = roleId,
+        };
+
+    #endregion
+
+    #region Properties
+
     /// <summary>
     /// The user receiving the role.
     /// </summary>
-    public Guid UserId { get; set; }
+    public Guid UserId { get; private set; }
 
     /// <summary>
     /// The role assigned to the user.
     /// </summary>
-    public long RoleId { get; set; }
+    public long RoleId { get; private set; }
 
     /// <summary>
     /// UTC time the role was assigned to the user.
     /// </summary>
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+
+    #endregion
+
+    #region Relations
 
     /// <summary>
     /// The user receiving the role.
     /// </summary>
-    public User User { get; set; } = null!;
+    public User User { get; private set; } = null!;
 
     /// <summary>
     /// The role assigned to the user.
     /// </summary>
-    public Role Role { get; set; } = null!;
+    public Role Role { get; private set; } = null!;
+
+    #endregion
 }

@@ -21,48 +21,63 @@ public class Coupon : BaseEntity<Guid>, ISoftDeletable
     /// <summary>
     /// The unique code the customer types at checkout.
     /// </summary>
-    public string Code { get; set; } = string.Empty;
+    public string Code { get; private set; } = string.Empty;
 
     /// <summary>
     /// How the discount is computed (percentage or fixed amount).
     /// </summary>
-    public CouponType Type { get; set; }
+    public CouponType Type { get; private set; }
 
     /// <summary>
     /// The discount magnitude: a percentage when <see cref="Type"/> is Percentage,
     /// otherwise a monetary amount.
     /// </summary>
-    public decimal Value { get; set; }
+    public decimal Value { get; private set; }
 
     /// <summary>
     /// Minimum order total required for the coupon to be valid; null means no minimum (s5.6).
     /// </summary>
-    public decimal? MinOrderAmount { get; set; }
+    public decimal? MinOrderAmount { get; private set; }
 
     /// <summary>
     /// Maximum number of times the coupon may be used across all orders; null means unlimited (s5.6).
     /// </summary>
-    public int? UsageLimit { get; set; }
+    public int? UsageLimit { get; private set; }
 
     /// <summary>
     /// Number of times the coupon has been used so far.
     /// </summary>
-    public int UsedCount { get; set; }
+    public int UsedCount { get; private set; }
 
     /// <summary>
     /// UTC start of the validity window.
     /// </summary>
-    public DateTime StartDate { get; set; }
+    public DateTime StartDate { get; private set; }
 
     /// <summary>
     /// UTC end of the validity window.
     /// </summary>
-    public DateTime EndDate { get; set; }
+    public DateTime EndDate { get; private set; }
 
     /// <summary>
     /// Administrators can disable a coupon without deleting its history.
     /// </summary>
-    public bool IsActive { get; set; } = true;
+    public bool IsActive { get; private set; } = true;
+
+    /// <summary>
+    /// The identifier of the user who performed the soft-delete operation.
+    /// </summary>
+    public Guid? DeletedBy { get; private set; }
+
+    /// <summary>
+    /// Indicates whether the entity has been soft-deleted and must be excluded from ordinary queries.
+    /// </summary>
+    public bool IsDeleted { get; private set; }
+
+    /// <summary>
+    /// The UTC time at which the entity was soft-deleted.
+    /// </summary>
+    public DateTime? DeletedAt { get; private set; }
 
     #endregion
 
@@ -71,7 +86,7 @@ public class Coupon : BaseEntity<Guid>, ISoftDeletable
     /// <summary>
     /// The historical orders that used this coupon.
     /// </summary>
-    public ICollection<Order> Orders { get; set; } = [];
+    public ICollection<Order> Orders { get; } = [];
 
     #endregion
 }

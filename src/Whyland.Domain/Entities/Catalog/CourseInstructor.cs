@@ -10,20 +10,20 @@ public class CourseInstructor
     /// <summary>
     /// The course this relation links to the instructor.
     /// </summary>
-    public long CourseId { get; set; }
+    public long CourseId { get; private set; }
 
     /// <summary>
     /// The course this relation links to the instructor.
     /// </summary>
-    public Course Course { get; set; } = null!;
+    public Course Course { get; private set; } = null!;
 
     /// <summary>
     /// The instructor profile this relation links to the course.
     /// </summary>
-    public Guid InstructorProfileId { get; set; }
+    public Guid InstructorProfileId { get; private set; }
 
     /// <summary>
     /// The instructor profile this relation links to the course.
     /// </summary>
-    public InstructorProfile InstructorProfile { get; set; } = null!;
+    public InstructorProfile InstructorProfile { get; private set; } = null!;
 }

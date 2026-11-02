@@ -26,31 +26,46 @@ public class EpisodeAttachment : BaseEntity<long>, ISoftDeletable
     /// <summary>
     /// The episode the attachment belongs to.
     /// </summary>
-    public long EpisodeId { get; set; }
+    public long EpisodeId { get; private set; }
 
     /// <summary>
     /// The episode the attachment belongs to.
     /// </summary>
-    public Episode Episode { get; set; } = null!;
+    public Episode Episode { get; private set; } = null!;
 
     /// <summary>
     /// The display/download file name shown to the user.
     /// </summary>
-    public string FileName { get; set; } = string.Empty;
+    public string FileName { get; private set; } = string.Empty;
 
     /// <summary>
     /// Server-managed storage reference under protected wwwroot. Must never expose
     /// physical paths or allow arbitrary path traversal (s8.1.1, s8.5).
     /// </summary>
-    public string StoragePath { get; set; } = string.Empty;
+    public string StoragePath { get; private set; } = string.Empty;
 
     /// <summary>
     /// The MIME content type used when serving the download.
     /// </summary>
-    public string ContentType { get; set; } = string.Empty;
+    public string ContentType { get; private set; } = string.Empty;
 
     /// <summary>
     /// Size in bytes; validated against the configured maximum.
     /// </summary>
-    public long Size { get; set; }
+    public long Size { get; private set; }
+
+    /// <summary>
+    /// The identifier of the user who performed the soft-delete operation.
+    /// </summary>
+    public Guid? DeletedBy { get; private set; }
+
+    /// <summary>
+    /// Indicates whether the entity has been soft-deleted and must be excluded from ordinary queries.
+    /// </summary>
+    public bool IsDeleted { get; private set; }
+
+    /// <summary>
+    /// The UTC time at which the entity was soft-deleted.
+    /// </summary>
+    public DateTime? DeletedAt { get; private set; }
 }

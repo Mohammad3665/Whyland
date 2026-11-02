@@ -21,7 +21,7 @@ public sealed class UserCommandRepository(WhylandDbContext context) : IUserComma
         var alreadyAssigned = current.Select(x => x.RoleId).ToHashSet();
         foreach (var roleId in roleIds.Where(x => !alreadyAssigned.Contains(x)))
         {
-            context.UserRoles.Add(new UserRole { UserId = userId, RoleId = roleId });
+            context.UserRoles.Add(UserRole.Create(userId, roleId));
         }
     }
 

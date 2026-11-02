@@ -40,16 +40,14 @@ public sealed class VerifyLoginCodeCommandHandler(
         // Wrong code: burn one attempt, then persist.
         if (!passwordHasher.Verify(command.Code, otp.CodeHash))
         {
-            otp.AttemptCount++;
-            if (otp.AttemptCount >= otp.MaxAttempts)
-                otp.IsUsed = true;
+            otp.RegisterFailedAttempt();
 
             await unitOfWork.SaveAsync(ct);
             return UserErrors.InvalidOtp();
         }
 
         // Correct code: burn it so it can never be replayed.
-        otp.IsUsed = true;
+        otp.MarkUsed();
         await unitOfWork.SaveAsync(ct);
 
         var user = await unitOfWork.UserQueryRepository.GetByPhoneAsync(phone, ct);

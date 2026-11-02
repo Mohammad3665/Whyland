@@ -10,15 +10,15 @@ public interface ISoftDeletable
     /// <summary>
     /// Indicates whether the entity has been soft-deleted and must be excluded from ordinary queries.
     /// </summary>
-    bool IsDeleted { get; set; }
+    bool IsDeleted { get; }
 
     /// <summary>
     /// The UTC time at which the entity was soft-deleted.
     /// </summary>
-    DateTime? DeletedAt { get; set; }
+    DateTime? DeletedAt { get; }
 
     /// <summary>
     /// The identifier of the user who performed the soft-delete operation.
     /// </summary>
-    Guid? DeletedBy { get; set; }
+    Guid? DeletedBy { get; }
 }

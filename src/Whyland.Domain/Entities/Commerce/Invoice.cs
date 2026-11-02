@@ -102,6 +102,21 @@ public class Invoice : BaseEntity<Guid>, ISoftDeletable
     public decimal FinalAmount { get; private set; }
 
     /// <summary>
+    /// The identifier of the user who performed the soft-delete operation.
+    /// </summary>
+    public Guid? DeletedBy { get; private set; }
+
+    /// <summary>
+    /// Indicates whether the entity has been soft-deleted and must be excluded from ordinary queries.
+    /// </summary>
+    public bool IsDeleted { get; private set; }
+
+    /// <summary>
+    /// The UTC time at which the entity was soft-deleted.
+    /// </summary>
+    public DateTime? DeletedAt { get; private set; }
+
+    /// <summary>
     /// The payment status reflected by the invoice (Paid, Refunded, ...).
     /// </summary>
     public PaymentStatus PaymentStatus { get; private set; }

@@ -68,11 +68,7 @@ public class CategoryCommandRepository(WhylandDbContext context) : ICategoryComm
     public void Update(CategoryEntity category)
         => context.Entry(category).State = EntityState.Modified;
 
-    public void SoftDelete(CategoryEntity category)
-    {
-        category.IsDeleted = true;
-        category.DeletedAt ??= DateTime.UtcNow;
-    }
+    public void SoftDelete(CategoryEntity category) => category.MarkDeleted();
 
     public async Task<int> DeactivateDescendantsAsync(long id, CancellationToken ct = default)
     {

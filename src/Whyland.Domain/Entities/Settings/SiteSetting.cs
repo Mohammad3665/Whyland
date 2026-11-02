@@ -27,32 +27,47 @@ public class SiteSetting : BaseEntity<long>, ISoftDeletable
     /// <summary>
     /// Unique lookup key of the setting (e.g. "site.title").
     /// </summary>
-    public string Key { get; set; } = string.Empty;
+    public string Key { get; private set; } = string.Empty;
 
     /// <summary>
     /// The stored value, to be interpreted according to <see cref="DataType"/>.
     /// </summary>
-    public string? Value { get; set; }
+    public string? Value { get; private set; }
 
     /// <summary>
     /// The section of the admin panel the setting is managed from.
     /// </summary>
-    public SettingGroup Group { get; set; }
+    public SettingGroup Group { get; private set; }
 
     /// <summary>
     /// The logical type of <see cref="Value"/> (string, boolean, number, ...).
     /// </summary>
-    public SettingDataType DataType { get; set; }
+    public SettingDataType DataType { get; private set; }
 
     /// <summary>
     /// Public settings are readable by the anonymous site, others only by managers.
     /// </summary>
-    public bool IsPublic { get; set; }
+    public bool IsPublic { get; private set; }
 
     /// <summary>
     /// Human-readable explanation shown next to the setting in the admin panel.
     /// </summary>
-    public string? Description { get; set; }
+    public string? Description { get; private set; }
+
+    /// <summary>
+    /// The identifier of the user who performed the soft-delete operation.
+    /// </summary>
+    public Guid? DeletedBy { get; private set; }
+
+    /// <summary>
+    /// Indicates whether the entity has been soft-deleted and must be excluded from ordinary queries.
+    /// </summary>
+    public bool IsDeleted { get; private set; }
+
+    /// <summary>
+    /// The UTC time at which the entity was soft-deleted.
+    /// </summary>
+    public DateTime? DeletedAt { get; private set; }
 
     #endregion
 }

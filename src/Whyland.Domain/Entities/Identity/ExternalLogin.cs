@@ -1,3 +1,6 @@
+using Whyland.Domain.Entities.Identity.Errors;
+using Whyland.Shared.Results;
+
 namespace Whyland.Domain.Entities.Identity;
 
 /// <summary>
@@ -26,27 +29,27 @@ public class ExternalLogin
     /// <summary>
     /// The unique identifier of the login link.
     /// </summary>
-    public Guid Id { get; set; }
+    public Guid Id { get; private set; }
 
     /// <summary>
     /// The locally registered user this provider account maps to.
     /// </summary>
-    public Guid UserId { get; set; }
+    public Guid UserId { get; private set; }
 
     /// <summary>
     /// Name of the authentication scheme (e.g. "Google").
     /// </summary>
-    public string Provider { get; set; } = string.Empty;
+    public string Provider { get; private set; } = string.Empty;
 
     /// <summary>
     /// The external provider's unique user identifier.
     /// </summary>
-    public string ProviderKey { get; set; } = string.Empty;
+    public string ProviderKey { get; private set; } = string.Empty;
 
     /// <summary>
     /// UTC time the external login was first linked.
     /// </summary>
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt { get; private set; }
 
     #endregion
 
@@ -55,7 +58,56 @@ public class ExternalLogin
     /// <summary>
     /// The locally registered user this provider account maps to.
     /// </summary>
-    public User User { get; set; } = null!;
+    public User User { get; private set; } = null!;
+
+    #endregion
+
+    #region Construction
+
+    /// <summary>
+    /// Parameterless constructor required by ORMs (e.g. EF Core).
+    /// Not intended for direct use — link accounts through <see cref="Create"/>.
+    /// </summary>
+    private ExternalLogin() { }
+
+    /// <summary>
+    /// Links one provider identity to a local account, after trimming and validating the two claims
+    /// the provider released. The timestamp is stamped here rather than by the audit interceptor: this
+    /// row is not an <c>IAuditable</c>, so nothing else would ever fill <see cref="CreatedAt"/> in.
+    /// </summary>
+    /// <param name="userId">The local account the provider identity maps to.</param>
+    /// <param name="provider">The authentication scheme name, e.g. "Google". Will be trimmed.</param>
+    /// <param name="providerKey">The identifier the provider gave to this user. Will be trimmed.</param>
+    /// <returns>
+    /// A successful <see cref="Result{T}"/> containing the link,
+    /// or a failure describing the first violated invariant.
+    /// </returns>
+    public static Result<ExternalLogin> Create(Guid userId, string provider, string providerKey)
+    {
+        var trimmedProvider = provider?.Trim();
+        var trimmedProviderKey = providerKey?.Trim();
+
+        if (string.IsNullOrWhiteSpace(trimmedProvider))
+            return ExternalLoginErrors.FieldRequired(nameof(Provider));
+
+        if (trimmedProvider!.Length > MaxProviderLength)
+            return ExternalLoginErrors.FieldTooLong(nameof(Provider), MaxProviderLength);
+
+        if (string.IsNullOrWhiteSpace(trimmedProviderKey))
+            return ExternalLoginErrors.FieldRequired(nameof(ProviderKey));
+
+        if (trimmedProviderKey!.Length > MaxProviderKeyLength)
+            return ExternalLoginErrors.FieldTooLong(nameof(ProviderKey), MaxProviderKeyLength);
+
+        return new ExternalLogin
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            Provider = trimmedProvider,
+            ProviderKey = trimmedProviderKey,
+            CreatedAt = DateTime.UtcNow,
+        };
+    }
 
     #endregion
 }

@@ -33,15 +33,13 @@ public sealed class ForgotPasswordConfirmCommandHandler(
 
         if (!passwordHasher.Verify(command.Code, otp.CodeHash))
         {
-            otp.AttemptCount++;
-            if (otp.AttemptCount >= otp.MaxAttempts)
-                otp.IsUsed = true;
+            otp.RegisterFailedAttempt();
 
             await unitOfWork.SaveAsync(ct);
             return UserErrors.InvalidOtp();
         }
 
-        otp.IsUsed = true;
+        otp.MarkUsed();
 
         var user = await unitOfWork.UserCommandRepository.GetTrackedByPhoneAsync(phone, ct);
 

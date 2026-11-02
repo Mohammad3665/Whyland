@@ -18,25 +18,40 @@ public class CourseFaq : BaseEntity<long>, ISoftDeletable
     /// <summary>
     /// The course the FAQ item belongs to.
     /// </summary>
-    public long CourseId { get; set; }
+    public long CourseId { get; private set; }
 
     /// <summary>
     /// The course the FAQ item belongs to.
     /// </summary>
-    public Course Course { get; set; } = null!;
+    public Course Course { get; private set; } = null!;
 
     /// <summary>
     /// The question text.
     /// </summary>
-    public string Title { get; set; } = string.Empty;
+    public string Title { get; private set; } = string.Empty;
 
     /// <summary>
     /// The answer text.
     /// </summary>
-    public string Description { get; set; } = string.Empty;
+    public string Description { get; private set; } = string.Empty;
 
     /// <summary>
     /// Manual ordering weight; items are shown in this order.
     /// </summary>
-    public int DisplayOrder { get; set; }
+    public int DisplayOrder { get; private set; }
+
+    /// <summary>
+    /// The identifier of the user who performed the soft-delete operation.
+    /// </summary>
+    public Guid? DeletedBy { get; private set; }
+
+    /// <summary>
+    /// Indicates whether the entity has been soft-deleted and must be excluded from ordinary queries.
+    /// </summary>
+    public bool IsDeleted { get; private set; }
+
+    /// <summary>
+    /// The UTC time at which the entity was soft-deleted.
+    /// </summary>
+    public DateTime? DeletedAt { get; private set; }
 }

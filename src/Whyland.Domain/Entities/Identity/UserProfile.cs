@@ -24,12 +24,12 @@ public class UserProfile : BaseEntity<Guid>
     /// <summary>
     /// One-to-one with the authentication user; shares the user's identifier.
     /// </summary>
-    public Guid UserId { get; set; }
+    public Guid UserId { get; private set; }
 
     /// <summary>
     /// The owning user.
     /// </summary>
-    public User User { get; set; } = null!;
+    public User User { get; private set; } = null!;
 
     #endregion
 
@@ -38,12 +38,12 @@ public class UserProfile : BaseEntity<Guid>
     /// <summary>
     /// Optional date of birth collected in the profile.
     /// </summary>
-    public DateOnly? BirthDate { get; set; }
+    public DateOnly? BirthDate { get; private set; }
 
     /// <summary>
     /// Optional gender information (s5.1.2).
     /// </summary>
-    public Gender? Gender { get; set; }
+    public Gender? Gender { get; private set; }
 
     #endregion
 
@@ -52,7 +52,7 @@ public class UserProfile : BaseEntity<Guid>
     /// <summary>
     /// Path or URL of the profile avatar image, if provided.
     /// </summary>
-    public string? Avatar { get; set; }
+    public string? Avatar { get; private set; }
 
     #endregion
 }

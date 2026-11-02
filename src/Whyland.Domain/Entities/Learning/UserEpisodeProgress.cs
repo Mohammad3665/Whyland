@@ -10,47 +10,47 @@ public class UserEpisodeProgress
     /// <summary>
     /// The user whose progress is tracked.
     /// </summary>
-    public Guid UserId { get; set; }
+    public Guid UserId { get; private set; }
 
     /// <summary>
     /// The watched episode.
     /// </summary>
-    public long EpisodeId { get; set; }
+    public long EpisodeId { get; private set; }
 
     /// <summary>
     /// Aggregate watch state of the episode for this user.
     /// </summary>
-    public EpisodeWatchStatus Status { get; set; }
+    public EpisodeWatchStatus Status { get; private set; }
 
     /// <summary>
     /// Last playback position used to resume the episode (s4.7.3).
     /// </summary>
-    public TimeSpan? LastWatchedPosition { get; set; }
+    public TimeSpan? LastWatchedPosition { get; private set; }
 
     /// <summary>
     /// UTC time the user first started watching this episode.
     /// </summary>
-    public DateTime? FirstWatchedAt { get; set; }
+    public DateTime? FirstWatchedAt { get; private set; }
 
     /// <summary>
     /// UTC time the user first fully watched the episode.
     /// </summary>
-    public DateTime? CompletedAt { get; set; }
+    public DateTime? CompletedAt { get; private set; }
 
     /// <summary>
     /// UTC time of the user's most recent watch activity.
     /// </summary>
-    public DateTime? LastWatchedAt { get; set; }
+    public DateTime? LastWatchedAt { get; private set; }
 
     /// <summary>
     /// UTC time the progress record was created.
     /// </summary>
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt { get; private set; }
 
     /// <summary>
     /// UTC time of the latest progress update.
     /// </summary>
-    public DateTime? UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; private set; }
 
     #endregion
 
@@ -59,12 +59,12 @@ public class UserEpisodeProgress
     /// <summary>
     /// The tracked user.
     /// </summary>
-    public User User { get; set; } = null!;
+    public User User { get; private set; } = null!;
 
     /// <summary>
     /// The watched episode.
     /// </summary>
-    public Episode Episode { get; set; } = null!;
+    public Episode Episode { get; private set; } = null!;
 
     #endregion
 }

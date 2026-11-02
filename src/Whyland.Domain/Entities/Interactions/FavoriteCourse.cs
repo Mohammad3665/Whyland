@@ -10,17 +10,17 @@ public class FavoriteCourse
     /// <summary>
     /// The user who favorited the course.
     /// </summary>
-    public Guid UserId { get; set; }
+    public Guid UserId { get; private set; }
 
     /// <summary>
     /// The favorited course.
     /// </summary>
-    public long CourseId { get; set; }
+    public long CourseId { get; private set; }
 
     /// <summary>
     /// UTC time of the favorite action.
     /// </summary>
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt { get; private set; }
 
     #endregion
 
@@ -29,12 +29,12 @@ public class FavoriteCourse
     /// <summary>
     /// The user who favorited the course.
     /// </summary>
-    public User User { get; set; } = null!;
+    public User User { get; private set; } = null!;
 
     /// <summary>
     /// The favorited course.
     /// </summary>
-    public Course Course { get; set; } = null!;
+    public Course Course { get; private set; } = null!;
 
     #endregion
 }

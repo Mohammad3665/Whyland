@@ -10,27 +10,27 @@ public class OrderItem : BaseEntity<long>
     /// <summary>
     /// The order this line belongs to.
     /// </summary>
-    public Guid OrderId { get; set; }
+    public Guid OrderId { get; private set; }
 
     /// <summary>
     /// The purchased course.
     /// </summary>
-    public long CourseId { get; set; }
+    public long CourseId { get; private set; }
 
     /// <summary>
     /// Number of courses purchased on this line (usually 1 for single-seat courses).
     /// </summary>
-    public int Quantity { get; set; }
+    public int Quantity { get; private set; }
 
     /// <summary>
     /// Price of a single course at purchase time.
     /// </summary>
-    public decimal UnitPrice { get; set; }
+    public decimal UnitPrice { get; private set; }
 
     /// <summary>
     /// Line total: <see cref="UnitPrice"/> × <see cref="Quantity"/>.
     /// </summary>
-    public decimal TotalPrice { get; set; }
+    public decimal TotalPrice { get; private set; }
 
     #endregion
 
@@ -39,12 +39,12 @@ public class OrderItem : BaseEntity<long>
     /// <summary>
     /// The parent order.
     /// </summary>
-    public Order Order { get; set; } = null!;
+    public Order Order { get; private set; } = null!;
 
     /// <summary>
     /// The purchased course.
     /// </summary>
-    public Course Course { get; set; } = null!;
+    public Course Course { get; private set; } = null!;
 
     #endregion
 }

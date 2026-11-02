@@ -91,6 +91,21 @@ public static class UserErrors
 
     #endregion
 
+    #region  Fields
+
+    /// <summary>The specified field is required but was empty or whitespace.</summary>
+    /// <param name="field">The name of the offending field.</param>
+    public static DomainError FieldRequired(string field) =>
+        DomainError.For<User>(nameof(FieldRequired), ErrorType.Validation, field: field);
+
+    /// <summary>The specified field exceeds its maximum allowed length.</summary>
+    /// <param name="field">The name of the offending field.</param>
+    /// <param name="max">The maximum allowed length.</param>
+    public static DomainError FieldTooLong(string field, int max) =>
+        DomainError.For<User>(nameof(FieldTooLong), ErrorType.Validation, field: field, ("Max", max));
+
+    #endregion
+
     #region  Administration 
 
     /// <summary>No account exists with the given identifier.</summary>

@@ -27,32 +27,47 @@ public class BlogCategory : BaseEntity<long>, ISoftDeletable
     /// <summary>
     /// The category name.
     /// </summary>
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; private set; } = string.Empty;
 
     /// <summary>
     /// Latin equivalent of the name, used to generate URL-friendly slugs.
     /// </summary>
-    public string LatinName { get; set; } = string.Empty;
+    public string LatinName { get; private set; } = string.Empty;
 
     /// <summary>
     /// Unique, URL-friendly identifier of the category.
     /// </summary>
-    public string Slug { get; set; } = string.Empty;
+    public string Slug { get; private set; } = string.Empty;
 
     /// <summary>
     /// Manual ordering weight; categories are shown in this order (s4.10).
     /// </summary>
-    public int DisplayOrder { get; set; }
+    public int DisplayOrder { get; private set; }
 
     /// <summary>
     /// Identifier of the parent category; null for root categories.
     /// </summary>
-    public long? ParentId { get; set; }
+    public long? ParentId { get; private set; }
 
     /// <summary>
     /// Inactive categories are hidden from navigation but keep their posts.
     /// </summary>
-    public bool IsActive { get; set; }
+    public bool IsActive { get; private set; }
+
+    /// <summary>
+    /// The identifier of the user who performed the soft-delete operation.
+    /// </summary>
+    public Guid? DeletedBy { get; private set; }
+
+    /// <summary>
+    /// Indicates whether the entity has been soft-deleted and must be excluded from ordinary queries.
+    /// </summary>
+    public bool IsDeleted { get; private set; }
+
+    /// <summary>
+    /// The UTC time at which the entity was soft-deleted.
+    /// </summary>
+    public DateTime? DeletedAt { get; private set; }
 
     #endregion
 
@@ -61,17 +76,17 @@ public class BlogCategory : BaseEntity<long>, ISoftDeletable
     /// <summary>
     /// The parent category, when this is a nested category.
     /// </summary>
-    public BlogCategory? Parent { get; set; }
+    public BlogCategory? Parent { get; private set; }
 
     /// <summary>
     /// The child categories nested under this one.
     /// </summary>
-    public ICollection<BlogCategory> Children { get; set; } = [];
+    public ICollection<BlogCategory> Children { get; } = [];
 
     /// <summary>
     /// The posts filed under this category.
     /// </summary>
-    public ICollection<BlogPost> BlogPosts { get; set; } = [];
+    public ICollection<BlogPost> BlogPosts { get; } = [];
 
     #endregion
 }

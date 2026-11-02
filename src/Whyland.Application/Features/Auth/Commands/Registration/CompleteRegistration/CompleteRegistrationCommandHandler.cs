@@ -30,13 +30,19 @@ public sealed class CompleteRegistrationCommandHandler(
             return UserErrors.RegistrationConflict();
 
         // A password is stored only when the user chose one; otherwise OTP-only (s5.1.1).
-        var user = Domain.Entities.Identity.User.Create(
-            command.FirstName.Trim(),
-            command.LastName.Trim(),
+        // The entity trims the names and enforces the column sizes, so they are passed as typed.
+        var created = User.Create(
+            command.FirstName,
+            command.LastName,
             phoneNumber: phone,
             passwordHash: string.IsNullOrWhiteSpace(command.Password)
                 ? null
                 : passwordHasher.Hash(command.Password));
+
+        if (created.IsFailure)
+            return created.Error;
+
+        var user = created.Data!;
         user.RecordSuccessfulLogin(DateTime.UtcNow);
 
         await unitOfWork.UserCommandRepository.AddAsync(user, ct);
