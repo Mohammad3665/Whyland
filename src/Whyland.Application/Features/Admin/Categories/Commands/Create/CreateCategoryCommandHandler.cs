@@ -1,4 +1,4 @@
-namespace Whyland.Application.Features.Admin.Categories.Commands.Create;
+﻿namespace Whyland.Application.Features.Admin.Categories.Commands.Create;
 
 /// <summary>
 /// Handles <see cref="CreateCategoryCommand"/> by checking the rules that span more than the row
@@ -25,13 +25,15 @@ public sealed class CreateCategoryCommandHandler(IUnitOfWork unitOfWork) : IComm
         var all = await repository.GetLiveAllAsync(ct);
         var byId = all.ToDictionary(x => x.Id);
 
-        var parentId = command.ParentId;
+        // The request carries raw numbers, so every id is wrapped here once: the tree walks below
+        // only ever compare identifiers.
+        var parentId = command.ParentId is { } rawParent ? CategoryId.From(rawParent) : (CategoryId?)null;
         var isActive = command.IsActive;
 
         if (parentId is { } pid)
         {
             if (!byId.TryGetValue(pid, out var parent))
-                return CategoryErrors.ParentNotFound(pid);
+                return CategoryErrors.ParentNotFound(pid.Value);
 
             // The parent's own level is the ceiling check: a child of the last allowed level
             // would open a fourth one.
@@ -49,7 +51,7 @@ public sealed class CreateCategoryCommandHandler(IUnitOfWork unitOfWork) : IComm
                 isActive = false;
         }
 
-        if (await repository.IsNameTakenAsync(command.Name, parentId, ct: ct))
+        if (await repository.IsNameTakenAsync(command.Name, parentId?.Value, ct: ct))
             return CategoryErrors.NameTaken(command.Name);
 
         var created = Category.Create(command.Name, command.LatinName, command.DisplayOrder, parentId, isActive);
@@ -70,6 +72,6 @@ public sealed class CreateCategoryCommandHandler(IUnitOfWork unitOfWork) : IComm
         saveResult = await unitOfWork.SaveAsync(ct);
         return saveResult.IsFailure ?
             CategoryErrors.CreateFailed() :
-            category.Id;
+            category.Id.Value;
     }
 }

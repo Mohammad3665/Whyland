@@ -1,4 +1,4 @@
-using Whyland.Domain.Entities.Content;
+using Whyland.Domain.Model.Content.Faq.Entities;
 
 namespace Whyland.Infrastructure.Persistence.Configurations.Content;
 

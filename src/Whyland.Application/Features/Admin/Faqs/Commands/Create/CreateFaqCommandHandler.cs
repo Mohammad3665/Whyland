@@ -34,6 +34,6 @@ public sealed class CreateFaqCommandHandler(IUnitOfWork unitOfWork) : ICommandHa
         saveResult = await unitOfWork.SaveAsync(ct);
         return saveResult.IsFailure ?
             FaqErrors.CreateFailed() :
-            faq.Id;
+            faq.Id.Value;
     }
 }

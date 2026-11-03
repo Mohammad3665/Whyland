@@ -1,4 +1,4 @@
-using Whyland.Domain.IRepositories.Identity.ExternalLogin;
+﻿using Whyland.Domain.Model.Identity.ExternalLogin.Repositories;
 
 namespace Whyland.Infrastructure.Persistence.Repositories.Identity.ExternalLogin;
 
@@ -8,10 +8,10 @@ namespace Whyland.Infrastructure.Persistence.Repositories.Identity.ExternalLogin
 /// </summary>
 public sealed class ExternalLoginCommandRepository(WhylandDbContext context) : IExternalLoginCommandRepository
 {
-    public async Task AddAsync(Domain.Entities.Identity.ExternalLogin login, CancellationToken ct = default)
+    public async Task AddAsync(Domain.Model.Identity.ExternalLogin.Entities.ExternalLogin login, CancellationToken ct = default)
         => await context.ExternalLogins.AddAsync(login, ct);
 
-    public Task<Domain.Entities.Identity.ExternalLogin?> GetByProviderKeyAsync(
+    public Task<Domain.Model.Identity.ExternalLogin.Entities.ExternalLogin?> GetByProviderKeyAsync(
         string provider,
         string providerKey,
         CancellationToken ct = default)

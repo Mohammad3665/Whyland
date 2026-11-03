@@ -1,4 +1,4 @@
-namespace Whyland.Application.Features.Admin.Users.Queries.GetFilterFields;
+﻿namespace Whyland.Application.Features.Admin.Users.Queries.GetFilterFields;
 
 /// <summary>
 /// Handles <see cref="GetUserFilterFieldsQuery"/> by reading the account properties.
@@ -54,7 +54,7 @@ public sealed class GetUserFilterFieldsQueryHandler :
     /// <summary>Secret material is never offered as a filter field.</summary>
     private static readonly HashSet<string> Hidden = new(StringComparer.OrdinalIgnoreCase)
     {
-        nameof(Domain.Entities.Identity.User.PasswordHash),
+        nameof(Domain.Model.Identity.User.Entities.User.PasswordHash),
     };
 
     /// <summary>
@@ -65,7 +65,7 @@ public sealed class GetUserFilterFieldsQueryHandler :
     public Task<Result<IReadOnlyList<FilterFieldDto>>> Handle(
         GetUserFilterFieldsQuery query, CancellationToken ct)
     {
-        var fields = typeof(Domain.Entities.Identity.User)
+        var fields = typeof(Domain.Model.Identity.User.Entities.User)
             .GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(x => x.CanRead && !Hidden.Contains(x.Name))
             .Select(Describe)
@@ -84,7 +84,11 @@ public sealed class GetUserFilterFieldsQueryHandler :
     private static FilterFieldDto? Describe(PropertyInfo property)
     {
         var label = Labels.TryGetValue(property.Name, out var text) ? text : property.Name;
-        var type = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+
+        // The picker offers the type the column stores, so an identifier is opened into the key it
+        // wraps; left wrapped it would look like an unknown struct and the field would vanish from
+        // the picker even though the query repository whitelists it.
+        var type = StronglyTypedIds.Unwrap(property.PropertyType);
 
         if (type == typeof(string))
             return new FilterFieldDto(property.Name, label, "string", Text);

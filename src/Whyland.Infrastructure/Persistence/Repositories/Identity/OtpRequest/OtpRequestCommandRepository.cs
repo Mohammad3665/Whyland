@@ -1,4 +1,4 @@
-using Whyland.Domain.IRepositories.Identity.OtpRequest;
+﻿using Whyland.Domain.Model.Identity.OtpRequest.Repositories;
 
 namespace Whyland.Infrastructure.Persistence.Repositories.Identity.OtpRequest;
 
@@ -8,12 +8,12 @@ namespace Whyland.Infrastructure.Persistence.Repositories.Identity.OtpRequest;
 /// </summary>
 public sealed class OtpRequestCommandRepository(WhylandDbContext context) : IOtpRequestCommandRepository
 {
-    public async Task AddAsync(Domain.Entities.Identity.OtpRequest request, CancellationToken ct = default)
+    public async Task AddAsync(Domain.Model.Identity.OtpRequest.Entities.OtpRequest request, CancellationToken ct = default)
         => await context.OtpRequests.AddAsync(request, ct);
 
-    public Task<Domain.Entities.Identity.OtpRequest?> GetLatestUsableAsync(
+    public Task<Domain.Model.Identity.OtpRequest.Entities.OtpRequest?> GetLatestUsableAsync(
         string phoneNumber,
-        Domain.Entities.Identity.OtpPurpose purpose,
+        Domain.Model.Identity.OtpRequest.Enums.OtpPurpose purpose,
         CancellationToken ct = default)
         => context.OtpRequests
             .Where(x => x.PhoneNumber == phoneNumber
@@ -24,9 +24,9 @@ public sealed class OtpRequestCommandRepository(WhylandDbContext context) : IOtp
             .OrderByDescending(x => x.CreatedAt)
             .FirstOrDefaultAsync(x => x.Id != default, ct);
 
-    public Task<Domain.Entities.Identity.OtpRequest?> GetLatestAsync(
+    public Task<Domain.Model.Identity.OtpRequest.Entities.OtpRequest?> GetLatestAsync(
         string phoneNumber,
-        Domain.Entities.Identity.OtpPurpose purpose,
+        Domain.Model.Identity.OtpRequest.Enums.OtpPurpose purpose,
         CancellationToken ct = default)
         => context.OtpRequests
             .Where(x => x.PhoneNumber == phoneNumber

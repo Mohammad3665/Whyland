@@ -1,4 +1,4 @@
-using CategoryEntity = Whyland.Domain.Entities.Catalog.Category;
+﻿using CategoryEntity = Whyland.Domain.Model.Catalog.Category.Entities.Category;
 
 namespace Whyland.Infrastructure.Persistence.Repositories.Catalog.Category;
 
@@ -16,7 +16,7 @@ public class CategoryCommandRepository(WhylandDbContext context) : ICategoryComm
     /// parameter would compile to <c>"ParentId" = @p</c>, which never matches SQL NULL — so every
     /// root-level comparison silently returns nothing. A sentinel makes the comparison total.
     /// </summary>
-    private const long NoParent = 0L;
+    private static readonly CategoryId NoParent = CategoryId.From(0L);
 
     #endregion
 
@@ -34,7 +34,10 @@ public class CategoryCommandRepository(WhylandDbContext context) : ICategoryComm
     #region Reads
 
     public Task<CategoryEntity?> GetByIdAsync(long id, CancellationToken ct = default)
-        => Live.FirstOrDefaultAsync(x => x.Id == id, ct);
+    {
+        var key = CategoryId.From(id);
+        return Live.FirstOrDefaultAsync(x => x.Id == key, ct);
+    }
 
     public async Task<IReadOnlyList<CategoryEntity>> GetLiveAllAsync(CancellationToken ct = default)
         => await Live
@@ -48,13 +51,15 @@ public class CategoryCommandRepository(WhylandDbContext context) : ICategoryComm
         long? excludeId = null,
         CancellationToken ct = default)
     {
-        var group = parentId ?? NoParent;
+        // Raw request numbers become identifiers here, once, so the query below compares keys.
+        var group = parentId is { } parent ? CategoryId.From(parent) : NoParent;
+        var excluded = excludeId is { } skip ? CategoryId.From(skip) : (CategoryId?)null;
 
         return Live.AsNoTracking()
             .AnyAsync(
                 x => x.Name == name &&
                      (x.ParentId ?? NoParent) == group &&
-                     (excludeId == null || x.Id != excludeId.Value),
+                     (excluded == null || x.Id != excluded),
                 ct);
     }
 
@@ -77,8 +82,9 @@ public class CategoryCommandRepository(WhylandDbContext context) : ICategoryComm
         var all = await Live.ToListAsync(ct);
         var byParent = all.ToLookup(x => x.ParentId ?? NoParent);
 
-        var pending = new Queue<long>([id]);
-        var seen = new HashSet<long> { id };
+        var root = CategoryId.From(id);
+        var pending = new Queue<CategoryId>([root]);
+        var seen = new HashSet<CategoryId> { root };
         var count = 0;
 
         while (pending.Count > 0)
@@ -110,14 +116,16 @@ public class CategoryCommandRepository(WhylandDbContext context) : ICategoryComm
         if (orderedIds.Count == 0)
             return;
 
+        var ids = orderedIds.Select(CategoryId.From).ToList();
+
         var rows = await Live
-            .Where(x => orderedIds.Contains(x.Id))
+            .Where(x => ids.Contains(x.Id))
             .ToDictionaryAsync(x => x.Id, ct);
 
         // The next free slot per sibling group, in the order the groups appear in the visual list.
-        var nextOrderByGroup = new Dictionary<long, int>();
+        var nextOrderByGroup = new Dictionary<CategoryId, int>();
 
-        foreach (var id in orderedIds)
+        foreach (var id in ids)
         {
             if (!rows.TryGetValue(id, out var category))
                 continue;

@@ -1,4 +1,4 @@
-using Whyland.Application.Common.Authorization;
+﻿using Whyland.Application.Common.Authorization;
 using Whyland.Application.Common.Options;
 using Whyland.Application.Common.Validation;
 using Whyland.Infrastructure.Services;
@@ -94,7 +94,7 @@ public static class InfrastructureSeeder
             .Select(x => x.UserId)
             .FirstOrDefaultAsync();
 
-        var user = adminUserId == Guid.Empty
+        var user = adminUserId == default
             ? null
             : await context.Users.FirstOrDefaultAsync(x => x.Id == adminUserId);
 

@@ -1022,7 +1022,11 @@ public sealed class DapperFluentQueryBuilder<TEntity> : IDapperFluentQueryBuilde
         return member.Member.Name;
     }
 
-    private static Type Unwrap(Type type) => Nullable.GetUnderlyingType(type) ?? type;
+    /// <summary>
+    /// The type a property is stored as: nullability removed and, for an identifier, the raw key
+    /// it wraps substituted — the driver binds a number or a guid, never the wrapper struct.
+    /// </summary>
+    private static Type Unwrap(Type type) => StronglyTypedIds.Unwrap(type);
 
     private static string QuoteTable(string table)
     {

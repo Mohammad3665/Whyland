@@ -1,3 +1,5 @@
+using FaqEntity = Whyland.Domain.Model.Content.Faq.Entities.Faq;
+
 namespace Whyland.Infrastructure.Persistence.Repositories.Content.Faq;
 
 /// <summary>
@@ -6,19 +8,25 @@ namespace Whyland.Infrastructure.Persistence.Repositories.Content.Faq;
 /// </summary>
 public class FaqCommandRepository(WhylandDbContext context) : IFaqCommandRepository
 {
-    public async Task AddAsync(Domain.Entities.Content.Faq faq, CancellationToken ct = default)
+    public async Task AddAsync(FaqEntity faq, CancellationToken ct = default)
         => await context.Faqs.AddAsync(faq, ct);
 
     public Task<bool> ExistsAsync(string title, long? excludeId = null, CancellationToken ct = default)
-        => context.Faqs.AsNoTracking()
-            .AnyAsync(x => x.Title == title && (excludeId == null || x.Id != excludeId.Value), ct);
+    {
+        // The interface keeps a raw key, so it is wrapped once here and the comparison below
+        // stays between two identifiers.
+        var excluded = excludeId is { } skip ? FaqId.From(skip) : (FaqId?)null;
 
-    public Task<Domain.Entities.Content.Faq?> GetByIdAsync(long id, CancellationToken ct = default)
-        => context.Faqs.FirstOrDefaultAsync(x => x.Id == id, ct);
+        return context.Faqs.AsNoTracking()
+            .AnyAsync(x => x.Title == title && (excluded == null || x.Id != excluded.Value), ct);
+    }
 
-    public void SoftDelete(Domain.Entities.Content.Faq faq) => faq.MarkDeleted();
+    public Task<FaqEntity?> GetByIdAsync(long id, CancellationToken ct = default)
+        => context.Faqs.FirstOrDefaultAsync(x => x.Id == FaqId.From(id), ct);
 
-    public void Update(Domain.Entities.Content.Faq faq)
+    public void SoftDelete(FaqEntity faq) => faq.MarkDeleted();
+
+    public void Update(FaqEntity faq)
         => context.Entry(faq).State = EntityState.Modified;
 
     /// <summary>Stages the new display-order sequence; persisted on SaveAsync.</summary>
@@ -26,16 +34,20 @@ public class FaqCommandRepository(WhylandDbContext context) : IFaqCommandReposit
     /// <param name="ct">Cancellation token.</param>
     public async Task ReorderAsync(IReadOnlyList<long> orderedIds, CancellationToken ct = default)
     {
-        // Load only the affected, live rows; unknown ids are silently skipped.
         if (orderedIds.Count == 0)
             return;
 
+        // The panel sends raw numbers, so the keys are wrapped once here: the query and the
+        // dictionary below only ever work with identifiers.
+        var ids = orderedIds.Select(FaqId.From).ToList();
+
+        // Load only the affected, live rows; unknown ids are silently skipped.
         var rows = await context.Faqs
-            .Where(x => orderedIds.Contains(x.Id))
+            .Where(x => ids.Contains(x.Id))
             .ToDictionaryAsync(x => x.Id, ct);
 
-        for (var i = 0; i < orderedIds.Count; i++)
-            if (rows.TryGetValue(orderedIds[i], out var faq))
+        for (var i = 0; i < ids.Count; i++)
+            if (rows.TryGetValue(ids[i], out var faq))
                 faq.SetDisplayOrder(i + 1);
     }
 

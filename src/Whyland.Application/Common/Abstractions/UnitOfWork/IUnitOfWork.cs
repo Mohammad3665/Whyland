@@ -1,9 +1,9 @@
-using Microsoft.EntityFrameworkCore.Storage;
-using Whyland.Domain.IRepositories.Catalog.Category;
-using Whyland.Domain.IRepositories.Content.Faq;
-using Whyland.Domain.IRepositories.Identity.ExternalLogin;
-using Whyland.Domain.IRepositories.Identity.OtpRequest;
-using Whyland.Domain.IRepositories.Identity.User;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using Whyland.Domain.Model.Catalog.Category.Repositories;
+using Whyland.Domain.Model.Identity.ExternalLogin.Repositories;
+using Whyland.Domain.Model.Identity.OtpRequest.Repositories;
+using Whyland.Domain.Model.Identity.User.Repositories;
+using Whyland.Domain.Model.Content.Faq.Repositories;
 
 namespace Whyland.Application.Common.Abstractions.UnitOfWork;
 

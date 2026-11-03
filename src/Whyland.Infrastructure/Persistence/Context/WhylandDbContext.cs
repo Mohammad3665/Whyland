@@ -1,8 +1,11 @@
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Whyland.Domain.Common.Primitives;
-using Whyland.Domain.Entities.Content;
-using Whyland.Domain.Entities.Interactions;
-using Whyland.Domain.Entities.Settings;
+using Whyland.Domain.Model.Interactions.FavoriteCourse.Entities;
+using Whyland.Domain.Model.Settings.SiteSetting.Entities;
+using Whyland.Domain.Model.Content.Faq.Entities;
+using Whyland.Domain.Model.Content.Faq.Identifiers;
+using Whyland.Infrastructure.Extensions;
 
 namespace Whyland.Infrastructure.Persistence.Context;
 
@@ -99,6 +102,54 @@ public class WhylandDbContext(DbContextOptions<WhylandDbContext> options)
 
             var filter = BuildSoftDeleteFilter(entityType.ClrType);
             modelBuilder.Entity(entityType.ClrType).HasQueryFilter(filter);
+        }
+
+        RestoreStronglyTypedKeyGeneration(modelBuilder);
+    }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        base.ConfigureConventions(configurationBuilder);
+        configurationBuilder.ConfigureStronglyTypedIds(typeof(FaqId).Assembly);
+    }
+
+    /// <summary>
+    /// Gives a wrapped primary key the value generation the provider would have given the raw
+    /// column type.
+    /// <para>
+    /// Both the PostgreSQL identity convention and the one that generates a guid decide by looking
+    /// at the CLR type of the property, and a key is now an identifier struct rather than a
+    /// <c>long</c> or a <c>Guid</c>. Left to itself, the model drops the generation for every
+    /// wrapped key: the column is still <c>bigint</c>/<c>uuid</c>, but the next migration removes
+    /// the identity and inserts start failing on a missing primary key. A key that is also a
+    /// foreign key - a link table's composite key - is skipped, because it is supplied by the row
+    /// it points at.
+    /// </para>
+    /// </summary>
+    /// <param name="modelBuilder">The builder holding the model being composed.</param>
+    private static void RestoreStronglyTypedKeyGeneration(ModelBuilder modelBuilder)
+    {
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (entityType.IsOwned()) continue;
+
+            var key = entityType.FindPrimaryKey();
+            if (key is null) continue;
+
+            foreach (var property in key.Properties)
+            {
+                if (property.IsForeignKey()) continue;
+
+                // The unwrapped type is the one the provider was going to look at; when nothing
+                // changed, this key never was an identifier and the convention already handled it.
+                var raw = StronglyTypedIds.Unwrap(property.ClrType);
+                if (raw == property.ClrType) continue;
+
+                property.ValueGenerated = ValueGenerated.OnAdd;
+
+                if (raw == typeof(long) || raw == typeof(int))
+                    property.SetAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+            }
         }
     }
 

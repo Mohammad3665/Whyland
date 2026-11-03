@@ -1,4 +1,4 @@
-namespace Whyland.Application.Features.Auth.ExternalLogin;
+﻿namespace Whyland.Application.Features.Auth.ExternalLogin;
 
 /// <summary>
 /// Handles <see cref="ExternalLoginCallbackCommand"/> (s5.4).
@@ -23,7 +23,7 @@ public sealed class ExternalLoginCallbackCommandHandler(
         if (link is null)
             return await ProvisionAsync(identity, ct);
 
-        var user = await unitOfWork.UserCommandRepository.GetTrackedByIdAsync(link.UserId, ct);
+        var user = await unitOfWork.UserCommandRepository.GetTrackedByIdAsync(link.UserId.Value, ct);
 
         // A deactivated or deleted account must not authenticate through its provider link.
         if (user is null || !user.IsActive)
@@ -75,7 +75,7 @@ public sealed class ExternalLoginCallbackCommandHandler(
 
         // The two claim values come from the provider, so the entity checks their shape. Nothing is
         // persisted on a refusal: the account staged above is only written by the save below.
-        var link = Domain.Entities.Identity.ExternalLogin.Create(
+        var link = Domain.Model.Identity.ExternalLogin.Entities.ExternalLogin.Create(
             user.Id, identity.Provider, identity.ProviderKey);
 
         if (link.IsFailure)
@@ -95,10 +95,10 @@ public sealed class ExternalLoginCallbackCommandHandler(
         User user,
         CancellationToken ct)
     {
-        var permissions = await unitOfWork.UserQueryRepository.GetPermissionKeysAsync(user.Id, ct);
+        var permissions = await unitOfWork.UserQueryRepository.GetPermissionKeysAsync(user.Id.Value, ct);
 
         return new AuthenticatedUserDto(
-            user.Id,
+            user.Id.Value,
             $"{user.FirstName} {user.LastName}".Trim(),
             permissions);
     }

@@ -1,4 +1,4 @@
-namespace Whyland.Application.Features.Admin.Users.Commands.Create;
+﻿namespace Whyland.Application.Features.Admin.Users.Commands.Create;
 
 /// <summary>
 /// Handles <see cref="CreateUserCommand"/>: keeps the phone number and e-mail unique, stores
@@ -53,11 +53,11 @@ public sealed class CreateUserCommandHandler(
         if (saveResult.IsFailure)
             return UserErrors.CreateFailed();
 
-        await unitOfWork.UserCommandRepository.ReplaceRolesAsync(user.Id, command.RoleIds, ct);
+        await unitOfWork.UserCommandRepository.ReplaceRolesAsync(user.Id.Value, command.RoleIds, ct);
 
         saveResult = await unitOfWork.SaveAsync(ct);
         return saveResult.IsFailure
             ? UserErrors.CreateFailed()
-            : user.Id;
+            : user.Id.Value;
     }
 }

@@ -1,4 +1,4 @@
-using Whyland.Domain.Entities.Settings;
+﻿using Whyland.Domain.Model.Settings.SiteSetting.Entities;
 
 namespace Whyland.Infrastructure.Persistence.Configurations.Settings;
 

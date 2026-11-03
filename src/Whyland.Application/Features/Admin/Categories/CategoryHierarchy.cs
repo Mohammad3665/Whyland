@@ -1,4 +1,4 @@
-namespace Whyland.Application.Features.Admin.Categories;
+﻿namespace Whyland.Application.Features.Admin.Categories;
 
 /// <summary>
 /// The three-level ceiling of the catalogue is judged on the whole branch, not on one row, so both
@@ -11,7 +11,7 @@ internal static class CategoryHierarchy
     /// The group key a root category belongs to: <see cref="Category.ParentId"/> is null there and
     /// the walk below compares identifiers, so null is folded into this sentinel.
     /// </summary>
-    internal const long NoParent = 0L;
+    internal static readonly CategoryId NoParent = CategoryId.From(0L);
 
     /// <summary>
     /// The level a category sits on: a root is 1, its child 2, and so on. An identifier that is not
@@ -20,10 +20,10 @@ internal static class CategoryHierarchy
     /// </summary>
     /// <param name="id">The category whose level is wanted.</param>
     /// <param name="byId">Every live category, keyed by identifier.</param>
-    internal static int DepthOf(long id, IReadOnlyDictionary<long, Category> byId)
+    internal static int DepthOf(CategoryId id, IReadOnlyDictionary<CategoryId, Category> byId)
     {
         var depth = 0;
-        long current = id;
+        var current = id;
 
         // The guard is the cycle breaker: a corrupted row could otherwise send this walk round forever.
         while (current != NoParent && depth <= Category.MaxDepth)
@@ -45,7 +45,7 @@ internal static class CategoryHierarchy
     /// <param name="id">The top of the branch.</param>
     /// <param name="byParent">Every live category, grouped by its parent (roots under <see cref="NoParent"/>).</param>
     /// <param name="limit">Stops the walk on a corrupted cycle.</param>
-    internal static int HeightOf(long id, ILookup<long, Category> byParent, int limit = Category.MaxDepth)
+    internal static int HeightOf(CategoryId id, ILookup<CategoryId, Category> byParent, int limit = Category.MaxDepth)
     {
         if (limit <= 1)
             return 1;
@@ -65,7 +65,7 @@ internal static class CategoryHierarchy
     /// </summary>
     /// <param name="all">Every live category.</param>
     /// <param name="parentId">The parent whose children are counted.</param>
-    internal static bool HasRoomForChild(IReadOnlyList<Category> all, long parentId) =>
+    internal static bool HasRoomForChild(IReadOnlyList<Category> all, CategoryId parentId) =>
         all.Count(x => x.ParentId == parentId) < Category.MaxChildren;
 
     /// <summary>
@@ -76,9 +76,9 @@ internal static class CategoryHierarchy
     /// <param name="ancestorId">The row that would become its own descendant.</param>
     /// <param name="byId">Every live category, keyed by identifier.</param>
     internal static bool IsDescendant(
-        long candidateId,
-        long ancestorId,
-        IReadOnlyDictionary<long, Category> byId)
+        CategoryId candidateId,
+        CategoryId ancestorId,
+        IReadOnlyDictionary<CategoryId, Category> byId)
     {
         var current = candidateId;
 

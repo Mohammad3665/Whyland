@@ -1,4 +1,4 @@
-namespace Whyland.Application.Features.Admin.Categories.Commands.Update;
+﻿namespace Whyland.Application.Features.Admin.Categories.Commands.Update;
 
 /// <summary>
 /// Handles <see cref="UpdateCategoryCommand"/> by loading the category, checking the hierarchy rules
@@ -27,22 +27,25 @@ public sealed class UpdateCategoryCommandHandler(IUnitOfWork unitOfWork) : IComm
         var byId = all.ToDictionary(x => x.Id);
         var byParent = all.ToLookup(x => x.ParentId ?? CategoryHierarchy.NoParent);
 
-        var parentId = command.ParentId;
+        // The request carries raw numbers, so every id is wrapped here once: the tree walks below
+        // only ever compare identifiers.
+        var parentId = command.ParentId is { } rawParent ? CategoryId.From(rawParent) : (CategoryId?)null;
         var isActive = command.IsActive;
+        var id = CategoryId.From(command.Id);
 
         if (parentId is { } pid)
         {
             if (!byId.TryGetValue(pid, out var parent))
-                return CategoryErrors.ParentNotFound(pid);
+                return CategoryErrors.ParentNotFound(pid.Value);
 
             // Either edge of the loop: the row becomes its own parent, or the chosen parent is
             // already somewhere below it.
-            if (pid == command.Id || CategoryHierarchy.IsDescendant(pid, command.Id, byId))
+            if (pid == id || CategoryHierarchy.IsDescendant(pid, id, byId))
                 return CategoryErrors.CircularParent();
 
             // The branch travels with the row, so the ceiling is the new level of this category
             // plus the levels still hanging below it.
-            var branchBelow = CategoryHierarchy.HeightOf(command.Id, byParent) - 1;
+            var branchBelow = CategoryHierarchy.HeightOf(id, byParent) - 1;
             if (CategoryHierarchy.DepthOf(pid, byId) + branchBelow > Category.MaxDepth)
                 return CategoryErrors.MaxDepthExceeded(Category.MaxDepth);
 
@@ -55,7 +58,7 @@ public sealed class UpdateCategoryCommandHandler(IUnitOfWork unitOfWork) : IComm
                 isActive = false;
         }
 
-        if (await repository.IsNameTakenAsync(command.Name, parentId, command.Id, ct))
+        if (await repository.IsNameTakenAsync(command.Name, parentId?.Value, command.Id, ct))
             return CategoryErrors.NameTaken(command.Name);
 
         var updated = category.Update(command.Name, command.LatinName, isActive);

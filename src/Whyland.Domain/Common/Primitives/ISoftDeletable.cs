@@ -1,4 +1,4 @@
-namespace Whyland.Domain.Common.Primitives;
+﻿namespace Whyland.Domain.Common.Primitives;
 
 /// <summary>
 /// Marks entities that support soft deletion (s4.1 of the SRS).
@@ -20,5 +20,5 @@ public interface ISoftDeletable
     /// <summary>
     /// The identifier of the user who performed the soft-delete operation.
     /// </summary>
-    Guid? DeletedBy { get; }
+    UserId? DeletedBy { get; }
 }

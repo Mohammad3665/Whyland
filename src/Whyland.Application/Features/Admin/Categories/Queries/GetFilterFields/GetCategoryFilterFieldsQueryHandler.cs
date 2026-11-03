@@ -1,4 +1,4 @@
-namespace Whyland.Application.Features.Admin.Categories.Queries.GetFilterFields;
+﻿namespace Whyland.Application.Features.Admin.Categories.Queries.GetFilterFields;
 
 /// <summary>
 /// Handles <see cref="GetCategoryFilterFieldsQuery"/> by reading the category properties and the
@@ -75,7 +75,7 @@ public sealed class GetCategoryFilterFieldsQueryHandler :
     public Task<Result<IReadOnlyList<FilterFieldDto>>> Handle(
         GetCategoryFilterFieldsQuery query, CancellationToken ct)
     {
-        var fields = typeof(Domain.Entities.Catalog.Category)
+        var fields = typeof(Domain.Model.Catalog.Category.Entities.Category)
             .GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(x => x.CanRead)
             .Select(Describe)
@@ -96,7 +96,11 @@ public sealed class GetCategoryFilterFieldsQueryHandler :
     private static FilterFieldDto? Describe(PropertyInfo property)
     {
         var label = Labels.TryGetValue(property.Name, out var text) ? text : property.Name;
-        var type = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+
+        // The picker offers the type the column stores, so an identifier is opened into the key it
+        // wraps; left wrapped it would look like an unknown struct and the field would vanish from
+        // the picker even though the query repository whitelists it.
+        var type = StronglyTypedIds.Unwrap(property.PropertyType);
 
         if (type == typeof(string))
             return new FilterFieldDto(property.Name, label, "string", Text);

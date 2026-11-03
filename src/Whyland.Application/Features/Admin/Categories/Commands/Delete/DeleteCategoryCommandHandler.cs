@@ -1,4 +1,4 @@
-namespace Whyland.Application.Features.Admin.Categories.Commands.Delete;
+﻿namespace Whyland.Application.Features.Admin.Categories.Commands.Delete;
 
 /// <summary>
 /// Handles <see cref="DeleteCategoryCommand"/> by soft-deleting the category through the
@@ -24,7 +24,7 @@ public sealed class DeleteCategoryCommandHandler(IUnitOfWork unitOfWork) : IComm
             return CategoryErrors.NotFound(command.Id);
 
         var childCount = (await repository.GetLiveAllAsync(ct))
-            .Count(x => x.ParentId == command.Id);
+            .Count(x => x.ParentId == CategoryId.From(command.Id));
 
         if (childCount > 0)
             return CategoryErrors.HasChildren(childCount);

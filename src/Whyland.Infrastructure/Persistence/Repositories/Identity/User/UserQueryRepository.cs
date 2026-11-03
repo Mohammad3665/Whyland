@@ -1,10 +1,10 @@
-using System.Globalization;
-using Whyland.Domain.Entities.Identity.Enums;
+﻿using System.Globalization;
+using Whyland.Domain.Model.Identity.UserProfile.Enums;
 using Whyland.Infrastructure.Persistence.Queries;
 using Whyland.Shared.Dtos.Authorization.Role;
 using Whyland.Shared.Dtos.Identity.User;
-using UserEntity = Whyland.Domain.Entities.Identity.User;
-using ExternalLoginEntity = Whyland.Domain.Entities.Identity.ExternalLogin;
+using UserEntity = Whyland.Domain.Model.Identity.User.Entities.User;
+using ExternalLoginEntity = Whyland.Domain.Model.Identity.ExternalLogin.Entities.ExternalLogin;
 
 namespace Whyland.Infrastructure.Persistence.Repositories.Identity.User;
 

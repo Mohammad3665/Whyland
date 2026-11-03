@@ -205,13 +205,14 @@ public sealed class SqlConditionWriter
     };
 
     /// <summary>
-    /// Turns a value into something Npgsql can send for a PostgreSQL column: an enum becomes its
-    /// stored number, and a date without a kind is read as UTC the way every other read in this
-    /// layer does.
+    /// Turns a value into something Npgsql can send for a PostgreSQL column: an identifier opens
+    /// into the key it wraps, an enum becomes its stored number, and a date without a kind is read
+    /// as UTC the way every other read in this layer does.
     /// </summary>
     public static object? Normalize(object? value) => value switch
     {
         null => null,
+        IStronglyTypedId => StronglyTypedIds.ValueOf(value),
         var v when v.GetType().IsEnum => Convert.ChangeType(v, Enum.GetUnderlyingType(v.GetType()), CultureInfo.InvariantCulture),
         DateTime { Kind: DateTimeKind.Unspecified } moment => DateTime.SpecifyKind(moment, DateTimeKind.Utc),
         _ => value

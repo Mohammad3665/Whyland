@@ -1,4 +1,4 @@
-namespace Whyland.Application.Features.Auth.Login.LoginWithPassword;
+﻿namespace Whyland.Application.Features.Auth.Login.LoginWithPassword;
 
 /// <summary>
 /// Handles <see cref="LoginWithPasswordCommand"/> (s5.1.1, s15.1.4).
@@ -47,10 +47,10 @@ public sealed class LoginWithPasswordCommandHandler(
         unitOfWork.UserCommandRepository.TouchLastLogin(user);
         await unitOfWork.SaveAsync(ct);
 
-        var permissions = await unitOfWork.UserQueryRepository.GetPermissionKeysAsync(user.Id, ct);
+        var permissions = await unitOfWork.UserQueryRepository.GetPermissionKeysAsync(user.Id.Value, ct);
 
         return new AuthenticatedUserDto(
-            user.Id,
+            user.Id.Value,
             $"{user.FirstName} {user.LastName}".Trim(),
             permissions);
     }

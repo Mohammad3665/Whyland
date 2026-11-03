@@ -1,6 +1,6 @@
 using Whyland.Infrastructure.Persistence.Queries;
 using Whyland.Shared.Dtos.Content.Faq;
-using FaqEntity = Whyland.Domain.Entities.Content.Faq;
+using FaqEntity = Whyland.Domain.Model.Content.Faq.Entities.Faq;
 
 namespace Whyland.Infrastructure.Persistence.Repositories.Content.Faq;
 

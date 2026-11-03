@@ -1,4 +1,4 @@
-using Whyland.Application.Features.Auth.Registration.CompleteRegistration;
+﻿using Whyland.Application.Features.Auth.Registration.CompleteRegistration;
 
 namespace Whyland.Application.Features.Auth.Commands.Registration.CompleteRegistration;
 
@@ -52,10 +52,10 @@ public sealed class CompleteRegistrationCommandHandler(
             return UserErrors.LoginFailed();
 
         // A freshly-registered public user holds no admin permissions; the cookie is still issued.
-        var permissions = await unitOfWork.UserQueryRepository.GetPermissionKeysAsync(user.Id, ct);
+        var permissions = await unitOfWork.UserQueryRepository.GetPermissionKeysAsync(user.Id.Value, ct);
 
         return new AuthenticatedUserDto(
-            user.Id,
+            user.Id.Value,
             $"{user.FirstName} {user.LastName}".Trim(),
             permissions
         );

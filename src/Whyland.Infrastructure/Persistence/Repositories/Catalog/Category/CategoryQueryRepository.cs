@@ -1,6 +1,6 @@
-using Whyland.Infrastructure.Persistence.Queries;
+﻿using Whyland.Infrastructure.Persistence.Queries;
 using Whyland.Shared.Dtos.Catalog.Category;
-using CategoryEntity = Whyland.Domain.Entities.Catalog.Category;
+using CategoryEntity = Whyland.Domain.Model.Catalog.Category.Entities.Category;
 
 namespace Whyland.Infrastructure.Persistence.Repositories.Catalog.Category;
 

@@ -88,7 +88,9 @@ public sealed class SqlDataTableSpec
 
     /// <summary>
     /// Builds the column map of an entity: every scalar property becomes
-    /// <c>alias."PropertyName"</c>, which is the column EF Core maps it to. Navigations and
+    /// <c>alias."PropertyName"</c>, which is the column EF Core maps it to. An identifier property
+    /// is registered under the raw key type it wraps, since that is the type the column stores.
+    /// Navigations and
     /// collections are skipped because no single value can filter them.
     /// </summary>
     /// <typeparam name="TEntity">The aggregate the table is read from.</typeparam>
@@ -107,7 +109,10 @@ public sealed class SqlDataTableSpec
 
         foreach (var property in typeof(TEntity).GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
-            var type = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+            // A wrapped key is stored as the type it wraps, so the whitelist describes the column
+            // by that raw type. Left as the identifier itself, it would look like an unknown
+            // struct, drop out of the whitelist silently, and stop being filterable.
+            var type = StronglyTypedIds.Unwrap(property.PropertyType);
 
             if (excluded.Contains(property.Name))
                 continue;

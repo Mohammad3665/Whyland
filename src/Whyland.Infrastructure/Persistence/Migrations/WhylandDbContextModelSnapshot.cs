@@ -22,7 +22,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Authorization.Permission", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Authorization.Permission.Entities.Permission", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -73,7 +73,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("Permissions", "identity");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Authorization.Role", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Authorization.Role.Entities.Role", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -124,7 +124,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("Roles", "identity");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Authorization.RolePermission", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Authorization.RolePermission.Entities.RolePermission", b =>
                 {
                     b.Property<long>("RoleId")
                         .HasColumnType("bigint");
@@ -142,7 +142,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("RolePermissions", "identity");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Authorization.UserRole", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Authorization.UserRole.Entities.UserRole", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -160,7 +160,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("UserRoles", "identity");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Blog.BlogCategory", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Blog.BlogCategory.Entities.BlogCategory", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -226,7 +226,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("BlogCategories", "blog");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Blog.BlogPost", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Blog.BlogPost.Entities.BlogPost", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -307,7 +307,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("BlogPosts", "blog");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.Category", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.Category.Entities.Category", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -364,7 +364,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("Categories", "catalog");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.Course", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.Course.Entities.Course", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -462,7 +462,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("Courses", "catalog");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.CourseCategory", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.CourseCategory.Entities.CourseCategory", b =>
                 {
                     b.Property<long>("CourseId")
                         .HasColumnType("bigint");
@@ -477,7 +477,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("CourseCategories", "catalog");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.CourseFaq", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.CourseFaq.Entities.CourseFaq", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -528,7 +528,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("CourseFaqs", "catalog");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.CourseInstructor", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.CourseInstructor.Entities.CourseInstructor", b =>
                 {
                     b.Property<long>("CourseId")
                         .HasColumnType("bigint");
@@ -543,7 +543,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("CourseInstructors", "catalog");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.CourseSection", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.CourseSection.Entities.CourseSection", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -590,7 +590,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("CourseSections", "catalog");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.Episode", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.Episode.Entities.Episode", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -650,7 +650,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("Episodes", "catalog");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.EpisodeAttachment", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.EpisodeAttachment.Entities.EpisodeAttachment", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -707,7 +707,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("EpisodeAttachments", "catalog");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Commerce.Coupon", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Commerce.Coupon.Entities.Coupon", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -782,7 +782,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("Coupons", "commerce");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Commerce.Invoice", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Commerce.Invoice.Entities.Invoice", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -885,7 +885,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("Invoices", "commerce");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Commerce.InvoiceItem", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Commerce.InvoiceItem.Entities.InvoiceItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -940,7 +940,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("InvoiceItems", "commerce");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Commerce.Order", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Commerce.Order.Entities.Order", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1005,7 +1005,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("Orders", "commerce");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Commerce.OrderItem", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Commerce.OrderItem.Entities.OrderItem", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -1053,7 +1053,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("OrderItems", "commerce");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Commerce.Payment", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Commerce.Payment.Entities.Payment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1106,7 +1106,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("Payments", "commerce");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Content.Faq", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Content.Faq.Entities.Faq", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -1160,7 +1160,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("Faqs", "content");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Identity.ExternalLogin", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Identity.ExternalLogin.Entities.ExternalLogin", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1192,7 +1192,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("ExternalLogins", "identity");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Identity.InstructorProfile", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Identity.InstructorProfile.Entities.InstructorProfile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1256,7 +1256,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("InstructorProfiles", "identity");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Identity.OtpRequest", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Identity.OtpRequest.Entities.OtpRequest", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1314,7 +1314,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("OtpRequests", "identity");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Identity.User", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Identity.User.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1383,7 +1383,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("Users", "identity");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Identity.UserProfile", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Identity.UserProfile.Entities.UserProfile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1422,7 +1422,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("UserProfiles", "identity");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Interactions.FavoriteCourse", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Interactions.FavoriteCourse.Entities.FavoriteCourse", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -1440,7 +1440,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("FavoriteCourses", "interactions");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Learning.UserCourse", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Learning.UserCourse.Entities.UserCourse", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -1463,7 +1463,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("UserCourses", "learning");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Learning.UserEpisodeProgress", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Learning.UserEpisodeProgress.Entities.UserEpisodeProgress", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -1505,7 +1505,7 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("UserEpisodeProgresses", "learning");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Settings.SiteSetting", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Settings.SiteSetting.Entities.SiteSetting", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -1569,15 +1569,15 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.ToTable("SiteSettings", "settings");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Authorization.RolePermission", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Authorization.RolePermission.Entities.RolePermission", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Authorization.Permission", "Permission")
+                    b.HasOne("Whyland.Domain.Model.Authorization.Permission.Entities.Permission", "Permission")
                         .WithMany("RolePermissions")
                         .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Whyland.Domain.Entities.Authorization.Role", "Role")
+                    b.HasOne("Whyland.Domain.Model.Authorization.Role.Entities.Role", "Role")
                         .WithMany("RolePermissions")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1588,15 +1588,15 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Authorization.UserRole", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Authorization.UserRole.Entities.UserRole", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Authorization.Role", "Role")
+                    b.HasOne("Whyland.Domain.Model.Authorization.Role.Entities.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Whyland.Domain.Entities.Identity.User", "User")
+                    b.HasOne("Whyland.Domain.Model.Identity.User.Entities.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1607,9 +1607,9 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Blog.BlogCategory", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Blog.BlogCategory.Entities.BlogCategory", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Blog.BlogCategory", "Parent")
+                    b.HasOne("Whyland.Domain.Model.Blog.BlogCategory.Entities.BlogCategory", "Parent")
                         .WithMany("Children")
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -1617,15 +1617,15 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Blog.BlogPost", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Blog.BlogPost.Entities.BlogPost", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Identity.User", "Author")
+                    b.HasOne("Whyland.Domain.Model.Identity.User.Entities.User", "Author")
                         .WithMany()
                         .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Whyland.Domain.Entities.Blog.BlogCategory", "Category")
+                    b.HasOne("Whyland.Domain.Model.Blog.BlogCategory.Entities.BlogCategory", "Category")
                         .WithMany("BlogPosts")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1636,9 +1636,9 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.Category", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.Category.Entities.Category", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Catalog.Category", "Parent")
+                    b.HasOne("Whyland.Domain.Model.Catalog.Category.Entities.Category", "Parent")
                         .WithMany("Children")
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -1646,15 +1646,15 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.CourseCategory", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.CourseCategory.Entities.CourseCategory", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Catalog.Category", "Category")
+                    b.HasOne("Whyland.Domain.Model.Catalog.Category.Entities.Category", "Category")
                         .WithMany("CourseCategories")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Whyland.Domain.Entities.Catalog.Course", "Course")
+                    b.HasOne("Whyland.Domain.Model.Catalog.Course.Entities.Course", "Course")
                         .WithMany("CourseCategories")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1665,9 +1665,9 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("Course");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.CourseFaq", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.CourseFaq.Entities.CourseFaq", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Catalog.Course", "Course")
+                    b.HasOne("Whyland.Domain.Model.Catalog.Course.Entities.Course", "Course")
                         .WithMany("CourseFaqs")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1676,15 +1676,15 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("Course");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.CourseInstructor", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.CourseInstructor.Entities.CourseInstructor", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Catalog.Course", "Course")
+                    b.HasOne("Whyland.Domain.Model.Catalog.Course.Entities.Course", "Course")
                         .WithMany("CourseInstructors")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Whyland.Domain.Entities.Identity.InstructorProfile", "InstructorProfile")
+                    b.HasOne("Whyland.Domain.Model.Identity.InstructorProfile.Entities.InstructorProfile", "InstructorProfile")
                         .WithMany("CourseInstructors")
                         .HasForeignKey("InstructorProfileId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1695,9 +1695,9 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("InstructorProfile");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.CourseSection", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.CourseSection.Entities.CourseSection", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Catalog.Course", "Course")
+                    b.HasOne("Whyland.Domain.Model.Catalog.Course.Entities.Course", "Course")
                         .WithMany("Sections")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1706,9 +1706,9 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("Course");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.Episode", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.Episode.Entities.Episode", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Catalog.CourseSection", "Section")
+                    b.HasOne("Whyland.Domain.Model.Catalog.CourseSection.Entities.CourseSection", "Section")
                         .WithMany("Episodes")
                         .HasForeignKey("SectionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1717,9 +1717,9 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("Section");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.EpisodeAttachment", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.EpisodeAttachment.Entities.EpisodeAttachment", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Catalog.Episode", "Episode")
+                    b.HasOne("Whyland.Domain.Model.Catalog.Episode.Entities.Episode", "Episode")
                         .WithMany("Attachments")
                         .HasForeignKey("EpisodeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1728,21 +1728,21 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("Episode");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Commerce.Invoice", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Commerce.Invoice.Entities.Invoice", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Commerce.Order", "Order")
+                    b.HasOne("Whyland.Domain.Model.Commerce.Order.Entities.Order", "Order")
                         .WithMany()
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Whyland.Domain.Entities.Commerce.Payment", null)
+                    b.HasOne("Whyland.Domain.Model.Commerce.Payment.Entities.Payment", null)
                         .WithMany()
                         .HasForeignKey("PaymentId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Whyland.Domain.Entities.Identity.User", "User")
+                    b.HasOne("Whyland.Domain.Model.Identity.User.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1753,29 +1753,29 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Commerce.InvoiceItem", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Commerce.InvoiceItem.Entities.InvoiceItem", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Catalog.Course", null)
+                    b.HasOne("Whyland.Domain.Model.Catalog.Course.Entities.Course", null)
                         .WithMany()
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Whyland.Domain.Entities.Commerce.Invoice", null)
+                    b.HasOne("Whyland.Domain.Model.Commerce.Invoice.Entities.Invoice", null)
                         .WithMany("Items")
                         .HasForeignKey("InvoiceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Commerce.Order", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Commerce.Order.Entities.Order", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Commerce.Coupon", "Coupon")
+                    b.HasOne("Whyland.Domain.Model.Commerce.Coupon.Entities.Coupon", "Coupon")
                         .WithMany("Orders")
                         .HasForeignKey("CouponId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Whyland.Domain.Entities.Identity.User", "User")
+                    b.HasOne("Whyland.Domain.Model.Identity.User.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1786,15 +1786,15 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Commerce.OrderItem", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Commerce.OrderItem.Entities.OrderItem", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Catalog.Course", "Course")
+                    b.HasOne("Whyland.Domain.Model.Catalog.Course.Entities.Course", "Course")
                         .WithMany()
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Whyland.Domain.Entities.Commerce.Order", "Order")
+                    b.HasOne("Whyland.Domain.Model.Commerce.Order.Entities.Order", "Order")
                         .WithMany("OrderItems")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1805,9 +1805,9 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Commerce.Payment", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Commerce.Payment.Entities.Payment", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Commerce.Order", "Order")
+                    b.HasOne("Whyland.Domain.Model.Commerce.Order.Entities.Order", "Order")
                         .WithMany("Payments")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1816,9 +1816,9 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Identity.ExternalLogin", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Identity.ExternalLogin.Entities.ExternalLogin", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Identity.User", "User")
+                    b.HasOne("Whyland.Domain.Model.Identity.User.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1827,37 +1827,37 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Identity.InstructorProfile", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Identity.InstructorProfile.Entities.InstructorProfile", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Identity.User", "User")
+                    b.HasOne("Whyland.Domain.Model.Identity.User.Entities.User", "User")
                         .WithOne("InstructorProfile")
-                        .HasForeignKey("Whyland.Domain.Entities.Identity.InstructorProfile", "UserId")
+                        .HasForeignKey("Whyland.Domain.Model.Identity.InstructorProfile.Entities.InstructorProfile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Identity.UserProfile", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Identity.UserProfile.Entities.UserProfile", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Identity.User", "User")
+                    b.HasOne("Whyland.Domain.Model.Identity.User.Entities.User", "User")
                         .WithOne("Profile")
-                        .HasForeignKey("Whyland.Domain.Entities.Identity.UserProfile", "UserId")
+                        .HasForeignKey("Whyland.Domain.Model.Identity.UserProfile.Entities.UserProfile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Interactions.FavoriteCourse", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Interactions.FavoriteCourse.Entities.FavoriteCourse", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Catalog.Course", "Course")
+                    b.HasOne("Whyland.Domain.Model.Catalog.Course.Entities.Course", "Course")
                         .WithMany()
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Whyland.Domain.Entities.Identity.User", "User")
+                    b.HasOne("Whyland.Domain.Model.Identity.User.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1868,21 +1868,21 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Learning.UserCourse", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Learning.UserCourse.Entities.UserCourse", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Catalog.Course", "Course")
+                    b.HasOne("Whyland.Domain.Model.Catalog.Course.Entities.Course", "Course")
                         .WithMany()
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Whyland.Domain.Entities.Commerce.Order", "Order")
+                    b.HasOne("Whyland.Domain.Model.Commerce.Order.Entities.Order", "Order")
                         .WithMany()
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Whyland.Domain.Entities.Identity.User", "User")
+                    b.HasOne("Whyland.Domain.Model.Identity.User.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1895,15 +1895,15 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Learning.UserEpisodeProgress", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Learning.UserEpisodeProgress.Entities.UserEpisodeProgress", b =>
                 {
-                    b.HasOne("Whyland.Domain.Entities.Catalog.Episode", "Episode")
+                    b.HasOne("Whyland.Domain.Model.Catalog.Episode.Entities.Episode", "Episode")
                         .WithMany()
                         .HasForeignKey("EpisodeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Whyland.Domain.Entities.Identity.User", "User")
+                    b.HasOne("Whyland.Domain.Model.Identity.User.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1914,33 +1914,33 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Authorization.Permission", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Authorization.Permission.Entities.Permission", b =>
                 {
                     b.Navigation("RolePermissions");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Authorization.Role", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Authorization.Role.Entities.Role", b =>
                 {
                     b.Navigation("RolePermissions");
 
                     b.Navigation("UserRoles");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Blog.BlogCategory", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Blog.BlogCategory.Entities.BlogCategory", b =>
                 {
                     b.Navigation("BlogPosts");
 
                     b.Navigation("Children");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.Category", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.Category.Entities.Category", b =>
                 {
                     b.Navigation("Children");
 
                     b.Navigation("CourseCategories");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.Course", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.Course.Entities.Course", b =>
                 {
                     b.Navigation("CourseCategories");
 
@@ -1951,39 +1951,39 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Navigation("Sections");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.CourseSection", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.CourseSection.Entities.CourseSection", b =>
                 {
                     b.Navigation("Episodes");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Catalog.Episode", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Catalog.Episode.Entities.Episode", b =>
                 {
                     b.Navigation("Attachments");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Commerce.Coupon", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Commerce.Coupon.Entities.Coupon", b =>
                 {
                     b.Navigation("Orders");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Commerce.Invoice", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Commerce.Invoice.Entities.Invoice", b =>
                 {
                     b.Navigation("Items");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Commerce.Order", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Commerce.Order.Entities.Order", b =>
                 {
                     b.Navigation("OrderItems");
 
                     b.Navigation("Payments");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Identity.InstructorProfile", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Identity.InstructorProfile.Entities.InstructorProfile", b =>
                 {
                     b.Navigation("CourseInstructors");
                 });
 
-            modelBuilder.Entity("Whyland.Domain.Entities.Identity.User", b =>
+            modelBuilder.Entity("Whyland.Domain.Model.Identity.User.Entities.User", b =>
                 {
                     b.Navigation("InstructorProfile");
 

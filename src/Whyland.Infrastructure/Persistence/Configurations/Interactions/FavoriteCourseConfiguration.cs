@@ -1,4 +1,4 @@
-using Whyland.Domain.Entities.Interactions;
+﻿using Whyland.Domain.Model.Interactions.FavoriteCourse.Entities;
 
 namespace Whyland.Infrastructure.Persistence.Configurations.Interactions;
 

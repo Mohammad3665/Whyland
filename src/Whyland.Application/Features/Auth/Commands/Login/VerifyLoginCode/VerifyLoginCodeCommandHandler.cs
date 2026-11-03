@@ -1,4 +1,4 @@
-using Whyland.Application.Features.Auth.Login.VerifyLoginCode;
+﻿using Whyland.Application.Features.Auth.Login.VerifyLoginCode;
 
 namespace Whyland.Application.Features.Auth.Commands.Login.VerifyLoginCode;
 
@@ -62,9 +62,9 @@ public sealed class VerifyLoginCodeCommandHandler(
             unitOfWork.UserCommandRepository.TouchLastLogin(user);
             await unitOfWork.SaveAsync(ct);
 
-            var permissions = await unitOfWork.UserQueryRepository.GetPermissionKeysAsync(user.Id, ct);
+            var permissions = await unitOfWork.UserQueryRepository.GetPermissionKeysAsync(user.Id.Value, ct);
             var authenticated = new AuthenticatedUserDto(
-                user.Id,
+            user.Id.Value,
                 $"{user.FirstName} {user.LastName}".Trim(),
                 permissions
             );
