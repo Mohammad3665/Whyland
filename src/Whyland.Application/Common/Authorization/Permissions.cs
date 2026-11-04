@@ -121,6 +121,22 @@ public static class Permissions
         public const string Delete = "blog.delete";
     }
 
+    /// <summary>
+    ///     Site FAQ permissions (Content/Faqs). Deliberately separate from the course FAQ module,
+    ///     which manages the questions attached to one course and keeps its own keys.
+    /// </summary>
+    public static class Faqs
+    {
+        /// <summary>Permission to view site FAQs.</summary>
+        public const string View = "faq.view";
+        /// <summary>Permission to create site FAQs.</summary>
+        public const string Create = "faq.create";
+        /// <summary>Permission to edit existing site FAQs.</summary>
+        public const string Edit = "faq.edit";
+        /// <summary>Permission to delete site FAQs.</summary>
+        public const string Delete = "faq.delete";
+    }
+
     /// <summary>System settings permissions.</summary>
     public static class Settings
     {

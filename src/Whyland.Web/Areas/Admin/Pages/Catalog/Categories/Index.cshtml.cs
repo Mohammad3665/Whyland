@@ -21,7 +21,11 @@ namespace Whyland.Web.Areas.Admin.Pages.Catalog.Categories;
 /// same shared data-table engine the users list uses.
 /// </summary>
 /// <param name="dispatcher">The interface used to dispatch commands and queries.</param>
-public class CategoriesModel(IDispatcher dispatcher) : PageModel
+/// <param name="authorizationService">Checks the write key of each handler, which a page attribute cannot express.</param>
+[HasPermission(Permissions.Categories.View)]
+public class CategoriesModel(
+    IDispatcher dispatcher,
+    IAuthorizationService authorizationService) : AdminPageModel(authorizationService)
 {
     /// <summary>
     /// Renders the page scaffold; the table body is filled client-side through
@@ -106,26 +110,34 @@ public class CategoriesModel(IDispatcher dispatcher) : PageModel
                 new { isSuccess = false, message = MainMessage(result.Error) });
     }
 
+    #region Mutations
+
+    // Each write demands its own key on top of the view key the class carries: opening the list must
+    // not be enough to change it. The check is made in code because an attribute on a page handler
+    // method is ignored by Razor Pages (MVC1001).
     /// <summary>Creates a category from the create modal (?handler=Create).</summary>
     /// <param name="command">The values submitted in the modal form.</param>
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
     public async Task<IActionResult> OnPostCreateAsync(CreateCategoryCommand command, CancellationToken ct)
-        => ToJson(await dispatcher.Send(command, ct));
+        => await DenyUnlessAsync(Permissions.Categories.Create)
+            ?? ToJson(await dispatcher.Send(command, ct));
 
     /// <summary>Updates an existing category from the edit modal (?handler=Update).</summary>
     /// <param name="command">The values submitted in the modal form, including the category id.</param>
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
     public async Task<IActionResult> OnPostUpdateAsync(UpdateCategoryCommand command, CancellationToken ct)
-        => ToJson(await dispatcher.Send(command, ct));
+        => await DenyUnlessAsync(Permissions.Categories.Edit)
+            ?? ToJson(await dispatcher.Send(command, ct));
 
     /// <summary>Soft-deletes a category from the delete modal (?handler=Delete).</summary>
     /// <param name="id">The identifier of the category to delete.</param>
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
     public async Task<IActionResult> OnPostDeleteAsync([FromForm] long id, CancellationToken ct)
-        => ToJson(await dispatcher.Send(new DeleteCategoryCommand(id), ct));
+        => await DenyUnlessAsync(Permissions.Categories.Delete)
+            ?? ToJson(await dispatcher.Send(new DeleteCategoryCommand(id), ct));
 
     /// <summary>Persists the visual drag &amp; drop ordering (?handler=Reorder).</summary>
     /// <param name="rows">The reordered rows in visual order; only the ids matter.</param>
@@ -133,8 +145,11 @@ public class CategoriesModel(IDispatcher dispatcher) : PageModel
     /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
     public async Task<IActionResult> OnPostReorderAsync(
         [FromBody] List<ReorderCategoryRow> rows, CancellationToken ct)
-        => ToJson(await dispatcher.Send(
-            new ReorderCategoriesCommand(rows.Select(r => r.Id).ToList()), ct));
+        => await DenyUnlessAsync(Permissions.Categories.Edit)
+            ?? ToJson(await dispatcher.Send(
+                new ReorderCategoriesCommand(rows.Select(r => r.Id).ToList()), ct));
+
+    #endregion
 
     /// <summary>Reorder payload sent by the client (RowReorder saves visual order).</summary>
     /// <param name="Id">The category identifier.</param>

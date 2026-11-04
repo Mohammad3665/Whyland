@@ -1694,6 +1694,10 @@
     --tw-leading: calc(var(--spacing) * 6);
     line-height: calc(var(--spacing) * 6);
   }
+  .leading-7 {
+    --tw-leading: calc(var(--spacing) * 7);
+    line-height: calc(var(--spacing) * 7);
+  }
   .leading-relaxed {
     --tw-leading: var(--leading-relaxed);
     line-height: var(--leading-relaxed);
@@ -2232,6 +2236,9 @@
     .sm\:w-80 {
       width: calc(var(--spacing) * 80);
     }
+    .sm\:w-auto {
+      width: auto;
+    }
     .sm\:max-w-lg {
       max-width: var(--container-lg);
     }
@@ -2259,6 +2266,9 @@
     .sm\:p-8 {
       padding: calc(var(--spacing) * 8);
     }
+    .sm\:p-10 {
+      padding: calc(var(--spacing) * 10);
+    }
     .sm\:px-6 {
       padding-inline: calc(var(--spacing) * 6);
     }
@@ -2282,6 +2292,9 @@
     }
     .sm\:py-20 {
       padding-block: calc(var(--spacing) * 20);
+    }
+    .sm\:py-24 {
+      padding-block: calc(var(--spacing) * 24);
     }
     .sm\:pt-14 {
       padding-top: calc(var(--spacing) * 14);

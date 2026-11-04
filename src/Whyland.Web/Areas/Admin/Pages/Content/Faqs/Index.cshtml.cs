@@ -17,7 +17,11 @@ namespace Whyland.Web.Areas.Admin.Pages.Content.Faqs;
 /// with RowReorder drag &amp; drop ordering (see wwwroot/admin/js/faqs.js).
 /// </summary>
 /// <param name="dispatcher">The interface used to dispatch commands and queries.</param>
-public class FaqsModel(IDispatcher dispatcher) : PageModel
+/// <param name="authorizationService">Checks the write key of each handler, which a page attribute cannot express.</param>
+[HasPermission(Permissions.Faqs.View)]
+public class FaqsModel(
+    IDispatcher dispatcher,
+    IAuthorizationService authorizationService) : AdminPageModel(authorizationService)
 {
     /// <summary>
     /// Renders the page scaffold; the table body is filled client-side through
@@ -57,26 +61,34 @@ public class FaqsModel(IDispatcher dispatcher) : PageModel
                 new { isSuccess = false, message = MainMessage(result.Error) });
     }
 
+    #region Mutations
+
+    // Each write demands its own key on top of the view key the class carries: opening the list must
+    // not be enough to change it. The check is made in code because an attribute on a page handler
+    // method is ignored by Razor Pages (MVC1001).
     /// <summary>Creates a FAQ from the create modal (?handler=Create).</summary>
     /// <param name="command">The values submitted in the modal form.</param>
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
     public async Task<IActionResult> OnPostCreateAsync(CreateFaqCommand command, CancellationToken ct)
-        => ToJson(await dispatcher.Send(command, ct));
+        => await DenyUnlessAsync(Permissions.Faqs.Create)
+            ?? ToJson(await dispatcher.Send(command, ct));
 
     /// <summary>Updates an existing FAQ from the edit modal (?handler=Update).</summary>
     /// <param name="command">The values submitted in the modal form, including the FAQ id.</param>
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
     public async Task<IActionResult> OnPostUpdateAsync(UpdateFaqCommand command, CancellationToken ct)
-        => ToJson(await dispatcher.Send(command, ct));
+        => await DenyUnlessAsync(Permissions.Faqs.Edit)
+            ?? ToJson(await dispatcher.Send(command, ct));
 
     /// <summary>Soft-deletes a FAQ from the delete modal (?handler=Delete).</summary>
     /// <param name="id">The identifier of the FAQ to delete.</param>
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
     public async Task<IActionResult> OnPostDeleteAsync([FromForm] long id, CancellationToken ct)
-        => ToJson(await dispatcher.Send(new DeleteFaqCommand(id), ct));
+        => await DenyUnlessAsync(Permissions.Faqs.Delete)
+            ?? ToJson(await dispatcher.Send(new DeleteFaqCommand(id), ct));
 
     /// <summary>Persists the visual drag &amp; drop ordering (?handler=Reorder).</summary>
     /// <param name="rows">The reordered rows in visual order; only the ids matter.</param>
@@ -84,8 +96,11 @@ public class FaqsModel(IDispatcher dispatcher) : PageModel
     /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
     public async Task<IActionResult> OnPostReorderAsync(
         [FromBody] List<ReorderFaqRow> rows, CancellationToken ct)
-        => ToJson(await dispatcher.Send(
-            new ReorderFaqsCommand(rows.Select(r => r.Id).ToList()), ct));
+        => await DenyUnlessAsync(Permissions.Faqs.Edit)
+            ?? ToJson(await dispatcher.Send(
+                new ReorderFaqsCommand(rows.Select(r => r.Id).ToList()), ct));
+
+    #endregion
 
     /// <summary>Reorder payload sent by the client (RowReorder saves visual order).</summary>
     /// <param name="Id">The FAQ identifier.</param>

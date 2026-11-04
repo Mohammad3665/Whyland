@@ -24,15 +24,14 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
 
     /// <summary>
     /// The users catalog: one account row joined to its profile, with every scalar account
-    /// column whitelisted for filtering and sorting. <c>IsDeleted</c> is excluded by the base
-    /// predicate, so the only visible rows are live accounts.
+    /// column whitelisted for filtering and sorting.
     /// </summary>
     private static readonly SqlDataTableSpec TableSpec = new(
         from: $"""
             {identity}."Users" u
             LEFT JOIN {identity}."UserProfiles" p ON p."UserId" = u."Id"
             """,
-        baseWhere: """u."IsDeleted" = FALSE""",
+        baseWhere: "TRUE",
         defaultOrder: """u."CreatedAt" DESC""",
         columns: SqlDataTableSpec.WithExtras(
             // The hash stays out of the whitelist: a listed column is reachable by name from a
@@ -53,11 +52,11 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
             .Limit(1)
             .GetFirstOrDefaultAsync<UserEntity>(dataSource, ct);
 
-    // The assignment table has no soft-delete column of its own, so the guard is written on the
-    // role and the permission instead - which is what the statement used to say.
+    // The assignment table has no soft-delete column of its own - the builder only guards a table
+    // whose entity really is soft-deletable - so the live-row filter is written on the role and the
+    // permission instead, which is what the statement used to say.
     public Task<IReadOnlyList<string>> GetPermissionKeysAsync(Guid userId, CancellationToken ct = default)
         => DapperFluentQueryBuilder<UserRole>.Create($"{identity}.UserRoles", x => x.UserId)
-            .IgnoreQueryFilters()
             .Where(x => x.UserId, userId)
             .Join<RolePermission>($"{identity}.RolePermissions", ur => ur.RoleId, rp => rp.RoleId)
             .Join<Role>($"{identity}.Roles", ur => ur.RoleId, r => r.Id)
@@ -149,7 +148,6 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
             .Limit(1);
 
         var roles = DapperFluentQueryBuilder<UserRole>.Create($"{identity}.UserRoles", x => x.UserId)
-            .IgnoreQueryFilters()
             .Where(x => x.UserId, userId)
             .Join<Role>($"{identity}.Roles", ur => ur.RoleId, r => r.Id)
             .WhereFrom<Role>(r => r.IsDeleted, false)
@@ -160,7 +158,6 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
             .OrderBy(nameof(Role.Title));
 
         var providers = DapperFluentQueryBuilder<ExternalLoginEntity>.Create($"{identity}.ExternalLogins", x => x.Provider)
-            .IgnoreQueryFilters()
             .Where(x => x.UserId, userId)
             .Distinct();
 

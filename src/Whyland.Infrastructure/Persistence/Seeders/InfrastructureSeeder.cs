@@ -54,14 +54,24 @@ public static class InfrastructureSeeder
     }
 
     /// <summary>
-    /// Seeds the system permissions if none exist (key list from s6.2).
+    /// Seeds the system permissions (key list from s6.2). The insert is keyed on the permission key
+    /// rather than on an empty table, so a database created before a module existed still receives the
+    /// keys added later — otherwise a new [HasPermission] would deny everyone, including the admin.
     /// </summary>
     private static async Task SeedPermissionsAsync(WhylandDbContext context)
     {
-        if (await context.Permissions.IgnoreQueryFilters().AnyAsync())
+        var wanted = GetPermissionsList();
+
+        var existingKeys = await context.Permissions.IgnoreQueryFilters()
+            .Select(x => x.Key)
+            .ToListAsync();
+
+        var missing = wanted.Where(x => !existingKeys.Contains(x.Key)).ToList();
+
+        if (missing.Count == 0)
             return;
 
-        await context.Permissions.AddRangeAsync(GetPermissionsList());
+        await context.Permissions.AddRangeAsync(missing);
         await context.SaveChangesAsync();
     }
 
@@ -258,9 +268,17 @@ public static class InfrastructureSeeder
             Created(Permission.Create("Blog Create", Permissions.Blogs.Create)),
             Created(Permission.Create("Blog Edit", Permissions.Blogs.Edit)),
             Created(Permission.Create("Blog Delete", Permissions.Blogs.Delete)),
+            // Faq (site FAQs, not the course-scoped ones)
+            Created(Permission.Create("Faq View", Permissions.Faqs.View)),
+            Created(Permission.Create("Faq Create", Permissions.Faqs.Create)),
+            Created(Permission.Create("Faq Edit", Permissions.Faqs.Edit)),
+            Created(Permission.Create("Faq Delete", Permissions.Faqs.Delete)),
             // Setting
             Created(Permission.Create("Setting View", Permissions.Settings.View)),
             Created(Permission.Create("Setting Edit", Permissions.Settings.Edit)),
+            // Dashboard: the AdminPanelAccess policy of the whole admin area is pinned to this key,
+            // so without it no account — not even the super admin — can open a single admin page.
+            Created(Permission.Create("Dashboard View", Permissions.Dashboard.View)),
         ];
 
     /// <summary>

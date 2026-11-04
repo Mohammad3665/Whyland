@@ -36,7 +36,23 @@ public class AccountController(IDispatcher dispatcher, ILogger<AccountController
     private const string GoogleProvider = "Google";
     /// <summary>Renders the single login page (step 1 shown; steps 2 and 3 are toggled by JS).</summary>
     [HttpGet]
-    public IActionResult Login() => View(new LoginViewModel());
+    public IActionResult Login()
+    {
+        // An account that is already signed in has nothing to do on the sign-in form: showing it to a
+        // live session makes the session look lost, which is what a bounced admin would see.
+        if (User.Identity?.IsAuthenticated == true)
+            return RedirectToAction("Index", "Home");
+
+        return View(new LoginViewModel());
+    }
+
+    /// <summary>
+    /// The page the cookie handler sends a signed-in request to when a policy rejects it
+    /// (AccessDeniedPath). Deliberately separate from <see cref="Login"/>: the session is valid and
+    /// re-entering a password cannot grant a missing permission.
+    /// </summary>
+    [HttpGet]
+    public IActionResult AccessDenied() => View();
 
     /// <summary>Step 1 — issues and sends a login code. Returns the normalized phone so every
     /// later step talks about the exact value stored in the database.</summary>

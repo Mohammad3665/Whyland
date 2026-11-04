@@ -18,6 +18,10 @@ global using Microsoft.AspNetCore.Mvc.RazorPages;   // page models
 
 global using Microsoft.AspNetCore.Authorization;    // [Authorize] on the admin area
 
+global using Microsoft.AspNetCore.Authentication;   // cookie events + SignIn/SignOut/Challenge
+
+global using Microsoft.AspNetCore.Authentication.Cookies; // the scheme the admin panel signs in with
+
 global using Serilog;                               // structural logging entry points
 
 #endregion
@@ -26,6 +30,8 @@ global using Serilog;                               // structural logging entry 
 
 global using Whyland.Application.Common.Abstractions.CQRS.Dispatchers; // the sender the endpoints call
 
+global using Whyland.Application.Common.Authorization; // permission keys used by [HasPermission]
+
 global using Whyland.Application.Common.Interfaces.Identity; // signed-in user accessor
 
 #endregion
@@ -33,6 +39,10 @@ global using Whyland.Application.Common.Interfaces.Identity; // signed-in user a
 #region Web helpers
 
 global using Whyland.Web.Common.Extensions;         // middleware & DI extension methods
+
+global using Whyland.Web.Common.Identity;           // cookie principal + claim refresh helpers
+
+global using Whyland.Web.Common.Identity.Attributes; // [HasPermission] on pages and handlers
 
 global using Whyland.Web.Common.Identity.Constants; // auth scheme + claim names
 

@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using Whyland.Domain.Common.Primitives;
 
 namespace Whyland.Infrastructure.Persistence.Queries;
 
@@ -49,7 +50,12 @@ public sealed class DapperFluentQueryBuilder<TEntity> : IDapperFluentQueryBuilde
     ];
 
     private string _fromSql;
-    private string _isDeletedColumnName;
+
+    /// <summary>
+    /// The soft-delete column of the root table, or null when the entity is not soft-deletable and
+    /// no guard belongs in the statement.
+    /// </summary>
+    private string? _isDeletedColumnName;
 
     private readonly Dictionary<Type, string> _entityAliases = new()
     {
@@ -82,13 +88,15 @@ public sealed class DapperFluentQueryBuilder<TEntity> : IDapperFluentQueryBuilde
     private bool _distinct;
     private readonly List<SqlColumn> _searchColumns = [];
 
-    private DapperFluentQueryBuilder(string fromTable, string isDeletedColumnName, Expression<Func<TEntity, object?>>[] selectProperties)
+    private DapperFluentQueryBuilder(string fromTable, string? isDeletedColumnName, Expression<Func<TEntity, object?>>[] selectProperties)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(fromTable);
-        ArgumentException.ThrowIfNullOrWhiteSpace(isDeletedColumnName);
         ArgumentNullException.ThrowIfNull(selectProperties);
 
-        ValidateIdentifier(isDeletedColumnName);
+        // Null means the entity has no soft-delete column at all, so no guard is emitted. A name
+        // that is not a column of the table would only surface as a PostgreSQL error at run time.
+        if (!string.IsNullOrWhiteSpace(isDeletedColumnName))
+            ValidateIdentifier(isDeletedColumnName);
 
         _fromSql = $"{QuoteTable(fromTable)} {QuoteIdentifier(RootAlias)}";
         _isDeletedColumnName = isDeletedColumnName;
@@ -104,21 +112,32 @@ public sealed class DapperFluentQueryBuilder<TEntity> : IDapperFluentQueryBuilde
     private DapperFluentQueryBuilder()
     {
         _fromSql = string.Empty;
-        _isDeletedColumnName = "IsDeleted";
+
+        // The spec already states the predicate the list starts from, so no guard is inferred here.
+        _isDeletedColumnName = null;
         _ignoreQueryFilters = true;
     }
 
     #region Factory
 
     /// <summary>
-    /// Starts a builder over one table.
+    /// Starts a builder over one table, guarding the soft-deleted rows only when the entity has a
+    /// soft-delete flag.
     /// </summary>
     /// <param name="fromTable">Table name, with its schema when the schema is not the default.</param>
     /// <param name="selectProperties">Output columns; with none, every scalar property of the entity.</param>
+    /// <remarks>
+    /// The column is read off <see cref="ISoftDeletable"/> instead of assumed: a table whose entity
+    /// never had the flag - an account, a link row - has no such column, and inventing one is a
+    /// PostgreSQL 42703 at run time rather than a compile error. A table that names its flag
+    /// otherwise uses the overload below.
+    /// </remarks>
     public static DapperFluentQueryBuilder<TEntity> Create(
         string fromTable,
         params Expression<Func<TEntity, object?>>[] selectProperties)
-        => new(fromTable, "IsDeleted", selectProperties);
+        => new(fromTable,
+            typeof(ISoftDeletable).IsAssignableFrom(typeof(TEntity)) ? "IsDeleted" : null,
+            selectProperties);
 
     /// <summary>Starts a builder over one table with a soft-delete column other than <c>IsDeleted</c>.</summary>
     /// <param name="fromTable">Table name, with its schema when the schema is not the default.</param>
@@ -871,8 +890,9 @@ public sealed class DapperFluentQueryBuilder<TEntity> : IDapperFluentQueryBuilde
         var where = _where.Clone();
 
         // A spec-built writer already carries the predicate the list starts from; a builder that
-        // turned query filters off must not replace it with the soft-delete guard.
-        if (!_ignoreQueryFilters && string.IsNullOrWhiteSpace(where.BaseWhere))
+        // turned query filters off must not replace it with the soft-delete guard, and an entity
+        // without a soft-delete flag has no guard to add.
+        if (!_ignoreQueryFilters && _isDeletedColumnName is not null && string.IsNullOrWhiteSpace(where.BaseWhere))
             where.BaseWhere = $"{QuoteColumn(RootAlias, _isDeletedColumnName)} = FALSE";
 
         return where;

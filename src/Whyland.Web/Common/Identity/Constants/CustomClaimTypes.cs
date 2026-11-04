@@ -31,4 +31,17 @@ public static class CustomClaimTypes
     ///     </para>
     /// </remarks>
     public const string Permissions = "permissions";
+
+    /// <summary>
+    ///     Claim holding the UTC moment, in Unix seconds, when the permission claims above were read
+    ///     from the database.
+    /// </summary>
+    /// <remarks>
+    ///     Written by <c>ClaimsPrincipalFactory</c> at sign-in and re-read by
+    ///     <c>PermissionClaimRefresh</c> on every cookie validation: the age of this claim decides
+    ///     whether the keys are refreshed, so a granted or revoked permission reaches a live session
+    ///     without forcing anybody to sign in again. A cookie issued before the claim existed carries
+    ///     none at all, and is therefore refreshed on its first request.
+    /// </remarks>
+    public const string PermissionsCheckedAt = "permissionsCheckedAt";
 }

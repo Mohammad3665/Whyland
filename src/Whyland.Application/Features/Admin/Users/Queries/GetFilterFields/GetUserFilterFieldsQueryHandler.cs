@@ -47,8 +47,6 @@ public sealed class GetUserFilterFieldsQueryHandler :
         ["CreatedBy"] = "ایجاد شده توسط",
         ["UpdatedAt"] = "تاریخ آخرین ویرایش",
         ["UpdatedBy"] = "ویرایش شده توسط",
-        ["DeletedBy"] = "حذف شده توسط",
-        ["IsDeleted"] = "حذف‌شده",
     };
 
     /// <summary>Secret material is never offered as a filter field.</summary>

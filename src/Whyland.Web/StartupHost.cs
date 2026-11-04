@@ -20,8 +20,10 @@ public class StartupHost
 
         builder.Services.AddRazorPages(options =>
         {
-            options.Conventions.AuthorizeFolder("/", "AdminPanelAccess");
-            options.Conventions.AllowAnonymousToFolder("/Account");
+            // The pages are routed as an area (/Admin/Users), so the gate has to be an area
+            // convention: AuthorizeFolder("/") is matched against a folder path and never bites here,
+            // which left every admin page anonymous.
+            options.Conventions.AuthorizeAreaFolder("Admin", "/", "AdminPanelAccess");
         }).WithRazorPagesRoot("/Areas/Admin/Pages");
         builder.Services.AddControllersWithViews();
         builder.Services.AddMapping();

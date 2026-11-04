@@ -26,7 +26,11 @@ namespace Whyland.Web.Areas.Admin.Pages.Users;
 /// Accounts are never deleted — <c>IsActive</c> is the supported state change.
 /// </summary>
 /// <param name="dispatcher">The interface used to dispatch commands and queries.</param>
-public class IndexModel(IDispatcher dispatcher) : PageModel
+/// <param name="authorizationService">Checks the write key of each handler, which a page attribute cannot express.</param>
+[HasPermission(Permissions.Users.View)]
+public class IndexModel(
+    IDispatcher dispatcher,
+    IAuthorizationService authorizationService) : AdminPageModel(authorizationService)
 {
     /// <summary>Roles offered in the create/edit modal; empty when the read failed.</summary>
     public IReadOnlyList<RoleOptionDto> Roles { get; private set; } = [];
@@ -115,19 +119,26 @@ public class IndexModel(IDispatcher dispatcher) : PageModel
             };
     }
 
+    #region Mutations
+
+    // Each write demands its own key on top of the view key the class carries: opening the list must
+    // not be enough to change it. The check is made in code because an attribute on a page handler
+    // method is ignored by Razor Pages (MVC1001).
     /// <summary>Creates an account from the create modal (?handler=Create).</summary>
     /// <param name="command">The values submitted in the modal form.</param>
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
     public async Task<IActionResult> OnPostCreateAsync(CreateUserCommand command, CancellationToken ct)
-        => ToJson(await dispatcher.Send(command, ct));
+        => await DenyUnlessAsync(Permissions.Users.Create)
+            ?? ToJson(await dispatcher.Send(command, ct));
 
     /// <summary>Updates an account from the edit modal (?handler=Update).</summary>
     /// <param name="command">The values submitted in the modal form, including the user id.</param>
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
     public async Task<IActionResult> OnPostUpdateAsync(UpdateUserCommand command, CancellationToken ct)
-        => ToJson(await dispatcher.Send(command, ct));
+        => await DenyUnlessAsync(Permissions.Users.Edit)
+            ?? ToJson(await dispatcher.Send(command, ct));
 
     /// <summary>
     /// Flips an account between active and inactive (?handler=ToggleStatus) and returns the new
@@ -137,6 +148,9 @@ public class IndexModel(IDispatcher dispatcher) : PageModel
     /// <param name="ct">A token to cancel the operation.</param>
     public async Task<IActionResult> OnPostToggleStatusAsync([FromForm] Guid id, CancellationToken ct)
     {
+        if (await DenyUnlessAsync(Permissions.Users.Edit) is { } denied)
+            return denied;
+
         var result = await dispatcher.Send(new ToggleUserStatusCommand(id), ct);
 
         return result.IsSuccess
@@ -146,6 +160,8 @@ public class IndexModel(IDispatcher dispatcher) : PageModel
                 StatusCode = StatusCodes.Status400BadRequest,
             };
     }
+
+    #endregion
 
     /// <summary>Reads the role list, tolerating a failure with an empty select.</summary>
     /// <param name="ct">A token to cancel the operation.</param>

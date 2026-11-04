@@ -1,5 +1,6 @@
 using Whyland.Application.Common.Interfaces.Localization;
 using Whyland.Infrastructure.Localization;
+using Whyland.Infrastructure.Persistence.Conventions;
 using Whyland.Infrastructure.Persistence.Interceptors;
 using Whyland.Infrastructure.Persistence.UnitOfWork;
 using Whyland.Infrastructure.Services;
@@ -74,6 +75,11 @@ public static class DependencyInjection
         // Shared Npgsql data source (singleton) for low-level PostgreSQL access.
         var dataSource = NpgsqlDataSource.Create(connectionString);
         services.AddSingleton(dataSource);
+
+        // Dapper materializes entities too (the auth reads return the User aggregate), and an
+        // entity key is a wrapped id, so the translation EF Core gets from its value converters has
+        // to exist on this side as well. Process-wide and once, like the EF convention.
+        DapperStronglyTypedIdHandlers.Register(typeof(FaqId).Assembly);
 
         return services;
     }

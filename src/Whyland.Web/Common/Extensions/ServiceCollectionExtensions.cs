@@ -75,9 +75,20 @@ public static class ServiceCollectionExtensions
             .AddCookie(options =>
             {
                 options.LoginPath = "/Account/Login";
-                options.AccessDeniedPath = "/Account/Login";
+                // Sign-in and access-denied are two different answers. Pointing both at the login page
+                // sent an already signed-in account back to the form whenever a policy rejected it,
+                // which reads as "your session is broken" instead of "this account may not do that".
+                options.AccessDeniedPath = "/Account/AccessDenied";
                 options.ExpireTimeSpan = TimeSpan.FromDays(7);
                 options.SlidingExpiration = true;
+
+                // The permission claims a session was issued with are re-read from the database when
+                // they go stale, so a signed-in account is never locked out by a key added after it
+                // signed in.
+                options.Events = new CookieAuthenticationEvents
+                {
+                    OnValidatePrincipal = PermissionClaimRefresh.ValidatePrincipalAsync,
+                };
 
                 options.Cookie.HttpOnly = true;
                 options.Cookie.SameSite = SameSiteMode.Lax;

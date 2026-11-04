@@ -18,6 +18,10 @@ public static class ClaimsPrincipalFactory
         {
             new(ClaimTypes.NameIdentifier, user.UserId.ToString()),
             new(ClaimTypes.Name, user.FullName),
+            // When these keys were read: PermissionClaimRefresh refreshes a live session once this
+            // moment goes past its age, so a permission granted later does not need a new sign-in.
+            new(CustomClaimTypes.PermissionsCheckedAt,
+                DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
         };
 
         // One claim per permission key — read by PermissionAuthorizationHandler.
