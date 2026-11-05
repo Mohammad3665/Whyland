@@ -1,0 +1,51 @@
+@model Whyland.Web.Common.Identity.Services.CurrentUserMenu
+@*
+    Who is signed in and what they can reach, written once for both public surfaces: the header
+    dropdown wraps it, the mobile drawer stacks it. The identity block falls back to the person icon
+    when the account has no avatar on file.
+*@
+<div class="flex items-center gap-3 border-b border-border px-3 py-2.5">
+  <span class="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-100 text-gray-500">
+    @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+    {
+      <img src="@Model.AvatarUrl" alt="تصویر پروفایل @Model.FullName" class="size-full object-cover" />
+    }
+    else
+    {
+      <svg width="18" height="19" viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M7 7.5C8.933 7.5 10.5 5.933 10.5 4C10.5 2.067 8.933 0.5 7 0.5C5.067 0.5 3.5 2.067 3.5 4C3.5 5.933 5.067 7.5 7 7.5ZM7 9.16667C4.6625 9.16667 0 10.3417 0 12.6667V14.5H14V12.6667C14 10.3417 9.3375 9.16667 7 9.16667Z" fill="currentColor" />
+      </svg>
+    }
+  </span>
+  <div class="min-w-0">
+    <p class="truncate text-sm font-semibold text-dark">@Model.FullName</p>
+    @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+    {
+      <p class="truncate text-xs text-body">@Model.PhoneNumber</p>
+    }
+  </div>
+</div>
+
+<div class="flex flex-col gap-1 p-2">
+  @* The panel entry follows the permission claim of the cookie, exactly what the area policy checks. *@
+  @if (Model.CanOpenAdminPanel)
+  {
+    <a href="/Admin"
+      class="flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium text-dark transition-colors hover:bg-gray-50 hover:text-primary">
+      پنل مدیریت
+    </a>
+  }
+  @* Requested change: the profile row takes the place of the password row in this menu. There is no
+     profile page yet, so this link has no destination until that page is built. *@
+  <a href="#"
+    class="flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium text-dark transition-colors hover:bg-gray-50 hover:text-primary">
+    پروفایل من
+  </a>
+  <form method="post" asp-controller="Account" asp-action="Logout">
+    @Html.AntiForgeryToken()
+    <button type="submit"
+      class="flex w-full cursor-pointer items-center rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50">
+      خروج
+    </button>
+  </form>
+</div>

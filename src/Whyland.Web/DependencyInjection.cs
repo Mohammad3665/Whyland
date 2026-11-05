@@ -1,4 +1,3 @@
-using Whyland.Application.Common.Interfaces.Services;
 using Whyland.Infrastructure.Identity.Handlers;
 using Whyland.Web.Common.Identity.Providers;
 using Whyland.Web.Common.Identity.Services;
@@ -22,7 +21,7 @@ public static class DependencyInjection
         services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
         services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
-        services.AddScoped<CurrentUserAvatarService>();
+        services.AddScoped<CurrentUserMenuService>();
 
         return services;
     }

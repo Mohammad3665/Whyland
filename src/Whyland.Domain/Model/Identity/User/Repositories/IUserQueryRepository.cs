@@ -30,10 +30,13 @@ public interface IUserQueryRepository
     Task<IReadOnlyList<string>> GetPermissionKeysAsync(Guid userId, CancellationToken ct = default);
 
     /// <summary>
-    /// Returns the avatar path/URL of the user's profile, or null when no
-    /// profile exists or no avatar has been set.
+    /// Returns the few columns a header user menu displays — name, phone and avatar — in one read,
+    /// or null when the account is gone. The menu renders on every page, so this stays a light row
+    /// instead of the admin details read.
     /// </summary>
-    Task<string?> GetAvatarAsync(Guid userId, CancellationToken ct = default);
+    /// <param name="userId">The signed-in account.</param>
+    /// <param name="ct">A token to cancel the operation.</param>
+    Task<UserMenuDto?> GetMenuAsync(Guid userId, CancellationToken ct = default);
 
     /// <summary>
     /// Reads the admin users table through the generic filter pipeline: every condition

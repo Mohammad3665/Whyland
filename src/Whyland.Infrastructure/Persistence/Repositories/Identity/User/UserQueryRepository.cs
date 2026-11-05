@@ -198,14 +198,23 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
             providers);
     }
 
-    // One-to-one with the account, so one row is all this can read; the null check keeps an
-    // account without an uploaded avatar reading as no avatar.
-    public Task<string?> GetAvatarAsync(Guid userId, CancellationToken ct = default)
-        => DapperFluentQueryBuilder<UserProfile>.Create($"{identity}.UserProfiles", x => x.Avatar)
-            .Where(x => x.UserId, userId)
-            .Where(x => x.Avatar, SqlComparisonType.NotEqual, null)
+    // The header menu row: the account columns the menu shows, with the avatar carried by the same
+    // read. The profile is one-to-one with the account, so one row is all this can be; the join is
+    // left because an account without a profile row is still a signed-in user, and it then reads as
+    // no avatar.
+    // The columns are listed in the order UserMenuDto declares them - Dapper binds a result set onto
+    // that constructor and reports the mismatch when the shapes disagree.
+    public Task<UserMenuDto?> GetMenuAsync(Guid userId, CancellationToken ct = default)
+        => DapperFluentQueryBuilder<UserEntity>.Create($"{identity}.Users", x => x.Id)
+            .LeftJoin<UserProfile>($"{identity}.UserProfiles", u => u.Id, p => p.UserId)
+            .Where(x => x.Id, userId)
+            .ClearSelect()
+            .Select(x => x.FirstName)
+            .Select(x => x.LastName)
+            .Select(x => x.PhoneNumber)
+            .SelectFrom<UserProfile>(p => p.Avatar)
             .Limit(1)
-            .GetFirstOrDefaultAsync<string>(dataSource, ct);
+            .GetFirstOrDefaultAsync<UserMenuDto>(dataSource, ct);
 
     /// <summary>The account row of the details read; profile columns are null without a profile.</summary>
     private sealed record UserDetailsRow(
