@@ -7,9 +7,7 @@ using Whyland.Application.Features.Admin.Users.Queries.GetForDataTable;
 using Whyland.Application.Features.Admin.Users.Queries.GetOptions;
 using Whyland.Application.Features.Admin.Users.Queries.GetRoles;
 using Whyland.Shared.Dtos.Authorization.Role;
-using Whyland.Shared.Errors;
 using Whyland.Shared.Filters;
-using Whyland.Shared.Results;
 
 namespace Whyland.Web.Areas.Admin.Pages.Users;
 
@@ -102,6 +100,22 @@ public class IndexModel(
     }
 
     /// <summary>
+    /// Returns the roles the account list can be filtered by, so the «نقش» field is answered by
+    /// picking one of them instead of typing the id of a row the admin cannot see.
+    /// </summary>
+    /// <param name="ct">A token to cancel the operation.</param>
+    public async Task<IActionResult> OnGetRoleOptionsAsync(CancellationToken ct)
+    {
+        var result = await dispatcher.Send(new GetAssignableRolesQuery(), ct);
+
+        return result.IsSuccess
+            ? new JsonResult(new { isSuccess = true, data = result.Data })
+            : StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new { isSuccess = false, message = MainMessage(result.Error) });
+    }
+
+    /// <summary>
     /// Returns the full account for the details modal: roles, password state, profile data,
     /// provider links and the login-security counters.
     /// </summary>
@@ -169,36 +183,5 @@ public class IndexModel(
     {
         var result = await dispatcher.Send(new GetAssignableRolesQuery(), ct);
         return result.IsSuccess ? result.Data : [];
-    }
-
-    /// <summary>
-    /// Flattens any <see cref="BaseResult"/> into the JSON envelope the admin pages consume:
-    /// 200 with <c>isSuccess=true</c> on success, 400 with the server-side message otherwise.
-    /// </summary>
-    /// <param name="result">The dispatched command outcome.</param>
-    private static JsonResult ToJson(BaseResult result)
-        => result.IsSuccess
-            ? new JsonResult(new { isSuccess = true, message = (string?)null })
-            : new JsonResult(new { isSuccess = false, message = MainMessage(result.Error) })
-            {
-                StatusCode = StatusCodes.Status400BadRequest,
-            };
-
-    /// <summary>
-    /// Builds a readable message out of an <see cref="Error"/>: aggregated validation failures
-    /// carry the individual errors in <c>Arguments["Errors"]</c>, everything else uses the
-    /// plain description.
-    /// </summary>
-    /// <param name="error">The error to describe.</param>
-    private static string MainMessage(Error error)
-    {
-        if (error.Arguments?.TryGetValue("Errors", out var value) == true &&
-            value is IEnumerable<Error> items)
-        {
-            var messages = items.Select(e => e.Description);
-            return string.Join(' ', messages);
-        }
-
-        return error.Description ?? "خطای نامشخص.";
     }
 }

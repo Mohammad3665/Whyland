@@ -14,9 +14,16 @@ public interface IUserCommandRepository
     /// <summary>
     /// Replaces a user's role assignments with <paramref name="roleIds"/>; persisted on SaveAsync.
     /// Roles are the only authorization mechanism, so the assignment is edited as a whole set (s6.4).
+    /// The ordinary-user role is added to the set either way: no account is left without it.
     /// </summary>
     Task ReplaceRolesAsync(Guid userId, IReadOnlyCollection<long> roleIds, CancellationToken ct = default);
-    
+
+    /// <summary>
+    /// Grants the ordinary-user role to an account that does not hold it yet — the step every
+    /// creation path takes (self-registration, provider sign-in, an operator typing a user in) so
+    /// "has at least the User role" needs no exception anywhere. Persisted on SaveAsync.
+    /// </summary>
+    Task EnsureDefaultRoleAsync(Guid userId, CancellationToken ct = default);
     /// <summary>Stamps LastLoginAt on the tracked user; persisted on SaveAsync.</summary>
     void TouchLastLogin(UserEntity user);
 

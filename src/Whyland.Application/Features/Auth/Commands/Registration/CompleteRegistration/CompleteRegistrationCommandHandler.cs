@@ -51,6 +51,14 @@ public sealed class CompleteRegistrationCommandHandler(
         if (saveResult.IsFailure)
             return UserErrors.LoginFailed();
 
+        // The account exists now, so its identifier can carry the ordinary-user role. Every
+        // registration ends with it — an account with no role at all could not use the site.
+        await unitOfWork.UserCommandRepository.EnsureDefaultRoleAsync(user.Id.Value, ct);
+
+        var grantResult = await unitOfWork.SaveAsync(ct);
+        if (grantResult.IsFailure)
+            return UserErrors.LoginFailed();
+
         // A freshly-registered public user holds no admin permissions; the cookie is still issued.
         var permissions = await unitOfWork.UserQueryRepository.GetPermissionKeysAsync(user.Id.Value, ct);
 

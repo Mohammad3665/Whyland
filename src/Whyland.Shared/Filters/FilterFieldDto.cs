@@ -8,7 +8,8 @@ namespace Whyland.Shared.Filters;
 /// </summary>
 /// <param name="Property">Entity property name, e.g. "PhoneNumber".</param>
 /// <param name="Label">Persian label shown in the picker.</param>
-/// <param name="Kind">Input kind: string, bool, number, date, guid or enum.</param>
+/// <param name="Kind">Input kind: string, bool, number, date, guid, enum, or one of the lists the
+/// picker fills from the server (user: an account, role: a role).</param>
 /// <param name="Operators">Operator names accepted for this field, matching <see cref="Whyland.Shared.Enums.FilterOperator"/>.</param>
 /// <param name="Options">Fixed values for closed domains (bool/enum); empty when the value is free-form.</param>
 /// <param name="Min">Smallest value the field can ever hold; the picker refuses anything below it. Null = unbounded.</param>

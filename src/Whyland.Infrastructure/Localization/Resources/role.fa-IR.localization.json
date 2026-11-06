@@ -1,4 +1,12 @@
 {
   "Role.FieldRequired": "فیلد {Field} نمی‌تواند خالی باشد.",
-  "Role.FieldTooLong": "فیلد {Field} نمی‌تواند بیشتر از {Max} کاراکتر باشد."
+  "Role.FieldTooLong": "فیلد {Field} نمی‌تواند بیشتر از {Max} کاراکتر باشد.",
+  "Role.NotFound": "نقش با شناسه {Id} یافت نشد.",
+  "Role.NameTaken": "نقش با نام «{Name}» قبلاً ثبت شده است.",
+  "Role.SystemRoleProtected": "این نقش سیستمی است و ویرایش یا حذف آن مجاز نیست.",
+  "Role.PermissionNotFound": "دسترسی با شناسه {PermissionId} یافت نشد.",
+  "Role.CreateFailed": "خطا در ایجاد نقش، لطفاً مجدداً تلاش کنید.",
+  "Role.UpdateFailed": "خطا در ویرایش نقش، لطفاً مجدداً تلاش کنید.",
+  "Role.SoftDeleteFailed": "خطا در حذف نقش، لطفاً مجدداً تلاش کنید.",
+  "Role.ListFailed": "خطا در دریافت لیست نقش‌ها، لطفاً مجدداً تلاش کنید."
 }

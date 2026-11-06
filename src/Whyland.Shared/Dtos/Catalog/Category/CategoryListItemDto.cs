@@ -15,8 +15,13 @@ namespace Whyland.Shared.Dtos.Catalog.Category;
 /// <param name="IsActive">Whether the category is visible on the site.</param>
 /// <param name="CreatedAt">UTC creation timestamp.</param>
 /// <param name="CreatedBy">Identifier of the user who created the row.</param>
+/// <param name="CreatedByName">
+/// The full name of that account, read by joining it to its key. The modal shows a name rather than
+/// a guid an operator cannot read; null when the row has no author, which the page shows as a dash.
+/// </param>
 /// <param name="UpdatedAt">UTC timestamp of the last modification.</param>
 /// <param name="UpdatedBy">Identifier of the user who last changed the row.</param>
+/// <param name="UpdatedByName">The full name of the account behind <paramref name="UpdatedBy"/>.</param>
 /// <param name="IsDeleted">Whether the row is soft-deleted.</param>
 /// <param name="DeletedAt">UTC timestamp of the soft delete, when there was one.</param>
 /// <param name="DeletedBy">Identifier of the user who soft-deleted the row.</param>
@@ -31,8 +36,10 @@ public sealed record CategoryListItemDto(
     bool IsActive,
     DateTime CreatedAt,
     Guid? CreatedBy,
+    string? CreatedByName,
     DateTime UpdatedAt,
     Guid? UpdatedBy,
+    string? UpdatedByName,
     bool IsDeleted,
     DateTime? DeletedAt,
     Guid? DeletedBy);

@@ -5,6 +5,7 @@ using Whyland.Shared.Dtos.Authorization.Role;
 using Whyland.Shared.Dtos.Identity.User;
 using UserEntity = Whyland.Domain.Model.Identity.User.Entities.User;
 using ExternalLoginEntity = Whyland.Domain.Model.Identity.ExternalLogin.Entities.ExternalLogin;
+using RoleEntity = Whyland.Domain.Model.Authorization.Role.Entities.Role;
 
 namespace Whyland.Infrastructure.Persistence.Repositories.Identity.User;
 
@@ -23,8 +24,19 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
     const string identity = SchemaConstants.Identity;
 
     /// <summary>
+    /// The accounts that hold one role, written as a test on the row rather than as a column:
+    /// the assignment table is what says so, and a retired role is excluded the way every other
+    /// read of this graph does. The engine fills <c>{value}</c> with a parameter.
+    /// </summary>
+    private static readonly string RoleMembership = $$"""
+        EXISTS (SELECT 1 FROM {{identity}}."UserRoles" ur
+                JOIN {{identity}}."Roles" ro ON ro."Id" = ur."RoleId" AND ro."IsDeleted" = FALSE
+                WHERE ur."UserId" = u."Id" AND ur."RoleId" = {value})
+        """;
+
+    /// <summary>
     /// The users catalog: one account row joined to its profile, with every scalar account
-    /// column whitelisted for filtering and sorting.
+    /// column whitelisted for filtering and sorting and the role membership for filtering alone.
     /// </summary>
     private static readonly SqlDataTableSpec TableSpec = new(
         from: $"""
@@ -37,7 +49,10 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
             // The hash stays out of the whitelist: a listed column is reachable by name from a
             // request, so it must never contain secret material.
             SqlDataTableSpec.ColumnsOf<UserEntity>("u", ["PasswordHash"]),
-            [("Avatar", "p.\"Avatar\"", typeof(string))]));
+            [("Avatar", "p.\"Avatar\"", typeof(string))],
+            // Declared by the id the assignment table stores, so the picked role is converted
+            // before it is bound and a non-numeric value costs the condition, not a query error.
+            [("Role", RoleMembership, typeof(long))]));
 
     public Task<UserEntity?> GetByPhoneAsync(string phoneNumber, CancellationToken ct = default)
         => DapperFluentQueryBuilder<UserEntity>.Create($"{identity}.Users")
@@ -59,9 +74,9 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
         => DapperFluentQueryBuilder<UserRole>.Create($"{identity}.UserRoles", x => x.UserId)
             .Where(x => x.UserId, userId)
             .Join<RolePermission>($"{identity}.RolePermissions", ur => ur.RoleId, rp => rp.RoleId)
-            .Join<Role>($"{identity}.Roles", ur => ur.RoleId, r => r.Id)
+            .Join<RoleEntity>($"{identity}.Roles", ur => ur.RoleId, r => r.Id)
             .Join<RolePermission, Permission>($"{identity}.Permissions", rp => rp.PermissionId, p => p.Id)
-            .WhereFrom<Role>(r => r.IsDeleted, false)
+            .WhereFrom<RoleEntity>(r => r.IsDeleted, false)
             .WhereFrom<Permission>(p => p.IsDeleted, false)
             .Distinct()
             .ClearSelect()
@@ -71,10 +86,10 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
     // The dropdown only ever needs the three identifying columns, so they are listed instead of
     // letting the builder emit every scalar column of the entity.
     public Task<IReadOnlyList<RoleOptionDto>> GetAssignableRolesAsync(CancellationToken ct = default)
-        => DapperFluentQueryBuilder<Role>.Create(
+        => DapperFluentQueryBuilder<RoleEntity>.Create(
                 $"{identity}.Roles", x => x.Id, x => x.Name, x => x.Title)
             .Sortable(x => x.Title)
-            .OrderBy(nameof(Role.Title))
+            .OrderBy(nameof(RoleEntity.Title))
             .GetAllAsync<RoleOptionDto>(dataSource, ct);
 
     // Only the accounts that really can do the action behind the picker: the key resolves through
@@ -89,11 +104,11 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
         return DapperFluentQueryBuilder<UserEntity>.Create($"{identity}.Users", x => x.Id)
             .Where(x => x.IsActive, true)
             .Join<UserRole>($"{identity}.UserRoles", u => u.Id, ur => ur.UserId)
-            .Join<UserRole, Role>($"{identity}.Roles", ur => ur.RoleId, r => r.Id)
-            .Join<Role, RolePermission>($"{identity}.RolePermissions", r => r.Id, rp => rp.RoleId)
+            .Join<UserRole, RoleEntity>($"{identity}.Roles", ur => ur.RoleId, r => r.Id)
+            .Join<RoleEntity, RolePermission>($"{identity}.RolePermissions", r => r.Id, rp => rp.RoleId)
             .Join<RolePermission, Permission>($"{identity}.Permissions", rp => rp.PermissionId, p => p.Id)
             .WhereFrom<Permission>(p => p.Key, permissionKey)
-            .WhereFrom<Role>(r => r.IsDeleted, false)
+            .WhereFrom<RoleEntity>(r => r.IsDeleted, false)
             .WhereFrom<Permission>(p => p.IsDeleted, false)
             .Distinct()
             .SelectExpression(
@@ -149,13 +164,13 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
 
         var roles = DapperFluentQueryBuilder<UserRole>.Create($"{identity}.UserRoles", x => x.UserId)
             .Where(x => x.UserId, userId)
-            .Join<Role>($"{identity}.Roles", ur => ur.RoleId, r => r.Id)
-            .WhereFrom<Role>(r => r.IsDeleted, false)
+            .Join<RoleEntity>($"{identity}.Roles", ur => ur.RoleId, r => r.Id)
+            .WhereFrom<RoleEntity>(r => r.IsDeleted, false)
             .ClearSelect()
-            .SelectFrom<Role>(r => r.Id)
-            .SelectFrom<Role>(r => r.Title)
-            .SortableFrom<Role>(r => r.Title)
-            .OrderBy(nameof(Role.Title));
+            .SelectFrom<RoleEntity>(r => r.Id)
+            .SelectFrom<RoleEntity>(r => r.Title)
+            .SortableFrom<RoleEntity>(r => r.Title)
+            .OrderBy(nameof(RoleEntity.Title));
 
         var providers = DapperFluentQueryBuilder<ExternalLoginEntity>.Create($"{identity}.ExternalLogins", x => x.Provider)
             .Where(x => x.UserId, userId)

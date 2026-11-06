@@ -30,7 +30,7 @@
                             </tr>
                             <tr>
                                 <td class="text-muted">نام لاتین</td>
-                                <td id="cd-latin-name-full" dir="ltr">-</td>
+                                <td id="cd-latin-name-full">-</td>
                             </tr>
                             <tr>
                                 <td class="text-muted">ترتیب نمایش</td>
@@ -50,7 +50,7 @@
                             </tr>
                             <tr>
                                 <td class="text-muted">شناسه</td>
-                                <td id="cd-id" class="text-gray-900" dir="ltr">-</td>
+                                <td id="cd-id" class="text-gray-900">-</td>
                             </tr>
                         </tbody>
                     </table>
@@ -68,15 +68,16 @@
                             </tr>
                             <tr>
                                 <td class="text-muted">کاربر ایجادکننده</td>
-                                <td id="cd-created-by" class="text-gray-900" dir="ltr">-</td>
+                                @* The row carries the author's full name, so the cell reads right-to-left. *@
+                                <td id="cd-created-by" class="text-gray-900" dir="rtl">-</td>
                             </tr>
                             <tr>
                                 <td class="text-muted">آخرین ویرایش</td>
                                 <td id="cd-updated-at">-</td>
                             </tr>
                             <tr>
-                                <td class="text-muted">کاربر ویرایشکننده</td>
-                                <td id="cd-updated-by" class="text-gray-900" dir="ltr">-</td>
+                                <td class="text-muted">کاربر ویرایش‌کننده</td>
+                                <td id="cd-updated-by" class="text-gray-900" dir="rtl">-</td>
                             </tr>
                         </tbody>
                     </table>
@@ -97,8 +98,8 @@
                                 <td id="cd-deleted-at">-</td>
                             </tr>
                             <tr>
-                                <td class="text-muted">کاربر حذفکننده</td>
-                                <td id="cd-deleted-by" class="text-gray-900" dir="ltr">-</td>
+                                <td class="text-muted">کاربر حذف‌کننده</td>
+                                <td id="cd-deleted-by" class="text-gray-900">-</td>
                             </tr>
                         </tbody>
                     </table>
@@ -146,16 +147,13 @@
                     <div class="row g-9 mb-8">
                         <div class="col-md-6 fv-row">
                             <label class="required fs-6 fw-semibold mb-2">نام</label>
-                            <input type="text" id="Form_Name" name="Form_Name"
-                                   class="form-control form-control-solid"
-                                   maxlength="200"
-                                   placeholder="مثال: برنامه‌نویسی" />
+                            <input type="text" id="Form_Name" name="Form_Name" class="form-control form-control-solid"
+                                   maxlength="200" placeholder="مثال: برنامه‌نویسی" />
                         </div>
                         <div class="col-md-6 fv-row">
                             <label class="required fs-6 fw-semibold mb-2">نام لاتین</label>
                             <input type="text" id="Form_LatinName" name="Form_LatinName"
-                                   class="form-control form-control-solid"
-                                   maxlength="200"
+                                   class="form-control form-control-solid" maxlength="200"
                                    placeholder="Example: Programming" dir="ltr" />
                         </div>
                     </div>
@@ -178,8 +176,7 @@
                                  to the modal itself (dropdownParent in categories.js): attaching it
                                  to the field or the modal body would clip it against the scrollable
                                  body, and the list has to be able to cross the modal header. -->
-                            <select id="Form_ParentId" name="Form_ParentId"
-                                    class="form-select form-select-solid"
+                            <select id="Form_ParentId" name="Form_ParentId" class="form-select form-select-solid"
                                     data-placeholder="بدون والد (سطح اول)">
                                 <option value="">بدون والد (سطح اول)</option>
                             </select>
@@ -195,7 +192,8 @@
                     <div class="d-flex flex-stack mb-8">
                         <div class="me-5">
                             <label class="fs-6 fw-semibold">وضعیت فعال</label>
-                            <div class="text-muted fs-7">با غیرفعال کردن، زیرمجموعه‌های این دسته‌بندی هم غیرفعال می‌شوند</div>
+                            <div class="text-muted fs-7">با غیرفعال کردن، زیرمجموعه‌های این دسته‌بندی هم غیرفعال می‌شوند
+                            </div>
                         </div>
                         <label class="form-check form-switch form-check-custom form-check-solid">
                             <input class="form-check-input" type="checkbox" id="Form_IsActive" checked />

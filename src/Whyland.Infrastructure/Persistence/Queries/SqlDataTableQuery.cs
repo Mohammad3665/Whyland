@@ -73,6 +73,12 @@ public sealed class SqlDataTableSource(
                 ?? throw new InvalidOperationException(
                     $"Row type '{typeof(TResult).Name}' has a member '{property.Name}' with no mapped column.");
 
+            // The expression of a membership is a predicate with an open value hole, so projecting
+            // it would send broken SQL; it says which mapping was meant instead.
+            if (column.IsMembership)
+                throw new InvalidOperationException(
+                    $"Column '{property.Name}' is a membership: it filters rows, it is not one they carry.");
+
             columns.Add(column.Expression + " AS \"" + property.Name + "\"");
         }
 
@@ -88,7 +94,10 @@ public sealed class SqlDataTableSource(
         ArgumentNullException.ThrowIfNull(filter);
 
         var column = Find(filter.SortColumn);
-        if (column is null)
+
+        // A membership has no column to order by: it is true or false per row, and a list sorted by
+        // "who holds this role" is not something the engine can name a direction for.
+        if (column is null || column.IsMembership)
             return DefaultOrder;
 
         var direction = string.Equals(filter.SortColumnDirection, "desc", StringComparison.OrdinalIgnoreCase)

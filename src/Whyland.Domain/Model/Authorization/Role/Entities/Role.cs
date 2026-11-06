@@ -128,6 +128,55 @@ public class Role : BaseEntity<RoleId>, ISoftDeletable
 
     #endregion
 
+    #region Behaviour
+
+    /// <summary>
+    /// Renames the role and gives it a new display title, through the same <see cref="Validate"/>
+    /// the factory uses so a edit cannot loosen an invariant a create refused.
+    /// <para>
+    /// A system role is excluded: its name is the string the seeders and the code refer to, so
+    /// letting the panel rename it would break the very assignment it exists for. System roles are
+    /// read-only in the panel altogether — only the roles an operator created are editable.
+    /// </para>
+    /// </summary>
+    /// <param name="name">Unique role name. Will be trimmed.</param>
+    /// <param name="title">Human-readable display title. Will be trimmed.</param>
+    /// <returns>
+    /// A successful <see cref="Result"/> when both fields pass validation and the role is
+    /// editable; otherwise the first violated invariant.
+    /// </returns>
+    public Result Update(string name, string title)
+    {
+        if (IsSystem)
+            return RoleErrors.SystemRoleProtected();
+
+        var trimmedName = name?.Trim();
+        var trimmedTitle = title?.Trim();
+
+        var validation = Validate(trimmedName, trimmedTitle);
+        if (validation.IsFailure)
+            return validation.Error;
+
+        Name = trimmedName!;
+        Title = trimmedTitle!;
+
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Marks the role as deleted so the global query filter hides it. The row itself survives for
+    /// the audit trail, but the handler that calls this also clears the role's grants and detaches
+    /// it from every user: a hidden role whose rows still joined would still hand its permissions
+    /// out through <c>GetPermissionKeysAsync</c>, which reads the joins and not the flag.
+    /// </summary>
+    public void MarkDeleted()
+    {
+        IsDeleted = true;
+        DeletedAt ??= DateTime.UtcNow;
+    }
+
+    #endregion
+
     #region Relations
 
     /// <summary>

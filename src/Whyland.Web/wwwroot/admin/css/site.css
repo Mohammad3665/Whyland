@@ -359,3 +359,33 @@ table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control {
   -webkit-line-clamp: 2;
   overflow: hidden;
 }
+
+/* #region Filter Select2 (all pages) */
+/* Every filter <select> is rebuilt as a Select2 by AdminTable.filterSelect2() in
+   common/admin-table.js, which marks both the box wrapper and the list with .kt-filter-select2
+   (the list is given the wrapper's classes, so one marker covers both). Two things are settled
+   here rather than in JS: the row height and the six-row cap. Placement (always below the field)
+   and the width are the script's job — the wrapper is measured from the select it replaces, so
+   the three boxes of a filter row stay side by side. */
+
+/* Metronic gives a row .75rem of vertical padding, so the height is not a known number. Pinned
+   to 7 + 20 + 7 = 34px, the cap below is exactly six rows. */
+.kt-filter-select2 .select2-results__option {
+  padding: 7px 12px;
+  line-height: 20px;
+}
+
+/* The theme caps the list at 250px on the inner <ul>; both levels are overridden because the
+   outer wrapper would otherwise clip first and !important is needed to beat the theme. */
+.kt-filter-select2 .select2-results,
+.kt-filter-select2 .select2-results__options {
+  max-height: 204px;
+  overflow-y: auto !important;
+}
+
+/* Persian search box inside the list. */
+.kt-filter-select2 .select2-search--dropdown .select2-search__field {
+  direction: rtl;
+  text-align: right;
+}
+/* #endregion */

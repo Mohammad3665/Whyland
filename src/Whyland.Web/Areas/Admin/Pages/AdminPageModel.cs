@@ -1,3 +1,6 @@
+using Whyland.Shared.Errors;
+using Whyland.Shared.Results;
+
 namespace Whyland.Web.Areas.Admin.Pages;
 
 /// <summary>
@@ -38,5 +41,40 @@ public abstract class AdminPageModel(IAuthorizationService authorizationService)
         {
             StatusCode = StatusCodes.Status403Forbidden,
         };
+    }
+
+    /// <summary>
+    /// Flattens any <see cref="BaseResult"/> (with or without data) into the JSON envelope the admin
+    /// pages consume: 200 with <c>isSuccess=true</c> on success, 400 with the server-side error message
+    /// (validation, not-found, ...) otherwise.
+    /// <para>
+    /// Every page already reads this shape, so it belongs to the base rather than to each page: three
+    /// private copies meant three chances for the same envelope to drift.
+    /// </para>
+    /// </summary>
+    /// <param name="result">The dispatched command outcome.</param>
+    protected static JsonResult ToJson(BaseResult result)
+        => result.IsSuccess
+            ? new JsonResult(new { isSuccess = true, message = (string?)null })
+            : new JsonResult(new { isSuccess = false, message = MainMessage(result.Error) })
+            {
+                StatusCode = StatusCodes.Status400BadRequest,
+            };
+
+    /// <summary>
+    /// Builds a readable message out of an <see cref="Error"/>: aggregated validation failures carry
+    /// the individual errors in <c>Arguments["Errors"]</c>, everything else uses the plain description.
+    /// </summary>
+    /// <param name="error">The error to describe.</param>
+    protected static string MainMessage(Error error)
+    {
+        if (error.Arguments?.TryGetValue("Errors", out var value) == true &&
+            value is IEnumerable<Error> items)
+        {
+            var messages = items.Select(e => e.Description);
+            return string.Join(' ', messages);
+        }
+
+        return error.Description ?? "خطای نامشخص.";
     }
 }

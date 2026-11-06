@@ -5,9 +5,7 @@ using Whyland.Application.Features.Admin.Categories.Commands.Update;
 using Whyland.Application.Features.Admin.Categories.Queries.GetFilterFields;
 using Whyland.Application.Features.Admin.Categories.Queries.GetForDataTable;
 using Whyland.Application.Features.Admin.Users.Queries.GetOptions;
-using Whyland.Shared.Errors;
 using Whyland.Shared.Filters;
-using Whyland.Shared.Results;
 
 namespace Whyland.Web.Areas.Admin.Pages.Catalog.Categories;
 
@@ -155,37 +153,4 @@ public class CategoriesModel(
     /// <param name="Id">The category identifier.</param>
     /// <param name="DisplayOrder">The visual order displayed by the badge.</param>
     public sealed record ReorderCategoryRow(long Id, int DisplayOrder);
-
-    /// <summary>
-    /// Flattens any <see cref="BaseResult"/> (with or without data) into the
-    /// JSON envelope the admin pages consume: 200 with <c>isSuccess=true</c>
-    /// on success, 400 with the server-side error message (validation,
-    /// not-found, ...) otherwise.
-    /// </summary>
-    /// <param name="result">The dispatched command outcome.</param>
-    private static JsonResult ToJson(BaseResult result)
-        => result.IsSuccess
-            ? new JsonResult(new { isSuccess = true, message = (string?)null })
-            : new JsonResult(new { isSuccess = false, message = MainMessage(result.Error) })
-            {
-                StatusCode = StatusCodes.Status400BadRequest,
-            };
-
-    /// <summary>
-    /// Builds a readable message out of an <see cref="Error"/>: aggregated
-    /// validation failures carry the individual errors in
-    /// <c>Arguments["Errors"]</c>, everything else uses the plain description.
-    /// </summary>
-    /// <param name="error">The error to describe.</param>
-    private static string MainMessage(Error error)
-    {
-        if (error.Arguments?.TryGetValue("Errors", out var value) == true &&
-            value is IEnumerable<Error> items)
-        {
-            var messages = items.Select(e => e.Description);
-            return string.Join(' ', messages);
-        }
-
-        return error.Description ?? "خطای نامشخص.";
-    }
 }

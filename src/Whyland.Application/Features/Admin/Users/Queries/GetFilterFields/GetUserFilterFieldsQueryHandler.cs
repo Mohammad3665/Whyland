@@ -1,33 +1,16 @@
-﻿namespace Whyland.Application.Features.Admin.Users.Queries.GetFilterFields;
+using Whyland.Application.Common.Helpers;
+
+namespace Whyland.Application.Features.Admin.Users.Queries.GetFilterFields;
 
 /// <summary>
 /// Handles <see cref="GetUserFilterFieldsQuery"/> by reading the account properties.
 /// A new scalar field on the entity shows up in the picker by itself; only its Persian
-/// label has to be added to <see cref="Labels"/>.
+/// label has to be added to <see cref="Labels"/>. The property-to-entry mapping itself lives
+/// in <see cref="FilterFieldCatalog"/>, shared with every other admin table.
 /// </summary>
 public sealed class GetUserFilterFieldsQueryHandler :
     IQueryHandler<GetUserFilterFieldsQuery, IReadOnlyList<FilterFieldDto>>
 {
-    private static readonly string[] Equality =
-    [
-        nameof(FilterOperator.Equals), nameof(FilterOperator.NotEquals)
-    ];
-
-    private static readonly string[] Text =
-    [
-        .. Equality,
-        nameof(FilterOperator.Contains), nameof(FilterOperator.StartsWith), nameof(FilterOperator.EndsWith)
-    ];
-
-    private static readonly string[] Range =
-    [
-        .. Equality,
-        nameof(FilterOperator.GreaterThan), nameof(FilterOperator.GreaterThanOrEqual),
-        nameof(FilterOperator.LessThan), nameof(FilterOperator.LessThanOrEqual)
-    ];
-
-    private static readonly string[] List = [.. Equality, nameof(FilterOperator.In)];
-
     /// <summary>
     /// Persian labels for the account fields. Anything not listed keeps its property name,
     /// so a missing label costs a label, never a filter.
@@ -50,75 +33,28 @@ public sealed class GetUserFilterFieldsQueryHandler :
     };
 
     /// <summary>Secret material is never offered as a filter field.</summary>
-    private static readonly HashSet<string> Hidden = new(StringComparer.OrdinalIgnoreCase)
-    {
+    private static readonly string[] Hidden =
+    [
         nameof(Domain.Model.Identity.User.Entities.User.PasswordHash),
-    };
+    ];
 
     /// <summary>
-    /// Returns the filterable fields of the account, in declaration order.
+    /// Returns the filterable fields of the account, in declaration order, followed by the
+    /// relationships the list can be narrowed by.
     /// </summary>
     /// <param name="query">The query (carries no parameters).</param>
     /// <param name="ct">A token to cancel the operation.</param>
     public Task<Result<IReadOnlyList<FilterFieldDto>>> Handle(
         GetUserFilterFieldsQuery query, CancellationToken ct)
     {
-        var fields = typeof(Domain.Model.Identity.User.Entities.User)
-            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(x => x.CanRead && !Hidden.Contains(x.Name))
-            .Select(Describe)
-            .Where(x => x is not null)
-            .Select(x => x!)
-            .ToList();
+        var fields = new List<FilterFieldDto>(
+            FilterFieldCatalog.Describe(typeof(Domain.Model.Identity.User.Entities.User), Labels, Hidden));
+
+        // A role is not a property of the account: it is a row of the assignment table, so
+        // reflection cannot offer it and this page names it. "role" is the kind the picker dresses
+        // as a list of roles and the engine answers with an EXISTS over that table.
+        fields.Add(new FilterFieldDto("Role", "نقش", "role", FilterFieldCatalog.Equality));
 
         return Task.FromResult(Result<IReadOnlyList<FilterFieldDto>>.Success(fields));
     }
-
-    /// <summary>
-    /// Maps one property to its picker entry, or null when it cannot be filtered by a single
-    /// value (navigations and collections such as the assigned roles).
-    /// </summary>
-    /// <param name="property">The account property.</param>
-    private static FilterFieldDto? Describe(PropertyInfo property)
-    {
-        var label = Labels.TryGetValue(property.Name, out var text) ? text : property.Name;
-
-        // The picker offers the type the column stores, so an identifier is opened into the key it
-        // wraps; left wrapped it would look like an unknown struct and the field would vanish from
-        // the picker even though the query repository whitelists it.
-        var type = StronglyTypedIds.Unwrap(property.PropertyType);
-
-        if (type == typeof(string))
-            return new FilterFieldDto(property.Name, label, "string", Text);
-
-        if (type == typeof(bool))
-            return new FilterFieldDto(property.Name, label, "bool", Equality, ["true", "false"]);
-
-        if (type == typeof(Guid))
-            // The audit columns name an account, so they are filtered by picking one of the
-            // existing users; any other guid (the id of the row itself) stays a typed value.
-            return property.Name.EndsWith("By", StringComparison.Ordinal)
-                ? new FilterFieldDto(property.Name, label, "user", List)
-                : new FilterFieldDto(property.Name, label, "guid", List);
-
-        if (type == typeof(DateTime) || type == typeof(DateTimeOffset) || type == typeof(DateOnly))
-            return new FilterFieldDto(property.Name, label, "date", Range);
-
-        if (type.IsEnum)
-            return new FilterFieldDto(property.Name, label, "enum", List, [.. Enum.GetNames(type)]);
-
-        if (NumericTypes.Contains(type))
-            return new FilterFieldDto(property.Name, label, "number", Range);
-
-        // Anything left is a navigation or a collection, which no single value can filter.
-        return null;
-    }
-
-    /// <summary>Number types matched explicitly, so collection converters are never offered.</summary>
-    private static readonly HashSet<Type> NumericTypes =
-    [
-        typeof(byte), typeof(short), typeof(int), typeof(long),
-        typeof(sbyte), typeof(ushort), typeof(uint), typeof(ulong),
-        typeof(float), typeof(double), typeof(decimal),
-    ];
 }

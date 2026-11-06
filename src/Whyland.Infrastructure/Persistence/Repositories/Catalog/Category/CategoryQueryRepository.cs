@@ -48,12 +48,16 @@ public class CategoryQueryRepository(NpgsqlDataSource dataSource) : ICategoryQue
     /// counts come from the shared data-table engine, so a new column is one whitelist entry here.
     /// Rows come out in tree order — a parent immediately followed by its children — because that is
     /// the only order a drag &amp; drop list of siblings can be read in.
+    /// The audit authors join by their key, so the details modal says who made and who last changed
+    /// the category instead of showing the guid the audit column stores.
     /// </summary>
     private static readonly SqlDataTableSpec TableSpec = new(
         from: $"""
             {catalog}."Categories" c
             LEFT JOIN {catalog}."Categories" p ON p."Id" = c."ParentId" AND p."IsDeleted" = FALSE
             LEFT JOIN {catalog}."Categories" g ON g."Id" = p."ParentId" AND g."IsDeleted" = FALSE
+            {SqlDataTableSpec.AuthorJoin("c", SqlDataTableSpec.CreatedByAlias, "CreatedBy")}
+            {SqlDataTableSpec.AuthorJoin("c", SqlDataTableSpec.UpdatedByAlias, "UpdatedBy")}
             """,
         baseWhere: """c."IsDeleted" = FALSE""",
         defaultOrder: $"""{RootOrderColumn} ASC, {MiddleOrderColumn} ASC, {LeafOrderColumn} ASC, c."Id" ASC""",
@@ -62,6 +66,7 @@ public class CategoryQueryRepository(NpgsqlDataSource dataSource) : ICategoryQue
             [
                 ("ParentName", """p."Name" """, typeof(string)),
                 ("Depth", DepthColumn, typeof(int)),
+                .. SqlDataTableSpec.AuthorNames(),
             ]),
         searchColumns: [nameof(CategoryEntity.Name), nameof(CategoryEntity.LatinName)]);
 

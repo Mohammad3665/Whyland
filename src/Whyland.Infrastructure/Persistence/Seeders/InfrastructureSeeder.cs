@@ -15,6 +15,50 @@ namespace Whyland.Infrastructure.Persistence.Seeders;
 public static class InfrastructureSeeder
 {
     private const string SuperAdminRoleName = RoleNames.SuperAdmin;
+    private const string AdminRoleName = RoleNames.Admin;
+    private const string InstructorRoleName = RoleNames.Instructor;
+
+    /// <summary>
+    ///     The permissions each seeded staff role holds.
+    ///     <para>
+    ///     SuperAdmin is absent on purpose — it is granted every key there is, including the ones a
+    ///     later module adds. The ordinary user is absent for the opposite reason: the public site is
+    ///     not an admin panel, and nothing a customer does is guarded by a permission key.
+    ///     </para>
+    ///     <para>
+    ///     Every entry names the constant a page checks instead of re-typing the key text, so renaming
+    ///     a key in <see cref="Permissions"/> is a compile error here rather than a role that quietly
+    ///     stops being able to do its job.
+    ///     </para>
+    /// </summary>
+    private static readonly Dictionary<string, string[]> RolePermissionBaseline = new(StringComparer.Ordinal)
+    {
+        // Runs the panel end to end, except the two modules that hand out authority: a manager who
+        // could grant themselves the keys above them would leave no seat that outranks them.
+        [AdminRoleName] =
+        [
+            Permissions.Dashboard.View,
+            Permissions.Courses.View, Permissions.Courses.Create, Permissions.Courses.Edit, Permissions.Courses.Delete,
+            Permissions.Categories.View, Permissions.Categories.Create, Permissions.Categories.Edit, Permissions.Categories.Delete,
+            Permissions.Users.View, Permissions.Users.Create, Permissions.Users.Edit, Permissions.Users.Delete,
+            Permissions.Orders.View,
+            Permissions.Payments.View,
+            Permissions.Coupons.View, Permissions.Coupons.Create, Permissions.Coupons.Edit, Permissions.Coupons.Delete,
+            Permissions.Blogs.View, Permissions.Blogs.Create, Permissions.Blogs.Edit, Permissions.Blogs.Delete,
+            Permissions.Faqs.View, Permissions.Faqs.Create, Permissions.Faqs.Edit, Permissions.Faqs.Delete,
+            Permissions.Settings.View, Permissions.Settings.Edit,
+        ],
+
+        // Teaches: writes courses and reads the catalogue a course hangs on. Deleting a published
+        // course, touching another person's account, or the site's own content and settings is not
+        // part of the job, so those keys stay with Admin and SuperAdmin.
+        [InstructorRoleName] =
+        [
+            Permissions.Dashboard.View,
+            Permissions.Courses.View, Permissions.Courses.Create, Permissions.Courses.Edit,
+            Permissions.Categories.View,
+        ],
+    };
 
     /// <summary>
     /// Seeds the database with default roles, permissions, and a super admin user.
@@ -31,6 +75,34 @@ public static class InfrastructureSeeder
         await SeedPermissionsAsync(context);
         await SeedSuperAdminAsync(context, admin, logger);
         await SeedRolePermissionsAsync(context);
+        await BackfillDefaultRoleAsync(context);
+    }
+
+    /// <summary>
+    /// Gives the ordinary-user role to every live account that does not hold it (s6.4). The creation
+    /// paths enforce the same floor in the repository; this repairs the accounts that predate it, so
+    /// the rule "every user has the User role" holds for rows already in the database too.
+    /// </summary>
+    private static async Task BackfillDefaultRoleAsync(WhylandDbContext context)
+    {
+        var defaultRole = await context.Roles.FirstOrDefaultAsync(x => x.Name == RoleNames.User);
+        if (defaultRole is null)
+            return;
+
+        var missing = await context.Users
+            .Where(u => !context.UserRoles.Any(ur => ur.UserId == u.Id && ur.RoleId == defaultRole.Id))
+            .Select(u => u.Id)
+            .ToListAsync();
+
+        if (missing.Count == 0)
+            return;
+
+        foreach (var userId in missing)
+        {
+            await context.UserRoles.AddAsync(UserRole.Create(userId, defaultRole.Id));
+        }
+
+        await context.SaveChangesAsync();
     }
 
     /// <summary>
@@ -44,9 +116,9 @@ public static class InfrastructureSeeder
         var roles = new List<Role>
         {
             Created(Role.Create(SuperAdminRoleName, "مدیر ارشد", true)),
-            Created(Role.Create("Admin", "مدیر", true)),
-            Created(Role.Create("Instructor", "مدرس", true)),
-            Created(Role.Create("User", "کاربر عادی", true)),
+            Created(Role.Create(AdminRoleName, "مدیر", true)),
+            Created(Role.Create(InstructorRoleName, "مدرس", true)),
+            Created(Role.Create(RoleNames.User, "کاربر عادی", true)),
         };
 
         await context.Roles.AddRangeAsync(roles);
@@ -191,33 +263,74 @@ public static class InfrastructureSeeder
     }
 
     /// <summary>
-    /// Grants every seeded permission to the SuperAdmin role (permission-role assignment, s6.3).
+    /// Grants the seeded roles their permissions (permission-role assignment, s6.3).
+    /// <para>
+    /// Both rules are declarative, and they have to be: every role seeded here is a system role, whose
+    /// grants the panel shows but refuses to edit, so this file — not an operator — is what decides
+    /// them. Editing <see cref="RolePermissionBaseline"/> and restarting is the supported way to change
+    /// a staff role; a key a later module adds reaches its role at the next start on its own.
+    /// </para>
+    /// <para>
+    /// Only grants are added, never removed, so a permission taken away in the database by hand is not
+    /// silently handed back every restart beyond what the baseline still asks for.
+    /// </para>
     /// </summary>
     private static async Task SeedRolePermissionsAsync(WhylandDbContext context)
     {
-        var superAdminRole = await context.Roles.FirstOrDefaultAsync(x =>
-            x.Name == SuperAdminRoleName
-        );
+        var roles = await context.Roles
+            .Where(x => x.Name == SuperAdminRoleName
+                     || x.Name == AdminRoleName
+                     || x.Name == InstructorRoleName)
+            .ToListAsync();
 
-        if (superAdminRole is null)
+        if (roles.Count == 0)
             return;
 
-        var existingRolePermissionIds = await context
-            .RolePermissions.Where(x => x.RoleId == superAdminRole.Id)
-            .Select(x => x.PermissionId)
-            .ToListAsync();
+        // The baseline is written in key text, not in identifiers: these rows are created by the same
+        // run, so their ids are only knowable here, and a re-typed id could not be checked at compile
+        // time against what the pages ask for.
+        var permissions = await context.Permissions.ToListAsync();
+        var idByKey = permissions.ToDictionary(x => x.Key, x => x.Id, StringComparer.Ordinal);
 
-        var missingPermissions = await context
-            .Permissions.Where(x => !existingRolePermissionIds.Contains(x.Id))
-            .ToListAsync();
+        var existing = (await context.RolePermissions
+                .Select(x => new { x.RoleId, x.PermissionId })
+                .ToListAsync())
+            .Select(x => (x.RoleId, x.PermissionId))
+            .ToHashSet();
 
-        if (missingPermissions.Count == 0)
+        var wanted = new List<(RoleId Role, PermissionId Permission)>();
+
+        foreach (var role in roles)
+        {
+            // The account that can repair the panel holds every key there is.
+            if (role.Name == SuperAdminRoleName)
+            {
+                wanted.AddRange(permissions.Select(x => (role.Id, x.Id)));
+                continue;
+            }
+
+            if (!RolePermissionBaseline.TryGetValue(role.Name, out var keys))
+                continue;
+
+            foreach (var key in keys)
+            {
+                // A baseline naming a key the permission list does not seed is a mistake in this file,
+                // so it stops the startup instead of handing the role a silent nothing.
+                if (!idByKey.TryGetValue(key, out var permissionId))
+                    throw new InvalidOperationException(
+                        $"The {role.Name} baseline grants {key}, which the permission list does not seed.");
+
+                wanted.Add((role.Id, permissionId));
+            }
+        }
+
+        var missing = wanted.Where(x => !existing.Contains(x)).ToList();
+
+        if (missing.Count == 0)
             return;
 
         await context.RolePermissions.AddRangeAsync(
-            missingPermissions.Select(permission =>
-                RolePermission.Create(superAdminRole.Id, permission.Id)
-            )
+            missing.Select(x => RolePermission.Create(x.Role, x.Permission))
         );
 
         await context.SaveChangesAsync();
@@ -230,55 +343,55 @@ public static class InfrastructureSeeder
     private static List<Permission> GetPermissionsList() =>
         [
             // Course
-            Created(Permission.Create("Course View", Permissions.Courses.View)),
-            Created(Permission.Create("Course Create", Permissions.Courses.Create)),
-            Created(Permission.Create("Course Edit", Permissions.Courses.Edit)),
-            Created(Permission.Create("Course Delete", Permissions.Courses.Delete)),
+            Created(Permission.Create("مشاهده دوره‌ها", Permissions.Courses.View)),
+            Created(Permission.Create("ایجاد دوره‌ها", Permissions.Courses.Create)),
+            Created(Permission.Create("ویرایش دوره‌ها", Permissions.Courses.Edit)),
+            Created(Permission.Create("حذف دوره‌ها", Permissions.Courses.Delete)),
             // Category
-            Created(Permission.Create("Category View", Permissions.Categories.View)),
-            Created(Permission.Create("Category Create", Permissions.Categories.Create)),
-            Created(Permission.Create("Category Edit", Permissions.Categories.Edit)),
-            Created(Permission.Create("Category Delete", Permissions.Categories.Delete)),
+            Created(Permission.Create("مشاهده دسته‌بندی‌ها", Permissions.Categories.View)),
+            Created(Permission.Create("ایجاد دسته‌بندی‌ها", Permissions.Categories.Create)),
+            Created(Permission.Create("ویرایش دسته‌بندی‌ها", Permissions.Categories.Edit)),
+            Created(Permission.Create("حذف دسته‌بندی‌ها", Permissions.Categories.Delete)),
             // User
-            Created(Permission.Create("User View", Permissions.Users.View)),
-            Created(Permission.Create("User Create", Permissions.Users.Create)),
-            Created(Permission.Create("User Edit", Permissions.Users.Edit)),
-            Created(Permission.Create("User Delete", Permissions.Users.Delete)),
+            Created(Permission.Create("مشاهده کاربران", Permissions.Users.View)),
+            Created(Permission.Create("ایجاد کاربران", Permissions.Users.Create)),
+            Created(Permission.Create("ویرایش کاربران", Permissions.Users.Edit)),
+            Created(Permission.Create("حذف کاربران", Permissions.Users.Delete)),
             // Role
-            Created(Permission.Create("Role View", Permissions.Roles.View)),
-            Created(Permission.Create("Role Create", Permissions.Roles.Create)),
-            Created(Permission.Create("Role Edit", Permissions.Roles.Edit)),
-            Created(Permission.Create("Role Delete", Permissions.Roles.Delete)),
+            Created(Permission.Create("مشاهده نقش‌ها", Permissions.Roles.View)),
+            Created(Permission.Create("ایجاد نقش‌ها", Permissions.Roles.Create)),
+            Created(Permission.Create("ویرایش نقش‌ها", Permissions.Roles.Edit)),
+            Created(Permission.Create("حذف نقش‌ها", Permissions.Roles.Delete)),
             // Permission
-            Created(Permission.Create("Permission View", Permissions.PermissionManagement.View)),
-            Created(Permission.Create("Permission Create", Permissions.PermissionManagement.Create)),
-            Created(Permission.Create("Permission Edit", Permissions.PermissionManagement.Edit)),
-            Created(Permission.Create("Permission Delete", Permissions.PermissionManagement.Delete)),
+            Created(Permission.Create("مشاهده مجوزها", Permissions.PermissionManagement.View)),
+            Created(Permission.Create("ایجاد مجوزها", Permissions.PermissionManagement.Create)),
+            Created(Permission.Create("ویرایش مجوزها", Permissions.PermissionManagement.Edit)),
+            Created(Permission.Create("حذف مجوزها", Permissions.PermissionManagement.Delete)),
             // Order
-            Created(Permission.Create("Order View", Permissions.Orders.View)),
+            Created(Permission.Create("مشاهده سفارش‌ها", Permissions.Orders.View)),
             // Payment
-            Created(Permission.Create("Payment View", Permissions.Payments.View)),
+            Created(Permission.Create("مشاهده پرداخت‌ها", Permissions.Payments.View)),
             // Coupon
-            Created(Permission.Create("Coupon View", Permissions.Coupons.View)),
-            Created(Permission.Create("Coupon Create", Permissions.Coupons.Create)),
-            Created(Permission.Create("Coupon Edit", Permissions.Coupons.Edit)),
-            Created(Permission.Create("Coupon Delete", Permissions.Coupons.Delete)),
+            Created(Permission.Create("مشاهده کدهای تخفیف", Permissions.Coupons.View)),
+            Created(Permission.Create("ایجاد کدهای تخفیف", Permissions.Coupons.Create)),
+            Created(Permission.Create("ویرایش کدهای تخفیف", Permissions.Coupons.Edit)),
+            Created(Permission.Create("حذف کدهای تخفیف", Permissions.Coupons.Delete)),
             // Blog
-            Created(Permission.Create("Blog View", Permissions.Blogs.View)),
-            Created(Permission.Create("Blog Create", Permissions.Blogs.Create)),
-            Created(Permission.Create("Blog Edit", Permissions.Blogs.Edit)),
-            Created(Permission.Create("Blog Delete", Permissions.Blogs.Delete)),
+            Created(Permission.Create("مشاهده وبلاگ‌ها", Permissions.Blogs.View)),
+            Created(Permission.Create("ایجاد وبلاگ‌ها", Permissions.Blogs.Create)),
+            Created(Permission.Create("ویرایش وبلاگ‌ها", Permissions.Blogs.Edit)),
+            Created(Permission.Create("حذف وبلاگ‌ها", Permissions.Blogs.Delete)),
             // Faq (site FAQs, not the course-scoped ones)
-            Created(Permission.Create("Faq View", Permissions.Faqs.View)),
-            Created(Permission.Create("Faq Create", Permissions.Faqs.Create)),
-            Created(Permission.Create("Faq Edit", Permissions.Faqs.Edit)),
-            Created(Permission.Create("Faq Delete", Permissions.Faqs.Delete)),
+            Created(Permission.Create("مشاهده سوالات متداول", Permissions.Faqs.View)),
+            Created(Permission.Create("ایجاد سوالات متداول", Permissions.Faqs.Create)),
+            Created(Permission.Create("ویرایش سوالات متداول", Permissions.Faqs.Edit)),
+            Created(Permission.Create("حذف سوالات متداول", Permissions.Faqs.Delete)),
             // Setting
-            Created(Permission.Create("Setting View", Permissions.Settings.View)),
-            Created(Permission.Create("Setting Edit", Permissions.Settings.Edit)),
+            Created(Permission.Create("مشاهده تنظیمات", Permissions.Settings.View)),
+            Created(Permission.Create("ویرایش تنظیمات", Permissions.Settings.Edit)),
             // Dashboard: the AdminPanelAccess policy of the whole admin area is pinned to this key,
             // so without it no account — not even the super admin — can open a single admin page.
-            Created(Permission.Create("Dashboard View", Permissions.Dashboard.View)),
+            Created(Permission.Create("مشاهده داشبورد", Permissions.Dashboard.View)),
         ];
 
     /// <summary>

@@ -16,6 +16,13 @@ public sealed class UserCommandRepository(WhylandDbContext context) : IUserComma
         var actor = UserId.From(userId);
         var wanted = roleIds.Select(RoleId.From).ToHashSet();
 
+        // The ordinary-user role is a floor, not a choice: whatever the modal sent, an account
+        // without it cannot do anything on the site, so it is unioned in here rather than trusted to
+        // every caller to remember to include it.
+        var defaultRole = await DefaultRoleIdAsync(ct);
+        if (defaultRole is not null)
+            wanted.Add(defaultRole.Value);
+
         var current = await context.UserRoles
             .Where(x => x.UserId == actor)
             .ToListAsync(ct);
@@ -27,6 +34,35 @@ public sealed class UserCommandRepository(WhylandDbContext context) : IUserComma
         {
             context.UserRoles.Add(UserRole.Create(actor, roleId));
         }
+    }
+
+    // Registration and provider sign-in build an account without a role list, and the seeder is the
+    // only other writer of assignments; this is the one place the floor is expressed for them.
+    public async Task EnsureDefaultRoleAsync(Guid userId, CancellationToken ct = default)
+    {
+        var defaultRole = await DefaultRoleIdAsync(ct);
+        if (defaultRole is null)
+            return;
+
+        var actor = UserId.From(userId);
+
+        if (await context.UserRoles.AnyAsync(x => x.UserId == actor && x.RoleId == defaultRole, ct))
+            return;
+
+        context.UserRoles.Add(UserRole.Create(actor, defaultRole.Value));
+    }
+
+    /// <summary>
+    /// The identifier of the role every account must hold, looked up by the name the seeder inserts
+    /// so the two can never disagree on a re-typed string. Null only when that seed row is absent —
+    /// a database that was never seeded, where no assignment can be written anyway.
+    /// </summary>
+    private async Task<RoleId?> DefaultRoleIdAsync(CancellationToken ct)
+    {
+        var role = await context.Roles.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Name == RoleNames.User, ct);
+
+        return role?.Id;
     }
 
     public void TouchLastLogin(Domain.Model.Identity.User.Entities.User user)

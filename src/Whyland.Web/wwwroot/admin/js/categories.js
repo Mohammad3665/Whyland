@@ -18,11 +18,7 @@
 
 var page; // shared CRUD page controller (set in initPage below)
 var reorder; // shared drag & drop ordering controller (set below)
-
-var fields = []; // ?handler=Fields metadata: [{ property, label, kind, operators, options }]
-var conditions = []; // committed chips: [{ property, label, operator, operatorLabel, value, raw }]
-var liveTimer = null; // debounce for the value box
-var userDirectories = {}; // author field → [{ id, name }], the accounts holding that permission
+var picker; // the generic filter picker (AdminTable.filterPicker)
 
 /**
  * The rows of the last ?handler=Rows load: rowsList keeps the table order and
@@ -37,46 +33,17 @@ var MAX_DEPTH = 3;
 var MAX_CHILDREN = 3;
 
 //#region Server Connectivity (Razor Page handlers)
-/**
- * Reads the antiforgery token rendered by @Html.AntiForgeryToken().
- */
-function csrfToken() {
-  return $('input[name="__RequestVerificationToken"]').val();
-}
-
-/**
- * Sends a form-encoded POST to one page handler and adapts the flat
- * {isSuccess, message} envelope to the AdminCrud contract: resolves only
- * when isSuccess is true; otherwise rejects with {responseJSON} so the
- * shared module can surface the server message instead of a generic one.
- */
-function postHandler(handler, data) {
-  var dfd = $.Deferred();
-  $.post({
-    url: location.pathname + "?handler=" + handler,
-    data: data,
-    headers: { RequestVerificationToken: csrfToken() },
-  })
-    .done(function (res) {
-      if (res && res.isSuccess) dfd.resolve(res);
-      else dfd.reject({ responseJSON: res });
-    })
-    .fail(function (xhr) {
-      dfd.reject(xhr);
-    });
-  return dfd.promise();
-}
-
 /** Saves the create/edit modal through ?handler=Create / ?handler=Update. */
 function saveCategory(data, mode) {
-  return postHandler(mode === "create" ? "Create" : "Update", data).done(
-    refreshRows,
-  );
+  return AdminTable.postHandler(
+    mode === "create" ? "Create" : "Update",
+    data,
+  ).done(refreshRows);
 }
 
 /** Deletes a category by id through ?handler=Delete. */
 function deleteCategory(id) {
-  return postHandler("Delete", { id: id }).done(refreshRows);
+  return AdminTable.postHandler("Delete", { id: id }).done(refreshRows);
 }
 
 /**
@@ -86,11 +53,11 @@ function deleteCategory(id) {
  */
 function saveOrder(rows) {
   $.ajax({
-    url: location.pathname + "?handler=Reorder",
+    url: AdminTable.handlerUrl("Reorder"),
     type: "POST",
     contentType: "application/json; charset=UTF-8",
     data: JSON.stringify(rows),
-    headers: { RequestVerificationToken: csrfToken() },
+    headers: { RequestVerificationToken: AdminTable.csrfToken() },
   })
     .done(function (res) {
       if (res && res.isSuccess) {
@@ -110,438 +77,42 @@ function saveOrder(rows) {
 }
 //#endregion
 
-//#region Generic Filter Picker (same engine as the users list)
+//#region Generic Filter Picker (the shared AdminTable implementation)
 /**
- * The field list, the operators of every field and the option values all come from
- * ?handler=Fields, so filtering a new column costs no markup and no new query: the
- * conditions travel as Filters[i].Property|Operator|Value and the shared data-table
- * engine turns them into parameterised SQL, exactly like the users table.
+ * Fields, operators, the value control, chips, range checks and the Select2 dressing of every box
+ * all come from common/admin-table.js, so a filter row on this page behaves exactly like the one on
+ * the accounts and the roles pages. The only thing the category page decides is how a change
+ * reaches the table: the whole tree has to stay in the DOM for drag &amp; drop, so the rows are
+ * reloaded from ?handler=Rows instead of being redrawn as a server-side page.
  */
-
-/** Operator labels for the picker, keyed by the FilterOperator names. */
-var OPERATOR_LABELS = {
-  Equals: "مساوی با",
-  NotEquals: "نامساوی با",
-  Contains: "شامل",
-  StartsWith: "شروع با",
-  EndsWith: "ختم به",
-  GreaterThan: "بزرگتر از",
-  GreaterThanOrEqual: "بزرگتر یا مساوی با",
-  LessThan: "کوچکتر از",
-  LessThanOrEqual: "کوچکتر یا مساوی با",
-  In: "یکی از",
-};
-
-/** Persian labels for the values a bool field can be filtered on. */
-var VALUE_LABELS = {
-  true: "فعال",
-  false: "غیرفعال",
-};
-
-/** Reads a value label, falling back to the raw option so nothing renders empty. */
-function valueLabel(value) {
-  if (value === "" || value === null || value === undefined) return "";
-  return Object.prototype.hasOwnProperty.call(VALUE_LABELS, value)
-    ? VALUE_LABELS[value]
-    : String(value);
-}
-
-/** The field currently chosen in «فیلتر روی», or null before the metadata arrives. */
-function currentField() {
-  var name = $("#filterField").val();
-  for (var i = 0; i < fields.length; i++) {
-    if (fields[i].property === name) return fields[i];
-  }
-  return null;
-}
-
-/**
- * Fetches the accounts that hold the permission behind one author field (the server decides
- * which: user.create for CreatedBy, user.edit for UpdatedBy) and caches it per field, so the
- * picker lists only the people who could have done it and its chip can name them.
- */
-function loadUserOptions(field) {
-  if (userDirectories[field])
-    return $.Deferred().resolve(userDirectories[field]).promise();
-
-  return $.getJSON(location.pathname + "?handler=UserOptions", {
-    field: field,
-  }).then(function (res) {
-    userDirectories[field] = (res && res.data) || [];
-    return userDirectories[field];
-  });
-}
-
-/** Appends every allowed account to the given picker. */
-function fillUserOptions($select, field) {
-  loadUserOptions(field)
-    .done(function (list) {
-      if (!list.length) {
-        $select.append(
-          $("<option>").val("").text("کاربری این دسترسی را ندارد"),
-        );
-        return;
-      }
-
-      list.forEach(function (user) {
-        $select.append($("<option>").val(user.id).text(user.name));
-      });
-    })
-    .fail(function () {
-      toastr.error("خطا در دریافت لیست کاربران برای انتخاب.", "خطا");
-    });
-}
-
-/** Turns a comma-separated list of account ids into the names the admin picked. */
-function userNames(field, value) {
-  var directory = userDirectories[field];
-  if (!directory) return value;
-
-  var byId = {};
-  directory.forEach(function (user) {
-    byId[user.id] = user.name;
-  });
-
-  return value
-    .split(",")
-    .map(function (id) {
-      return byId[id] || id;
-    })
-    .join("، ");
-}
-
-/** Rewrites Persian (۰-۹) and Arabic-Indic (٠-٩) digits as Latin ones. */
-function latinDigits(value) {
-  return String(value === null || value === undefined ? "" : value)
-    .replace(/[۰-۹]/g, function (d) {
-      return String("۰۱۲۳۴۵۶۷۸۹".indexOf(d));
-    })
-    .replace(/[٠-٩]/g, function (d) {
-      return String("٠١٢٣٤٥٦٧٨٩".indexOf(d));
-    });
-}
-
-/** The other direction, for a hint the admin reads instead of types. */
-function faDigits(value) {
-  return String(value).replace(/\d/g, function (d) {
-    return "۰۱۲۳۴۵۶۷۸۹"[Number(d)];
-  });
-}
-
-/**
- * Whether a typed value is usable for the chosen field. A field that declares a range — the tree
- * level is one — cannot be searched outside it: the walk stops here, so no request asks for a
- * level that does not exist.
- */
-function inRange(field, value) {
-  if (!rangeHint(field)) return true;
-
-  return value
-    .split(",")
-    .filter(function (x) {
-      return x !== "";
-    })
-    .every(function (part) {
-      var number = Number(part);
-      if (isNaN(number) || String(number) !== part) return false;
-      if (
-        field.min !== null &&
-        field.min !== undefined &&
-        number < Number(field.min)
-      )
-        return false;
-      if (
-        field.max !== null &&
-        field.max !== undefined &&
-        number > Number(field.max)
-      )
-        return false;
-      return true;
-    });
-}
-
-/** The Persian wording of a field's allowed range, empty when the value is unbounded. */
-function rangeHint(field) {
-  if (!field || field.kind !== "number") return "";
-
-  var hasMin = field.min !== null && field.min !== undefined;
-  var hasMax = field.max !== null && field.max !== undefined;
-  if (!hasMin && !hasMax) return "";
-  if (hasMin && hasMax)
-    return faDigits(field.min) + " تا " + faDigits(field.max);
-  return hasMax
-    ? "تا " + faDigits(field.max)
-    : "از " + faDigits(field.min) + " به بعد";
-}
-
-/** Marks the value box the way the rest of the admin marks an unusable input. */
-function markInvalid(invalid) {
-  $("#filterValue").toggleClass("is-invalid", invalid);
-}
-
-/** Builds the picker (field list, operators, value control) from ?handler=Fields. */
 function loadFields() {
-  return $.getJSON(location.pathname + "?handler=Fields").then(function (res) {
-    fields = (res && res.data) || [];
-
-    var $field = $("#filterField").empty();
-    fields.forEach(function (f) {
-      $field.append($("<option>").val(f.property).text(f.label));
-    });
-
-    // Start on the first text field, so the value box is a working search box right away.
-    var firstText = fields.filter(function (f) {
-      return f.kind === "string";
-    })[0];
-    if (firstText) $field.val(firstText.property);
-
-    renderOperators();
-    renderValueControl();
+  picker = AdminTable.filterPicker({
+    fieldEl: "#filterField",
+    operatorEl: "#filterOperator",
+    valueWrapEl: "#filterValueWrap",
+    chipsEl: "#filterChips",
+    onChange: refreshRows,
   });
+
+  return picker.load();
 }
 
-/** Refills the operator select with the operators the chosen field accepts. */
-function renderOperators() {
-  var field = currentField();
-  var $op = $("#filterOperator").empty();
-  if (!field) return;
-
-  field.operators.forEach(function (op) {
-    var label = OPERATOR_LABELS[op];
-    $op.append(
-      $("<option>")
-        .val(op)
-        .text(label ? label + " (" + op + ")" : op),
-    );
-  });
-}
-
-/**
- * Rebuilds the value control from the kind of the chosen field: a text box for names, a
- * number box for orders and levels, a date box for the audit timestamps, an option list for
- * a bool and a user picker for an author column — so no field needs its own markup.
- */
-function renderValueControl() {
-  var field = currentField();
-  var $wrap = $("#filterValueWrap").empty();
-  if (!field) return;
-
-  var operator = $("#filterOperator").val();
-  var options = field.options || [];
-
-  // «created by» / «updated by» name an account, so they are filtered by picking one.
-  if (field.kind === "user") {
-    var $users = $(
-      '<select id="filterValue" class="form-select form-select-solid w-250px">',
-    );
-    if (operator === "In") $users.attr("multiple", true);
-    $users.append($("<option>").val("").text("انتخاب کاربر..."));
-    $wrap.append($users);
-    fillUserOptions($users, field.property);
-    bindValueInput();
-    return;
-  }
-
-  if (options.length && operator !== "In") {
-    var $select = $(
-      '<select id="filterValue" class="form-select form-select-solid w-200px">',
-    );
-    $select.append($("<option>").val("").text("انتخاب..."));
-    options.forEach(function (option) {
-      $select.append($("<option>").val(option).text(valueLabel(option)));
-    });
-    $wrap.append($select);
-  } else {
-    var $input = $(
-      '<input type="text" id="filterValue" class="form-control form-control-solid w-200px">',
-    );
-    if (field.kind === "date") $input.attr("type", "date").attr("dir", "ltr");
-    else if (field.kind === "number")
-      // A text box with a numeric keyboard, not <input type="number">: the latter throws away
-      // anything typed in Persian digits, and every numeric input of this admin accepts ۰-۹.
-      $input.attr("inputmode", "numeric").attr("dir", "rtl");
-    else if (field.kind === "guid") $input.attr("dir", "ltr");
-
-    // A field that declares a range says so on the box; inRange() is what enforces it.
-    var hint = rangeHint(field);
-    if (hint) {
-      if (field.min !== null && field.min !== undefined)
-        $input.attr("min", field.min);
-      if (field.max !== null && field.max !== undefined)
-        $input.attr("max", field.max);
-      $input.attr("title", hint);
-    }
-
-    $input.attr(
-      "placeholder",
-      operator === "In"
-        ? "چند مقدار با ویرگول"
-        : field.kind === "string"
-          ? "جستجو..."
-          : hint || "مقدار",
-    );
-    $wrap.append($input);
-  }
-
-  bindValueInput();
-}
-
-/**
- * Live search: the value box filters while it is typed, debounced. The table is not
- * server-side paged here (the whole tree has to stay in the DOM for drag &amp; drop),
- * so a change reloads the rows through the handler instead of redrawing an Ajax page.
- */
-function bindValueInput() {
-  $("#filterValue")
-    .off("input.change.categories")
-    .on("input.change.categories", function () {
-      // The box goes red while the value is outside the field's range, before the request runs.
-      markInvalid(!inRange(currentField(), readValue()));
-      clearTimeout(liveTimer);
-      liveTimer = setTimeout(refreshRows, 350);
-    });
-}
-
-/**
- * The conditions sent with the next request: the committed chips plus the value currently
- * typed in the picker. The typed value is not committed, so it never duplicates a chip and
- * disappears on reload instead of lingering as an invisible filter.
- */
+/** The chips plus the value currently typed, as the row request needs them. */
 function activeConditions() {
-  var all = conditions.slice();
-  var field = currentField();
-  var value = readValue();
-
-  // An out-of-range value is not sent at all: the box says why, the query stays untouched.
-  if (field && value && inRange(field, value)) {
-    all.push({
-      property: field.property,
-      operator: $("#filterOperator").val(),
-      // The typed value is the raw one: what the chip shows and what the server filters on
-      // are the same string here.
-      raw: value,
-    });
-  }
-  return all;
+  return picker.conditions();
 }
 
-/** Reads the value control, joining a multi-select into the comma form the In operator wants. */
-function readValue() {
-  var raw = $("#filterValue").val();
-  if (raw === null || raw === undefined) return "";
-
-  var field = currentField();
-  return (Array.isArray(raw) ? raw : [raw])
-    .map(function (x) {
-      var text = String(x).trim();
-
-      // A typed number or date is written in Persian digits by an admin who means 2, not by
-      // anyone searching a name that happens to contain ۲ — so only the non-text kinds convert.
-      return field && field.kind !== "string" ? latinDigits(text) : text;
-    })
-    .filter(function (x) {
-      return x !== "";
-    })
-    .join(",");
-}
-
-/** Commits the picker state as a chip and re-queries the table. */
+/** The two buttons of the filter row call these from the markup. */
 function addFilterCondition() {
-  var field = currentField();
-  var operator = $("#filterOperator").val();
-  var value = readValue();
-
-  if (!field || !operator) return;
-  if (!value) {
-    toastr.error("مقدار فیلتر را وارد کنید.", "خطا");
-    return;
-  }
-  if (!inRange(field, value)) {
-    toastr.error(
-      "مقدار «" + field.label + "» باید " + rangeHint(field) + " باشد.",
-      "خطا",
-    );
-    markInvalid(true);
-    return;
-  }
-
-  conditions.push({
-    property: field.property,
-    label: field.label,
-    operator: operator,
-    operatorLabel: OPERATOR_LABELS[operator] || operator,
-    // The chip shows a human label (an account name, «فعال») but the server must keep
-    // filtering on what was really chosen, so the raw value travels next to it.
-    raw: value,
-    value:
-      field.kind === "user"
-        ? userNames(field.property, value)
-        : valueLabel(value) || value,
-  });
-
-  $("#filterValue").val("");
-  renderChips();
-  refreshRows();
+  picker.add();
 }
 
-/** Drops every chip and the typed value, then re-queries. */
 function clearFilterConditions() {
-  conditions = [];
-  $("#filterValue").val("");
-  renderChips();
-  refreshRows();
-}
-
-/** Renders the active chips, each with its own remove handler. */
-function renderChips() {
-  var $chips = $("#filterChips").empty();
-
-  conditions.forEach(function (condition, index) {
-    var $chip = $(
-      '<span class="badge badge-light-primary d-inline-flex align-items-center fs-7 py-2 px-3">',
-    );
-    $chip.append(
-      $("<span>")
-        .text(
-          condition.label +
-            " " +
-            condition.operatorLabel +
-            " " +
-            condition.value,
-        )
-        .attr("dir", "auto"),
-    );
-
-    var $remove = $(
-      '<button type="button" class="btn btn-sm btn-icon btn-transparent-dark ms-1" title="حذف این فیلتر">',
-    ).append(
-      '<i class="ki-duotone ki-cross fs-4"><span class="path1"></span><span class="path2"></span></i>',
-    );
-    $remove.on("click", function () {
-      conditions.splice(index, 1);
-      renderChips();
-      refreshRows();
-    });
-
-    $chip.append($remove);
-    $chips.append($chip);
-  });
+  picker.clear();
 }
 //#endregion
 
 //#region Row Rendering (from server DTOs)
-/** Formats a UTC timestamp as a localized Persian date for the table. */
-function categoryDate(value) {
-  var d = new Date(value);
-  return isNaN(d.getTime()) ? "" : d.toLocaleDateString("fa-IR");
-}
-
-/** Formats a UTC timestamp as a localized Persian date and time for the details modal. */
-function categoryDateTime(value) {
-  if (!value) return "—";
-  var d = new Date(value);
-  return isNaN(d.getTime()) ? "—" : d.toLocaleString("fa-IR");
-}
 
 /**
  * Builds one <tr> in the shape the FAQ table uses: a responsive control cell, then
@@ -620,7 +191,7 @@ function buildCategoryRow(cat) {
   $(cells[6])
     .attr("data-order", cat.createdAt)
     .append(
-      $('<span class="text-gray-600">').text(categoryDate(cat.createdAt)),
+      $('<span class="text-gray-600">').text(AdminTable.faDate(cat.createdAt)),
     );
 
   var $details = $(
@@ -668,7 +239,7 @@ function loadRows() {
   for (var i = 0; i < active.length; i++) {
     params["Filters[" + i + "].Property"] = active[i].property;
     params["Filters[" + i + "].Operator"] = active[i].operator;
-    params["Filters[" + i + "].Value"] = active[i].raw;
+    params["Filters[" + i + "].Value"] = active[i].value;
   }
 
   return $.getJSON(location.pathname + "?handler=Rows", params).then(
@@ -792,7 +363,7 @@ function fillParentOptions(excludeId) {
 
     var note = "";
     if (isDeep) note += " (سطح سوم)";
-    if (isFull) note += " (پر: " + faDigits(MAX_CHILDREN) + " فرزند)";
+    if (isFull) note += " (پر: " + AdminTable.faDigits(MAX_CHILDREN) + " فرزند)";
 
     html.push(
       '<option value="' +
@@ -1012,12 +583,13 @@ function openDetailsModal(id) {
   setDetails("#cd-depth", cat.depth);
   setDetails("#cd-status", cat.isActive ? "فعال" : "غیرفعال");
   setDetails("#cd-id", cat.id);
-  setDetails("#cd-created-at", categoryDateTime(cat.createdAt));
-  setDetails("#cd-created-by", cat.createdBy);
-  setDetails("#cd-updated-at", categoryDateTime(cat.updatedAt));
-  setDetails("#cd-updated-by", cat.updatedBy);
+  setDetails("#cd-created-at", AdminTable.faDateTime(cat.createdAt));
+  // The author names the row already carries, not the guids: an operator cannot read a person off a key.
+  setDetails("#cd-created-by", cat.createdByName);
+  setDetails("#cd-updated-at", AdminTable.faDateTime(cat.updatedAt));
+  setDetails("#cd-updated-by", cat.updatedByName);
   setDetails("#cd-is-deleted", cat.isDeleted ? "حذف شده" : "خیر");
-  setDetails("#cd-deleted-at", categoryDateTime(cat.deletedAt));
+  setDetails("#cd-deleted-at", AdminTable.faDateTime(cat.deletedAt));
   setDetails("#cd-deleted-by", cat.deletedBy);
 
   // The modal has no row of its own to point back at, so the button closes over the id.
@@ -1082,12 +654,6 @@ function openEditModal(id) {
 // The picker is read first: its field metadata decides which condition the
 // very first request may already carry.
 $(function () {
-  $("#filterField").on("change", function () {
-    renderOperators();
-    renderValueControl();
-  });
-  $("#filterOperator").on("change", renderValueControl);
-
   loadFields()
     .fail(function () {
       toastr.error("خطا در دریافت فیلدهای قابل فیلتر.", "خطا");

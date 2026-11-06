@@ -87,6 +87,14 @@ public sealed class ExternalLoginCallbackCommandHandler(
         if (saveResult.IsFailure)
             return UserErrors.LoginFailed();
 
+        // A provisioned account is an account: it gets the ordinary-user role like every other one,
+        // before the cookie reads the permissions that role resolves to.
+        await unitOfWork.UserCommandRepository.EnsureDefaultRoleAsync(user.Id.Value, ct);
+
+        var grantResult = await unitOfWork.SaveAsync(ct);
+        if (grantResult.IsFailure)
+            return UserErrors.LoginFailed();
+
         return await AuthenticatedAsync(user, ct);
     }
 

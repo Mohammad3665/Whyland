@@ -155,6 +155,14 @@ public sealed class SqlConditionWriter
 
         var value = (rawValue ?? string.Empty).Trim();
 
+        // A relationship has no column to compare against: it answers "does this row hold that
+        // membership", which only the three set-shaped operators can mean.
+        if (column.IsMembership)
+        {
+            ApplyMembership(column, operatorName, value);
+            return;
+        }
+
         if (operatorName is FilterOperator.Contains
             or FilterOperator.StartsWith
             or FilterOperator.EndsWith)
@@ -192,6 +200,43 @@ public sealed class SqlConditionWriter
     }
 
     private string NextName() => "__w" + _index++;
+
+    /// <summary>The hole a membership template leaves for its bound value.</summary>
+    private const string ValueToken = "{value}";
+
+    /// <summary>
+    /// Appends one membership test by filling the value hole of the column's predicate template
+    /// with a generated parameter name. The template itself is written in code, never in a request,
+    /// so the only text that reaches the statement is the name of a parameter this method created.
+    /// Equals and In read as "at least one of these", NotEquals as "none of these"; an unparsable
+    /// part drops the whole condition, the way <see cref="FilterOperator.In"/> does.
+    /// </summary>
+    /// <param name="column">Whitelisted membership column.</param>
+    /// <param name="operatorName">How the picked entries relate to the row.</param>
+    /// <param name="value">Comma-separated values, already trimmed.</param>
+    private void ApplyMembership(SqlColumn column, FilterOperator operatorName, string value)
+    {
+        if (operatorName is not (FilterOperator.Equals or FilterOperator.NotEquals or FilterOperator.In))
+            return;
+
+        var tests = new List<string>();
+
+        foreach (var part in value.Split(',', StringSplitOptions.RemoveEmptyEntries
+                                       | StringSplitOptions.TrimEntries))
+        {
+            if (!TryConvert(column, part, out var item)) return;
+
+            var name = NextName();
+            Parameters.Add(name, item);
+            tests.Add(column.Membership!.Replace(ValueToken, "@" + name));
+        }
+
+        if (tests.Count == 0)
+            return;
+
+        var predicate = "(" + string.Join(" OR ", tests) + ")";
+        _fragments.Add(operatorName == FilterOperator.NotEquals ? "NOT " + predicate : predicate);
+    }
 
     /// <summary>Maps a request operator onto its SQL symbol.</summary>
     public static string OperatorSql(FilterOperator operatorName) => operatorName switch

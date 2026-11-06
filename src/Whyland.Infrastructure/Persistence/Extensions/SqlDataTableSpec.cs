@@ -3,10 +3,22 @@ namespace Whyland.Infrastructure.Persistence.Extensions;
 /// <summary>
 /// One column a client may select, filter or sort by: the SQL expression it is read from
 /// and the CLR type its values are converted to.
+/// <para>
+/// A membership is the exception: it names a relationship instead of a column — the roles an
+/// account holds — so it carries a predicate template and is filtered but never shown or ordered.
+/// </para>
 /// </summary>
 /// <param name="Expression">The qualified SQL expression, e.g. <c>u."FirstName"</c>.</param>
 /// <param name="ClrType">The type of the underlying column, after unwrapping nullability.</param>
-public sealed record SqlColumn(string Expression, Type ClrType);
+/// <param name="Membership">
+/// For a relationship: an SQL template with one <c>{value}</c> hole that the filter fills with a
+/// parameter, e.g. an <c>EXISTS</c> over an assignment table. Null for an ordinary column.
+/// </param>
+public sealed record SqlColumn(string Expression, Type ClrType, string? Membership = null)
+{
+    /// <summary>Whether this entry filters through a relationship rather than reading a column.</summary>
+    public bool IsMembership => Membership is not null;
+}
 
 /// <summary>
 /// The Dapper counterpart of the generic <c>QueryRequest</c> pipeline: everything a
@@ -126,19 +138,65 @@ public sealed class SqlDataTableSpec
 
     /// <summary>
     /// Returns a copy of <paramref name="columns"/> with joined or computed columns added, e.g.
-    /// the avatar of a profile table the row is joined to.
+    /// the avatar of a profile table the row is joined to, and with the relationships the list can
+    /// be filtered by added as memberships, e.g. the roles an account holds.
     /// </summary>
     /// <param name="columns">The entity columns to extend.</param>
     /// <param name="extras">Name, SQL expression and CLR type of each added column.</param>
+    /// <param name="memberships">
+    /// Name, predicate template and CLR type of each relationship. The template carries the
+    /// <c>{value}</c> hole its filter binds, so a relationship is whitelisted like any other
+    /// field and still never reaches the statement as text.
+    /// </param>
     public static IReadOnlyDictionary<string, SqlColumn> WithExtras(
         Dictionary<string, SqlColumn> columns,
-        IEnumerable<(string Name, string Expression, Type ClrType)> extras)
+        IEnumerable<(string Name, string Expression, Type ClrType)> extras,
+        IEnumerable<(string Name, string Template, Type ClrType)>? memberships = null)
     {
         var extended = new Dictionary<string, SqlColumn>(columns, StringComparer.OrdinalIgnoreCase);
 
         foreach (var (name, expression, clrType) in extras)
             extended[name] = new SqlColumn(expression, clrType);
 
+        foreach (var (name, template, clrType) in memberships ?? [])
+            extended[name] = new SqlColumn(template, clrType, template);
+
         return extended;
     }
+
+    #region Audit authors
+
+    /// <summary>The alias the creating account is joined under.</summary>
+    public const string CreatedByAlias = "cu";
+
+    /// <summary>The alias the last editing account is joined under.</summary>
+    public const string UpdatedByAlias = "uu";
+
+    /// <summary>
+    /// One join that reads an audit author by its key. A LEFT JOIN over a primary key: an account is
+    /// one row, so the audited table keeps exactly one row too, and a row the seeder made — which has
+    /// no author — stays in the list with no name instead of vanishing from it.
+    /// </summary>
+    /// <param name="table">Alias of the audited table.</param>
+    /// <param name="alias">Alias to join the account under, <see cref="CreatedByAlias"/> or <see cref="UpdatedByAlias"/>.</param>
+    /// <param name="column">Audit column of the audited table: <c>CreatedBy</c> or <c>UpdatedBy</c>.</param>
+    public static string AuthorJoin(string table, string alias, string column)
+        => $"LEFT JOIN {SchemaConstants.Identity}.\"Users\" {alias} ON {alias}.\"Id\" = {table}.\"{column}\"";
+
+    /// <summary>
+    /// The two whitelist entries of <see cref="AuthorJoin"/>. An admin reads a name, never the guid an
+    /// audit column stores, and the spelling of a name is decided here so that no page writes its own
+    /// concatenation and the details modals cannot drift apart.
+    /// </summary>
+    public static (string Name, string Expression, Type ClrType)[] AuthorNames() =>
+    [
+        ("CreatedByName", FullName(CreatedByAlias), typeof(string)),
+        ("UpdatedByName", FullName(UpdatedByAlias), typeof(string)),
+    ];
+
+    /// <summary>How an account is written out: given name, space, family name.</summary>
+    private static string FullName(string alias)
+        => $"{alias}.\"FirstName\" || ' ' || {alias}.\"LastName\"";
+
+    #endregion
 }

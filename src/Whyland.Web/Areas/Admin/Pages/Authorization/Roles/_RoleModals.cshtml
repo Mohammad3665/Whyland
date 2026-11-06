@@ -1,4 +1,5 @@
-﻿﻿<!--begin::Create/Edit Modal (same page; section 5.2 of the UI/UX doc)-->
+@model Whyland.Web.Areas.Admin.Pages.Authorization.Roles.IndexModel
+<!--begin::Create/Edit Modal (same page; section 5.2 of the UI/UX doc)-->
 <div class="modal fade" id="kt_modal_role" tabindex="-1" aria-hidden="true">
     <!--begin::Modal dialog-->
     <div class="modal-dialog modal-dialog-centered mw-650px">
@@ -27,7 +28,11 @@
                 </div>
                 <!--end::Heading-->
 
-                <!--begin::Form (demo; no backend handler yet)-->
+                <!--begin::Form-->
+                <!-- There is no IsSystem control here on purpose: the flag marks the rows the seeder
+                     created and the code looks roles up by name, so it is never an operator's choice.
+                     CreateRoleCommand always writes false and the commands refuse to change a system
+                     role whatever the client sends. -->
                 <form id="kt_role_form" class="form" onsubmit="return false;">
 
                     <!--begin::Input group: Title-->
@@ -36,8 +41,7 @@
                             <span>عنوان:</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input type="text" id="Form_Title" name="Form_Title"
-                               class="form-control form-control-solid"
+                        <input type="text" id="Form_Title" name="Form_Title" class="form-control form-control-solid"
                                placeholder="مثال: مدیر محتوا" />
                         <div class="form-text">عنوان نمایشی نقش در پنل مدیریت.</div>
                     </div>
@@ -49,34 +53,9 @@
                             <span>نام (Name):</span>
                             <span class="text-danger">*</span>
                         </label>
-                        <input type="text" id="Form_Name" name="Form_Name"
-                               class="form-control form-control-solid" dir="ltr"
-                               placeholder="مثال: ContentManager" />
+                        <input type="text" id="Form_Name" name="Form_Name" class="form-control form-control-solid"
+                               dir="ltr" placeholder="مثال: ContentManager" />
                         <div class="form-text">شناسه انگلیسی و یکتا؛ بدون فاصله — مثال: ContentManager</div>
-                    </div>
-                    <!--end::Input group-->
-
-                    <!--begin::Input group: IsSystem (readonly in edit)-->
-                    <div class="mb-10">
-                        <label class="form-label d-block fs-6 fw-bold text-gray-900">
-                            <span>نقش سیستمی:</span>
-                        </label>
-                        <div id="RoleIsSystemEdit" class="d-none">
-                            <span class="badge badge-light-primary">
-                                <i class="ki-duotone ki-shield-cross fs-4 me-1">
-                                    <span class="path1"></span><span class="path2"></span><span class="path3"></span>
-                                    <span class="path4"></span><span class="path5"></span><span class="path6"></span>
-                                    <span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span>
-                                </i>
-                                این نقش سیستمی است و نوع آن قابل تغییر نیست
-                            </span>
-                        </div>
-                        <div id="RoleIsSystemCreate" class="form-check form-switch form-check-solid">
-                            <input class="form-check-input" type="checkbox" id="Form_IsSystem" name="Form_IsSystem" />
-                            <label class="form-check-label fw-semibold text-gray-700" for="Form_IsSystem">
-                                این نقش را سیستمی ثبت کن (قابل حذف نخواهد بود)
-                            </label>
-                        </div>
                     </div>
                     <!--end::Input group-->
 
@@ -86,7 +65,7 @@
             <!--end::Modal body-->
 
             <!--begin::Modal footer-->
-            <div class="modal-footer border-0 pt-0 justify-content-center">
+            <div class="modal-footer border-0 pt-0">
                 <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">انصراف</button>
                 <button type="button" class="btn btn-primary" id="kt_role_submit" onclick="submitRoleForm()">
                     <span class="indicator-label">ذخیره</span>
@@ -126,8 +105,12 @@
                     <span class="fw-bold text-gray-900" id="delete-role-name"></span>
                     مطمئن هستید؟
                 </div>
+                <!-- States what DeleteRoleCommand really does, in the same save: the role leaves every
+                     account that holds it and all of its grants are revoked. Accounts keep their
+                     ordinary «User» role; only this one is taken away. -->
                 <div class="text-muted fs-7 mb-8">
-                    نقش سیستم می‌تواند این نقش را بپوشاند؛ اعمال دسترسی‌های وابسته از کاربران برداشته می‌شود.
+                    با حذف این نقش، از همهٔ کاربران جدا می‌شود و تمام دسترسی‌های آن برداشته می‌گردد.
+                    نقش پیش‌فرض «کاربر» برای همه باقی می‌ماند.
                 </div>
                 <div class="d-flex justify-content-center gap-3">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>
@@ -174,163 +157,80 @@
                 </div>
                 <!--end::Heading-->
 
-                <!--begin::Permission groups (server-rendered demo; grouped by module)-->
+                @* Rendered from the live Permission rows (Model.PermissionGroups), grouped by the
+                   prefix of each key, and ticked afterwards from ?handler=Granted. A key retired from
+                   the code leaves the tree with the row that held it; a key declared in code but never
+                   seeded cannot be granted at all — which is the point of rendering the table. *@
                 <div id="role_permissions_list" class="d-flex flex-column gap-6">
 
-                    <!--begin::Group: Courses-->
-                    <div class="rounded border border-gray-300 p-6">
-                        <div class="form-check form-check-custom form-check-solid form-check-sm mb-4">
-                            <input class="form-check-input perm-group" type="checkbox" id="perm_group_courses" data-group="courses" />
-                            <label class="form-check-label fs-6 fw-bold text-gray-900" for="perm_group_courses">
-                                دوره‌ها
-                            </label>
-                        </div>
-                        <div class="row g-4">
-                            <div class="col-md-6">
-                                <div class="form-check form-check-custom form-check-solid form-check-sm">
-                                    <input class="form-check-input perm-item" type="checkbox" id="perm_courses_view" data-group="courses" data-perm="Courses.View" />
-                                    <label class="form-check-label fs-7 text-gray-700" for="perm_courses_view">مشاهده دوره</label>
-                                </div>
+                    @foreach (IndexModel.PermissionGroup group in Model.PermissionGroups)
+                    {
+                        <!--begin::Group-->
+                        <div class="rounded border border-gray-300 p-6">
+                            <div class="form-check form-check-custom form-check-solid form-check-sm mb-4">
+                                <input class="form-check-input perm-group" type="checkbox" id="perm_group_@group.Module"
+                                       data-group="@group.Module" />
+                                <label class="form-check-label fs-6 fw-bold text-gray-900" for="perm_group_@group.Module">
+                                    @group.Title
+                                </label>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-check form-check-custom form-check-solid form-check-sm">
-                                    <input class="form-check-input perm-item" type="checkbox" id="perm_courses_create" data-group="courses" data-perm="Courses.Create" />
-                                    <label class="form-check-label fs-7 text-gray-700" for="perm_courses_create">ایجاد دوره</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check form-check-custom form-check-solid form-check-sm">
-                                    <input class="form-check-input perm-item" type="checkbox" id="perm_courses_edit" data-group="courses" data-perm="Courses.Edit" />
-                                    <label class="form-check-label fs-7 text-gray-700" for="perm_courses_edit">ویرایش دوره</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check form-check-custom form-check-solid form-check-sm">
-                                    <input class="form-check-input perm-item" type="checkbox" id="perm_courses_delete" data-group="courses" data-perm="Courses.Delete" />
-                                    <label class="form-check-label fs-7 text-gray-700" for="perm_courses_delete">حذف دوره</label>
-                                </div>
+                            <div class="row g-4">
+                                @foreach (Whyland.Shared.Dtos.Authorization.Permission.PermissionOptionDto permission in
+                            group.Items)
+                                {
+                                    <div class="col-md-6">
+                                        <div class="form-check form-check-custom form-check-solid form-check-sm">
+                                            <input class="form-check-input perm-item" type="checkbox" id="perm_@permission.Id"
+                                                   data-group="@group.Module" data-perm-id="@permission.Id" />
+                                            <label class="form-check-label fs-7 text-gray-700" for="perm_@permission.Id">
+                                                @permission.Name
+                                                <span class="text-muted fs-8 ms-1" dir="ltr">@permission.Key</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                }
                             </div>
                         </div>
-                    </div>
-                    <!--end::Group: Courses-->
+                        <!--end::Group-->
+                    }
 
-                    <!--begin::Group: Categories-->
-                    <div class="rounded border border-gray-300 p-6">
-                        <div class="form-check form-check-custom form-check-solid form-check-sm mb-4">
-                            <input class="form-check-input perm-group" type="checkbox" id="perm_group_categories" data-group="categories" />
-                            <label class="form-check-label fs-6 fw-bold text-gray-900" for="perm_group_categories">
-                                دسته‌بندی‌ها
-                            </label>
-                        </div>
-                        <div class="row g-4">
-                            <div class="col-md-6">
-                                <div class="form-check form-check-custom form-check-solid form-check-sm">
-                                    <input class="form-check-input perm-item" type="checkbox" id="perm_categories_view" data-group="categories" data-perm="Categories.View" />
-                                    <label class="form-check-label fs-7 text-gray-700" for="perm_categories_view">مشاهده دسته‌بندی</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check form-check-custom form-check-solid form-check-sm">
-                                    <input class="form-check-input perm-item" type="checkbox" id="perm_categories_manage" data-group="categories" data-perm="Categories.Manage" />
-                                    <label class="form-check-label fs-7 text-gray-700" for="perm_categories_manage">مدیریت دسته‌بندی</label>
-                                </div>
+                    @if (Model.PermissionGroups.Count == 0)
+                    {
+                        <div class="alert alert-light-warning d-flex align-items-center" role="alert">
+                            <i class="ki-duotone ki-information-5 fs-2 me-2">
+                                <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                            </i>
+                            <div class="fw-semibold fs-7">
+                                فهرست دسترسی‌ها خوانده نشد؛ صفحه را دوباره باز کنید.
                             </div>
                         </div>
-                    </div>
-                    <!--end::Group: Categories-->
-
-                    <!--begin::Group: Users-->
-                    <div class="rounded border border-gray-300 p-6">
-                        <div class="form-check form-check-custom form-check-solid form-check-sm mb-4">
-                            <input class="form-check-input perm-group" type="checkbox" id="perm_group_users" data-group="users" />
-                            <label class="form-check-label fs-6 fw-bold text-gray-900" for="perm_group_users">
-                                کاربران
-                            </label>
-                        </div>
-                        <div class="row g-4">
-                            <div class="col-md-6">
-                                <div class="form-check form-check-custom form-check-solid form-check-sm">
-                                    <input class="form-check-input perm-item" type="checkbox" id="perm_users_view" data-group="users" data-perm="Users.View" />
-                                    <label class="form-check-label fs-7 text-gray-700" for="perm_users_view">مشاهده کاربر</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check form-check-custom form-check-solid form-check-sm">
-                                    <input class="form-check-input perm-item" type="checkbox" id="perm_users_edit" data-group="users" data-perm="Users.Edit" />
-                                    <label class="form-check-label fs-7 text-gray-700" for="perm_users_edit">ویرایش کاربر</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check form-check-custom form-check-solid form-check-sm">
-                                    <span class="badge badge-light-primary">
-                                        <i class="ki-duotone ki-shield-tick fs-4 me-1">
-                                            <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span>
-                                        </i>
-                                        سیستمی
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--end::Group: Users-->
-
-                    <!--begin::Group: Orders & Payments-->
-                    <div class="rounded border border-gray-300 p-6">
-                        <div class="form-check form-check-custom form-check-solid form-check-sm mb-4">
-                            <input class="form-check-input perm-group" type="checkbox" id="perm_group_orders" data-group="orders" />
-                            <label class="form-check-label fs-6 fw-bold text-gray-900" for="perm_group_orders">
-                                سفارش‌ها و پرداخت‌ها
-                            </label>
-                        </div>
-                        <div class="row g-4">
-                            <div class="col-md-6">
-                                <div class="form-check form-check-custom form-check-solid form-check-sm">
-                                    <input class="form-check-input perm-item" type="checkbox" id="perm_orders_view" data-group="orders" data-perm="Orders.View" />
-                                    <label class="form-check-label fs-7 text-gray-700" for="perm_orders_view">مشاهده سفارش</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check form-check-custom form-check-solid form-check-sm">
-                                    <input class="form-check-input perm-item" type="checkbox" id="perm_orders_manage" data-group="orders" data-perm="Orders.Manage" />
-                                    <label class="form-check-label fs-7 text-gray-700" for="perm_orders_manage">مدیریت سفارش</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--end::Group: Orders & Payments-->
-
-                    <!--begin::Group: Roles & Permissions-->
-                    <div class="rounded border border-gray-300 p-6">
-                        <div class="form-check form-check-custom form-check-solid form-check-sm mb-4">
-                            <input class="form-check-input perm-group" type="checkbox" id="perm_group_roles" data-group="roles" />
-                            <label class="form-check-label fs-6 fw-bold text-gray-900" for="perm_group_roles">
-                                نقش‌ها و دسترسی‌ها
-                            </label>
-                        </div>
-                        <div class="row g-4">
-                            <div class="col-md-6">
-                                <div class="form-check form-check-custom form-check-solid form-check-sm">
-                                    <input class="form-check-input perm-item" type="checkbox" id="perm_roles_view" data-group="roles" data-perm="Roles.View" />
-                                    <label class="form-check-label fs-7 text-gray-700" for="perm_roles_view">مشاهده نقش‌ها</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check form-check-custom form-check-solid form-check-sm">
-                                    <input class="form-check-input perm-item" type="checkbox" id="perm_roles_manage" data-group="roles" data-perm="Roles.Manage" />
-                                    <label class="form-check-label fs-7 text-gray-700" for="perm_roles_manage">مدیریت نقش‌ها</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--end::Group: Roles & Permissions-->
+                    }
 
                 </div>
                 <!--end::Permission groups-->
+
+                <!--begin::System role notice (shown by roles.js, for a system role only). It starts
+                     hidden in the markup instead of visible until a script hides it: a cached, failing
+                     or never-run script would otherwise leave this claim on screen for every custom
+                     role, and the save button it explains is still there.-->
+                <div id="permissions-readonly-note" class="alert alert-light align-items-center mt-6 d-none"
+                     role="alert">
+                    <i class="ki-duotone ki-shield-cross fs-2 me-2 text-primary">
+                        <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                        <span class="path4"></span><span class="path5"></span><span class="path6"></span>
+                        <span class="path7"></span><span class="path8"></span><span class="path9"></span><span
+                        class="path10"></span>
+                    </i>
+                    <div class="fw-semibold fs-7 text-muted">
+                        این نقش سیستمی است؛ دسترسی‌های آن فقط قابل مشاهده است و با تغییرات کد و seed تعیین می‌شود.
+                    </div>
+                </div>
+                <!--end::System role notice-->
             </div>
             <!--end::Modal body-->
 
             <!--begin::Modal footer-->
-            <div class="modal-footer border-0 pt-0 justify-content-center">
+            <div class="modal-footer border-0 pt-0">
                 <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">انصراف</button>
                 <button type="button" class="btn btn-primary" id="kt_role_permissions_submit"
                         onclick="saveRolePermissions()">
@@ -348,3 +248,118 @@
     <!--end::Modal dialog-->
 </div>
 <!--end::Role Permissions Modal-->
+
+<!--begin::Details Modal (every field of the role, section 5.1)-->
+@* Same rule as the category page: the listing already carries every column of a role, so opening
+   this modal is a lookup in the rows the table holds and never a second round-trip. The delete
+   bookkeeping columns are deliberately absent - a row of this list is a live row. *@
+<div class="modal fade" id="kt_modal_role_details" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+        <div class="modal-content rounded">
+            <!--begin::Modal header-->
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+            <!--end::Modal header-->
+
+            <!--begin::Modal body-->
+            <div class="modal-body scroll-y px-10 px-lg-15 pt-0 pb-15">
+                <!--begin::Summary-->
+                <div class="d-flex flex-center flex-column mb-8">
+                    <h3 class="mb-1 text-gray-900 fw-bold fs-4" id="rd-title">—</h3>
+                    <div class="text-muted fs-7" id="rd-type">—</div>
+                </div>
+                <!--end::Summary-->
+
+                <!--begin::Identity-->
+                <h3 class="mb-4 text-gray-900 fw-bold fs-5">مشخصه‌های نقش</h3>
+                <div class="table-responsive mb-6">
+                    <table class="table table-row-dashed table-row-border fs-6 align-middle m-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted w-200px">شناسه</td>
+                                <td id="rd-id">—</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">نام (Name)</td>
+                                <td id="rd-name">—</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">عنوان</td>
+                                <td id="rd-role-title">—</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">نوع نقش</td>
+                                <td id="rd-kind">—</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--end::Identity-->
+
+                <!--begin::Counts-->
+                <h3 class="mb-4 text-gray-900 fw-bold fs-5">شمارش‌ها</h3>
+                <div class="table-responsive mb-6">
+                    <table class="table table-row-dashed table-row-border fs-6 align-middle m-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted w-200px">تعداد کاربران</td>
+                                <td id="rd-users">—</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">تعداد دسترسی‌ها</td>
+                                <td id="rd-permissions">—</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--end::Counts-->
+
+                <!--begin::Audit-->
+                <h3 class="mb-4 text-gray-900 fw-bold fs-5">ضبط تغییرات</h3>
+                <div class="table-responsive">
+                    <table class="table table-row-dashed table-row-border fs-6 align-middle m-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted w-200px">تاریخ ایجاد</td>
+                                <td id="rd-created">—</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">ایجاد کننده</td>
+                                @* The row carries the author's full name, so the cell reads right-to-left. *@
+                                <td id="rd-created-by">—</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">تاریخ آخرین ویرایش</td>
+                                <td id="rd-updated">—</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">ویرایش کننده</td>
+                                <td id="rd-updated-by">—</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--end::Audit-->
+            </div>
+            <!--end::Modal body-->
+
+            <!--begin::Modal footer-->
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">بستن</button>
+                @* Hidden by roles.js for a system role: those rows are named by the seeder, so the
+                   only write offered here is the one the commands already refuse. *@
+                <button type="button" class="btn btn-primary" id="rd_edit_button" onclick="editRoleFromDetails()">
+                    ویرایش نقش
+                </button>
+                <button type="button" class="btn btn-info" id="rd_permissions_button" onclick="permissionsFromDetails()">
+                    مدیریت دسترسی‌ها
+                </button>
+            </div>
+            <!--end::Modal footer-->
+        </div>
+    </div>
+</div>
+<!--end::Details Modal-->

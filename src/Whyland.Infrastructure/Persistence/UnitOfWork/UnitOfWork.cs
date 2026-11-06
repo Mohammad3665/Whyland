@@ -6,6 +6,7 @@ using Whyland.Infrastructure.Persistence.Repositories.Catalog.Category;
 using Whyland.Infrastructure.Persistence.Repositories.Content.Faq;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.ExternalLogin;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.OtpRequest;
+using Whyland.Infrastructure.Persistence.Repositories.Identity.Roles;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.User;
 
 namespace Whyland.Infrastructure.Persistence.UnitOfWork;
@@ -50,6 +51,23 @@ public class UnitOfWork(WhylandDbContext context, NpgsqlDataSource dataSource) :
     /// </summary>
     public ICategoryQueryRepository CategoryQueryRepository =>
         _categoryQueryRepository ??= new CategoryQueryRepository(dataSource);
+
+    private IRoleCommandRepository? _roleCommandRepository;
+
+    /// <summary>
+    /// Lazily creates the singleton-per-unit-of-work <see cref="IRoleCommandRepository"/>.
+    /// </summary>
+    public IRoleCommandRepository RoleCommandRepository =>
+        _roleCommandRepository ??= new RoleCommandRepository(context);
+
+    private IRoleQueryRepository? _roleQueryRepository;
+
+    /// <summary>
+    /// Lazily creates the singleton-per-unit-of-work <see cref="IRoleQueryRepository"/>,
+    /// built on the pooled Npgsql data source for Dapper queries.
+    /// </summary>
+    public IRoleQueryRepository RoleQueryRepository =>
+        _roleQueryRepository ??= new RoleQueryRepository(dataSource);
 
     private IOtpRequestCommandRepository? _otpRequestCommandRepository;
 

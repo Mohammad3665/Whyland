@@ -147,6 +147,7 @@ global using Whyland.Domain.Model.Identity.OtpRequest.Enums;
 global using Whyland.Domain.Model.Identity.UserProfile.Enums;             
 global using Whyland.Domain.Model.Learning.UserEpisodeProgress.Enums;     
 global using Whyland.Domain.Model.Settings.SiteSetting.Enums;             
+global using Whyland.Domain.Model.Authorization.Role.Repositories;
 global using Whyland.Domain.Model.Catalog.Category.Repositories;          
 global using Whyland.Domain.Model.Content.Faq.Repositories;               
 global using Whyland.Domain.Model.Identity.ExternalLogin.Repositories;    
