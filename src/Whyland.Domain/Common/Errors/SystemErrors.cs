@@ -15,4 +15,19 @@ public static class SystemErrors
     /// </summary>
     public static DomainError SmsNotSent() =>
         DomainError.For("System", nameof(SmsNotSent), ErrorType.Unexpected);
+
+    /// <summary>
+    /// The uploaded file is not an image the storage layer accepts: an unsupported extension or format,
+    /// a mismatched signature, or dimensions beyond the configured limits (s8.3.1).
+    /// </summary>
+    public static DomainError InvalidImage() =>
+        DomainError.For("System", nameof(InvalidImage), ErrorType.Validation);
+
+    /// <summary>The upload is larger than the configured ceiling (s8.3.1, s15.1.6).</summary>
+    public static DomainError ImageTooLarge() =>
+        DomainError.For("System", nameof(ImageTooLarge), ErrorType.Validation);
+
+    /// <summary>The image could not be written or removed; retryable and masked behind a generic message.</summary>
+    public static DomainError ImageStorageFailed() =>
+        DomainError.For("System", nameof(ImageStorageFailed), ErrorType.Unexpected);
 }

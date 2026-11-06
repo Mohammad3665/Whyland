@@ -1,5 +1,7 @@
+using Whyland.Application.Common.Abstractions.Storage;
 using Whyland.Application.Common.Interfaces.Localization;
 using Whyland.Infrastructure.Localization;
+using Whyland.Infrastructure.Storage;
 using Whyland.Infrastructure.Persistence.Conventions;
 using Whyland.Infrastructure.Persistence.Interceptors;
 using Whyland.Infrastructure.Persistence.UnitOfWork;
@@ -60,6 +62,13 @@ public static class DependencyInjection
         services.AddSingleton<IErrorLocalizer, JsonErrorLocalizer>();
 
         services.AddScoped<ICodeGeneratorService, CodeGeneratorService>();
+
+        // Image pipeline: options, the signature/decode validator and the local storage adapter.
+        // The service is stateless apart from its concurrency gate, so one instance serves the process.
+        services.Configure<LocalImageStorageOptions>(
+            configuration.GetSection(LocalImageStorageOptions.SectionName));
+        services.AddSingleton<ImageUploadValidator>();
+        services.AddSingleton<IImageStorageService, LocalImageStorageService>();
 
         // Single-use registration tickets that bridge "verify code" → "complete registration".
         services.AddSingleton<IRegistrationTicketService, RegistrationTicketService>();

@@ -4,6 +4,7 @@ Documentation/Whyland-Development-Guide-fa.md
 Documentation/Whyland-Development-Guide.md
 OtherCodes/
 public-template/
+save-image/
 QueryBuilder/
 src/Whyland.Web/wwwroot/public/src/tailwind
 .idea/
@@ -55,6 +56,9 @@ bld/
 .vs/
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
+
+# User-uploaded images are runtime data, never source.
+src/Whyland.Web/wwwroot/uploads/
 
 # Visual Studio 2017 auto generated files
 Generated\ Files/
