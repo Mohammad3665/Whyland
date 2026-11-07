@@ -81,7 +81,13 @@
    */
   function createTable(selector, overrides) {
     var defaults = {
-      responsive: true,
+      // Rows are filled from ?handler=Rows in createdRow, so their cell data is not bound to
+      // DataTables' internal data. The default Responsive renderer reads that internal data and
+      // would print empty values in a collapsed row; listHiddenNodes moves the real cell nodes into
+      // the child row instead, keeping both the markup and its handlers.
+      responsive: {
+        details: { renderer: "listHiddenNodes" },
+      },
       order: [],
       pageLength: 10,
       columnDefs: [{ orderable: false, targets: [-1] }],

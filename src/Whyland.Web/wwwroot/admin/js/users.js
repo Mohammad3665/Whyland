@@ -301,7 +301,12 @@ function fillDetailsModal(user) {
   setDetail("#ud-birthdate", AdminTable.faDate(user.birthDate));
   setDetail("#ud-gender", AdminTable.valueLabel(user.gender));
 
-  setDetail("#ud-last-login", AdminTable.faDateTime(user.lastLoginAt), false, "هرگز");
+  setDetail(
+    "#ud-last-login",
+    AdminTable.faDateTime(user.lastLoginAt),
+    false,
+    "هرگز",
+  );
   setDetail("#ud-failed", user.failedLoginAttempts || 0);
   setDetail("#ud-lockout", AdminTable.faDateTime(user.lockoutUntil));
   setDetail("#ud-created", AdminTable.faDateTime(user.createdAt));
@@ -346,7 +351,6 @@ function initPage() {
             data: null,
             defaultContent: "",
             name: "firstName",
-            className: "min-tablet",
           },
           { data: null, defaultContent: "", name: "email" },
           {
@@ -368,6 +372,14 @@ function initPage() {
             orderable: false,
             className: "min-tablet",
           },
+        ],
+        columnDefs: [
+          { responsivePriority: 1, targets: 1 },
+          { responsivePriority: 2, targets: 0 },
+          { responsivePriority: 3, targets: 2 },
+          { responsivePriority: 4, targets: 3 },
+          { responsivePriority: 5, targets: 4 },
+          { responsivePriority: 6, targets: 5 },
         ],
         createdRow: fillUserRow,
       },

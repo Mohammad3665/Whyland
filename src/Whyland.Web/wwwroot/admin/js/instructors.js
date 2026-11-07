@@ -260,6 +260,11 @@ function initInstructorTable() {
       order: [],
       pageLength: 10,
       lengthMenu: [10, 25, 50, 100],
+      // Cell contents are written by createdRow, not bound as column data, so the child row has
+      // to be built from the real nodes instead of the (empty) internal row data.
+      responsive: {
+        details: { renderer: "listHiddenNodes" },
+      },
       ajax: AdminTable.serverSideAjax({
         conditions: instructorConditions,
         errorMessage: "خطا در دریافت لیست مدرسان.",
@@ -272,7 +277,7 @@ function initInstructorTable() {
           orderable: false,
           className: "dtr-control",
         },
-        { data: null, defaultContent: "", name: "firstName", className: "min-tablet" },
+        { data: null, defaultContent: "", name: "firstName" },
         { data: null, defaultContent: "", name: "specialization" },
         { data: null, defaultContent: "", name: "phoneNumber" },
         { data: null, defaultContent: "", name: "courseCount", className: "min-tablet" },
@@ -284,6 +289,15 @@ function initInstructorTable() {
           orderable: false,
           className: "min-tablet",
         },
+      ],
+      columnDefs: [
+        { responsivePriority: 1, targets: 1 },
+        { responsivePriority: 2, targets: 0 },
+        { responsivePriority: 3, targets: 2 },
+        { responsivePriority: 4, targets: 3 },
+        { responsivePriority: 5, targets: 4 },
+        { responsivePriority: 6, targets: 5 },
+        { responsivePriority: 7, targets: 6 },
       ],
       createdRow: fillInstructorRow,
     }),
