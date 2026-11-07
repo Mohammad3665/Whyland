@@ -10,6 +10,7 @@
   "Course.SlugTaken": "اسلاگ «{Slug}» قبلاً برای دورهٔ دیگری استفاده شده است.",
   "Course.CategoryUnavailable": "دسته‌بندی انتخاب‌شده با شناسه {Id} فعال یا موجود نیست.",
   "Course.InstructorUnavailable": "مدرس انتخاب‌شده با شناسه {Id} موجود نیست یا حسابش فعال نیست.",
+  "Course.InstructorRequired": "حداقل یک مدرس برای دوره انتخاب کنید.",
   "Course.CreateFailed": "خطا در ایجاد دوره، لطفاً مجدداً تلاش کنید.",
   "Course.UpdateFailed": "خطا در ویرایش دوره، لطفاً مجدداً تلاش کنید.",
   "Course.SoftDeleteFailed": "خطا در حذف دوره، لطفاً مجدداً تلاش کنید.",

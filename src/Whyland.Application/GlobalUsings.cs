@@ -52,6 +52,7 @@ global using Whyland.Shared.Dtos.Catalog.Course;    // course listing, details a
 global using Whyland.Shared.Dtos.Identity;          // identity DTOs
 
 global using Whyland.Shared.Dtos.Identity.User;     // user administration DTOs
+global using Whyland.Shared.Dtos.Identity.InstructorProfile; // instructor administration DTOs
 
 #endregion
 
@@ -141,6 +142,7 @@ global using Whyland.Domain.Model.Catalog.Category.Errors;
 global using Whyland.Domain.Model.Catalog.Course.Errors;
 global using Whyland.Domain.Model.Content.Faq.Errors;                     
 global using Whyland.Domain.Model.Identity.ExternalLogin.Errors;          
+global using Whyland.Domain.Model.Identity.InstructorProfile.Errors;
 global using Whyland.Domain.Model.Identity.User.Errors;                   
 global using Whyland.Domain.Model.Catalog.Course.Enums;                   
 global using Whyland.Domain.Model.Commerce.Common.Enums;                  

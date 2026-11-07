@@ -81,16 +81,22 @@ function instructorName(instructor) {
   return instructor.firstName + " " + instructor.lastName;
 }
 
+/** Splits the server's comma-joined names without losing values that contain spaces. */
+function splitNames(value) {
+  return String(value || "")
+    .split(/[،,]/)
+    .map(function (name) {
+      return name.trim();
+    })
+    .filter(Boolean);
+}
+
 /**
  * Turns ids into the labels the admin picked. A missing option (for example an inactive
  * category) falls back to the id so the details modal still shows every stored value.
  */
 function namesFor(options, ids, labelOf) {
-  var list = Array.isArray(ids)
-    ? ids
-    : String(ids || "")
-        .split(",")
-        .filter(Boolean);
+  var list = Array.isArray(ids) ? ids : splitNames(ids);
 
   if (!list.length) return "—";
 
@@ -338,6 +344,45 @@ function detailDiscountValue(type, value) {
     : faNumber(value) + " تومان";
 }
 
+/**
+ * Shows each selected instructor as a name/id pair, so a guid in the details modal can be
+ * matched to the person it belongs to without opening another page. The option list is the
+ * same one the form uses; a profile that is no longer offered still keeps its stored id.
+ */
+function fillInstructorIdList(course) {
+  var ids = course.instructorIds || [];
+  var $list = $("#cd-instructor-ids").empty();
+
+  if (!ids.length) {
+    $list.append($("<span class='text-muted'>").text("—"));
+    return;
+  }
+
+  var byId = {};
+  formOptions.instructors.forEach(function (instructor) {
+    byId[String(instructor.id)] = instructor;
+  });
+
+  var $rows = $("<div class='d-flex flex-column gap-2'>");
+  ids.forEach(function (id) {
+    var instructor = byId[String(id)];
+    var $row = $("<div class='d-flex align-items-center justify-content-between gap-3 flex-wrap'>");
+
+    $row.append(
+      $("<span class='fw-semibold text-gray-800'>").text(
+        instructor ? instructorName(instructor) : "مدرس نامشخص",
+      ),
+    );
+    $row.append(
+      $("<code class='text-muted fs-8' dir='ltr'>").text(String(id)),
+    );
+
+    $rows.append($row);
+  });
+
+  $list.append($rows);
+}
+
 /** Renders every property of CourseDetailsDto into the read-only modal. */
 function fillCourseDetails(course) {
   var imageUrl = course.mainImageUrl || course.thumbnailUrl || "";
@@ -381,10 +426,7 @@ function fillCourseDetails(course) {
     "#cd-instructors",
     namesFor(formOptions.instructors, course.instructorIds, instructorName),
   );
-  detailText(
-    "#cd-instructor-ids",
-    (course.instructorIds || []).length ? course.instructorIds.join("، ") : "—",
-  );
+  fillInstructorIdList(course);
 
   if (course.description) $("#cd-description").html(course.description);
   else $("#cd-description").text("—");
@@ -411,20 +453,57 @@ function openCourseDetails(id) {
 //#endregion
 
 //#region Row Rendering
-function namesCell(text) {
-  var $cell = $("<div class='d-flex flex-wrap gap-1'>");
-  var names = String(text || "")
-    .split("،")
-    .map(function (name) {
-      return name.trim();
-    })
-    .filter(Boolean);
-
+/**
+ * The category cell follows the instructor cell: the first category and a count badge for the
+ * rest, stacked under the name, so a course with many categories keeps the column narrow. The
+ * full list stays in the badges' tooltips and the details modal still lists every category.
+ */
+function categoriesCell(text) {
+  var names = splitNames(text);
   if (!names.length) return $("<span class='text-muted'>").text("—");
 
-  names.forEach(function (name) {
-    $cell.append($("<span class='badge badge-light-info'>").text(name));
-  });
+  var $cell = $("<div class='d-flex flex-column align-items-start gap-1 course-category-cell'>");
+  $cell.append(
+    $("<span class='badge badge-light-info course-category-name'>")
+      .attr("title", names.join("، "))
+      .text(names[0]),
+  );
+
+  if (names.length > 1) {
+    $cell.append(
+      $("<span class='badge badge-light-primary nowrap-cell'>")
+        .attr("title", names.slice(1).join("، "))
+        .text("+" + AdminTable.faDigits(names.length - 1) + " دسته"),
+    );
+  }
+
+  return $cell;
+}
+
+/**
+ * The instructor cell stays one line: the first name and a count badge for the rest. A course
+ * with five instructors would otherwise push every other column out of shape. The full list is
+ * kept in the badges' tooltips, and the details modal still shows each name with its id.
+ */
+function instructorsCell(text) {
+  var names = splitNames(text);
+  if (!names.length) return $("<span class='text-muted'>").text("—");
+
+  var $cell = $("<div class='d-flex flex-column align-items-start gap-1 course-instructor-cell'>");
+  $cell.append(
+    $("<span class='badge badge-light-info course-instructor-name'>")
+      .attr("title", names.join("، "))
+      .text(names[0]),
+  );
+
+  if (names.length > 1) {
+    $cell.append(
+      $("<span class='badge badge-light-primary nowrap-cell'>")
+        .attr("title", names.slice(1).join("، "))
+        .text("+" + AdminTable.faDigits(names.length - 1) + " مدرس"),
+    );
+  }
+
   return $cell;
 }
 
@@ -456,8 +535,8 @@ function fillCourseRow(row, course) {
       .text(course.name),
   );
 
-  $cells.eq(2).append(namesCell(course.categoryNames));
-  $cells.eq(3).append(namesCell(course.instructorNames));
+  $cells.eq(2).append(categoriesCell(course.categoryNames));
+  $cells.eq(3).append(instructorsCell(course.instructorNames));
 
   // Price
   if (course.price === null || course.price === undefined) {
@@ -755,6 +834,14 @@ function initPage() {
         $("#Form_CategoryIds").addClass("is-invalid");
       } else {
         $("#Form_CategoryIds").removeClass("is-invalid");
+      }
+
+      var instructorIds = $("#Form_InstructorIds").val() || [];
+      if (!instructorIds.length) {
+        errors.push("حداقل یک مدرس برای دوره انتخاب کنید. ابتدا از بخش مدرسین پروفایل مدرس بسازید.");
+        $("#Form_InstructorIds").addClass("is-invalid");
+      } else {
+        $("#Form_InstructorIds").removeClass("is-invalid");
       }
 
       var price = parseNumberInput("#Form_Price");

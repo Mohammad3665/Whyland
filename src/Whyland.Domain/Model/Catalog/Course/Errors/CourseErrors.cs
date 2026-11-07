@@ -55,6 +55,10 @@ public static class CourseErrors
     public static DomainError InstructorUnavailable(Guid id) =>
         DomainError.For<CourseEntity>(nameof(InstructorUnavailable), ErrorType.Validation, field: null, ("Id", id));
 
+    /// <summary>A course must have at least one instructor.</summary>
+    public static DomainError InstructorRequired() =>
+        DomainError.For<CourseEntity>(nameof(InstructorRequired), ErrorType.Validation, field: "InstructorIds");
+
     /// <summary>The course could not be created (persistence failure); masked behind a generic message.</summary>
     public static DomainError CreateFailed() =>
         DomainError.For<CourseEntity>(nameof(CreateFailed), ErrorType.Unexpected);

@@ -1,0 +1,16 @@
+{
+  "InstructorProfile.FieldRequired": "فیلد {Field} نمی‌تواند خالی باشد.",
+  "InstructorProfile.FieldTooLong": "فیلد {Field} نمی‌تواند بیشتر از {Max} کاراکتر باشد.",
+  "InstructorProfile.InvalidShebaNumber": "شماره شبا باید دقیقاً ۲۴ رقم باشد.",
+  "InstructorProfile.InvalidBankAccountNumber": "شماره حساب باید بین ۶ تا ۲۰ رقم باشد.",
+  "InstructorProfile.InvalidSocialUrl": "آدرس واردشده برای {Field} معتبر نیست؛ باید با http:// یا https:// شروع شود.",
+  "InstructorProfile.NotFound": "پروفایل مدرسی با شناسه {Id} یافت نشد.",
+  "InstructorProfile.AlreadyExists": "برای این کاربر قبلاً پروفایل مدرس ثبت شده است.",
+  "InstructorProfile.UserNotFound": "کاربری با شناسه {UserId} یافت نشد.",
+  "InstructorProfile.UserInactive": "کاربر غیرفعال را نمی‌توان به‌عنوان مدرس ثبت کرد.",
+  "InstructorProfile.CreateFailed": "خطا در ایجاد پروفایل مدرس، لطفاً مجدداً تلاش کنید.",
+  "InstructorProfile.UpdateFailed": "خطا در ویرایش پروفایل مدرس، لطفاً مجدداً تلاش کنید.",
+  "InstructorProfile.ListFailed": "خطا در دریافت لیست مدرسان، لطفاً مجدداً تلاش کنید.",
+  "InstructorProfile.DetailsFailed": "خطا در دریافت اطلاعات مدرس، لطفاً مجدداً تلاش کنید.",
+  "InstructorProfile.OptionsFailed": "خطا در دریافت لیست کاربران، لطفاً مجدداً تلاش کنید."
+}

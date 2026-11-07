@@ -17,6 +17,9 @@ public sealed class InstructorProfileConfiguration : IEntityTypeConfiguration<In
         builder.Property(x => x.Bio)
             .HasMaxLength(InstructorProfile.MaxBioLength);
 
+        builder.Property(x => x.Biography)
+            .HasMaxLength(InstructorProfile.MaxBiographyLength);
+
         builder.Property(x => x.Specialization)
             .HasMaxLength(InstructorProfile.MaxSpecializationLength);
 

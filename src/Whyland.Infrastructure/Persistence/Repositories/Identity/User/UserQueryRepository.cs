@@ -23,6 +23,9 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
 {
     const string identity = SchemaConstants.Identity;
 
+    /// <summary>Public prefix every stored image path is served under.</summary>
+    private const string UploadsRoot = "/uploads/images/";
+
     /// <summary>
     /// The accounts that hold one role, written as a test on the row rather than as a column:
     /// the assignment table is what says so, and a retired role is excluded the way every other
@@ -35,21 +38,33 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
         """;
 
     /// <summary>
-    /// The users catalog: one account row joined to its profile, with every scalar account
-    /// column whitelisted for filtering and sorting and the role membership for filtering alone.
+    /// The instructor image is stored as a relative path, while the table renders an image URL;
+    /// the expression owns that conversion so the browser receives a usable source. An instructor
+    /// image wins over the ordinary profile avatar, because it is the picture the account chose
+    /// for the public instructor profile.
+    /// </summary>
+    private static readonly string AvatarColumn = $$"""
+        COALESCE(
+            CASE WHEN NULLIF(TRIM(ip."ProfileImage"), '') IS NULL THEN NULL
+                 ELSE '{{UploadsRoot}}' || TRIM(ip."ProfileImage") END,
+            p."Avatar")
+        """;
+
+    /// <summary>
+    /// The user's password hash stays out of the whitelist: a listed column is reachable by name
+    /// from a request, so it must never contain secret material.
     /// </summary>
     private static readonly SqlDataTableSpec TableSpec = new(
         from: $"""
             {identity}."Users" u
             LEFT JOIN {identity}."UserProfiles" p ON p."UserId" = u."Id"
+            LEFT JOIN {identity}."InstructorProfiles" ip ON ip."UserId" = u."Id"
             """,
         baseWhere: "TRUE",
         defaultOrder: """u."CreatedAt" DESC""",
         columns: SqlDataTableSpec.WithExtras(
-            // The hash stays out of the whitelist: a listed column is reachable by name from a
-            // request, so it must never contain secret material.
             SqlDataTableSpec.ColumnsOf<UserEntity>("u", ["PasswordHash"]),
-            [("Avatar", "p.\"Avatar\"", typeof(string))],
+            [("Avatar", AvatarColumn, typeof(string))],
             // Declared by the id the assignment table stores, so the picked role is converted
             // before it is bound and a non-numeric value costs the condition, not a query error.
             [("Role", RoleMembership, typeof(long))]));

@@ -1203,7 +1203,8 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(1000)");
 
                     b.Property<string>("Biography")
-                        .HasColumnType("text");
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");

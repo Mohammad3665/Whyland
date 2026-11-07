@@ -14,7 +14,7 @@ namespace Whyland.Shared.Dtos.Identity.User;
 /// <param name="PhoneNumber">Stored phone number — the sign-in and recovery identifier.</param>
 /// <param name="IsActive">Whether the account may authenticate.</param>
 /// <param name="LastLoginAt">UTC time of the last successful login, when any.</param>
-/// <param name="Avatar">Avatar path/URL from the profile; null means the row shows initials.</param>
+/// <param name="Avatar">Public URL of the instructor image or the profile avatar; null means the row shows initials.</param>
 public sealed record UserListItemDto(
     Guid Id,
     string FirstName,

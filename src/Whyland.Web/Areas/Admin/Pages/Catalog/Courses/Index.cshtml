@@ -40,6 +40,22 @@
             overflow-wrap: anywhere;
             white-space: normal;
         }
+
+        /* The category/instructor cells stack the first name and the remaining count below it. */
+        .course-category-cell,
+        .course-instructor-cell {
+            flex-wrap: nowrap;
+            max-width: 100%;
+        }
+        .course-category-name,
+        .course-instructor-name {
+            display: inline-block;
+            max-width: 105px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
     </style>
 }
 

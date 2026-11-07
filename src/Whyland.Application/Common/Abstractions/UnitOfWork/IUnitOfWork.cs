@@ -3,6 +3,7 @@ using Whyland.Domain.Model.Authorization.Role.Repositories;
 using Whyland.Domain.Model.Catalog.Category.Repositories;
 using Whyland.Domain.Model.Catalog.Course.Repositories;
 using Whyland.Domain.Model.Identity.ExternalLogin.Repositories;
+using Whyland.Domain.Model.Identity.InstructorProfile.Repositories;
 using Whyland.Domain.Model.Identity.OtpRequest.Repositories;
 using Whyland.Domain.Model.Identity.User.Repositories;
 using Whyland.Domain.Model.Content.Faq.Repositories;
@@ -74,6 +75,16 @@ public interface IUnitOfWork : IAsyncDisposable
     /// Repository for read (query) operations on User entities.
     /// </summary>
     IUserQueryRepository UserQueryRepository { get; }
+
+    /// <summary>
+    /// Repository for write (command) operations on instructor profiles.
+    /// </summary>
+    IInstructorProfileCommandRepository InstructorProfileCommandRepository { get; }
+
+    /// <summary>
+    /// Repository for read (query) operations on instructor profiles.
+    /// </summary>
+    IInstructorProfileQueryRepository InstructorProfileQueryRepository { get; }
 
     /// <summary>
     /// Repository for write (command) operations on external provider links (s5.4).

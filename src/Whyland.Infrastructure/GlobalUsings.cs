@@ -151,6 +151,7 @@ global using Whyland.Domain.Model.Authorization.Role.Repositories;
 global using Whyland.Domain.Model.Catalog.Category.Repositories;          
 global using Whyland.Domain.Model.Content.Faq.Repositories;               
 global using Whyland.Domain.Model.Identity.ExternalLogin.Repositories;    
+global using Whyland.Domain.Model.Identity.InstructorProfile.Repositories;
 global using Whyland.Domain.Model.Identity.OtpRequest.Repositories;       
 global using Whyland.Domain.Model.Identity.User.Repositories;             
 global using Whyland.Domain.Model.Authorization.Common.Constants;

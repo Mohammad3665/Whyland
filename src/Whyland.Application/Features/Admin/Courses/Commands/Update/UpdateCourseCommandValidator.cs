@@ -58,6 +58,8 @@ public sealed class UpdateCourseCommandValidator : AbstractValidator<UpdateCours
 
         RuleFor(x => x.InstructorIds)
             .NotNull()
+            .NotEmpty()
+            .WhylandWithError(CourseErrors.InstructorRequired())
             .WithName("مدرسین");
 
         RuleForEach(x => x.InstructorIds)

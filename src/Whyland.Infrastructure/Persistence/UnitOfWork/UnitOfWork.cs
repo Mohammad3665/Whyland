@@ -2,10 +2,12 @@
 using Whyland.Domain.Model.Catalog.Category.Repositories;
 using Whyland.Domain.Model.Catalog.Course.Repositories;
 using Whyland.Domain.Model.Identity.ExternalLogin.Repositories;
+using Whyland.Domain.Model.Identity.InstructorProfile.Repositories;
 using Whyland.Domain.Model.Identity.OtpRequest.Repositories;
 using Whyland.Infrastructure.Persistence.Repositories.Catalog.Category;
 using Whyland.Infrastructure.Persistence.Repositories.Catalog.Course;
 using Whyland.Infrastructure.Persistence.Repositories.Content.Faq;
+using Whyland.Infrastructure.Persistence.Repositories.Identity;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.ExternalLogin;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.OtpRequest;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.Roles;
@@ -115,6 +117,22 @@ public class UnitOfWork(WhylandDbContext context, NpgsqlDataSource dataSource) :
     /// </summary>
     public IUserQueryRepository UserQueryRepository =>
         _userQueryRepository ??= new UserQueryRepository(dataSource);
+
+    private IInstructorProfileCommandRepository? _instructorProfileCommandRepository;
+
+    /// <summary>
+    /// Lazily-initialized repository for write (command) operations on instructor profiles.
+    /// </summary>
+    public IInstructorProfileCommandRepository InstructorProfileCommandRepository =>
+        _instructorProfileCommandRepository ??= new InstructorProfileCommandRepository(context);
+
+    private IInstructorProfileQueryRepository? _instructorProfileQueryRepository;
+
+    /// <summary>
+    /// Lazily-initialized repository for read (query) operations on instructor profiles.
+    /// </summary>
+    public IInstructorProfileQueryRepository InstructorProfileQueryRepository =>
+        _instructorProfileQueryRepository ??= new InstructorProfileQueryRepository(dataSource);
 
     private IExternalLoginCommandRepository? _externalLoginCommandRepository;
 

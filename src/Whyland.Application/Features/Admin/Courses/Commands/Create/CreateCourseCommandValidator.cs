@@ -55,6 +55,8 @@ public sealed class CreateCourseCommandValidator : AbstractValidator<CreateCours
 
         RuleFor(x => x.InstructorIds)
             .NotNull()
+            .NotEmpty()
+            .WhylandWithError(CourseErrors.InstructorRequired())
             .WithName("مدرسین");
 
         RuleForEach(x => x.InstructorIds)
