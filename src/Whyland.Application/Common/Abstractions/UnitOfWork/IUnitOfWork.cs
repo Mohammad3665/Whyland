@@ -2,6 +2,8 @@
 using Whyland.Domain.Model.Authorization.Role.Repositories;
 using Whyland.Domain.Model.Catalog.Category.Repositories;
 using Whyland.Domain.Model.Catalog.Course.Repositories;
+using Whyland.Domain.Model.Catalog.CourseFaq.Repositories;
+using Whyland.Domain.Model.Catalog.CourseSection.Repositories;
 using Whyland.Domain.Model.Identity.ExternalLogin.Repositories;
 using Whyland.Domain.Model.Identity.InstructorProfile.Repositories;
 using Whyland.Domain.Model.Identity.OtpRequest.Repositories;
@@ -50,6 +52,26 @@ public interface IUnitOfWork : IAsyncDisposable
     /// Repository for read (query) operations on Course entities.
     /// </summary>
     ICourseQueryRepository CourseQueryRepository { get; }
+
+    /// <summary>
+    /// Repository for write (command) operations on course sections.
+    /// </summary>
+    ICourseSectionCommandRepository CourseSectionCommandRepository { get; }
+
+    /// <summary>
+    /// Repository for read (query) operations on course sections.
+    /// </summary>
+    ICourseSectionQueryRepository CourseSectionQueryRepository { get; }
+
+    /// <summary>
+    /// Repository for write (command) operations on course FAQs.
+    /// </summary>
+    ICourseFaqCommandRepository CourseFaqCommandRepository { get; }
+
+    /// <summary>
+    /// Repository for read (query) operations on course FAQs.
+    /// </summary>
+    ICourseFaqQueryRepository CourseFaqQueryRepository { get; }
 
     /// <summary>
     /// Repository for write (command) operations on Role entities.

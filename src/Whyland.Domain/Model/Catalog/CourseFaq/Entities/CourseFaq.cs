@@ -1,5 +1,7 @@
 ﻿
 using CourseEntity = Whyland.Domain.Model.Catalog.Course.Entities.Course;
+using Whyland.Domain.Model.Catalog.CourseFaq.Errors;
+using Whyland.Shared.Results;
 
 namespace Whyland.Domain.Model.Catalog.CourseFaq.Entities;
 
@@ -16,6 +18,9 @@ public class CourseFaq : BaseEntity<CourseFaqId>, ISoftDeletable
 
     /// <summary>Maximum allowed length of <see cref="Title"/>; also the database column size.</summary>
     public const int MaxTitleLength = 200;
+
+    /// <summary>Maximum allowed length of <see cref="Description"/>.</summary>
+    public const int MaxDescriptionLength = 2000;
 
     #endregion
     /// <summary>
@@ -57,4 +62,86 @@ public class CourseFaq : BaseEntity<CourseFaqId>, ISoftDeletable
     /// The UTC time at which the entity was soft-deleted.
     /// </summary>
     public DateTime? DeletedAt { get; private set; }
+
+    #region Construction
+
+    /// <summary>Parameterless constructor required by ORMs (e.g. EF Core).</summary>
+    private CourseFaq() { }
+
+    /// <summary>Creates a course FAQ after trimming and validating its question and answer.</summary>
+    public static Result<CourseFaq> Create(
+        CourseId courseId,
+        string title,
+        string description,
+        int displayOrder)
+    {
+        var trimmedTitle = title?.Trim();
+        var trimmedDescription = description?.Trim();
+
+        var validation = Validate(trimmedTitle, trimmedDescription, displayOrder);
+        if (validation.IsFailure)
+            return validation.Error;
+
+        return new CourseFaq
+        {
+            CourseId = courseId,
+            Title = trimmedTitle!,
+            Description = trimmedDescription!,
+            DisplayOrder = displayOrder,
+        };
+    }
+
+    /// <summary>Updates the editable fields after trimming and validating them.</summary>
+    public Result Update(string title, string description, int displayOrder)
+    {
+        var trimmedTitle = title?.Trim();
+        var trimmedDescription = description?.Trim();
+
+        var validation = Validate(trimmedTitle, trimmedDescription, displayOrder);
+        if (validation.IsFailure)
+            return validation.Error;
+
+        Title = trimmedTitle!;
+        Description = trimmedDescription!;
+        DisplayOrder = displayOrder;
+        return Result.Success();
+    }
+
+    /// <summary>Moves the FAQ to a new position during reordering.</summary>
+    public void SetDisplayOrder(int displayOrder)
+    {
+        if (displayOrder < 0)
+            throw new ArgumentOutOfRangeException(nameof(displayOrder), displayOrder, "A position cannot be negative.");
+
+        DisplayOrder = displayOrder;
+    }
+
+    /// <summary>Marks the FAQ as deleted; the first deletion time wins.</summary>
+    public void MarkDeleted()
+    {
+        IsDeleted = true;
+        DeletedAt ??= DateTime.UtcNow;
+    }
+
+    private static Result Validate(string? title, string? description, int displayOrder)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+            return CourseFaqErrors.FieldRequired(nameof(Title));
+
+        if (title.Length > MaxTitleLength)
+            return CourseFaqErrors.FieldTooLong(nameof(Title), MaxTitleLength);
+
+        if (string.IsNullOrWhiteSpace(description))
+            return CourseFaqErrors.FieldRequired(nameof(Description));
+
+        if (description.Length > MaxDescriptionLength)
+            return CourseFaqErrors.FieldTooLong(nameof(Description), MaxDescriptionLength);
+
+        if (displayOrder < 0)
+            return CourseFaqErrors.GreaterThanOrEqualToZero(nameof(DisplayOrder));
+
+        return Result.Success();
+    }
+
+    #endregion
 }

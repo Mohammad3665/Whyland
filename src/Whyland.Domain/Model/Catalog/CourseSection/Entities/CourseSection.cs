@@ -1,6 +1,8 @@
 ﻿
 using CourseEntity = Whyland.Domain.Model.Catalog.Course.Entities.Course;
 using EpisodeEntity = Whyland.Domain.Model.Catalog.Episode.Entities.Episode;
+using Whyland.Domain.Model.Catalog.CourseSection.Errors;
+using Whyland.Shared.Results;
 
 namespace Whyland.Domain.Model.Catalog.CourseSection.Entities;
 
@@ -58,4 +60,72 @@ public class CourseSection : BaseEntity<CourseSectionId>, ISoftDeletable
     /// The episodes grouped within this section.
     /// </summary>
     public ICollection<EpisodeEntity> Episodes { get; } = [];
+
+    #region Construction
+
+    /// <summary>Parameterless constructor required by ORMs (e.g. EF Core).</summary>
+    private CourseSection() { }
+
+    /// <summary>Creates a new section after trimming and validating its title and order.</summary>
+    public static Result<CourseSection> Create(CourseId courseId, string title, int displayOrder)
+    {
+        var trimmedTitle = title?.Trim();
+
+        var validation = Validate(trimmedTitle, displayOrder);
+        if (validation.IsFailure)
+            return validation.Error;
+
+        return new CourseSection
+        {
+            CourseId = courseId,
+            Title = trimmedTitle!,
+            DisplayOrder = displayOrder,
+        };
+    }
+
+    /// <summary>Updates the editable fields after trimming and validating them.</summary>
+    public Result Update(string title, int displayOrder)
+    {
+        var trimmedTitle = title?.Trim();
+
+        var validation = Validate(trimmedTitle, displayOrder);
+        if (validation.IsFailure)
+            return validation.Error;
+
+        Title = trimmedTitle!;
+        DisplayOrder = displayOrder;
+        return Result.Success();
+    }
+
+    /// <summary>Moves the section to a new position during reordering.</summary>
+    public void SetDisplayOrder(int displayOrder)
+    {
+        if (displayOrder < 0)
+            throw new ArgumentOutOfRangeException(nameof(displayOrder), displayOrder, "A position cannot be negative.");
+
+        DisplayOrder = displayOrder;
+    }
+
+    /// <summary>Marks the section as deleted; the first deletion time wins.</summary>
+    public void MarkDeleted()
+    {
+        IsDeleted = true;
+        DeletedAt ??= DateTime.UtcNow;
+    }
+
+    private static Result Validate(string? title, int displayOrder)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+            return CourseSectionErrors.FieldRequired(nameof(Title));
+
+        if (title.Length > MaxTitleLength)
+            return CourseSectionErrors.FieldTooLong(nameof(Title), MaxTitleLength);
+
+        if (displayOrder < 0)
+            return CourseSectionErrors.GreaterThanOrEqualToZero(nameof(DisplayOrder));
+
+        return Result.Success();
+    }
+
+    #endregion
 }

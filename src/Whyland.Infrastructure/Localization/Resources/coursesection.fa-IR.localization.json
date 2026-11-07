@@ -1,0 +1,12 @@
+{
+  "CourseSection.FieldRequired": "فیلد {Field} نمی‌تواند خالی باشد.",
+  "CourseSection.FieldTooLong": "فیلد {Field} نمی‌تواند بیشتر از {Max} کاراکتر باشد.",
+  "CourseSection.GreaterThanOrEqualToZero": "فیلد {Field} نمی‌تواند کمتر از صفر باشد.",
+  "CourseSection.NotFound": "سرفصلی با شناسه {Id} یافت نشد.",
+  "CourseSection.HasEpisodes": "سرفصل دارای اپیزود است؛ ابتدا اپیزودهای آن را حذف کنید.",
+  "CourseSection.CreateFailed": "خطا در ایجاد سرفصل، لطفاً مجدداً تلاش کنید.",
+  "CourseSection.UpdateFailed": "خطا در ویرایش سرفصل، لطفاً مجدداً تلاش کنید.",
+  "CourseSection.SoftDeleteFailed": "خطا در حذف سرفصل، لطفاً مجدداً تلاش کنید.",
+  "CourseSection.ListFailed": "خطا در دریافت سرفصل‌ها، لطفاً مجدداً تلاش کنید.",
+  "CourseSection.ReorderFailed": "خطا در ذخیره ترتیب سرفصل‌ها، لطفاً مجدداً تلاش کنید."
+}

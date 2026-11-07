@@ -1,11 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using Whyland.Domain.Model.Catalog.Category.Repositories;
 using Whyland.Domain.Model.Catalog.Course.Repositories;
+using Whyland.Domain.Model.Catalog.CourseFaq.Repositories;
+using Whyland.Domain.Model.Catalog.CourseSection.Repositories;
 using Whyland.Domain.Model.Identity.ExternalLogin.Repositories;
 using Whyland.Domain.Model.Identity.InstructorProfile.Repositories;
 using Whyland.Domain.Model.Identity.OtpRequest.Repositories;
 using Whyland.Infrastructure.Persistence.Repositories.Catalog.Category;
 using Whyland.Infrastructure.Persistence.Repositories.Catalog.Course;
+using Whyland.Infrastructure.Persistence.Repositories.Catalog.CourseFaq;
+using Whyland.Infrastructure.Persistence.Repositories.Catalog.CourseSection;
 using Whyland.Infrastructure.Persistence.Repositories.Content.Faq;
 using Whyland.Infrastructure.Persistence.Repositories.Identity;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.ExternalLogin;
@@ -72,6 +76,30 @@ public class UnitOfWork(WhylandDbContext context, NpgsqlDataSource dataSource) :
     /// </summary>
     public ICourseQueryRepository CourseQueryRepository =>
         _courseQueryRepository ??= new CourseQueryRepository(dataSource);
+
+    private ICourseSectionCommandRepository? _courseSectionCommandRepository;
+
+    /// <summary>Lazily creates the command repository for a course's sections.</summary>
+    public ICourseSectionCommandRepository CourseSectionCommandRepository =>
+        _courseSectionCommandRepository ??= new CourseSectionCommandRepository(context);
+
+    private ICourseSectionQueryRepository? _courseSectionQueryRepository;
+
+    /// <summary>Lazily creates the Dapper read repository for a course's sections.</summary>
+    public ICourseSectionQueryRepository CourseSectionQueryRepository =>
+        _courseSectionQueryRepository ??= new CourseSectionQueryRepository(dataSource);
+
+    private ICourseFaqCommandRepository? _courseFaqCommandRepository;
+
+    /// <summary>Lazily creates the command repository for a course's FAQs.</summary>
+    public ICourseFaqCommandRepository CourseFaqCommandRepository =>
+        _courseFaqCommandRepository ??= new CourseFaqCommandRepository(context);
+
+    private ICourseFaqQueryRepository? _courseFaqQueryRepository;
+
+    /// <summary>Lazily creates the Dapper read repository for a course's FAQs.</summary>
+    public ICourseFaqQueryRepository CourseFaqQueryRepository =>
+        _courseFaqQueryRepository ??= new CourseFaqQueryRepository(dataSource);
 
     private IRoleCommandRepository? _roleCommandRepository;
 

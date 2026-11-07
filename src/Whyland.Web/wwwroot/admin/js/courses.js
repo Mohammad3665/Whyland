@@ -138,7 +138,9 @@ function fillFormInstructorOptions() {
         .val(instructor.id)
         .text(
           instructorName(instructor) +
-            (instructor.specialization ? " — " + instructor.specialization : ""),
+            (instructor.specialization
+              ? " — " + instructor.specialization
+              : ""),
         ),
     );
   });
@@ -161,9 +163,7 @@ var courseFilterKinds = {
       });
       formOptions.categories.forEach(function (category) {
         $select.append(
-          $("<option>")
-            .val(category.id)
-            .text(categoryLabel(category, byId)),
+          $("<option>").val(category.id).text(categoryLabel(category, byId)),
         );
       });
     },
@@ -325,9 +325,7 @@ function faNumber(value) {
 
 /** Reads a numeric input after normalizing Persian and Arabic-Indic digits. */
 function parseNumberInput(selector) {
-  return AdminCrud.Utils.parseNumber(
-    AdminTable.latinDigits($(selector).val()),
-  );
+  return AdminCrud.Utils.parseNumber(AdminTable.latinDigits($(selector).val()));
 }
 
 function detailPrice(price) {
@@ -366,16 +364,16 @@ function fillInstructorIdList(course) {
   var $rows = $("<div class='d-flex flex-column gap-2'>");
   ids.forEach(function (id) {
     var instructor = byId[String(id)];
-    var $row = $("<div class='d-flex align-items-center justify-content-between gap-3 flex-wrap'>");
+    var $row = $(
+      "<div class='d-flex align-items-center justify-content-between gap-3 flex-wrap'>",
+    );
 
     $row.append(
       $("<span class='fw-semibold text-gray-800'>").text(
         instructor ? instructorName(instructor) : "مدرس نامشخص",
       ),
     );
-    $row.append(
-      $("<code class='text-muted fs-8' dir='ltr'>").text(String(id)),
-    );
+    $row.append($("<code class='text-muted fs-8' dir='ltr'>").text(String(id)));
 
     $rows.append($row);
   });
@@ -400,14 +398,19 @@ function fillCourseDetails(course) {
   detailText("#cd-id", course.id);
   detailText("#cd-short-description", course.shortDescription);
   detailText("#cd-price", detailPrice(course.price));
-  detailText("#cd-discount-type", DISCOUNT_TYPE_LABELS[course.discountType] || course.discountType);
+  detailText(
+    "#cd-discount-type",
+    DISCOUNT_TYPE_LABELS[course.discountType] || course.discountType,
+  );
   detailText(
     "#cd-discount-value",
     detailDiscountValue(course.discountType, course.discountValue),
   );
 
   var status = STATUS_BADGES[course.displayStatus] || STATUS_BADGES.Draft;
-  $("#cd-status").empty().append(AdminTable.badge(status.modifier, status.text));
+  $("#cd-status")
+    .empty()
+    .append(AdminTable.badge(status.modifier, status.text));
   detailBoolean("#cd-sale-active", course.isSaleActive);
   detailBoolean("#cd-featured", course.isFeatured);
   detailBoolean("#cd-amazing", course.isAmazing);
@@ -432,9 +435,15 @@ function fillCourseDetails(course) {
   else $("#cd-description").text("—");
 
   detailText("#cd-created-at", AdminTable.faDateTime(course.createdAt));
-  detailText("#cd-created-by", detailActor(course.createdByName, course.createdBy));
+  detailText(
+    "#cd-created-by",
+    detailActor(course.createdByName, course.createdBy),
+  );
   detailText("#cd-updated-at", AdminTable.faDateTime(course.updatedAt));
-  detailText("#cd-updated-by", detailActor(course.updatedByName, course.updatedBy));
+  detailText(
+    "#cd-updated-by",
+    detailActor(course.updatedByName, course.updatedBy),
+  );
 
   $("#cd-edit")
     .off("click.courseDetails")
@@ -462,7 +471,9 @@ function categoriesCell(text) {
   var names = splitNames(text);
   if (!names.length) return $("<span class='text-muted'>").text("—");
 
-  var $cell = $("<div class='d-flex flex-column align-items-start gap-1 course-category-cell'>");
+  var $cell = $(
+    "<div class='d-flex flex-column align-items-start gap-1 course-category-cell'>",
+  );
   $cell.append(
     $("<span class='badge badge-light-info course-category-name'>")
       .attr("title", names.join("، "))
@@ -489,7 +500,9 @@ function instructorsCell(text) {
   var names = splitNames(text);
   if (!names.length) return $("<span class='text-muted'>").text("—");
 
-  var $cell = $("<div class='d-flex flex-column align-items-start gap-1 course-instructor-cell'>");
+  var $cell = $(
+    "<div class='d-flex flex-column align-items-start gap-1 course-instructor-cell'>",
+  );
   $cell.append(
     $("<span class='badge badge-light-info course-instructor-name'>")
       .attr("title", names.join("، "))
@@ -529,11 +542,13 @@ function fillCourseRow(row, course) {
   $cells.eq(0).addClass("text-center").append($image);
 
   // Name only (no Latin name and no slug); long names are clamped by .course-name-text.
-  $cells.eq(1).append(
-    $("<span class='text-gray-800 fw-bold course-name-text'>")
-      .attr("title", course.name)
-      .text(course.name),
-  );
+  $cells
+    .eq(1)
+    .append(
+      $("<span class='text-gray-800 fw-bold course-name-text'>")
+        .attr("title", course.name)
+        .text(course.name),
+    );
 
   $cells.eq(2).append(categoriesCell(course.categoryNames));
   $cells.eq(3).append(instructorsCell(course.instructorNames));
@@ -543,22 +558,51 @@ function fillCourseRow(row, course) {
     $cells.eq(4).append(AdminTable.badge("primary", "رایگان"));
   } else {
     var priceText = faNumber(course.price);
-    $cells.eq(4).append($("<span class='text-gray-800 fw-bold'>").text(priceText));
+    $cells
+      .eq(4)
+      .append($("<span class='text-gray-800 fw-bold'>").text(priceText));
     if (course.discountType && course.discountType !== "None") {
       var discountText =
         course.discountType === "Percentage"
           ? faNumber(course.discountValue) + "٪ تخفیف"
           : faNumber(course.discountValue) + " تخفیف";
-      $cells.eq(4).append($("<div class='text-muted fs-8'>").text(discountText));
+      $cells
+        .eq(4)
+        .append($("<div class='text-muted fs-8'>").text(discountText));
     }
   }
 
   var status = STATUS_BADGES[course.displayStatus] || STATUS_BADGES.Draft;
-  $cells.eq(5).addClass("text-center").append(
-    AdminTable.badge(status.modifier, status.text),
-  );
+  $cells
+    .eq(5)
+    .addClass("text-center")
+    .append(AdminTable.badge(status.modifier, status.text));
 
   var $actions = $cells.eq(6).addClass("text-end nowrap-cell");
+
+  var $sections = $(
+    '<a class="btn btn-sm btn-icon btn-bg-light btn-active-color-success me-1" title="سرفصل‌ها">',
+  )
+    .attr(
+      "href",
+      "/Admin/Catalog/Courses/CourseSections?courseId=" +
+        encodeURIComponent(course.id),
+    )
+    .append(
+      '<i class="ki-duotone ki-book fs-2"><span class="path1"></span><span class="path2"></span></i>',
+    );
+
+  var $faqs = $(
+    '<a class="btn btn-sm btn-icon btn-bg-light btn-active-color-warning me-1" title="سوالات متداول">',
+  )
+    .attr(
+      "href",
+      "/Admin/Catalog/Courses/CourseFaqs?courseId=" +
+        encodeURIComponent(course.id),
+    )
+    .append(
+      '<i class="ki-duotone ki-message-question fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>',
+    );
 
   var $details = $(
     '<button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info me-1" title="جزئیات">',
@@ -587,7 +631,7 @@ function fillCourseRow(row, course) {
     page.openDelete(course.id, course.name);
   });
 
-  $actions.append($details, $edit, $delete);
+  $actions.append($sections, $faqs, $details, $edit, $delete);
 }
 //#endregion
 
@@ -640,7 +684,9 @@ function initFormSelects() {
     AdminTable.filterSelect2($select, {
       dropdownParent: $modal,
       placeholder:
-        selector === "#Form_CategoryIds" ? "انتخاب دسته‌بندی‌ها" : "انتخاب مدرسین",
+        selector === "#Form_CategoryIds"
+          ? "انتخاب دسته‌بندی‌ها"
+          : "انتخاب مدرسین",
       allowClear: true,
       width: "100%",
       dropdownAutoWidth: false,
@@ -696,12 +742,12 @@ function initPage() {
           { data: null, defaultContent: "", name: "", orderable: false },
         ],
         columnDefs: [
-          { responsivePriority: 1, targets: 2 },
-          { responsivePriority: 2, targets: 6 },
-          { responsivePriority: 3, targets: 5 },
-          { responsivePriority: 4, targets: 0 },
-          { responsivePriority: 5, targets: 4 },
-          { responsivePriority: 6, targets: 1 },
+          { responsivePriority: 1, targets: 0 },
+          { responsivePriority: 2, targets: 1 },
+          { responsivePriority: 3, targets: 2 },
+          { responsivePriority: 4, targets: 6 },
+          { responsivePriority: 5, targets: 5 },
+          { responsivePriority: 6, targets: 4 },
           { responsivePriority: 7, targets: 3 },
           { orderable: false, targets: [0, 2, 3, 6] },
         ],
@@ -824,7 +870,9 @@ function initPage() {
 
       var slug = $("#Form_Slug").val().trim();
       if (slug && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
-        errors.push("اسلاگ فقط می‌تواند شامل حروف لاتین کوچک، عدد و خط تیره باشد.");
+        errors.push(
+          "اسلاگ فقط می‌تواند شامل حروف لاتین کوچک، عدد و خط تیره باشد.",
+        );
         $("#Form_Slug").addClass("is-invalid");
       }
 
@@ -838,7 +886,9 @@ function initPage() {
 
       var instructorIds = $("#Form_InstructorIds").val() || [];
       if (!instructorIds.length) {
-        errors.push("حداقل یک مدرس برای دوره انتخاب کنید. ابتدا از بخش مدرسین پروفایل مدرس بسازید.");
+        errors.push(
+          "حداقل یک مدرس برای دوره انتخاب کنید. ابتدا از بخش مدرسین پروفایل مدرس بسازید.",
+        );
         $("#Form_InstructorIds").addClass("is-invalid");
       } else {
         $("#Form_InstructorIds").removeClass("is-invalid");
@@ -900,10 +950,14 @@ $("#Form_MainImage").on("change", function () {
   }
 });
 
-$("#kt_modal_course").on("click", "[data-kt-image-input-action='remove']", function () {
-  imageRemoved = true;
-  $("#Form_RemoveImage").val("1");
-});
+$("#kt_modal_course").on(
+  "click",
+  "[data-kt-image-input-action='remove']",
+  function () {
+    imageRemoved = true;
+    $("#Form_RemoveImage").val("1");
+  },
+);
 //#endregion
 
 //#region Inline onclick Handlers
