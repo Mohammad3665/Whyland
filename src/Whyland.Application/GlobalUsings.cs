@@ -47,6 +47,7 @@ global using Whyland.Shared.Dtos.Content;           // content DTOs
 global using Whyland.Shared.Dtos.Content.Faq;       // FAQ DTOs and filters
 
 global using Whyland.Shared.Dtos.Catalog.Category;  // category listing DTOs
+global using Whyland.Shared.Dtos.Catalog.Course;    // course listing, details and option DTOs
 
 global using Whyland.Shared.Dtos.Identity;          // identity DTOs
 
@@ -137,6 +138,7 @@ global using Whyland.Domain.Model.Settings.SiteSetting.Entities;
 global using Whyland.Domain.Model.Authorization.Permission.Errors;        
 global using Whyland.Domain.Model.Authorization.Role.Errors;              
 global using Whyland.Domain.Model.Catalog.Category.Errors;                
+global using Whyland.Domain.Model.Catalog.Course.Errors;
 global using Whyland.Domain.Model.Content.Faq.Errors;                     
 global using Whyland.Domain.Model.Identity.ExternalLogin.Errors;          
 global using Whyland.Domain.Model.Identity.User.Errors;                   
@@ -158,9 +160,8 @@ global using Whyland.Domain.Common.Errors;          // DomainError base contract
 #region Application abstractions
 
 global using Whyland.Application.Common.Abstractions.CQRS.Command; // command + handler contracts
-
 global using Whyland.Application.Common.Abstractions.CQRS.Query; // query + handler contracts
-
+global using Whyland.Application.Common.Abstractions.Storage; // image storage port used by course commands
 global using Whyland.Application.Common.Abstractions.UnitOfWork; // unit-of-work contract
 
 global using Whyland.Application.Common.Interfaces.Services; // cross-cutting service ports

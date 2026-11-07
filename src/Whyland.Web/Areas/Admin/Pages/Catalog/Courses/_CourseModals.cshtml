@@ -1,4 +1,155 @@
-﻿<!--begin::Create/Edit Modal (fullscreen)-->
+<!--begin::Course Details Modal-->
+<div class="modal fade" id="kt_modal_course_details" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content rounded">
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal" title="بستن">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body scroll-y px-10 px-lg-15 pt-0 pb-15">
+                <!--begin::Image and identity-->
+                <div class="d-flex flex-column flex-md-row align-items-md-center gap-7 mb-8">
+                    <div class="symbol symbol-150px symbol-2by3">
+                        <img id="cd-image" src="" alt="" class="d-none" />
+                        <div id="cd-image-empty" class="symbol-label bg-light-primary text-primary">
+                            <i class="ki-duotone ki-picture fs-3x"><span class="path1"></span><span class="path2"></span></i>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column gap-2">
+                        <h3 id="cd-name" class="fw-bold mb-0">—</h3>
+                    </div>
+                </div>
+                <!--end::Image and identity-->
+
+                <!--begin::Identity and pricing-->
+                <h3 class="fs-4 fw-bold mb-4">اطلاعات دوره</h3>
+                <div class="table-responsive mb-8">
+                    <table class="table table-row-dashed fs-6 gy-4 align-middle mb-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted fw-semibold w-200px">شناسه</td>
+                                <td id="cd-id" dir="rtl"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">نام دوره</td>
+                                <td id="cd-info-name"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">نام لاتین</td>
+                                <td id="cd-info-latin-name" dir="rtl"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">اسلاگ</td>
+                                <td id="cd-info-slug" dir="rtl"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">آدرس تصویر اصلی</td>
+                                <td id="cd-main-image-url" dir="ltr"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">آدرس تصویر بندانگشتی</td>
+                                <td id="cd-thumbnail-url" dir="ltr"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">توضیح کوتاه</td>
+                                <td id="cd-short-description"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">قیمت</td>
+                                <td id="cd-price"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">نوع تخفیف</td>
+                                <td id="cd-discount-type"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">مقدار تخفیف</td>
+                                <td id="cd-discount-value"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">وضعیت نمایش</td>
+                                <td id="cd-status"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">فروش فعال</td>
+                                <td id="cd-sale-active"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">دوره ویژه</td>
+                                <td id="cd-featured"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">دوره شگفت‌انگیز</td>
+                                <td id="cd-amazing"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">دسته‌بندی‌ها</td>
+                                <td id="cd-categories"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">شناسه دسته‌بندی‌ها</td>
+                                <td id="cd-category-ids" dir="rtl"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">مدرسین</td>
+                                <td id="cd-instructors"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">شناسه مدرسین</td>
+                                <td id="cd-instructor-ids" dir="rtl"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--end::Identity and pricing-->
+
+                <!--begin::Description-->
+                <h3 class="fs-4 fw-bold mb-4">توضیحات کامل</h3>
+                <div id="cd-description" class="course-details-description border rounded bg-light p-5 mb-8"></div>
+                <!--end::Description-->
+
+                <!--begin::Audit-->
+                <h3 class="fs-4 fw-bold mb-4">تاریخچه تغییرات</h3>
+                <div class="table-responsive">
+                    <table class="table table-row-dashed fs-6 gy-4 align-middle mb-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted fw-semibold w-200px">تاریخ ایجاد</td>
+                                <td id="cd-created-at"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">ایجادکننده</td>
+                                <td id="cd-created-by"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">آخرین ویرایش</td>
+                                <td id="cd-updated-at"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">ویرایش‌کننده</td>
+                                <td id="cd-updated-by"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--end::Audit-->
+
+                <div class="d-flex justify-content-end gap-3 mt-10">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">بستن</button>
+                    <button type="button" class="btn btn-primary" id="cd-edit">
+                        <i class="ki-duotone ki-pencil fs-4 me-1"><span class="path1"></span><span class="path2"></span></i>
+                        ویرایش دوره
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end::Course Details Modal-->
+
+<!--begin::Create/Edit Modal (fullscreen)-->
 <div class="modal fade" id="kt_modal_course" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-focus="false">
     <div class="modal-dialog modal-fullscreen">
         <div class="modal-content">
@@ -15,10 +166,10 @@
             <div class="modal-body bg-light px-5 px-lg-10 py-7">
                 <form id="kt_course_form" class="form d-flex flex-column flex-lg-row gap-7 gap-lg-10" onsubmit="return false;">
                     <input type="hidden" id="Form_Id" />
+                    <input type="hidden" id="Form_RemoveImage" value="0" />
 
                     <!--begin::Side column-->
                     <div class="d-flex flex-column gap-7 gap-lg-10 w-100 w-lg-350px">
-
                         <div class="card card-flush py-4">
                             <div class="card-header"><div class="card-title"><h2>تصویر اصلی</h2></div></div>
                             <div class="card-body text-center pt-0">
@@ -28,19 +179,14 @@
                                     <label class="btn btn-icon btn-circle btn-color-muted btn-active-color-primary w-25px h-25px bg-body shadow"
                                            data-kt-image-input-action="change" title="تغییر تصویر">
                                         <i class="ki-duotone ki-pencil fs-6"><span class="path1"></span><span class="path2"></span></i>
-                                        <input type="file" id="Form_MainImage" name="MainImage" accept=".png,.jpg,.jpeg,.webp" />
-                                        <input type="hidden" name="MainImage_remove" />
+                                        <input type="file" id="Form_MainImage" name="Image" accept=".png,.jpg,.jpeg,.webp" />
                                     </label>
-                                    <span class="btn btn-icon btn-circle btn-color-muted btn-active-color-primary w-25px h-25px bg-body shadow"
-                                          data-kt-image-input-action="cancel" title="انصراف">
-                                        <i class="ki-duotone ki-cross fs-2"><span class="path1"></span><span class="path2"></span></i>
-                                    </span>
                                     <span class="btn btn-icon btn-circle btn-color-muted btn-active-color-primary w-25px h-25px bg-body shadow"
                                           data-kt-image-input-action="remove" title="حذف تصویر">
                                         <i class="ki-duotone ki-cross fs-2"><span class="path1"></span><span class="path2"></span></i>
                                     </span>
                                 </div>
-                                <div class="text-muted fs-7">فرمت‌های مجاز: png، jpg، jpeg، webp</div>
+                                <div class="text-muted fs-7">فرمت‌های مجاز: png، jpg، jpeg، webp — حداکثر ۱۰ مگابایت</div>
                             </div>
                         </div>
 
@@ -77,39 +223,31 @@
                         </div>
 
                         <div class="card card-flush py-4">
-                            <div class="card-header"><div class="card-title"><h2>دسته‌بندی‌ها</h2></div></div>
+                            <div class="card-header">
+                                <div class="card-title"><h2>دسته‌بندی‌ها</h2></div>
+                            </div>
                             <div class="card-body pt-0">
-                                <select id="Form_CategoryIds" class="form-select form-select-solid" data-control="select2"
-                                        data-dropdown-parent="#kt_modal_course" data-placeholder="انتخاب دسته‌بندی‌ها" multiple>
-                                    <option value="1">برنامه‌نویسی</option>
-                                    <option value="2">— برنامه‌نویسی وب</option>
-                                    <option value="3">—— ASP.NET Core</option>
-                                    <option value="5">طراحی گرافیک</option>
-                                    <option value="6">کسب و کار</option>
-                                    <option value="7">زبان‌های خارجی</option>
+                                <select id="Form_CategoryIds" class="form-select form-select-solid course-choice-select" multiple>
                                 </select>
-                                <div class="text-muted fs-7 mt-2">فقط دسته‌بندی‌های فعال نمایش داده می‌شوند</div>
+                                <div class="text-muted fs-7 mt-2">فقط دسته‌بندی‌های فعال نمایش داده می‌شوند.</div>
                             </div>
                         </div>
 
                         <div class="card card-flush py-4">
-                            <div class="card-header"><div class="card-title"><h2>مدرسین</h2></div></div>
+                            <div class="card-header">
+                                <div class="card-title"><h2>مدرسین</h2></div>
+                            </div>
                             <div class="card-body pt-0">
-                                <select id="Form_InstructorIds" class="form-select form-select-solid" data-control="select2"
-                                        data-dropdown-parent="#kt_modal_course" data-placeholder="انتخاب مدرسین" multiple>
-                                    <option value="1">علی رضایی</option>
-                                    <option value="2">مریم احمدی</option>
-                                    <option value="3">سارا کریمی</option>
+                                <select id="Form_InstructorIds" class="form-select form-select-solid course-choice-select" multiple>
                                 </select>
+                                <div class="text-muted fs-7 mt-2">می‌توانید برای یک دوره چند مدرس انتخاب کنید.</div>
                             </div>
                         </div>
                     </div>
-
                     <!--end::Side column-->
 
                     <!--begin::Main column-->
                     <div class="d-flex flex-column flex-row-fluid gap-7 gap-lg-10">
-
                         <div class="card card-flush py-4">
                             <div class="card-header"><div class="card-title"><h2>اطلاعات پایه</h2></div></div>
                             <div class="card-body pt-0">
@@ -117,20 +255,20 @@
                                     <div class="col-md-6 fv-row">
                                         <label class="required fs-6 fw-semibold mb-2">نام</label>
                                         <input type="text" id="Form_Name" class="form-control form-control-solid"
-                                               placeholder="مثال: دوره جامع ASP.NET Core" />
+                                               maxlength="200" placeholder="مثال: دوره جامع ASP.NET Core" />
                                     </div>
                                     <div class="col-md-6 fv-row">
                                         <label class="required fs-6 fw-semibold mb-2">نام لاتین</label>
                                         <input type="text" id="Form_LatinName" class="form-control form-control-solid"
-                                               placeholder="Example: Complete ASP.NET Core" dir="ltr" />
+                                               maxlength="200" placeholder="Example: Complete ASP.NET Core" dir="rtl" />
                                     </div>
                                 </div>
 
                                 <div class="mb-8 fv-row">
                                     <label class="required fs-6 fw-semibold mb-2">اسلاگ</label>
                                     <input type="text" id="Form_Slug" class="form-control form-control-solid"
-                                           placeholder="complete-aspnet-core" dir="ltr" />
-                                    <div class="text-muted fs-7 mt-1">به‌صورت خودکار از نام لاتین ساخته می‌شود و قابل ویرایش است</div>
+                                           maxlength="300" placeholder="complete-aspnet-core" dir="rtl" />
+                                    <div class="text-muted fs-7 mt-1">به‌صورت خودکار از نام لاتین ساخته می‌شود و قابل ویرایش است.</div>
                                 </div>
 
                                 <div class="mb-8 fv-row">
@@ -154,14 +292,14 @@
                                         <label class="fs-6 fw-semibold mb-2">قیمت (تومان)</label>
                                         <input type="text" id="Form_Price" class="form-control form-control-solid"
                                                placeholder="خالی = رایگان" inputmode="numeric" />
-                                        <div class="text-muted fs-7 mt-1">در صورت خالی بودن، دوره رایگان محسوب می‌شود</div>
+                                        <div class="text-muted fs-7 mt-1">در صورت خالی بودن، دوره رایگان محسوب می‌شود.</div>
                                     </div>
                                     <div class="col-md-6 fv-row">
                                         <label class="fs-6 fw-semibold mb-2">نوع تخفیف</label>
                                         <select id="Form_DiscountType" class="form-select form-select-solid">
-                                            <option value="">بدون تخفیف</option>
-                                            <option value="Percent">درصدی</option>
-                                            <option value="Fixed">مبلغ ثابت</option>
+                                            <option value="None">بدون تخفیف</option>
+                                            <option value="Percentage">درصدی</option>
+                                            <option value="FixedAmount">مبلغ ثابت</option>
                                         </select>
                                     </div>
                                 </div>
@@ -177,23 +315,12 @@
                                 <div class="d-flex flex-stack">
                                     <div class="me-5">
                                         <label class="fs-6 fw-semibold">فعال بودن فروش</label>
-                                        <div class="text-muted fs-7">در صورت غیرفعال بودن، امکان خرید دوره وجود ندارد</div>
+                                        <div class="text-muted fs-7">در صورت غیرفعال بودن، امکان خرید دوره وجود ندارد.</div>
                                     </div>
                                     <label class="form-check form-switch form-check-custom form-check-solid">
                                         <input class="form-check-input" type="checkbox" id="Form_IsSaleActive" checked />
                                         <span class="form-check-label fw-semibold text-muted">فعال</span>
                                     </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card card-flush py-4">
-                            <div class="card-header"><div class="card-title"><h2>ویدیو معرفی</h2></div></div>
-                            <div class="card-body pt-0">
-                                <div class="fv-row">
-                                    <label class="fs-6 fw-semibold mb-2">آدرس ویدیو</label>
-                                    <input type="text" id="Form_IntroductionVideo" class="form-control form-control-solid"
-                                           placeholder="https://..." dir="ltr" />
                                 </div>
                             </div>
                         </div>
@@ -218,8 +345,7 @@
         </div>
     </div>
 </div>
-
-<!--end::Create/Edit Modal (fullscreen)-->
+<!--end::Create/Edit Modal-->
 
 <!--begin::Delete Confirmation Modal-->
 <div class="modal fade" id="kt_modal_delete_course" tabindex="-1" aria-hidden="true">

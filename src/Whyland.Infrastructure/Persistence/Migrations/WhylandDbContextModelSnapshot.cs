@@ -397,10 +397,6 @@ namespace Whyland.Infrastructure.Persistence.Migrations
                     b.Property<int>("DisplayStatus")
                         .HasColumnType("integer");
 
-                    b.Property<string>("IntroductionVideo")
-                        .HasMaxLength(512)
-                        .HasColumnType("character varying(512)");
-
                     b.Property<bool>("IsAmazing")
                         .HasColumnType("boolean");
 

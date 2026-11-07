@@ -10,6 +10,18 @@ namespace Whyland.Domain.Model.Catalog.CourseInstructor.Entities;
 /// </summary>
 public class CourseInstructor
 {
+    /// <summary>Parameterless constructor required by ORMs (e.g. EF Core).</summary>
+    private CourseInstructor() { }
+
+    /// <summary>
+    /// Creates the link between a course and an instructor profile. The course navigation is set as
+    /// well, so EF can fix up the foreign key while a new course still has no generated identifier.
+    /// </summary>
+    /// <param name="course">The course being linked.</param>
+    /// <param name="instructorProfileId">The instructor profile to link.</param>
+    public static CourseInstructor Create(CourseEntity course, InstructorProfileId instructorProfileId)
+        => new() { Course = course, CourseId = course.Id, InstructorProfileId = instructorProfileId };
+
     /// <summary>
     /// The course this relation links to the instructor.
     /// </summary>

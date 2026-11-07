@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using Whyland.Domain.Model.Catalog.Category.Repositories;
+using Whyland.Domain.Model.Catalog.Course.Repositories;
 using Whyland.Domain.Model.Identity.ExternalLogin.Repositories;
 using Whyland.Domain.Model.Identity.OtpRequest.Repositories;
 using Whyland.Infrastructure.Persistence.Repositories.Catalog.Category;
+using Whyland.Infrastructure.Persistence.Repositories.Catalog.Course;
 using Whyland.Infrastructure.Persistence.Repositories.Content.Faq;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.ExternalLogin;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.OtpRequest;
@@ -51,6 +53,23 @@ public class UnitOfWork(WhylandDbContext context, NpgsqlDataSource dataSource) :
     /// </summary>
     public ICategoryQueryRepository CategoryQueryRepository =>
         _categoryQueryRepository ??= new CategoryQueryRepository(dataSource);
+
+    private ICourseCommandRepository? _courseCommandRepository;
+
+    /// <summary>
+    /// Lazily creates the singleton-per-unit-of-work <see cref="ICourseCommandRepository"/>.
+    /// </summary>
+    public ICourseCommandRepository CourseCommandRepository =>
+        _courseCommandRepository ??= new CourseCommandRepository(context);
+
+    private ICourseQueryRepository? _courseQueryRepository;
+
+    /// <summary>
+    /// Lazily creates the singleton-per-unit-of-work <see cref="ICourseQueryRepository"/>,
+    /// built on the pooled Npgsql data source for Dapper queries.
+    /// </summary>
+    public ICourseQueryRepository CourseQueryRepository =>
+        _courseQueryRepository ??= new CourseQueryRepository(dataSource);
 
     private IRoleCommandRepository? _roleCommandRepository;
 

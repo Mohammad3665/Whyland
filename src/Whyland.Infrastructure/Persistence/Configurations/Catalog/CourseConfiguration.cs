@@ -30,9 +30,6 @@ public sealed class CourseConfiguration : IEntityTypeConfiguration<Course>
         builder.Property(x => x.MainImage)
             .HasMaxLength(Course.MaxMainImageLength);
 
-        builder.Property(x => x.IntroductionVideo)
-            .HasMaxLength(Course.MaxIntroductionVideoLength);
-
         // Decimal-compatible money type; float/double are forbidden for money (s7.2.4)
         builder.Property(x => x.Price)
             .HasPrecision(18, 2);

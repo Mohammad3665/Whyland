@@ -1,0 +1,19 @@
+{
+  "Course.FieldRequired": "فیلد {Field} نمی‌تواند خالی باشد.",
+  "Course.FieldTooLong": "فیلد {Field} نمی‌تواند بیشتر از {Max} کاراکتر باشد.",
+  "Course.InvalidSlug": "اسلاگ فقط می‌تواند شامل حروف لاتین کوچک، عدد و خط تیره باشد.",
+  "Course.InvalidPrice": "قیمت دورهٔ پولی باید بزرگ‌تر از صفر باشد؛ برای دورهٔ رایگان قیمت را خالی بگذارید.",
+  "Course.InvalidDiscount": "مقدار تخفیف با نوع تخفیف و قیمت دوره سازگار نیست.",
+  "Course.DiscountRequiresPrice": "برای تخفیف مبلغ ثابت، ابتدا قیمت دوره را وارد کنید.",
+  "Course.InvalidDisplayStatus": "وضعیت نمایش انتخاب‌شده معتبر نیست.",
+  "Course.NotFound": "دوره‌ای با شناسه {Id} یافت نشد.",
+  "Course.SlugTaken": "اسلاگ «{Slug}» قبلاً برای دورهٔ دیگری استفاده شده است.",
+  "Course.CategoryUnavailable": "دسته‌بندی انتخاب‌شده با شناسه {Id} فعال یا موجود نیست.",
+  "Course.InstructorUnavailable": "مدرس انتخاب‌شده با شناسه {Id} موجود نیست یا حسابش فعال نیست.",
+  "Course.CreateFailed": "خطا در ایجاد دوره، لطفاً مجدداً تلاش کنید.",
+  "Course.UpdateFailed": "خطا در ویرایش دوره، لطفاً مجدداً تلاش کنید.",
+  "Course.SoftDeleteFailed": "خطا در حذف دوره، لطفاً مجدداً تلاش کنید.",
+  "Course.ListFailed": "خطا در دریافت لیست دوره‌ها، لطفاً مجدداً تلاش کنید.",
+  "Course.DetailsFailed": "خطا در دریافت اطلاعات دوره، لطفاً مجدداً تلاش کنید.",
+  "Course.OptionsFailed": "خطا در دریافت دسته‌بندی‌ها و مدرسین، لطفاً مجدداً تلاش کنید."
+}

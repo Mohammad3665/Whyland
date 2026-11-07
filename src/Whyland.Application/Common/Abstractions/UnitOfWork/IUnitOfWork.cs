@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using Whyland.Domain.Model.Authorization.Role.Repositories;
 using Whyland.Domain.Model.Catalog.Category.Repositories;
+using Whyland.Domain.Model.Catalog.Course.Repositories;
 using Whyland.Domain.Model.Identity.ExternalLogin.Repositories;
 using Whyland.Domain.Model.Identity.OtpRequest.Repositories;
 using Whyland.Domain.Model.Identity.User.Repositories;
@@ -38,6 +39,16 @@ public interface IUnitOfWork : IAsyncDisposable
     /// Repository for read (query) operations on Category entities.
     /// </summary>
     ICategoryQueryRepository CategoryQueryRepository { get; }
+
+    /// <summary>
+    /// Repository for write (command) operations on Course entities.
+    /// </summary>
+    ICourseCommandRepository CourseCommandRepository { get; }
+
+    /// <summary>
+    /// Repository for read (query) operations on Course entities.
+    /// </summary>
+    ICourseQueryRepository CourseQueryRepository { get; }
 
     /// <summary>
     /// Repository for write (command) operations on Role entities.

@@ -10,6 +10,18 @@ namespace Whyland.Domain.Model.Catalog.CourseCategory.Entities;
 /// </summary>
 public class CourseCategory
 {
+    /// <summary>Parameterless constructor required by ORMs (e.g. EF Core).</summary>
+    private CourseCategory() { }
+
+    /// <summary>
+    /// Creates the link between a course and a category. The course navigation is set as well, so
+    /// EF can fix up the foreign key while a new course still has no generated identifier.
+    /// </summary>
+    /// <param name="course">The course being linked.</param>
+    /// <param name="categoryId">The category to link.</param>
+    public static CourseCategory Create(CourseEntity course, CategoryId categoryId)
+        => new() { Course = course, CourseId = course.Id, CategoryId = categoryId };
+
     /// <summary>
     /// The course this relation links to the category.
     /// </summary>
