@@ -3,9 +3,11 @@ using Whyland.Domain.Model.Catalog.Course.Repositories;
 namespace Whyland.Infrastructure.Persistence.Repositories.Catalog.Course;
 
 /// <summary>
-/// The EF Core command repository for the <c>Course</c> aggregate. It only stages changes; the
-/// unit of work decides when they are saved, so a course and its link rows commit together.
+/// The EF Core command repository for the <c>Course</c> aggregate, backed by the shared scoped
+/// <see cref="WhylandDbContext"/>; persistence happens through the Unit of Work. It only stages
+/// changes, so a course and its link rows commit together.
 /// </summary>
+/// <param name="context">The scoped EF Core context the repository stages changes on.</param>
 public sealed class CourseCommandRepository(WhylandDbContext context) : ICourseCommandRepository
 {
     /// <summary>

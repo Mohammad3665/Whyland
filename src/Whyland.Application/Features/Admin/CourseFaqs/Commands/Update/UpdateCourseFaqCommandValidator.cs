@@ -1,8 +1,14 @@
 namespace Whyland.Application.Features.Admin.CourseFaqs.Commands.Update;
 
-/// <summary>Validates <see cref="UpdateCourseFaqCommand"/> against the course FAQ limits.</summary>
+/// <summary>
+/// Validates <see cref="UpdateCourseFaqCommand"/> fields against the course FAQ domain
+/// constraints.
+/// </summary>
 public sealed class UpdateCourseFaqCommandValidator : AbstractValidator<UpdateCourseFaqCommand>
 {
+    /// <summary>
+    /// Configures the validation rules for every updatable question field.
+    /// </summary>
     public UpdateCourseFaqCommandValidator()
     {
         RuleFor(x => x.Id)

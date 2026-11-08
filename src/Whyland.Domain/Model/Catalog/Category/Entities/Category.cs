@@ -116,20 +116,7 @@ public class Category : BaseEntity<CategoryId>, ISoftDeletable
     private Category() { }
 
     /// <summary>
-    /// Initializes a validated <see cref="Category"/> instance.
-    /// Assumes the inputs have already passed <see cref="Validate"/>.
-    /// </summary>
-    private Category(string name, string latinName, int displayOrder, CategoryId? parentId, bool isActive)
-    {
-        Name = name;
-        LatinName = latinName;
-        DisplayOrder = displayOrder;
-        ParentId = parentId;
-        IsActive = isActive;
-    }
-
-    /// <summary>
-    /// Creates a new <see cref="Category"/> after trimming and validating the inputs.
+    /// Creates a new <see cref="Category"/> after trimming, validating and assigning the inputs.
     /// Whether the chosen parent exists, and whether hanging under it stays inside the
     /// depth ceiling, are questions about other rows — the handlers answer those.
     /// </summary>
@@ -149,18 +136,14 @@ public class Category : BaseEntity<CategoryId>, ISoftDeletable
         CategoryId? parentId,
         bool isActive)
     {
-        var trimmedName = name?.Trim();
-        var trimmedLatinName = latinName?.Trim();
+        var category = new Category();
 
-        var validation = Validate(trimmedName, trimmedLatinName, displayOrder);
-        if (validation.IsFailure)
-            return validation.Error;
-
-        return new Category(trimmedName!, trimmedLatinName!, displayOrder, parentId, isActive);
+        var applied = category.Apply(name, latinName, displayOrder, parentId, isActive);
+        return applied.IsFailure ? applied.Error : category;
     }
 
     /// <summary>
-    /// Updates the mutable fields of an existing category after trimming and validating the inputs.
+    /// Updates the mutable fields of an existing category after trimming, validating and assigning them.
     /// The display order and the parent are not part of this: the first belongs to drag &amp; drop
     /// (<see cref="SetDisplayOrder"/>) and the second to <see cref="SetParent"/>.
     /// </summary>
@@ -172,20 +155,7 @@ public class Category : BaseEntity<CategoryId>, ISoftDeletable
     /// or a failure describing the first violated invariant. On failure, the instance is left unchanged.
     /// </returns>
     public Result Update(string name, string latinName, bool isActive)
-    {
-        var trimmedName = name?.Trim();
-        var trimmedLatinName = latinName?.Trim();
-
-        var validation = Validate(trimmedName, trimmedLatinName, DisplayOrder);
-        if (validation.IsFailure)
-            return validation.Error;
-
-        Name = trimmedName!;
-        LatinName = trimmedLatinName!;
-        IsActive = isActive;
-
-        return Result.Success();
-    }
+        => Apply(name, latinName, DisplayOrder, ParentId, isActive);
 
     /// <summary>
     /// Moves the category to a new position inside its sibling group, as both the form and the
@@ -227,31 +197,46 @@ public class Category : BaseEntity<CategoryId>, ISoftDeletable
     }
 
     /// <summary>
-    /// Validates the trimmed inputs against the invariants this row can judge on its own:
-    /// the two text fields and the ordering weight. Shared by <see cref="Create"/> and
-    /// <see cref="Update"/> so both paths enforce exactly the same rules. Returns the first
-    /// violation encountered.
+    /// Trims, validates and assigns every editable value. Shared by create and update so both paths
+    /// enforce exactly the same rules; on failure the instance is left unchanged. Update hands in
+    /// the current order and parent, so this method never moves a row on its own.
     /// </summary>
-    /// <param name="name">The trimmed name to validate.</param>
-    /// <param name="latinName">The trimmed Latin name to validate.</param>
-    /// <param name="displayOrder">The ordering weight to validate.</param>
+    /// <param name="name">The category name. Will be trimmed.</param>
+    /// <param name="latinName">The Latin name used for the slug. Will be trimmed.</param>
+    /// <param name="displayOrder">The ordering weight inside its sibling group; zero or greater.</param>
+    /// <param name="parentId">The parent category, or null for a root.</param>
+    /// <param name="isActive">Whether the category is visible on the site.</param>
     /// <returns>A successful <see cref="Result"/> if all rules pass; otherwise a validation failure.</returns>
-    private static Result Validate(string? name, string? latinName, int displayOrder)
+    private Result Apply(
+        string name,
+        string latinName,
+        int displayOrder,
+        CategoryId? parentId,
+        bool isActive)
     {
-        if (string.IsNullOrWhiteSpace(name))
+        var trimmedName = name?.Trim();
+        var trimmedLatinName = latinName?.Trim();
+
+        if (string.IsNullOrWhiteSpace(trimmedName))
             return CategoryErrors.FieldRequired(nameof(Name));
 
-        if (name.Length > MaxNameLength)
+        if (trimmedName.Length > MaxNameLength)
             return CategoryErrors.FieldTooLong(nameof(Name), MaxNameLength);
 
-        if (string.IsNullOrWhiteSpace(latinName))
+        if (string.IsNullOrWhiteSpace(trimmedLatinName))
             return CategoryErrors.FieldRequired(nameof(LatinName));
 
-        if (latinName.Length > MaxLatinNameLength)
+        if (trimmedLatinName.Length > MaxLatinNameLength)
             return CategoryErrors.FieldTooLong(nameof(LatinName), MaxLatinNameLength);
 
         if (displayOrder < 0)
             return CategoryErrors.GreaterThanOrEqualToZero(nameof(DisplayOrder));
+
+        Name = trimmedName;
+        LatinName = trimmedLatinName;
+        DisplayOrder = displayOrder;
+        ParentId = parentId;
+        IsActive = isActive;
 
         return Result.Success();
     }

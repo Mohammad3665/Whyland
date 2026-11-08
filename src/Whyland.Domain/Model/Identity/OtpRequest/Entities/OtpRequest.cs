@@ -82,17 +82,38 @@ public class OtpRequest : BaseEntity<OtpRequestId>
         int maxAttempts,
         DateTime expiresAt,
         OtpPurpose purpose)
-        => new()
-        {
-            Id = OtpRequestId.From(Guid.NewGuid()),
-            PhoneNumber = phoneNumber,
-            CodeHash = codeHash,
-            AttemptCount = 0,
-            MaxAttempts = maxAttempts,
-            ExpiresAt = expiresAt,
-            IsUsed = false,
-            Purpose = purpose,
-        };
+    {
+        var request = new OtpRequest { Id = OtpRequestId.From(Guid.NewGuid()) };
+
+        request.Apply(phoneNumber, codeHash, maxAttempts, expiresAt, purpose);
+
+        return request;
+    }
+
+    /// <summary>
+    /// Assigns the values the calling flow already produced. Nothing is validated here: the hash and
+    /// the expiry are the caller's own work, and the store enforces the column sizes.
+    /// </summary>
+    /// <param name="phoneNumber">The number in the form the store keeps it.</param>
+    /// <param name="codeHash">The hash of the code, never the code itself.</param>
+    /// <param name="maxAttempts">How many verifications are allowed before the code is exhausted.</param>
+    /// <param name="expiresAt">The UTC instant from which the code stops being usable.</param>
+    /// <param name="purpose">What the code proves.</param>
+    private void Apply(
+        string phoneNumber,
+        string codeHash,
+        int maxAttempts,
+        DateTime expiresAt,
+        OtpPurpose purpose)
+    {
+        PhoneNumber = phoneNumber;
+        CodeHash = codeHash;
+        AttemptCount = 0;
+        MaxAttempts = maxAttempts;
+        ExpiresAt = expiresAt;
+        IsUsed = false;
+        Purpose = purpose;
+    }
 
     #endregion
 

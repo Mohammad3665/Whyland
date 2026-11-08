@@ -6,16 +6,22 @@ namespace Whyland.Domain.Model.Catalog.Course.Errors;
 
 /// <summary>
 /// Every failure the <see cref="CourseEntity"/> aggregate can report, including the ones raised by
-/// the handlers that save or read it. Each factory carries the code and the arguments the message
-/// needs; the wording lives in the localization catalog.
+/// the handlers that save or read it.
+/// <para>
+/// Each factory carries only the code, the category and the arguments the message needs. The wording
+/// lives in the localization catalog, so a failure never embeds user input in a hand-written sentence.
+/// </para>
 /// </summary>
 public static class CourseErrors
 {
     /// <summary>The specified field is required but was empty or whitespace.</summary>
+    /// <param name="field">The name of the offending field.</param>
     public static DomainError FieldRequired(string field) =>
         DomainError.For<CourseEntity>(nameof(FieldRequired), ErrorType.Validation, field: field);
 
     /// <summary>The specified field exceeds its maximum allowed length.</summary>
+    /// <param name="field">The name of the offending field.</param>
+    /// <param name="max">The maximum allowed length.</param>
     public static DomainError FieldTooLong(string field, int max) =>
         DomainError.For<CourseEntity>(nameof(FieldTooLong), ErrorType.Validation, field: field, ("Max", max));
 
@@ -40,18 +46,22 @@ public static class CourseErrors
         DomainError.For<CourseEntity>(nameof(InvalidDisplayStatus), ErrorType.Validation, nameof(CourseEntity.DisplayStatus));
 
     /// <summary>No course exists with the given identifier.</summary>
+    /// <param name="id">The identifier that was looked up.</param>
     public static DomainError NotFound(long id) =>
         DomainError.For<CourseEntity>(nameof(NotFound), ErrorType.NotFound, field: null, ("Id", id));
 
     /// <summary>Another course already uses this slug.</summary>
+    /// <param name="slug">The slug that is already taken.</param>
     public static DomainError SlugTaken(string slug) =>
         DomainError.For<CourseEntity>(nameof(SlugTaken), ErrorType.Validation, nameof(CourseEntity.Slug), ("Slug", slug));
 
     /// <summary>A category the form selected is missing, deleted or inactive.</summary>
+    /// <param name="id">The identifier of the unavailable category.</param>
     public static DomainError CategoryUnavailable(long id) =>
         DomainError.For<CourseEntity>(nameof(CategoryUnavailable), ErrorType.Validation, field: null, ("Id", id));
 
     /// <summary>An instructor the form selected is missing or belongs to an inactive account.</summary>
+    /// <param name="id">The identifier of the unavailable instructor profile.</param>
     public static DomainError InstructorUnavailable(Guid id) =>
         DomainError.For<CourseEntity>(nameof(InstructorUnavailable), ErrorType.Validation, field: null, ("Id", id));
 
@@ -75,11 +85,11 @@ public static class CourseErrors
     public static DomainError ListFailed() =>
         DomainError.For<CourseEntity>(nameof(ListFailed), ErrorType.Unexpected);
 
-    /// <summary>The requested course could not be read (persistence failure).</summary>
+    /// <summary>The requested course could not be read (persistence failure); masked behind a generic message.</summary>
     public static DomainError DetailsFailed() =>
         DomainError.For<CourseEntity>(nameof(DetailsFailed), ErrorType.Unexpected);
 
-    /// <summary>The category and instructor selectors could not be read (persistence failure).</summary>
+    /// <summary>The category and instructor selectors could not be read (persistence failure); masked behind a generic message.</summary>
     public static DomainError OptionsFailed() =>
         DomainError.For<CourseEntity>(nameof(OptionsFailed), ErrorType.Unexpected);
 }

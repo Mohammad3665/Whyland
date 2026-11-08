@@ -20,7 +20,26 @@ public class CourseCategory
     /// <param name="course">The course being linked.</param>
     /// <param name="categoryId">The category to link.</param>
     public static CourseCategory Create(CourseEntity course, CategoryId categoryId)
-        => new() { Course = course, CourseId = course.Id, CategoryId = categoryId };
+    {
+        var link = new CourseCategory();
+
+        link.Apply(course, categoryId);
+
+        return link;
+    }
+
+    /// <summary>
+    /// Assigns both sides of the relation, including the navigation, so EF can fix up the foreign
+    /// key while a new course still has no generated identifier.
+    /// </summary>
+    /// <param name="course">The course being linked.</param>
+    /// <param name="categoryId">The category to link.</param>
+    private void Apply(CourseEntity course, CategoryId categoryId)
+    {
+        Course = course;
+        CourseId = course.Id;
+        CategoryId = categoryId;
+    }
 
     /// <summary>
     /// The course this relation links to the category.

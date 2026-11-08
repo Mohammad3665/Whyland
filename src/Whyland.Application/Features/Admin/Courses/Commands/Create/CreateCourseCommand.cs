@@ -6,6 +6,21 @@ namespace Whyland.Application.Features.Admin.Courses.Commands.Create;
 /// Command that creates a new course and returns the identifier of the created row.
 /// A cover image is optional; when present it is stored before the row is saved.
 /// </summary>
+/// <param name="Name">The course display name.</param>
+/// <param name="LatinName">The Latin name used to generate the slug.</param>
+/// <param name="ShortDescription">The excerpt shown in listings.</param>
+/// <param name="Description">The full (sanitized) description.</param>
+/// <param name="Slug">The unique URL-safe slug.</param>
+/// <param name="Price">The price in Toman; null means the course is free.</param>
+/// <param name="DiscountType">The kind of discount applied to the course.</param>
+/// <param name="DiscountValue">The discount amount, when a discount is active.</param>
+/// <param name="IsSaleActive">Whether the course can currently be purchased.</param>
+/// <param name="DisplayStatus">The public visibility status.</param>
+/// <param name="IsFeatured">Whether the course is promoted as featured.</param>
+/// <param name="IsAmazing">Whether the course is in the promotional deals section.</param>
+/// <param name="CategoryIds">The categories the course belongs to.</param>
+/// <param name="InstructorIds">The instructors assigned to the course.</param>
+/// <param name="Image">The optional cover image upload.</param>
 public sealed record CreateCourseCommand(
     string Name,
     string LatinName,

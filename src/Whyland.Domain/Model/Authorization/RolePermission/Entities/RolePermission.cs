@@ -22,12 +22,25 @@ public class RolePermission
     /// </summary>
     /// <param name="roleId">The role receiving the permission.</param>
     /// <param name="permissionId">The permission granted to the role.</param>
-    public static RolePermission Create(RoleId roleId, PermissionId permissionId) =>
-        new()
-        {
-            RoleId = roleId,
-            PermissionId = permissionId,
-        };
+    public static RolePermission Create(RoleId roleId, PermissionId permissionId)
+    {
+        var rolePermission = new RolePermission();
+
+        rolePermission.Apply(roleId, permissionId);
+
+        return rolePermission;
+    }
+
+    /// <summary>
+    /// Assigns the two sides of the grant.
+    /// </summary>
+    /// <param name="roleId">The role receiving the permission.</param>
+    /// <param name="permissionId">The permission granted to the role.</param>
+    private void Apply(RoleId roleId, PermissionId permissionId)
+    {
+        RoleId = roleId;
+        PermissionId = permissionId;
+    }
 
     #endregion
 

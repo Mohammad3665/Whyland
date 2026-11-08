@@ -21,12 +21,25 @@ public class UserRole
     /// </summary>
     /// <param name="userId">The user receiving the role.</param>
     /// <param name="roleId">The role assigned to the user.</param>
-    public static UserRole Create(UserId userId, RoleId roleId) =>
-        new()
-        {
-            UserId = userId,
-            RoleId = roleId,
-        };
+    public static UserRole Create(UserId userId, RoleId roleId)
+    {
+        var userRole = new UserRole();
+
+        userRole.Apply(userId, roleId);
+
+        return userRole;
+    }
+
+    /// <summary>
+    /// Assigns the two sides of the assignment.
+    /// </summary>
+    /// <param name="userId">The user receiving the role.</param>
+    /// <param name="roleId">The role assigned to the user.</param>
+    private void Apply(UserId userId, RoleId roleId)
+    {
+        UserId = userId;
+        RoleId = roleId;
+    }
 
     #endregion
 

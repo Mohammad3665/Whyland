@@ -1,8 +1,13 @@
 namespace Whyland.Application.Features.Admin.CourseFaqs.Commands.Reorder;
 
-/// <summary>Validates the course and the FAQ ids sent by drag &amp; drop.</summary>
+/// <summary>
+/// Validates <see cref="ReorderCourseFaqsCommand"/> before executing the reorder.
+/// </summary>
 public sealed class ReorderCourseFaqsCommandValidator : AbstractValidator<ReorderCourseFaqsCommand>
 {
+    /// <summary>
+    /// Configures the validation rules for the course and the question ids sent by drag &amp; drop.
+    /// </summary>
     public ReorderCourseFaqsCommandValidator()
     {
         RuleFor(x => x.CourseId)

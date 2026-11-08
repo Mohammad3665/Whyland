@@ -3,22 +3,38 @@ using CourseFaqEntity = Whyland.Domain.Model.Catalog.CourseFaq.Entities.CourseFa
 namespace Whyland.Infrastructure.Persistence.Repositories.Catalog.CourseFaq;
 
 /// <summary>
-/// EF Core command repository for <see cref="CourseFaqEntity"/>. Ordering is always scoped to one
-/// course, so reordering a question never renumbers another course's FAQ list.
+/// The EF Core command repository for the <c>CourseFaq</c> aggregate, backed by the shared scoped
+/// <see cref="WhylandDbContext"/>; persistence happens through the Unit of Work. Ordering is always
+/// scoped to one course, so reordering a question never renumbers another course's FAQ list.
 /// </summary>
+/// <param name="context">The scoped EF Core context the repository stages changes on.</param>
 public sealed class CourseFaqCommandRepository(WhylandDbContext context) : ICourseFaqCommandRepository
 {
+    /// <summary>Stages a new question; persisted on SaveAsync.</summary>
+    /// <param name="faq">The question to add.</param>
+    /// <param name="ct">Cancellation token.</param>
     public async Task AddAsync(CourseFaqEntity faq, CancellationToken ct = default)
         => await context.CourseFaqs.AddAsync(faq, ct);
 
+    /// <summary>Returns the tracked question, or null if not found.</summary>
+    /// <param name="id">Course FAQ identifier.</param>
+    /// <param name="ct">Cancellation token.</param>
     public Task<CourseFaqEntity?> GetByIdAsync(long id, CancellationToken ct = default)
         => context.CourseFaqs.FirstOrDefaultAsync(x => x.Id == CourseFaqId.From(id), ct);
 
+    /// <summary>Stages an existing question for update; persisted on SaveAsync.</summary>
+    /// <param name="faq">The tracked question to update.</param>
     public void Update(CourseFaqEntity faq)
         => context.Entry(faq).State = EntityState.Modified;
 
+    /// <summary>Marks the question as soft-deleted (hidden by the global query filter).</summary>
+    /// <param name="faq">The tracked question to soft-delete.</param>
     public void SoftDelete(CourseFaqEntity faq) => faq.MarkDeleted();
 
+    /// <summary>Stages the new display-order sequence for one course; persisted on SaveAsync.</summary>
+    /// <param name="courseId">The course whose FAQ list is reordered.</param>
+    /// <param name="orderedIds">The question ids in the desired order (index + 1 becomes DisplayOrder).</param>
+    /// <param name="ct">Cancellation token.</param>
     public async Task ReorderAsync(
         long courseId,
         IReadOnlyList<long> orderedIds,
@@ -30,6 +46,7 @@ public sealed class CourseFaqCommandRepository(WhylandDbContext context) : ICour
         var course = CourseId.From(courseId);
         var ids = orderedIds.Select(CourseFaqId.From).ToList();
 
+        // Load only the affected, live rows; unknown ids are silently skipped.
         var rows = await context.CourseFaqs
             .Where(x => x.CourseId == course && ids.Contains(x.Id))
             .ToDictionaryAsync(x => x.Id, ct);
@@ -39,6 +56,12 @@ public sealed class CourseFaqCommandRepository(WhylandDbContext context) : ICour
                 faq.SetDisplayOrder(i + 1);
     }
 
+    /// <summary>
+    /// Stages a compaction of DisplayOrder to an unbroken 1..n sequence for one course (global query
+    /// filter excludes soft-deleted rows); persisted on SaveAsync.
+    /// </summary>
+    /// <param name="courseId">The course whose FAQ list is renumbered.</param>
+    /// <param name="ct">Cancellation token.</param>
     public async Task RenumberAsync(long courseId, CancellationToken ct = default)
     {
         var course = CourseId.From(courseId);

@@ -137,7 +137,13 @@ public class InstructorProfile : BaseEntity<InstructorProfileId>
         if (userId.Value == Guid.Empty)
             return InstructorProfileErrors.FieldRequired(nameof(UserId));
 
-        var validation = Validate(
+        var profile = new InstructorProfile
+        {
+            Id = InstructorProfileId.From(Guid.NewGuid()),
+            UserId = userId,
+        };
+
+        var applied = profile.Apply(
             bio,
             biography,
             specialization,
@@ -147,22 +153,7 @@ public class InstructorProfile : BaseEntity<InstructorProfileId>
             shebaNumber,
             bankAccountNumber);
 
-        if (validation.IsFailure)
-            return validation.Error;
-
-        return new InstructorProfile
-        {
-            Id = InstructorProfileId.From(Guid.NewGuid()),
-            UserId = userId,
-            Bio = Clean(bio),
-            Biography = Clean(biography),
-            Specialization = Clean(specialization),
-            Website = Clean(website),
-            LinkedIn = Clean(linkedIn),
-            Instagram = Clean(instagram),
-            ShebaNumber = Clean(shebaNumber),
-            BankAccountNumber = Clean(bankAccountNumber),
-        };
+        return applied.IsFailure ? applied.Error : profile;
     }
 
     #endregion
@@ -181,8 +172,7 @@ public class InstructorProfile : BaseEntity<InstructorProfileId>
         string? instagram,
         string? shebaNumber,
         string? bankAccountNumber)
-    {
-        var validation = Validate(
+        => Apply(
             bio,
             biography,
             specialization,
@@ -191,21 +181,6 @@ public class InstructorProfile : BaseEntity<InstructorProfileId>
             instagram,
             shebaNumber,
             bankAccountNumber);
-
-        if (validation.IsFailure)
-            return validation.Error;
-
-        Bio = Clean(bio);
-        Biography = Clean(biography);
-        Specialization = Clean(specialization);
-        Website = Clean(website);
-        LinkedIn = Clean(linkedIn);
-        Instagram = Clean(instagram);
-        ShebaNumber = Clean(shebaNumber);
-        BankAccountNumber = Clean(bankAccountNumber);
-
-        return Result.Success();
-    }
 
     /// <summary>
     /// Stores the relative path of the current profile image, or clears it. The image pipeline
@@ -221,7 +196,12 @@ public class InstructorProfile : BaseEntity<InstructorProfileId>
         return Result.Success();
     }
 
-    private static Result Validate(
+    /// <summary>
+    /// Cleans, validates and assigns every editable profile value. Shared by create and update so
+    /// both paths enforce exactly the same rules; on failure the instance is left unchanged.
+    /// </summary>
+    /// <returns>A successful <see cref="Result"/> if all rules pass; otherwise a validation failure.</returns>
+    private Result Apply(
         string? bio,
         string? biography,
         string? specialization,
@@ -252,6 +232,15 @@ public class InstructorProfile : BaseEntity<InstructorProfileId>
         if (accountValue is not null &&
             (accountValue.Length is < 6 or > 20 || !accountValue.All(char.IsDigit)))
             return InstructorProfileErrors.InvalidBankAccountNumber();
+
+        Bio = Clean(bio);
+        Biography = Clean(biography);
+        Specialization = Clean(specialization);
+        Website = Clean(website);
+        LinkedIn = Clean(linkedIn);
+        Instagram = Clean(instagram);
+        ShebaNumber = Clean(shebaNumber);
+        BankAccountNumber = Clean(bankAccountNumber);
 
         return Result.Success();
     }

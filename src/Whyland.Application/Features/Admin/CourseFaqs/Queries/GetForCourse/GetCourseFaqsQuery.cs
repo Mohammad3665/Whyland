@@ -1,5 +1,8 @@
 namespace Whyland.Application.Features.Admin.CourseFaqs.Queries.GetForCourse;
 
-/// <summary>Returns the live FAQs of one course in display order.</summary>
+/// <summary>
+/// Query that returns the live FAQ items of one course in display order.
+/// </summary>
+/// <param name="CourseId">The course whose questions are read.</param>
 public sealed record GetCourseFaqsQuery(long CourseId)
     : IQuery<IReadOnlyList<CourseFaqListItemDto>>;

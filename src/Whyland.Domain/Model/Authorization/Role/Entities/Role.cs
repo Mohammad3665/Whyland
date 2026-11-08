@@ -33,19 +33,8 @@ public class Role : BaseEntity<RoleId>, ISoftDeletable
     /// <summary>ORM constructor. New records are built through <see cref="Create"/>.</summary>
     private Role() { }
 
-    /// <summary>Builds the row from inputs <see cref="Validate"/> has already accepted.</summary>
-    /// <param name="name">The trimmed name.</param>
-    /// <param name="title">The trimmed display title.</param>
-    /// <param name="isSystem">Whether the role is required by the application.</param>
-    private Role(string name, string title, bool isSystem)
-    {
-        Name = name;
-        Title = title;
-        IsSystem = isSystem;
-    }
-
     /// <summary>
-    /// Creates a role after trimming and validating the inputs. The identifier comes from the
+    /// Creates a role after trimming, validating and assigning the inputs. The identifier comes from the
     /// database sequence and the audit columns from the interceptor, so neither is set here.
     /// </summary>
     /// <param name="name">Unique role name (e.g. "SuperAdmin"). Will be trimmed.</param>
@@ -57,36 +46,42 @@ public class Role : BaseEntity<RoleId>, ISoftDeletable
     /// </returns>
     public static Result<Role> Create(string name, string title, bool isSystem)
     {
-        var trimmedName = name?.Trim();
-        var trimmedTitle = title?.Trim();
+        var role = new Role();
 
-        var validation = Validate(trimmedName, trimmedTitle);
-        if (validation.IsFailure)
-            return validation.Error;
-
-        return new Role(trimmedName!, trimmedTitle!, isSystem);
+        var applied = role.Apply(name, title, isSystem);
+        return applied.IsFailure ? applied.Error : role;
     }
 
     /// <summary>
-    /// Validates the trimmed inputs against the invariants this row can judge on its own: the two
-    /// text fields and their column sizes. Uniqueness of the name belongs to the store, not here.
+    /// Trims, validates and assigns every editable value. Shared by create and update so both paths
+    /// enforce exactly the same rules; on failure the instance is left unchanged. Update hands in the
+    /// current system flag, so this method never changes it. Uniqueness of the name belongs to the
+    /// store, not here — an entity cannot see the other rows.
     /// </summary>
-    /// <param name="name">The trimmed name to validate.</param>
-    /// <param name="title">The trimmed title to validate.</param>
+    /// <param name="name">Unique role name. Will be trimmed.</param>
+    /// <param name="title">Human-readable display title. Will be trimmed.</param>
+    /// <param name="isSystem">Whether the role is required by the application.</param>
     /// <returns>A successful <see cref="Result"/> if all rules pass; otherwise a validation failure.</returns>
-    private static Result Validate(string? name, string? title)
+    private Result Apply(string name, string title, bool isSystem)
     {
-        if (string.IsNullOrWhiteSpace(name))
+        var trimmedName = name?.Trim();
+        var trimmedTitle = title?.Trim();
+
+        if (string.IsNullOrWhiteSpace(trimmedName))
             return RoleErrors.FieldRequired(nameof(Name));
 
-        if (name.Length > MaxNameLength)
+        if (trimmedName.Length > MaxNameLength)
             return RoleErrors.FieldTooLong(nameof(Name), MaxNameLength);
 
-        if (string.IsNullOrWhiteSpace(title))
+        if (string.IsNullOrWhiteSpace(trimmedTitle))
             return RoleErrors.FieldRequired(nameof(Title));
 
-        if (title.Length > MaxTitleLength)
+        if (trimmedTitle.Length > MaxTitleLength)
             return RoleErrors.FieldTooLong(nameof(Title), MaxTitleLength);
+
+        Name = trimmedName;
+        Title = trimmedTitle;
+        IsSystem = isSystem;
 
         return Result.Success();
     }
@@ -131,8 +126,8 @@ public class Role : BaseEntity<RoleId>, ISoftDeletable
     #region Behaviour
 
     /// <summary>
-    /// Renames the role and gives it a new display title, through the same <see cref="Validate"/>
-    /// the factory uses so a edit cannot loosen an invariant a create refused.
+    /// Renames the role and gives it a new display title, through the same <see cref="Apply"/>
+    /// the factory uses so an edit cannot loosen an invariant a create refused.
     /// <para>
     /// A system role is excluded: its name is the string the seeders and the code refer to, so
     /// letting the panel rename it would break the very assignment it exists for. System roles are
@@ -150,17 +145,7 @@ public class Role : BaseEntity<RoleId>, ISoftDeletable
         if (IsSystem)
             return RoleErrors.SystemRoleProtected();
 
-        var trimmedName = name?.Trim();
-        var trimmedTitle = title?.Trim();
-
-        var validation = Validate(trimmedName, trimmedTitle);
-        if (validation.IsFailure)
-            return validation.Error;
-
-        Name = trimmedName!;
-        Title = trimmedTitle!;
-
-        return Result.Success();
+        return Apply(name, title, IsSystem);
     }
 
     /// <summary>

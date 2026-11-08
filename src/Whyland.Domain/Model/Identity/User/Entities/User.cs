@@ -146,52 +146,45 @@ public class User : BaseEntity<UserId>
         string? passwordHash = null,
         bool isActive = true)
     {
-        var trimmedFirstName = firstName?.Trim();
-        var trimmedLastName = lastName?.Trim();
+        var user = new User { Id = UserId.From(Guid.NewGuid()) };
 
-        var validation = Validate(trimmedFirstName, trimmedLastName, phoneNumber, email, passwordHash);
-        if (validation.IsFailure)
-            return validation.Error;
-
-        return new User
-        {
-            Id = UserId.From(Guid.NewGuid()),
-            FirstName = trimmedFirstName!,
-            LastName = trimmedLastName!,
-            PhoneNumber = phoneNumber,
-            Email = email,
-            PasswordHash = passwordHash,
-            IsActive = isActive,
-        };
+        var applied = user.Apply(firstName, lastName, phoneNumber, email, passwordHash, isActive);
+        return applied.IsFailure ? applied.Error : user;
     }
 
     /// <summary>
-    /// Validates the inputs against the invariants this row can judge on its own: the name shown in
-    /// the header and the size of every column. Uniqueness and the shape of the number belong to the
-    /// callers — an entity cannot see the other accounts, and the number arrives already normalized.
+    /// Trims, validates and assigns every editable value. Shared by create and update so both paths
+    /// enforce exactly the same rules; on failure the instance is left unchanged. Uniqueness and the
+    /// shape of the number belong to the callers — an entity cannot see the other accounts, and the
+    /// number arrives already normalized.
     /// </summary>
-    /// <param name="firstName">The trimmed given name to validate.</param>
-    /// <param name="lastName">The trimmed family name to validate.</param>
+    /// <param name="firstName">The given name. Will be trimmed.</param>
+    /// <param name="lastName">The family name. Will be trimmed.</param>
     /// <param name="phoneNumber">The sign-in number, or null when the account has none.</param>
     /// <param name="email">The e-mail address, or null when the account has none.</param>
     /// <param name="passwordHash">The stored hash, or null when the account has no local password.</param>
+    /// <param name="isActive">Whether the account may sign in.</param>
     /// <returns>A successful <see cref="Result"/> if all rules pass; otherwise a validation failure.</returns>
-    private static Result Validate(
-        string? firstName,
-        string? lastName,
+    private Result Apply(
+        string firstName,
+        string lastName,
         string? phoneNumber,
         string? email,
-        string? passwordHash)
+        string? passwordHash,
+        bool isActive)
     {
+        var trimmedFirstName = firstName?.Trim();
+        var trimmedLastName = lastName?.Trim();
+
         // Every flow that reaches this point either asks for the given name or synthesises one from
         // the provider claims, so an account without a name to show is a caller mistake, not user input.
-        if (string.IsNullOrWhiteSpace(firstName))
+        if (string.IsNullOrWhiteSpace(trimmedFirstName))
             return UserErrors.FieldRequired(nameof(FirstName));
 
-        if (firstName.Length > MaxFirstNameLength)
+        if (trimmedFirstName.Length > MaxFirstNameLength)
             return UserErrors.FieldTooLong(nameof(FirstName), MaxFirstNameLength);
 
-        if (lastName?.Length > MaxLastNameLength)
+        if (trimmedLastName?.Length > MaxLastNameLength)
             return UserErrors.FieldTooLong(nameof(LastName), MaxLastNameLength);
 
         if (phoneNumber?.Length > MaxPhoneNumberLength)
@@ -202,6 +195,13 @@ public class User : BaseEntity<UserId>
 
         if (passwordHash?.Length > MaxPasswordHashLength)
             return UserErrors.FieldTooLong(nameof(PasswordHash), MaxPasswordHashLength);
+
+        FirstName = trimmedFirstName;
+        LastName = trimmedLastName ?? string.Empty;
+        PhoneNumber = phoneNumber;
+        Email = email;
+        PasswordHash = passwordHash;
+        IsActive = isActive;
 
         return Result.Success();
     }
@@ -225,23 +225,8 @@ public class User : BaseEntity<UserId>
     /// or a failure describing the first violated invariant. On failure, the instance is left unchanged.
     /// </returns>
     public Result UpdateProfile(string firstName, string lastName, string? phoneNumber, string? email, bool isActive)
-    {
-        var trimmedFirstName = firstName?.Trim();
-        var trimmedLastName = lastName?.Trim();
-
-        // The hash is not part of this edit, so it is passed only so the column rule covers it.
-        var validation = Validate(trimmedFirstName, trimmedLastName, phoneNumber, email, PasswordHash);
-        if (validation.IsFailure)
-            return validation.Error;
-
-        FirstName = trimmedFirstName!;
-        LastName = trimmedLastName!;
-        PhoneNumber = phoneNumber;
-        Email = email;
-        IsActive = isActive;
-
-        return Result.Success();
-    }
+        // The hash is not part of this edit, so the current one is passed only so its column rule still covers it.
+        => Apply(firstName, lastName, phoneNumber, email, PasswordHash, isActive);
 
     /// <summary>
     /// Attaches a sign-in number the caller already proved — through an OTP code while the owner sets a

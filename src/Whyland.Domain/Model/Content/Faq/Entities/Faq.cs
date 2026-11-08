@@ -63,19 +63,7 @@ public class Faq : BaseEntity<FaqId>, ISoftDeletable
     private Faq() { }
 
     /// <summary>
-    /// Initializes a validated <see cref="Faq"/> instance.
-    /// Assumes the inputs have already passed <see cref="Validate"/>.
-    /// </summary>
-    private Faq(string title, string description, int displayOrder, bool isActive)
-    {
-        Title = title;
-        Description = description;
-        DisplayOrder = displayOrder;
-        IsActive = isActive;
-    }
-
-    /// <summary>
-    /// Creates a new <see cref="Faq"/> after trimming and validating the inputs.
+    /// Creates a new <see cref="Faq"/> after trimming, validating and assigning the inputs.
     /// </summary>
     /// <param name="title">The question text. Will be trimmed.</param>
     /// <param name="description">The answer text. Will be trimmed.</param>
@@ -87,18 +75,14 @@ public class Faq : BaseEntity<FaqId>, ISoftDeletable
     /// </returns>
     public static Result<Faq> Create(string title, string description, int displayOrder, bool isActive)
     {
-        var trimmedTitle = title?.Trim();
-        var trimmedDescription = description?.Trim();
+        var faq = new Faq();
 
-        var validation = Validate(trimmedTitle, trimmedDescription, displayOrder);
-        if (validation.IsFailure)
-            return validation.Error;
-
-        return new Faq(trimmedTitle!, trimmedDescription!, displayOrder, isActive);
+        var applied = faq.Apply(title, description, displayOrder, isActive);
+        return applied.IsFailure ? applied.Error : faq;
     }
 
     /// <summary>
-    /// Updates the FAQ's mutable fields after trimming and validating the inputs.
+    /// Updates the FAQ's mutable fields after trimming, validating and assigning them.
     /// </summary>
     /// <param name="title">The new question text. Will be trimmed.</param>
     /// <param name="description">The new answer text. Will be trimmed.</param>
@@ -109,21 +93,7 @@ public class Faq : BaseEntity<FaqId>, ISoftDeletable
     /// or a failure describing the first violated invariant. On failure, the instance is left unchanged.
     /// </returns>
     public Result Update(string title, string description, int displayOrder, bool isActive)
-    {
-        var trimmedTitle = title?.Trim();
-        var trimmedDescription = description?.Trim();
-
-        var validation = Validate(trimmedTitle, trimmedDescription, displayOrder);
-        if (validation.IsFailure)
-            return validation.Error;
-
-        Title = trimmedTitle!;
-        Description = trimmedDescription!;
-        DisplayOrder = displayOrder;
-        IsActive = isActive;
-
-        return Result.Success();
-    }
+        => Apply(title, description, displayOrder, isActive);
 
     /// <summary>
     /// Moves the FAQ to a new position, as the reorder operation rewrites the weight of every item in the list.
@@ -149,30 +119,38 @@ public class Faq : BaseEntity<FaqId>, ISoftDeletable
     }
 
     /// <summary>
-    /// Validates the trimmed inputs against the FAQ's invariants.
-    /// Shared by <see cref="Create"/> and <see cref="Update"/> so both paths enforce
-    /// exactly the same rules. Returns the first violation encountered.
+    /// Trims, validates and assigns every editable value. Shared by create and update so both paths
+    /// enforce exactly the same rules; on failure the instance is left unchanged.
     /// </summary>
-    /// <param name="title">The trimmed title to validate.</param>
-    /// <param name="description">The trimmed description to validate.</param>
-    /// <param name="displayOrder">The ordering weight to validate.</param>
+    /// <param name="title">The question text. Will be trimmed.</param>
+    /// <param name="description">The answer text. Will be trimmed.</param>
+    /// <param name="displayOrder">The ordering weight; must be zero or greater.</param>
+    /// <param name="isActive">Whether the FAQ is visible on the site.</param>
     /// <returns>A successful <see cref="Result"/> if all rules pass; otherwise a validation failure.</returns>
-    private static Result Validate(string? title, string? description, int displayOrder)
+    private Result Apply(string title, string description, int displayOrder, bool isActive)
     {
-        if (string.IsNullOrWhiteSpace(title))
+        var trimmedTitle = title?.Trim();
+        var trimmedDescription = description?.Trim();
+
+        if (string.IsNullOrWhiteSpace(trimmedTitle))
             return FaqErrors.FieldRequired(nameof(Title));
 
-        if (title.Length > MaxTitleLength)
+        if (trimmedTitle.Length > MaxTitleLength)
             return FaqErrors.FieldTooLong(nameof(Title), MaxTitleLength);
 
-        if (string.IsNullOrWhiteSpace(description))
+        if (string.IsNullOrWhiteSpace(trimmedDescription))
             return FaqErrors.FieldRequired(nameof(Description));
 
-        if (description.Length > MaxDescriptionLength)
+        if (trimmedDescription.Length > MaxDescriptionLength)
             return FaqErrors.FieldTooLong(nameof(Description), MaxDescriptionLength);
 
         if (displayOrder < 0)
             return FaqErrors.GreaterThanOrEqualToZero(nameof(DisplayOrder));
+
+        Title = trimmedTitle;
+        Description = trimmedDescription;
+        DisplayOrder = displayOrder;
+        IsActive = isActive;
 
         return Result.Success();
     }

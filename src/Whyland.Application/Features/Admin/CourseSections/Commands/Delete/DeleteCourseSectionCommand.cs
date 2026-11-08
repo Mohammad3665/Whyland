@@ -1,4 +1,7 @@
 namespace Whyland.Application.Features.Admin.CourseSections.Commands.Delete;
 
-/// <summary>Soft-deletes a course section.</summary>
+/// <summary>
+/// Command that soft-deletes an existing section by its identifier.
+/// </summary>
+/// <param name="Id">The identifier of the section to soft-delete.</param>
 public sealed record DeleteCourseSectionCommand(long Id) : ICommand;

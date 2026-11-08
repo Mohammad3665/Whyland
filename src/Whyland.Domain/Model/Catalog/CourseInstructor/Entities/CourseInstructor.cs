@@ -20,7 +20,26 @@ public class CourseInstructor
     /// <param name="course">The course being linked.</param>
     /// <param name="instructorProfileId">The instructor profile to link.</param>
     public static CourseInstructor Create(CourseEntity course, InstructorProfileId instructorProfileId)
-        => new() { Course = course, CourseId = course.Id, InstructorProfileId = instructorProfileId };
+    {
+        var link = new CourseInstructor();
+
+        link.Apply(course, instructorProfileId);
+
+        return link;
+    }
+
+    /// <summary>
+    /// Assigns both sides of the relation, including the navigation, so EF can fix up the foreign
+    /// key while a new course still has no generated identifier.
+    /// </summary>
+    /// <param name="course">The course being linked.</param>
+    /// <param name="instructorProfileId">The instructor profile to link.</param>
+    private void Apply(CourseEntity course, InstructorProfileId instructorProfileId)
+    {
+        Course = course;
+        CourseId = course.Id;
+        InstructorProfileId = instructorProfileId;
+    }
 
     /// <summary>
     /// The course this relation links to the instructor.

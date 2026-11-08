@@ -8,9 +8,13 @@ using Whyland.Application.Features.Admin.Courses.Queries.GetById;
 namespace Whyland.Web.Areas.Admin.Pages.Catalog.Courses.CourseSections;
 
 /// <summary>
-/// «سرفصل‌های دوره» page: sections of one course, ordered by DisplayOrder and managed only from
-/// the course page. Rows and every mutation go through the course-section feature handlers.
+/// «سرفصل‌های دوره» page: the sections of one course, ordered by DisplayOrder and managed only from
+/// the course page. Rows are loaded through ?handler=Rows and every mutation runs through the
+/// corresponding command handler; the table itself is a client-side DataTable with RowReorder drag
+/// &amp; drop ordering (see wwwroot/admin/js/course-sections.js).
 /// </summary>
+/// <param name="dispatcher">The interface used to dispatch commands and queries.</param>
+/// <param name="authorizationService">Checks the write key of each handler, which a page attribute cannot express.</param>
 [HasPermission(Permissions.Courses.View)]
 public class IndexModel(
     IDispatcher dispatcher,
@@ -23,7 +27,10 @@ public class IndexModel(
     /// <summary>The course title shown in the page header.</summary>
     public string CourseTitle { get; private set; } = string.Empty;
 
-    /// <summary>Loads the page and resolves the course title; an unknown course is a 404.</summary>
+    /// <summary>
+    /// Loads the page and resolves the course title; an unknown course is a 404.
+    /// </summary>
+    /// <param name="ct">A token to cancel the operation.</param>
     public async Task<IActionResult> OnGetAsync(CancellationToken ct)
     {
         if (CourseId <= 0)
@@ -37,7 +44,15 @@ public class IndexModel(
         return Page();
     }
 
-    /// <summary>Returns all live sections of the course, ordered by DisplayOrder.</summary>
+    /// <summary>
+    /// Returns all live sections of the course, ordered by DisplayOrder, that the client-side
+    /// DataTable and its drag &amp; drop ordering consume.
+    /// </summary>
+    /// <param name="courseId">The course whose sections are read.</param>
+    /// <param name="ct">A token to cancel the operation.</param>
+    /// <returns>
+    /// The section rows as JSON, or a 500 status with an error message.
+    /// </returns>
     public async Task<IActionResult> OnGetRowsAsync([FromQuery] long courseId, CancellationToken ct)
     {
         var result = await dispatcher.Send(new GetCourseSectionsQuery(courseId), ct);
@@ -51,22 +66,38 @@ public class IndexModel(
 
     #region Mutations
 
+    // Each write demands the course edit key on top of the view key the class carries: opening the
+    // list must not be enough to change it. The check is made in code because an attribute on a page
+    // handler method is ignored by Razor Pages (MVC1001).
     /// <summary>Creates a section in the course (?handler=Create).</summary>
+    /// <param name="command">The values submitted in the modal form.</param>
+    /// <param name="ct">A token to cancel the operation.</param>
+    /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
     public async Task<IActionResult> OnPostCreateAsync(CreateCourseSectionCommand command, CancellationToken ct)
         => await DenyUnlessAsync(Permissions.Courses.Edit)
             ?? ToJson(await dispatcher.Send(command, ct));
 
-    /// <summary>Updates a section (?handler=Update).</summary>
+    /// <summary>Updates an existing section from the edit modal (?handler=Update).</summary>
+    /// <param name="command">The values submitted in the modal form, including the section id.</param>
+    /// <param name="ct">A token to cancel the operation.</param>
+    /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
     public async Task<IActionResult> OnPostUpdateAsync(UpdateCourseSectionCommand command, CancellationToken ct)
         => await DenyUnlessAsync(Permissions.Courses.Edit)
             ?? ToJson(await dispatcher.Send(command, ct));
 
-    /// <summary>Soft-deletes an empty section (?handler=Delete).</summary>
+    /// <summary>Soft-deletes an empty section from the delete modal (?handler=Delete).</summary>
+    /// <param name="id">The identifier of the section to delete.</param>
+    /// <param name="ct">A token to cancel the operation.</param>
+    /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
     public async Task<IActionResult> OnPostDeleteAsync([FromForm] long id, CancellationToken ct)
         => await DenyUnlessAsync(Permissions.Courses.Edit)
             ?? ToJson(await dispatcher.Send(new DeleteCourseSectionCommand(id), ct));
 
     /// <summary>Persists the visual drag &amp; drop ordering (?handler=Reorder).</summary>
+    /// <param name="courseId">The course whose sections are reordered.</param>
+    /// <param name="rows">The reordered rows in visual order; only the ids matter.</param>
+    /// <param name="ct">A token to cancel the operation.</param>
+    /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
     public async Task<IActionResult> OnPostReorderAsync(
         [FromQuery] long courseId,
         [FromBody] List<ReorderRow> rows,
@@ -77,6 +108,8 @@ public class IndexModel(
 
     #endregion
 
-    /// <summary>Reorder payload sent by the client.</summary>
+    /// <summary>Reorder payload sent by the client (RowReorder saves visual order).</summary>
+    /// <param name="Id">The section identifier.</param>
+    /// <param name="DisplayOrder">The visual order displayed by the badge.</param>
     public sealed record ReorderRow(long Id, int DisplayOrder);
 }

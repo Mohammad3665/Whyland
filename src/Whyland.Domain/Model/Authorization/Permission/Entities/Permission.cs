@@ -31,19 +31,8 @@ public class Permission : BaseEntity<PermissionId>, ISoftDeletable
     /// <summary>ORM constructor. New records are built through <see cref="Create"/>.</summary>
     private Permission() { }
 
-    /// <summary>Builds the row from inputs <see cref="Validate"/> has already accepted.</summary>
-    /// <param name="name">The trimmed name.</param>
-    /// <param name="key">The trimmed authorization key.</param>
-    /// <param name="isSystem">Whether the permission is application-defined.</param>
-    private Permission(string name, string key, bool isSystem)
-    {
-        Name = name;
-        Key = key;
-        IsSystem = isSystem;
-    }
-
     /// <summary>
-    /// Creates a permission after trimming and validating the inputs. The identifier comes from the
+    /// Creates a permission after trimming, validating and assigning the inputs. The identifier comes from the
     /// database sequence and the audit columns from the interceptor, so neither is set here.
     /// </summary>
     /// <param name="name">Human-readable name (e.g. "Course Creation"). Will be trimmed.</param>
@@ -55,37 +44,40 @@ public class Permission : BaseEntity<PermissionId>, ISoftDeletable
     /// </returns>
     public static Result<Permission> Create(string name, string key, bool isSystem = true)
     {
-        var trimmedName = name?.Trim();
-        var trimmedKey = key?.Trim();
+        var permission = new Permission();
 
-        var validation = Validate(trimmedName, trimmedKey);
-        if (validation.IsFailure)
-            return validation.Error;
-
-        return new Permission(trimmedName!, trimmedKey!, isSystem);
+        var applied = permission.Apply(name, key, isSystem);
+        return applied.IsFailure ? applied.Error : permission;
     }
 
     /// <summary>
-    /// Validates the trimmed inputs against the invariants this row can judge on its own: the two
-    /// text fields and their column sizes. Uniqueness of the key belongs to the store, not here —
-    /// an entity cannot see the other rows.
+    /// Trims, validates and assigns every editable value. Uniqueness of the key belongs to the store,
+    /// not here — an entity cannot see the other rows; on failure the instance is left unchanged.
     /// </summary>
-    /// <param name="name">The trimmed name to validate.</param>
-    /// <param name="key">The trimmed key to validate.</param>
+    /// <param name="name">Human-readable name. Will be trimmed.</param>
+    /// <param name="key">Unique authorization key. Will be trimmed.</param>
+    /// <param name="isSystem">Whether the permission is application-defined.</param>
     /// <returns>A successful <see cref="Result"/> if all rules pass; otherwise a validation failure.</returns>
-    private static Result Validate(string? name, string? key)
+    private Result Apply(string name, string key, bool isSystem)
     {
-        if (string.IsNullOrWhiteSpace(name))
+        var trimmedName = name?.Trim();
+        var trimmedKey = key?.Trim();
+
+        if (string.IsNullOrWhiteSpace(trimmedName))
             return PermissionErrors.FieldRequired(nameof(Name));
 
-        if (name.Length > MaxNameLength)
+        if (trimmedName.Length > MaxNameLength)
             return PermissionErrors.FieldTooLong(nameof(Name), MaxNameLength);
 
-        if (string.IsNullOrWhiteSpace(key))
+        if (string.IsNullOrWhiteSpace(trimmedKey))
             return PermissionErrors.FieldRequired(nameof(Key));
 
-        if (key.Length > MaxKeyLength)
+        if (trimmedKey.Length > MaxKeyLength)
             return PermissionErrors.FieldTooLong(nameof(Key), MaxKeyLength);
+
+        Name = trimmedName;
+        Key = trimmedKey;
+        IsSystem = isSystem;
 
         return Result.Success();
     }

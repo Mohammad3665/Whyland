@@ -1,8 +1,13 @@
 namespace Whyland.Application.Features.Admin.CourseSections.Commands.Reorder;
 
-/// <summary>Validates the course and the section ids sent by drag &amp; drop.</summary>
+/// <summary>
+/// Validates <see cref="ReorderCourseSectionsCommand"/> before executing the reorder.
+/// </summary>
 public sealed class ReorderCourseSectionsCommandValidator : AbstractValidator<ReorderCourseSectionsCommand>
 {
+    /// <summary>
+    /// Configures the validation rules for the course and the section ids sent by drag &amp; drop.
+    /// </summary>
     public ReorderCourseSectionsCommandValidator()
     {
         RuleFor(x => x.CourseId)

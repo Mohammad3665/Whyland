@@ -1,8 +1,13 @@
 namespace Whyland.Application.Features.Admin.CourseSections.Commands.Delete;
 
-/// <summary>Validates the section identifier before deletion.</summary>
+/// <summary>
+/// Validates <see cref="DeleteCourseSectionCommand"/> fields before deletion.
+/// </summary>
 public sealed class DeleteCourseSectionCommandValidator : AbstractValidator<DeleteCourseSectionCommand>
 {
+    /// <summary>
+    /// Configures the validation rule for the section identifier.
+    /// </summary>
     public DeleteCourseSectionCommandValidator()
     {
         RuleFor(x => x.Id)

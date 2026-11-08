@@ -1,8 +1,14 @@
 namespace Whyland.Application.Features.Admin.CourseSections.Commands.Update;
 
-/// <summary>Validates <see cref="UpdateCourseSectionCommand"/> against the section limits.</summary>
+/// <summary>
+/// Validates <see cref="UpdateCourseSectionCommand"/> fields against the section domain
+/// constraints.
+/// </summary>
 public sealed class UpdateCourseSectionCommandValidator : AbstractValidator<UpdateCourseSectionCommand>
 {
+    /// <summary>
+    /// Configures the validation rules for every updatable section field.
+    /// </summary>
     public UpdateCourseSectionCommandValidator()
     {
         RuleFor(x => x.Id)

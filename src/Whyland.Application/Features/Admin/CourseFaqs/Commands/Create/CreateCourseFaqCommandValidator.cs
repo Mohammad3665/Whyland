@@ -1,8 +1,14 @@
 namespace Whyland.Application.Features.Admin.CourseFaqs.Commands.Create;
 
-/// <summary>Validates <see cref="CreateCourseFaqCommand"/> against the course FAQ limits.</summary>
+/// <summary>
+/// Validates <see cref="CreateCourseFaqCommand"/> fields against the course FAQ domain
+/// constraints.
+/// </summary>
 public sealed class CreateCourseFaqCommandValidator : AbstractValidator<CreateCourseFaqCommand>
 {
+    /// <summary>
+    /// Configures the validation rules for every new question field.
+    /// </summary>
     public CreateCourseFaqCommandValidator()
     {
         RuleFor(x => x.CourseId)

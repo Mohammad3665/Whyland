@@ -87,29 +87,45 @@ public class ExternalLogin
     /// </returns>
     public static Result<ExternalLogin> Create(UserId userId, string provider, string providerKey)
     {
+        var login = new ExternalLogin
+        {
+            Id = ExternalLoginId.From(Guid.NewGuid()),
+            UserId = userId,
+            CreatedAt = DateTime.UtcNow,
+        };
+
+        var applied = login.Apply(provider, providerKey);
+        return applied.IsFailure ? applied.Error : login;
+    }
+
+    /// <summary>
+    /// Trims, validates and assigns the two provider claims. Uniqueness of the pair belongs to the
+    /// store; on failure the instance is left unchanged.
+    /// </summary>
+    /// <param name="provider">The authentication scheme name, e.g. "Google". Will be trimmed.</param>
+    /// <param name="providerKey">The identifier the provider gave to this user. Will be trimmed.</param>
+    /// <returns>A successful <see cref="Result"/> if all rules pass; otherwise a validation failure.</returns>
+    private Result Apply(string provider, string providerKey)
+    {
         var trimmedProvider = provider?.Trim();
         var trimmedProviderKey = providerKey?.Trim();
 
         if (string.IsNullOrWhiteSpace(trimmedProvider))
             return ExternalLoginErrors.FieldRequired(nameof(Provider));
 
-        if (trimmedProvider!.Length > MaxProviderLength)
+        if (trimmedProvider.Length > MaxProviderLength)
             return ExternalLoginErrors.FieldTooLong(nameof(Provider), MaxProviderLength);
 
         if (string.IsNullOrWhiteSpace(trimmedProviderKey))
             return ExternalLoginErrors.FieldRequired(nameof(ProviderKey));
 
-        if (trimmedProviderKey!.Length > MaxProviderKeyLength)
+        if (trimmedProviderKey.Length > MaxProviderKeyLength)
             return ExternalLoginErrors.FieldTooLong(nameof(ProviderKey), MaxProviderKeyLength);
 
-        return new ExternalLogin
-        {
-            Id = ExternalLoginId.From(Guid.NewGuid()),
-            UserId = userId,
-            Provider = trimmedProvider,
-            ProviderKey = trimmedProviderKey,
-            CreatedAt = DateTime.UtcNow,
-        };
+        Provider = trimmedProvider;
+        ProviderKey = trimmedProviderKey;
+
+        return Result.Success();
     }
 
     #endregion

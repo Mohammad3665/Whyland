@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 using CourseCategoryEntity = Whyland.Domain.Model.Catalog.CourseCategory.Entities.CourseCategory;
 using CourseFaqEntity = Whyland.Domain.Model.Catalog.CourseFaq.Entities.CourseFaq;
@@ -15,34 +15,6 @@ namespace Whyland.Domain.Model.Catalog.Course.Entities;
 /// </summary>
 public class Course : BaseEntity<CourseId>, ISoftDeletable
 {
-    #region Limits
-
-    // Every column length is declared once on the entity that owns the column, so the
-    // EF mapping, the request validators and the domain rules all read the same number.
-    // Changing a size means editing one line here.
-
-    /// <summary>Maximum allowed length of <see cref="LatinName"/>; also the database column size.</summary>
-    public const int MaxLatinNameLength = 200;
-
-    /// <summary>Maximum allowed length of <see cref="MainImage"/>; also the database column size.</summary>
-    public const int MaxMainImageLength = 512;
-
-    /// <summary>Maximum allowed length of <see cref="Name"/>; also the database column size.</summary>
-    public const int MaxNameLength = 200;
-
-    /// <summary>Maximum allowed length of <see cref="ShortDescription"/>; also the database column size.</summary>
-    public const int MaxShortDescriptionLength = 500;
-
-    /// <summary>Maximum allowed length of <see cref="Slug"/>; also the database column size.</summary>
-    public const int MaxSlugLength = 300;
-
-    /// <summary>Slug shape: lower-case letters and digits separated by single hyphens.</summary>
-    private static readonly Regex SlugPattern = new(
-        @"\A[a-z0-9]+(?:-[a-z0-9]+)*\z",
-        RegexOptions.CultureInvariant | RegexOptions.Compiled);
-
-    #endregion
-
     #region Properties
 
     /// <summary>
@@ -163,6 +135,30 @@ public class Course : BaseEntity<CourseId>, ISoftDeletable
 
     #region Construction
 
+    // Every column length is declared once on the entity that owns the column, so the
+    // EF mapping, the request validators and the domain rules all read the same number.
+    // Changing a size means editing one line here.
+
+    /// <summary>Maximum allowed length of <see cref="LatinName"/>; also the database column size.</summary>
+    public const int MaxLatinNameLength = 200;
+
+    /// <summary>Maximum allowed length of <see cref="MainImage"/>; also the database column size.</summary>
+    public const int MaxMainImageLength = 512;
+
+    /// <summary>Maximum allowed length of <see cref="Name"/>; also the database column size.</summary>
+    public const int MaxNameLength = 200;
+
+    /// <summary>Maximum allowed length of <see cref="ShortDescription"/>; also the database column size.</summary>
+    public const int MaxShortDescriptionLength = 500;
+
+    /// <summary>Maximum allowed length of <see cref="Slug"/>; also the database column size.</summary>
+    public const int MaxSlugLength = 300;
+
+    /// <summary>Slug shape: lower-case letters and digits separated by single hyphens.</summary>
+    private static readonly Regex SlugPattern = new(
+        @"\A[a-z0-9]+(?:-[a-z0-9]+)*\z",
+        RegexOptions.CultureInvariant | RegexOptions.Compiled);
+
     /// <summary>
     /// Parameterless constructor required by ORMs (e.g. EF Core).
     /// Not intended for direct use — create instances via <see cref="Create"/>.
@@ -173,6 +169,22 @@ public class Course : BaseEntity<CourseId>, ISoftDeletable
     /// Creates a new course after trimming and validating the inputs.
     /// Relations and the uploaded image are attached by the caller once the row exists.
     /// </summary>
+    /// <param name="name">The course display name. Will be trimmed.</param>
+    /// <param name="latinName">The Latin name. Will be trimmed.</param>
+    /// <param name="shortDescription">The excerpt shown in listings. Will be trimmed.</param>
+    /// <param name="description">The optional full description. Will be trimmed.</param>
+    /// <param name="slug">The URL-safe slug. Will be trimmed and lower-cased.</param>
+    /// <param name="price">The price in Toman; null means the course is free.</param>
+    /// <param name="discountType">The kind of discount applied to the course.</param>
+    /// <param name="discountValue">The discount amount, when a discount is active.</param>
+    /// <param name="isSaleActive">Whether the course can currently be purchased.</param>
+    /// <param name="displayStatus">The public visibility status.</param>
+    /// <param name="isFeatured">Whether the course is promoted as featured.</param>
+    /// <param name="isAmazing">Whether the course is in the promotional deals section.</param>
+    /// <returns>
+    /// A successful <see cref="Result{T}"/> containing the new course,
+    /// or a failure describing the first violated invariant.
+    /// </returns>
     public static Result<Course> Create(
         string name,
         string latinName,
@@ -210,6 +222,22 @@ public class Course : BaseEntity<CourseId>, ISoftDeletable
     /// Updates the editable values of an existing course, leaving the cover image alone:
     /// the image is its own intent because it is stored before this row is saved.
     /// </summary>
+    /// <param name="name">The new course display name. Will be trimmed.</param>
+    /// <param name="latinName">The new Latin name. Will be trimmed.</param>
+    /// <param name="shortDescription">The new excerpt. Will be trimmed.</param>
+    /// <param name="description">The new optional full description. Will be trimmed.</param>
+    /// <param name="slug">The new URL-safe slug. Will be trimmed and lower-cased.</param>
+    /// <param name="price">The new price in Toman; null means the course is free.</param>
+    /// <param name="discountType">The new kind of discount.</param>
+    /// <param name="discountValue">The new discount amount, when a discount is active.</param>
+    /// <param name="isSaleActive">Whether the course can currently be purchased.</param>
+    /// <param name="displayStatus">The new public visibility status.</param>
+    /// <param name="isFeatured">Whether the course is promoted as featured.</param>
+    /// <param name="isAmazing">Whether the course is in the promotional deals section.</param>
+    /// <returns>
+    /// A successful <see cref="Result"/> when the update succeeds,
+    /// or a failure describing the first violated invariant. On failure, the instance is left unchanged.
+    /// </returns>
     public Result Update(
         string name,
         string latinName,
@@ -241,6 +269,8 @@ public class Course : BaseEntity<CourseId>, ISoftDeletable
     /// Stores the relative path of the cover image, or clears it when <paramref name="mainImage"/>
     /// is null. The file itself is written and removed by the image storage service.
     /// </summary>
+    /// <param name="mainImage">The relative path returned by the storage service, or null to clear it.</param>
+    /// <returns>A successful <see cref="Result"/>, or a failure when the path is too long.</returns>
     public Result SetMainImage(string? mainImage)
     {
         var trimmed = mainImage?.Trim();
@@ -261,6 +291,7 @@ public class Course : BaseEntity<CourseId>, ISoftDeletable
     /// <summary>
     /// Replaces the category links with exactly the requested set, keeping the rows that stay.
     /// </summary>
+    /// <param name="categoryIds">The categories the course should belong to.</param>
     public void ReplaceCategories(IEnumerable<long> categoryIds)
     {
         var desired = categoryIds.Distinct().Select(CategoryId.From).ToHashSet();
@@ -277,6 +308,7 @@ public class Course : BaseEntity<CourseId>, ISoftDeletable
     /// <summary>
     /// Replaces the instructor links with exactly the requested set, keeping the rows that stay.
     /// </summary>
+    /// <param name="instructorProfileIds">The instructor profiles assigned to the course.</param>
     public void ReplaceInstructors(IEnumerable<Guid> instructorProfileIds)
     {
         var desired = instructorProfileIds
@@ -295,7 +327,8 @@ public class Course : BaseEntity<CourseId>, ISoftDeletable
 
     /// <summary>
     /// Marks the course as deleted so the global query filter hides it, keeping the row and its
-    /// relationships. The first deletion time wins.
+    /// relationships. The first deletion time wins; re-deleting an already hidden row leaves its
+    /// original stamp intact.
     /// </summary>
     public void MarkDeleted()
     {
@@ -307,6 +340,8 @@ public class Course : BaseEntity<CourseId>, ISoftDeletable
     /// Sets the price directly. Used by the seeding paths; the admin form goes through
     /// <see cref="Update"/> so the discount is validated against the new price.
     /// </summary>
+    /// <param name="price">The new price; null means the course is free.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when a paid price is not greater than zero.</exception>
     public void SetPrice(decimal? price)
     {
         if (price is not null && price <= 0m)
@@ -320,6 +355,7 @@ public class Course : BaseEntity<CourseId>, ISoftDeletable
     /// Computes the effective unit price after the course-level discount (s7.2.5).
     /// The final payable price must be computed centrally in the Domain/Application layer.
     /// </summary>
+    /// <returns>The payable price in Toman, never below zero.</returns>
     public decimal GetEffectivePrice()
     {
         if (IsFree) return 0m;
@@ -342,6 +378,19 @@ public class Course : BaseEntity<CourseId>, ISoftDeletable
     /// Trims, validates and assigns every editable value. Shared by create and update so both paths
     /// enforce exactly the same rules; on failure the instance is left unchanged.
     /// </summary>
+    /// <param name="name">The course display name. Will be trimmed.</param>
+    /// <param name="latinName">The Latin name. Will be trimmed.</param>
+    /// <param name="shortDescription">The excerpt shown in listings. Will be trimmed.</param>
+    /// <param name="description">The optional full description. Will be trimmed.</param>
+    /// <param name="slug">The URL-safe slug. Will be trimmed and lower-cased.</param>
+    /// <param name="price">The price in Toman; null means the course is free.</param>
+    /// <param name="discountType">The kind of discount applied to the course.</param>
+    /// <param name="discountValue">The discount amount, when a discount is active.</param>
+    /// <param name="isSaleActive">Whether the course can currently be purchased.</param>
+    /// <param name="displayStatus">The public visibility status.</param>
+    /// <param name="isFeatured">Whether the course is promoted as featured.</param>
+    /// <param name="isAmazing">Whether the course is in the promotional deals section.</param>
+    /// <returns>A successful <see cref="Result"/> if all rules pass; otherwise a validation failure.</returns>
     private Result Apply(
         string name,
         string latinName,

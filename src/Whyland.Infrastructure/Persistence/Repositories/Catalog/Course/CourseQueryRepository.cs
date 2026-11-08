@@ -1,19 +1,34 @@
-using System.Globalization;
 using Whyland.Domain.Model.Catalog.Course.Repositories;
 using Whyland.Infrastructure.Persistence.Queries;
 using Whyland.Shared.Dtos.Catalog.Course;
 
+using CategoryEntity = Whyland.Domain.Model.Catalog.Category.Entities.Category;
+using CourseEntity = Whyland.Domain.Model.Catalog.Course.Entities.Course;
+using CourseCategoryEntity = Whyland.Domain.Model.Catalog.CourseCategory.Entities.CourseCategory;
+using CourseInstructorEntity = Whyland.Domain.Model.Catalog.CourseInstructor.Entities.CourseInstructor;
+using InstructorProfileEntity = Whyland.Domain.Model.Identity.InstructorProfile.Entities.InstructorProfile;
+using UserEntity = Whyland.Domain.Model.Identity.User.Entities.User;
+
 namespace Whyland.Infrastructure.Persistence.Repositories.Catalog.Course;
 
 /// <summary>
-/// The Dapper read side of the course catalogue. The admin list runs on the shared data-table
-/// engine; the form's reference checks and option lists are three small statements that never
-/// need the EF context.
+/// Query-side repository for the <see cref="CourseEntity"/> aggregate.
+/// Implemented with the shared Dapper query builder, so every statement is assembled from typed
+/// properties and one engine instead of hand-written SQL text.
 /// </summary>
+/// <param name="dataSource">
+/// The <see cref="NpgsqlDataSource"/> used to open pooled connections to the PostgreSQL database.
+/// </param>
 public sealed class CourseQueryRepository(NpgsqlDataSource dataSource) : ICourseQueryRepository
 {
     private const string catalog = SchemaConstants.Catalog;
     private const string identity = SchemaConstants.Identity;
+
+    /// <summary>Alias of the join that resolves the account that created the row.</summary>
+    private const string CreatedByAlias = "cu";
+
+    /// <summary>Alias of the join that resolves the account that edited the row last.</summary>
+    private const string UpdatedByAlias = "uu";
 
     /// <summary>
     /// Category names as one cell. The subquery keeps the course row unique even when the course
@@ -107,7 +122,7 @@ public sealed class CourseQueryRepository(NpgsqlDataSource dataSource) : ICourse
         baseWhere: """c."IsDeleted" = FALSE""",
         defaultOrder: """c."CreatedAt" DESC, c."Id" DESC""",
         columns: SqlDataTableSpec.WithExtras(
-            SqlDataTableSpec.ColumnsOf<Domain.Model.Catalog.Course.Entities.Course>(
+            SqlDataTableSpec.ColumnsOf<CourseEntity>(
                 "c", ["MainImage", "IsFree", "IsPaid"]),
             [
                 ("MainImageUrl", MainImageUrlColumn, typeof(string)),
@@ -124,12 +139,23 @@ public sealed class CourseQueryRepository(NpgsqlDataSource dataSource) : ICourse
             ]),
         searchColumns:
         [
-            nameof(Domain.Model.Catalog.Course.Entities.Course.Name),
-            nameof(Domain.Model.Catalog.Course.Entities.Course.LatinName),
-            nameof(Domain.Model.Catalog.Course.Entities.Course.Slug),
+            nameof(CourseEntity.Name),
+            nameof(CourseEntity.LatinName),
+            nameof(CourseEntity.Slug),
         ]);
 
-    /// <summary>Runs one page of the admin listing with its filters and total counts.</summary>
+    /// <summary>
+    /// Runs one page of the admin listing. The declarative table definition above is the same engine
+    /// the builder uses, so paging, search, sorting and the membership filters stay consistent with
+    /// every other query.
+    /// </summary>
+    /// <param name="filter">Pagination, ordering and search criteria.</param>
+    /// <param name="conditions">
+    /// Generic field/operator/value conditions from the picker plus the two explicit filters
+    /// (<c>CategoryId</c> and <c>InstructorProfileId</c>), ANDed together. Each name is resolved
+    /// against the spec's whitelist, so an unknown one is dropped instead of reaching the SQL.
+    /// </param>
+    /// <param name="ct">Cancellation token.</param>
     public Task<DataTableResult<CourseListItemDto>> GetForDataTableAsync(
         DataTableFilter filter,
         IReadOnlyList<FilterCondition>? conditions = null,
@@ -137,44 +163,62 @@ public sealed class CourseQueryRepository(NpgsqlDataSource dataSource) : ICourse
         => TableSpec.GetDataTableAsync<CourseListItemDto>(dataSource, filter, conditions, ct);
 
     /// <summary>
-    /// Reads the editable course, its selected category ids and its selected instructor ids in one
-    /// batch. A missing row returns null before the two link lists are read.
+    /// Reads the editable course, its selected category ids and its selected instructor ids over
+    /// one pooled connection. A missing row returns null before the two link lists are read.
     /// </summary>
+    /// <param name="id">Course identifier.</param>
+    /// <param name="ct">Cancellation token.</param>
     public async Task<CourseDetailsDto?> GetByIdAsync(long id, CancellationToken ct = default)
     {
-        var sql = $"""
-            SELECT c."Id", c."Name", c."LatinName", c."ShortDescription", c."Description",
-                   c."Slug", c."MainImage", c."Price", c."DiscountType", c."DiscountValue",
-                   c."IsSaleActive", c."DisplayStatus", c."IsFeatured", c."IsAmazing",
-                   c."CreatedAt", c."CreatedBy", c."UpdatedAt", c."UpdatedBy",
-                   cu."FirstName" || ' ' || cu."LastName" AS "CreatedByName",
-                   uu."FirstName" || ' ' || uu."LastName" AS "UpdatedByName"
-            FROM {catalog}."Courses" c
-            {SqlDataTableSpec.AuthorJoin("c", SqlDataTableSpec.CreatedByAlias, "CreatedBy")}
-            {SqlDataTableSpec.AuthorJoin("c", SqlDataTableSpec.UpdatedByAlias, "UpdatedBy")}
-            WHERE c."Id" = @id AND c."IsDeleted" = FALSE;
-
-            SELECT cc."CategoryId"
-            FROM {catalog}."CourseCategories" cc
-            WHERE cc."CourseId" = @id
-            ORDER BY cc."CategoryId";
-
-            SELECT ci."InstructorProfileId"
-            FROM {catalog}."CourseInstructors" ci
-            WHERE ci."CourseId" = @id
-            ORDER BY ci."InstructorProfileId";
-            """;
-
         await using var connection = await dataSource.OpenConnectionAsync(ct);
-        await using var multi = await connection.QueryMultipleAsync(
-            new CommandDefinition(sql, new { id }, cancellationToken: ct));
 
-        var row = await multi.ReadFirstOrDefaultAsync<CourseDetailsRow>();
+        var row = await DapperFluentQueryBuilder<CourseEntity>.Create(
+                $"{catalog}.Courses",
+                x => x.Id,
+                x => x.Name,
+                x => x.LatinName,
+                x => x.ShortDescription,
+                x => x.Description,
+                x => x.Slug,
+                x => x.MainImage,
+                x => x.Price,
+                x => x.DiscountType,
+                x => x.DiscountValue,
+                x => x.IsSaleActive,
+                x => x.DisplayStatus,
+                x => x.IsFeatured,
+                x => x.IsAmazing,
+                x => x.CreatedAt,
+                x => x.CreatedBy,
+                x => x.UpdatedAt,
+                x => x.UpdatedBy)
+            .LeftJoin<UserEntity>($"{identity}.Users", x => x.CreatedBy, u => u.Id, CreatedByAlias)
+            .Builder
+            .SelectExpression(
+                $"{CreatedByAlias}.\"FirstName\" || ' ' || {CreatedByAlias}.\"LastName\"",
+                nameof(CourseDetailsDto.CreatedByName))
+            .LeftJoin<UserEntity>($"{identity}.Users", x => x.UpdatedBy, u => u.Id, UpdatedByAlias)
+            .Builder
+            .SelectExpression(
+                $"{UpdatedByAlias}.\"FirstName\" || ' ' || {UpdatedByAlias}.\"LastName\"",
+                nameof(CourseDetailsDto.UpdatedByName))
+            .Where(x => x.Id, id)
+            .GetFirstOrDefaultAsync<CourseDetailsRow>(connection, ct);
+
         if (row is null)
             return null;
 
-        var categoryIds = (await multi.ReadAsync<long>()).ToArray();
-        var instructorIds = (await multi.ReadAsync<Guid>()).ToArray();
+        var categoryIds = (await DapperFluentQueryBuilder<CourseCategoryEntity>
+                .Create($"{catalog}.CourseCategories", x => x.CategoryId)
+                .Where(x => x.CourseId, id)
+                .GetAllAsync<long>(connection, ct))
+            .ToArray();
+
+        var instructorIds = (await DapperFluentQueryBuilder<CourseInstructorEntity>
+                .Create($"{catalog}.CourseInstructors", x => x.InstructorProfileId)
+                .Where(x => x.CourseId, id)
+                .GetAllAsync<Guid>(connection, ct))
+            .ToArray();
 
         return new CourseDetailsDto(
             row.Id,
@@ -202,35 +246,46 @@ public sealed class CourseQueryRepository(NpgsqlDataSource dataSource) : ICourse
             row.UpdatedByName);
     }
 
-    /// <summary>Reads the active categories and every instructor whose account is still active.</summary>
+    /// <summary>
+    /// Reads the active categories and every instructor whose account is still active, over one
+    /// pooled connection.
+    /// </summary>
+    /// <param name="ct">Cancellation token.</param>
     public async Task<CourseFormOptionsDto> GetFormOptionsAsync(CancellationToken ct = default)
     {
-        const string categoriesSql = $"""
-            SELECT "Id", "Name", "ParentId", "DisplayOrder"
-            FROM {catalog}."Categories"
-            WHERE "IsDeleted" = FALSE AND "IsActive" = TRUE
-            ORDER BY "DisplayOrder", "Id";
-            """;
-
-        const string instructorsSql = $"""
-            SELECT ip."Id", u."FirstName", u."LastName", ip."Specialization"
-            FROM {identity}."InstructorProfiles" ip
-            JOIN {identity}."Users" u ON u."Id" = ip."UserId"
-            WHERE u."IsActive" = TRUE
-            ORDER BY u."FirstName", u."LastName";
-            """;
-
         await using var connection = await dataSource.OpenConnectionAsync(ct);
 
-        var categories = (await connection.QueryAsync<CourseCategoryOptionDto>(categoriesSql))
-            .AsList();
-        var instructors = (await connection.QueryAsync<CourseInstructorOptionDto>(instructorsSql))
-            .AsList();
+        var categories = await DapperFluentQueryBuilder<CategoryEntity>.Create(
+                $"{catalog}.Categories",
+                x => x.Id,
+                x => x.Name,
+                x => x.ParentId,
+                x => x.DisplayOrder)
+            .Where(x => x.IsActive, true)
+            .OrderBy(x => x.DisplayOrder)
+            .TieBreakBy(x => x.Id)
+            .GetAllAsync<CourseCategoryOptionDto>(connection, ct);
+
+        var instructors = await DapperFluentQueryBuilder<InstructorProfileEntity>.Create(
+                $"{identity}.InstructorProfiles",
+                x => x.Id,
+                x => x.Specialization)
+            .Join<UserEntity>($"{identity}.Users", x => x.UserId, u => u.Id)
+            .SelectFrom<UserEntity>(u => u.FirstName)
+            .SelectFrom<UserEntity>(u => u.LastName)
+            .WhereFrom<UserEntity>(u => u.IsActive, true)
+            .SortableFrom<UserEntity>(u => u.FirstName)
+            .SortableFrom<UserEntity>(u => u.LastName)
+            .OrderBy(nameof(UserEntity.FirstName))
+            .TieBreakBy(x => x.Id)
+            .GetAllAsync<CourseInstructorOptionDto>(connection, ct);
 
         return new CourseFormOptionsDto(categories, instructors);
     }
 
     /// <summary>Returns the subset of the ids that are still active and not soft-deleted.</summary>
+    /// <param name="ids">Category identifiers sent by the form.</param>
+    /// <param name="ct">Cancellation token.</param>
     public async Task<IReadOnlySet<long>> GetActiveCategoryIdsAsync(
         IReadOnlyCollection<long> ids,
         CancellationToken ct = default)
@@ -238,20 +293,18 @@ public sealed class CourseQueryRepository(NpgsqlDataSource dataSource) : ICourse
         if (ids.Count == 0)
             return new HashSet<long>();
 
-        const string sql = $"""
-            SELECT "Id"
-            FROM {catalog}."Categories"
-            WHERE "IsDeleted" = FALSE AND "IsActive" = TRUE AND "Id" = ANY(@ids);
-            """;
-
-        await using var connection = await dataSource.OpenConnectionAsync(ct);
-        var found = await connection.QueryAsync<long>(
-            new CommandDefinition(sql, new { ids = ids.ToArray() }, cancellationToken: ct));
+        var found = await DapperFluentQueryBuilder<CategoryEntity>
+            .Create($"{catalog}.Categories", x => x.Id)
+            .WhereIn(x => x.Id, ids.Cast<object?>())
+            .Where(x => x.IsActive, true)
+            .GetAllAsync<long>(dataSource, ct);
 
         return found.ToHashSet();
     }
 
     /// <summary>Returns the subset of instructor profiles whose accounts are still active.</summary>
+    /// <param name="ids">Instructor profile identifiers sent by the form.</param>
+    /// <param name="ct">Cancellation token.</param>
     public async Task<IReadOnlySet<Guid>> GetInstructorProfileIdsAsync(
         IReadOnlyCollection<Guid> ids,
         CancellationToken ct = default)
@@ -259,31 +312,35 @@ public sealed class CourseQueryRepository(NpgsqlDataSource dataSource) : ICourse
         if (ids.Count == 0)
             return new HashSet<Guid>();
 
-        const string sql = $"""
-            SELECT ip."Id"
-            FROM {identity}."InstructorProfiles" ip
-            JOIN {identity}."Users" u ON u."Id" = ip."UserId"
-            WHERE u."IsActive" = TRUE AND ip."Id" = ANY(@ids);
-            """;
-
-        await using var connection = await dataSource.OpenConnectionAsync(ct);
-        var found = await connection.QueryAsync<Guid>(
-            new CommandDefinition(sql, new { ids = ids.ToArray() }, cancellationToken: ct));
+        var found = await DapperFluentQueryBuilder<InstructorProfileEntity>
+            .Create($"{identity}.InstructorProfiles", x => x.Id)
+            .Join<UserEntity>($"{identity}.Users", x => x.UserId, u => u.Id)
+            .WhereFrom<UserEntity>(u => u.IsActive, true)
+            .WhereIn(x => x.Id, ids.Cast<object?>())
+            .GetAllAsync<Guid>(dataSource, ct);
 
         return found.ToHashSet();
     }
 
     #region Helpers
 
+    /// <summary>Builds the public URL of a stored relative image path, or null when there is none.</summary>
+    /// <param name="storedPath">The relative path stored on the course row.</param>
     private static string? BuildPublicUrl(string? storedPath)
         => string.IsNullOrWhiteSpace(storedPath)
             ? null
             : "/uploads/images/" + storedPath.Trim().TrimStart('/');
 
+    /// <summary>Builds the thumbnail URL next to a stored original, or null when there is none.</summary>
+    /// <param name="storedPath">The relative path stored on the course row.</param>
     private static string? BuildThumbnailUrl(string? storedPath)
         => BuildPublicUrl(storedPath)?.Replace(
             "/originals/", "/thumbnails/", StringComparison.Ordinal);
 
+    /// <summary>Resolves the stored numeric enum value back to its name, or the fallback.</summary>
+    /// <typeparam name="TEnum">The enum the column stores.</typeparam>
+    /// <param name="value">The numeric value read from the row.</param>
+    /// <param name="fallback">Name used when the stored number is not a defined value.</param>
     private static string EnumName<TEnum>(int value, string fallback) where TEnum : struct, Enum
         => Enum.IsDefined(typeof(TEnum), value)
             ? Enum.GetName(typeof(TEnum), value) ?? fallback
@@ -291,7 +348,7 @@ public sealed class CourseQueryRepository(NpgsqlDataSource dataSource) : ICourse
 
     #endregion
 
-    /// <summary>The flat row of the edit read; the two link lists are read from the same batch.</summary>
+    /// <summary>The flat row of the edit read; the two link lists are read from the same connection.</summary>
     private sealed record CourseDetailsRow(
         long Id,
         string Name,

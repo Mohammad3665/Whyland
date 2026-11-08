@@ -3,7 +3,7 @@ using CourseEntity = Whyland.Domain.Model.Catalog.Course.Entities.Course;
 namespace Whyland.Domain.Model.Catalog.Course.Repositories;
 
 /// <summary>
-/// Command-side repository for the Course aggregate.
+/// Command-side repository for the <see cref="CourseEntity"/> aggregate.
 /// Implemented with EF Core (change tracking); persistence goes through
 /// <c>IUnitOfWork.SaveAsync()</c> — this interface never saves on its own.
 /// </summary>
@@ -17,6 +17,7 @@ public interface ICourseCommandRepository
     /// </summary>
     /// <param name="id">Course identifier.</param>
     /// <param name="ct">Cancellation token.</param>
+    /// <returns>The tracked course, or null if not found.</returns>
     Task<CourseEntity?> GetByIdAsync(long id, CancellationToken ct = default);
 
     /// <summary>
@@ -26,6 +27,7 @@ public interface ICourseCommandRepository
     /// <param name="slug">The slug to look for.</param>
     /// <param name="excludeId">A row that must not count against itself, when editing.</param>
     /// <param name="ct">Cancellation token.</param>
+    /// <returns>True when another live course already uses the slug.</returns>
     Task<bool> IsSlugTakenAsync(string slug, long? excludeId = null, CancellationToken ct = default);
 
     #endregion
