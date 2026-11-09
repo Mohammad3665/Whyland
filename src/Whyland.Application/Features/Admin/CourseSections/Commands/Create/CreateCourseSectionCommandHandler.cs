@@ -7,7 +7,7 @@ namespace Whyland.Application.Features.Admin.CourseSections.Commands.Create;
 /// </summary>
 /// <param name="unitOfWork">The unit of work providing access to course and section persistence.</param>
 public sealed class CreateCourseSectionCommandHandler(IUnitOfWork unitOfWork)
-    : ICommandHandler<CreateCourseSectionCommand, long>
+    : ICommandHandler<CreateCourseSectionCommand, CourseSectionId>
 {
     /// <summary>
     /// Creates a new section through the domain factory, or returns an error when the course does
@@ -16,7 +16,7 @@ public sealed class CreateCourseSectionCommandHandler(IUnitOfWork unitOfWork)
     /// <param name="command">The command with the new section values.</param>
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>The identifier of the created section, or an error describing the failure.</returns>
-    public async Task<Result<long>> Handle(CreateCourseSectionCommand command, CancellationToken ct)
+    public async Task<Result<CourseSectionId>> Handle(CreateCourseSectionCommand command, CancellationToken ct)
     {
         var course = await unitOfWork.CourseCommandRepository.GetByIdAsync(command.CourseId, ct);
         if (course is null)
@@ -39,6 +39,6 @@ public sealed class CreateCourseSectionCommandHandler(IUnitOfWork unitOfWork)
         await unitOfWork.CourseSectionCommandRepository.RenumberAsync(command.CourseId, ct);
 
         saveResult = await unitOfWork.SaveAsync(ct);
-        return saveResult.IsFailure ? CourseSectionErrors.CreateFailed() : section.Id.Value;
+        return saveResult.IsFailure ? CourseSectionErrors.CreateFailed() : section.Id;
     }
 }

@@ -13,7 +13,7 @@ public sealed class OtpRequestCommandRepository(WhylandDbContext context) : IOtp
 
     public Task<Domain.Model.Identity.OtpRequest.Entities.OtpRequest?> GetLatestUsableAsync(
         string phoneNumber,
-        Domain.Model.Identity.OtpRequest.Enums.OtpPurpose purpose,
+        OtpPurpose purpose,
         CancellationToken ct = default)
         => context.OtpRequests
             .Where(x => x.PhoneNumber == phoneNumber
@@ -26,7 +26,7 @@ public sealed class OtpRequestCommandRepository(WhylandDbContext context) : IOtp
 
     public Task<Domain.Model.Identity.OtpRequest.Entities.OtpRequest?> GetLatestAsync(
         string phoneNumber,
-        Domain.Model.Identity.OtpRequest.Enums.OtpPurpose purpose,
+        OtpPurpose purpose,
         CancellationToken ct = default)
         => context.OtpRequests
             .Where(x => x.PhoneNumber == phoneNumber

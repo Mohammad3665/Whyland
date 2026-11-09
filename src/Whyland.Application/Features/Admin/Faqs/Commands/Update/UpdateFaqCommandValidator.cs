@@ -10,7 +10,7 @@ public sealed class UpdateFaqCommandValidator : AbstractValidator<UpdateFaqComma
     /// </summary>
     public UpdateFaqCommandValidator()
     {
-        RuleFor(x => x.Id)
+        RuleFor(x => x.Id.Value)
             .WhylandGreaterThan(0)
             .WithName("شناسه");
 

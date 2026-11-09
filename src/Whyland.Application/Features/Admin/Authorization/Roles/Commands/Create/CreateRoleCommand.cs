@@ -12,4 +12,4 @@ namespace Whyland.Application.Features.Admin.Authorization.Roles.Commands.Create
 /// <param name="Title">Display title shown to operators, e.g. "ویرایشگر محتوا".</param>
 public sealed record CreateRoleCommand(
     string Name,
-    string Title) : ICommand<long>;
+    string Title) : ICommand<RoleId>;

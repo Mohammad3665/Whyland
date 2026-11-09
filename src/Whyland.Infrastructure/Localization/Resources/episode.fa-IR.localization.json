@@ -1,0 +1,19 @@
+{
+  "Episode.FieldRequired": "فیلد {Field} نمی‌تواند خالی باشد.",
+  "Episode.FieldTooLong": "فیلد {Field} نمی‌تواند بیشتر از {Max} کاراکتر باشد.",
+  "Episode.GreaterThanOrEqualToZero": "فیلد {Field} نمی‌تواند کمتر از صفر باشد.",
+  "Episode.NotFound": "اپیزودی با شناسه {Id} یافت نشد.",
+  "Episode.HasAttachments": "اپیزود دارای پیوست است؛ ابتدا پیوست‌های آن را حذف کنید.",
+  "Episode.VideoRequired": "برای این اپیزود فایل ویدیویی ثبت نشده است.",
+  "Episode.InvalidVideoDuration": "مدت زمان ویدیو نامعتبر است یا از حد مجاز بیشتر است.",
+  "Episode.InvalidVideoUrl": "لینک ویدیو باید یک آدرس کامل با http یا https باشد.",
+  "Episode.CreateFailed": "خطا در ایجاد اپیزود، لطفاً مجدداً تلاش کنید.",
+  "Episode.UpdateFailed": "خطا در ویرایش اپیزود، لطفاً مجدداً تلاش کنید.",
+  "Episode.SoftDeleteFailed": "خطا در حذف اپیزود، لطفاً مجدداً تلاش کنید.",
+  "Episode.ListFailed": "خطا در دریافت اپیزودها، لطفاً مجدداً تلاش کنید.",
+  "Episode.ReorderFailed": "خطا در ذخیره ترتیب اپیزودها، لطفاً مجدداً تلاش کنید.",
+  "Episode.AccessDenied": "شما اجازه دسترسی به ویدیوی این اپیزود را ندارید.",
+  "Episode.VideoRejected": "فایل ویدیو پذیرفته نشد: {Reason}",
+  "Episode.VideoUploadFailed": "ذخیره ویدیو ناموفق بود؛ لطفاً دوباره تلاش کنید.",
+  "Episode.VideoDeleteFailed": "حذف ویدیو ناموفق بود؛ لطفاً دوباره تلاش کنید."
+}

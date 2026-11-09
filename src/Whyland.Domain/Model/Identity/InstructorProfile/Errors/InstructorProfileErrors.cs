@@ -31,19 +31,19 @@ public static class InstructorProfileErrors
         DomainError.For<InstructorProfileEntity>(nameof(InvalidSocialUrl), ErrorType.Validation, field: field);
 
     /// <summary>No instructor profile exists with the given identifier.</summary>
-    public static DomainError NotFound(Guid id) =>
+    public static DomainError NotFound(InstructorProfileId id) =>
         DomainError.For<InstructorProfileEntity>(nameof(NotFound), ErrorType.NotFound, field: null, ("Id", id));
 
     /// <summary>The account already has an instructor profile.</summary>
-    public static DomainError AlreadyExists(Guid userId) =>
+    public static DomainError AlreadyExists(UserId userId) =>
         DomainError.For<InstructorProfileEntity>(nameof(AlreadyExists), ErrorType.Conflict, field: null, ("UserId", userId));
 
     /// <summary>The account the profile belongs to does not exist.</summary>
-    public static DomainError UserNotFound(Guid userId) =>
+    public static DomainError UserNotFound(UserId userId) =>
         DomainError.For<InstructorProfileEntity>(nameof(UserNotFound), ErrorType.NotFound, field: "UserId", ("UserId", userId));
 
     /// <summary>The account exists but is disabled and cannot be made an instructor.</summary>
-    public static DomainError UserInactive(Guid userId) =>
+    public static DomainError UserInactive(UserId userId) =>
         DomainError.For<InstructorProfileEntity>(nameof(UserInactive), ErrorType.Validation, field: "UserId", ("UserId", userId));
 
     /// <summary>The profile could not be created (persistence failure); masked behind a generic message.</summary>

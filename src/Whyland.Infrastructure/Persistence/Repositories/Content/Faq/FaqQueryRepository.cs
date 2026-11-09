@@ -38,11 +38,11 @@ public class FaqQueryRepository(NpgsqlDataSource dataSource) : IFaqQueryReposito
             .TieBreakBy(x => x.Id)
             .GetAllAsync<FaqPublicItemDto>(dataSource, ct);
 
-    public Task<FaqDto?> GetByIdAsync(long id, CancellationToken ct = default)
+    public Task<FaqDto?> GetByIdAsync(FaqId id, CancellationToken ct = default)
         => DapperFluentQueryBuilder<FaqEntity>.Create(
                 $"{content}.Faqs", x => x.Id, x => x.Title, x => x.Description,
                 x => x.DisplayOrder, x => x.IsActive, x => x.CreatedAt, x => x.UpdatedAt)
-            .Where(x => x.Id, id)
+            .Where(x => x.Id, id.Value)
             .GetFirstOrDefaultAsync<FaqDto>(dataSource, ct);
 
     public Task<DataTableResult<FaqListItemDto>> GetForDataTableAsync(

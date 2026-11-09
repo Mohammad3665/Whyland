@@ -8,8 +8,10 @@ namespace Whyland.Application.Features.Admin.CourseFaqs.Commands.Create;
 /// <param name="Title">The question text.</param>
 /// <param name="Description">The answer text.</param>
 /// <param name="DisplayOrder">The display order used for sorting the course's questions.</param>
+/// <param name="IsActive">Whether the question is visible on the public course page.</param>
 public sealed record CreateCourseFaqCommand(
-    long CourseId,
+    CourseId CourseId,
     string Title,
     string Description,
-    int DisplayOrder) : ICommand<long>;
+    int DisplayOrder,
+    bool IsActive) : ICommand<CourseFaqId>;

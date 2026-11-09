@@ -47,7 +47,7 @@ public sealed class UpdateUserCommandHandler(IUnitOfWork unitOfWork) : ICommandH
         if (profileResult.IsFailure)
             return profileResult.Error;
 
-        await unitOfWork.UserCommandRepository.ReplaceRolesAsync(user.Id.Value, command.RoleIds, ct);
+        await unitOfWork.UserCommandRepository.ReplaceRolesAsync(user.Id, command.RoleIds, ct);
 
         var saveResult = await unitOfWork.SaveAsync(ct);
         return saveResult.IsFailure

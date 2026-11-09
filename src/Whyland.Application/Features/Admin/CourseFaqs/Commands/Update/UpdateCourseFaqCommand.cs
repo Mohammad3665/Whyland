@@ -7,8 +7,10 @@ namespace Whyland.Application.Features.Admin.CourseFaqs.Commands.Update;
 /// <param name="Title">The new question text.</param>
 /// <param name="Description">The new answer text.</param>
 /// <param name="DisplayOrder">The new display order used for sorting the course's questions.</param>
+/// <param name="IsActive">Whether the question is visible on the public course page.</param>
 public sealed record UpdateCourseFaqCommand(
-    long Id,
+    CourseFaqId Id,
     string Title,
     string Description,
-    int DisplayOrder) : ICommand;
+    int DisplayOrder,
+    bool IsActive) : ICommand;

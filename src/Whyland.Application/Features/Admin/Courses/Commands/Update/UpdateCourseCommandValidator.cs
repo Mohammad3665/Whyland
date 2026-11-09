@@ -8,7 +8,7 @@ public sealed class UpdateCourseCommandValidator : AbstractValidator<UpdateCours
     /// <summary>Configures the validation rules for every editable course field.</summary>
     public UpdateCourseCommandValidator()
     {
-        RuleFor(x => x.Id)
+        RuleFor(x => x.Id.Value)
             .WhylandGreaterThan(0)
             .WithName("شناسه");
 
@@ -52,7 +52,7 @@ public sealed class UpdateCourseCommandValidator : AbstractValidator<UpdateCours
             .WithMessage("دسته‌بندی‌های دوره را انتخاب کنید.")
             .WithName("دسته‌بندی‌ها");
 
-        RuleForEach(x => x.CategoryIds)
+        RuleForEach(x => x.CategoryIds.Select(id => id.Value))
             .GreaterThan(0)
             .WithName("شناسهٔ دسته‌بندی");
 

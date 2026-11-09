@@ -10,7 +10,7 @@ namespace Whyland.Application.Features.Auth.Password.ChangePassword;
 /// <param name="CurrentPassword">The stored password, proved before the new one is written.</param>
 /// <param name="NewPassword">The replacement password; never logged or persisted in plaintext.</param>
 public sealed record ChangePasswordCommand(
-    Guid UserId,
+    UserId UserId,
     string CurrentPassword,
     string NewPassword
 ) : ICommand;

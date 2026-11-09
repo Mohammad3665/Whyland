@@ -1,4 +1,6 @@
-namespace Whyland.Domain.Common.Enums;
+using System.Text.Json.Serialization;
+
+namespace Whyland.Shared.Enums;
 
 /// <summary>
 /// The public visibility status of content such as courses and blog posts.

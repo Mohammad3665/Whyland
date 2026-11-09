@@ -10,7 +10,7 @@ public sealed class UpdateCategoryCommandValidator : AbstractValidator<UpdateCat
     /// </summary>
     public UpdateCategoryCommandValidator()
     {
-        RuleFor(x => x.Id)
+        RuleFor(x => x.Id.Value)
             .WhylandGreaterThan(0)
             .WithName("شناسه");
 

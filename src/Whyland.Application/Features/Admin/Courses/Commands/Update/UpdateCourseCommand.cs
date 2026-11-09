@@ -1,5 +1,3 @@
-using Whyland.Domain.Common.Enums;
-
 namespace Whyland.Application.Features.Admin.Courses.Commands.Update;
 
 /// <summary>
@@ -24,7 +22,7 @@ namespace Whyland.Application.Features.Admin.Courses.Commands.Update;
 /// <param name="RemoveImage">Whether the current cover image should be cleared.</param>
 /// <param name="Image">A replacement cover image upload, when one was selected.</param>
 public sealed record UpdateCourseCommand(
-    long Id,
+    CourseId Id,
     string Name,
     string LatinName,
     string ShortDescription,
@@ -37,7 +35,7 @@ public sealed record UpdateCourseCommand(
     DisplayStatus DisplayStatus,
     bool IsFeatured,
     bool IsAmazing,
-    IReadOnlyList<long> CategoryIds,
-    IReadOnlyList<Guid> InstructorIds,
+    IReadOnlyList<CategoryId> CategoryIds,
+    IReadOnlyList<InstructorProfileId> InstructorIds,
     bool RemoveImage,
     CourseImageUpload? Image) : ICommand;

@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Whyland.Application;
@@ -40,6 +41,21 @@ public static class ServiceCollectionExtensions
         !string.IsNullOrWhiteSpace(configuration[GoogleClientSecretKey]);
 
     /// <summary>
+    /// The largest request body the host accepts: the bigger of the configured video and attachment
+    /// ceilings, plus one megabyte of multipart framing. Bound from the same configuration sections
+    /// as the storage adapters, so raising a limit in configuration also raises the transport limit.
+    /// </summary>
+    /// <param name="configuration">The application configuration.</param>
+    /// <returns>The maximum accepted request body in bytes.</returns>
+    public static long MaxUploadBytes(IConfiguration configuration)
+    {
+        var video = configuration.GetValue<long?>("EpisodeVideo:MaxFileSizeBytes") ?? 500L * 1024 * 1024;
+        var attachment = configuration.GetValue<long?>("EpisodeAttachment:MaxAttachmentSizeBytes") ?? 100L * 1024 * 1024;
+
+        return Math.Max(video, attachment) + (1024 * 1024);
+    }
+
+    /// <summary>
     /// Registers infrastructure and application services, MVC, the HTTP
     /// context accessor, problem details and the AdminPanelAccess
     /// authorization policy (requires the Dashboard.View permission).
@@ -66,6 +82,11 @@ public static class ServiceCollectionExtensions
             options.ModelBinderProviders.Insert(0, new EasternDigitsModelBinderProvider()));
 
         services.AddHttpContextAccessor();
+
+        // Episode videos and attachments are uploaded as multipart forms; the default 128 MB
+        // multipart cap would refuse a configured 500 MB video before the storage adapter sees it.
+        services.Configure<FormOptions>(options =>
+            options.MultipartBodyLengthLimit = MaxUploadBytes(configuration));
 
         services.Configure<AuthOptions>(configuration.GetSection(AuthOptions.SectionName));
         services.Configure<AdminAccountOptions>(configuration.GetSection(AdminAccountOptions.SectionName));

@@ -15,6 +15,6 @@ public interface ICourseSectionQueryRepository
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Read-only list of sections ordered by DisplayOrder.</returns>
     Task<IReadOnlyList<CourseSectionListItemDto>> GetForCourseAsync(
-        long courseId,
+        CourseId courseId,
         CancellationToken ct = default);
 }

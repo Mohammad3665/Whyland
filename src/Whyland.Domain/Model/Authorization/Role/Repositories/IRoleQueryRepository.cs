@@ -34,7 +34,7 @@ public interface IRoleQueryRepository
     /// </summary>
     /// <param name="roleId">The role whose grants are read.</param>
     /// <param name="ct">A token to cancel the operation.</param>
-    Task<IReadOnlyList<long>> GetGrantedPermissionIdsAsync(long roleId, CancellationToken ct = default);
+    Task<IReadOnlyList<PermissionId>> GetGrantedPermissionIdsAsync(RoleId roleId, CancellationToken ct = default);
 
     #endregion
 

@@ -30,7 +30,7 @@ public interface ICourseQueryRepository
     /// <param name="id">Course identifier.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The course details, or null if not found.</returns>
-    Task<CourseDetailsDto?> GetByIdAsync(long id, CancellationToken ct = default);
+    Task<CourseDetailsDto?> GetByIdAsync(CourseId id, CancellationToken ct = default);
 
     /// <summary>Returns the active categories and the instructors the form and filters select from.</summary>
     /// <param name="ct">Cancellation token.</param>
@@ -41,15 +41,15 @@ public interface ICourseQueryRepository
     /// <param name="ids">Category identifiers sent by the form.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The subset of the ids that are still selectable.</returns>
-    Task<IReadOnlySet<long>> GetActiveCategoryIdsAsync(
-        IReadOnlyCollection<long> ids,
+    Task<IReadOnlySet<CategoryId>> GetActiveCategoryIdsAsync(
+        IReadOnlyCollection<CategoryId> ids,
         CancellationToken ct = default);
 
     /// <summary>Returns which of the requested ids still name instructors with active accounts.</summary>
     /// <param name="ids">Instructor profile identifiers sent by the form.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The subset of the ids that still have an active account.</returns>
-    Task<IReadOnlySet<Guid>> GetInstructorProfileIdsAsync(
-        IReadOnlyCollection<Guid> ids,
+    Task<IReadOnlySet<InstructorProfileId>> GetInstructorProfileIdsAsync(
+        IReadOnlyCollection<InstructorProfileId> ids,
         CancellationToken ct = default);
 }

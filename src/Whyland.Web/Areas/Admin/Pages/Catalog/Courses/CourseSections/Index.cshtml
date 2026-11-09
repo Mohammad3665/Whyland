@@ -52,23 +52,30 @@
     <div id="kt_app_content_container" class="app-container container-fluid">
 
         <div class="card card-flush">
-            <div class="card-header align-items-center py-5 gap-2 gap-md-5">
-                <div class="d-flex align-items-center position-relative my-1">
-                    <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
-                        <span class="path1"></span><span class="path2"></span>
-                    </i>
-                    <input type="text" id="sectionSearch"
-                           class="form-control form-control-solid w-250px ps-12"
-                           placeholder="جستجو در سرفصل‌ها..." />
+            <!--begin::Generic filter picker-->
+            <div class="card-header align-items-center py-4 flex-wrap gap-2">
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <label class="fs-7 fw-semibold text-muted" for="filterField">فیلتر روی:</label>
+                    <select id="filterField" class="form-select form-select-solid w-175px"></select>
+                    <select id="filterOperator" class="form-select form-select-solid w-150px" dir="ltr"></select>
+                    <div id="filterValueWrap" class="d-flex align-items-center"></div>
+                    <button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary"
+                            title="افزودن فیلتر" onclick="addFilterCondition()">
+                        <i class="ki-duotone ki-plus fs-2"><span class="path1"></span><span class="path2"></span></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light" onclick="clearFilterConditions()">
+                        پاک کردن فیلترها
+                    </button>
                 </div>
-
-                <div class="d-flex align-items-center text-muted fs-7">
+                <div class="d-flex align-items-center text-muted fs-7 ms-auto">
                     <i class="ki-duotone ki-arrows-move fs-4 text-gray-500 me-1">
                         <span class="path1"></span><span class="path2"></span>
                     </i>
                     برای تغییر ترتیب، سطرها را از ستون «ترتیب» درگ کنید
                 </div>
             </div>
+            <div id="filterChips" class="d-flex flex-wrap gap-2 px-5 pb-3"></div>
+            <!--end::Generic filter picker-->
 
             <div class="card-body pt-0">
                 <table id="kt_course_sections_table" class="table table-striped table-row-bordered gy-5 gs-7 align-middle">
@@ -78,7 +85,7 @@
                             <th class="text-center w-100px">ترتیب</th>
                             <th class="text-start w-500px">عنوان سرفصل</th>
                             <th class="text-start w-150px">تعداد اپیزودها</th>
-                            <th class="text-end nowrap-cell">عملیات</th>
+                            <th class="text-start nowrap-cell">عملیات</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -97,5 +104,6 @@
     <script src="~/admin/assets/plugins/custom/datatables/datatables.bundle.js"></script>
     <script src="~/admin/assets/plugins/custom/orderable-datatables/datatables.rowReorder.min.js"></script>
     <script src="~/admin/js/common/admin-crud.js"></script>
+    <script src="~/admin/js/common/admin-table.js"></script>
     <script src="~/admin/js/course-sections.js"></script>
 }

@@ -8,6 +8,6 @@ namespace Whyland.Application.Features.Auth.Password.RequestPhoneBindingCode;
 /// <param name="UserId">The signed-in user, taken from the cookie claims by the web layer.</param>
 /// <param name="PhoneNumber">The number to bind, in any Persian/international spelling.</param>
 public sealed record RequestPhoneBindingCodeCommand(
-    Guid UserId,
+    UserId UserId,
     string PhoneNumber
 ) : ICommand;

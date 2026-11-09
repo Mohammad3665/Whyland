@@ -10,11 +10,11 @@ public sealed class ReorderCourseFaqsCommandValidator : AbstractValidator<Reorde
     /// </summary>
     public ReorderCourseFaqsCommandValidator()
     {
-        RuleFor(x => x.CourseId)
+        RuleFor(x => x.CourseId.Value)
             .WhylandGreaterThan(0)
             .WithName("شناسه دوره");
 
-        RuleFor(x => x.OrderedIds)
+        RuleFor(x => x.OrderedIds.Select(id => id.Value))
             .NotNull().WithMessage("ترتیب سوالات ارسال نشده است.")
             .NotEmpty().WithMessage("ترتیب سوالات خالی ارسال شده است.")
             .Must(ids => ids.All(id => id > 0)).WithMessage("شناسه سوال ارسال‌شده نامعتبر است.");

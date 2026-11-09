@@ -37,6 +37,11 @@ public class CourseFaq : BaseEntity<CourseFaqId>, ISoftDeletable
     public int DisplayOrder { get; private set; }
 
     /// <summary>
+    /// Inactive questions stay on the course page for editing but are hidden from the public site.
+    /// </summary>
+    public bool IsActive { get; private set; }
+
+    /// <summary>
     /// The identifier of the user who performed the soft-delete operation.
     /// </summary>
     public UserId? DeletedBy { get; private set; }
@@ -74,6 +79,7 @@ public class CourseFaq : BaseEntity<CourseFaqId>, ISoftDeletable
     /// <param name="title">The question text. Will be trimmed.</param>
     /// <param name="description">The answer text. Will be trimmed.</param>
     /// <param name="displayOrder">The ordering weight; must be zero or greater.</param>
+    /// <param name="isActive">Whether the question is visible on the public course page.</param>
     /// <returns>
     /// A successful <see cref="Result{T}"/> containing the new question,
     /// or a failure describing the first violated invariant.
@@ -82,11 +88,12 @@ public class CourseFaq : BaseEntity<CourseFaqId>, ISoftDeletable
         CourseId courseId,
         string title,
         string description,
-        int displayOrder)
+        int displayOrder,
+        bool isActive)
     {
         var faq = new CourseFaq { CourseId = courseId };
 
-        var applied = faq.Apply(title, description, displayOrder);
+        var applied = faq.Apply(title, description, displayOrder, isActive);
         return applied.IsFailure ? applied.Error : faq;
     }
 
@@ -96,12 +103,13 @@ public class CourseFaq : BaseEntity<CourseFaqId>, ISoftDeletable
     /// <param name="title">The new question text. Will be trimmed.</param>
     /// <param name="description">The new answer text. Will be trimmed.</param>
     /// <param name="displayOrder">The new ordering weight; must be zero or greater.</param>
+    /// <param name="isActive">Whether the question is visible on the public course page.</param>
     /// <returns>
     /// A successful <see cref="Result"/> when the update succeeds,
     /// or a failure describing the first violated invariant. On failure, the instance is left unchanged.
     /// </returns>
-    public Result Update(string title, string description, int displayOrder)
-        => Apply(title, description, displayOrder);
+    public Result Update(string title, string description, int displayOrder, bool isActive)
+        => Apply(title, description, displayOrder, isActive);
 
     /// <summary>
     /// Moves the question to a new position, as the reorder operation rewrites the weight of every
@@ -134,8 +142,9 @@ public class CourseFaq : BaseEntity<CourseFaqId>, ISoftDeletable
     /// <param name="title">The question text. Will be trimmed.</param>
     /// <param name="description">The answer text. Will be trimmed.</param>
     /// <param name="displayOrder">The ordering weight; must be zero or greater.</param>
+    /// <param name="isActive">Whether the question is visible on the public course page.</param>
     /// <returns>A successful <see cref="Result"/> if all rules pass; otherwise a validation failure.</returns>
-    private Result Apply(string title, string description, int displayOrder)
+    private Result Apply(string title, string description, int displayOrder, bool isActive)
     {
         var trimmedTitle = title?.Trim();
         var trimmedDescription = description?.Trim();
@@ -158,6 +167,7 @@ public class CourseFaq : BaseEntity<CourseFaqId>, ISoftDeletable
         Title = trimmedTitle;
         Description = trimmedDescription;
         DisplayOrder = displayOrder;
+        IsActive = isActive;
 
         return Result.Success();
     }

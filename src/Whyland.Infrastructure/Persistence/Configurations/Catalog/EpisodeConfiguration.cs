@@ -15,8 +15,10 @@ public sealed class EpisodeConfiguration : IEntityTypeConfiguration<Episode>
             .IsRequired()
             .HasMaxLength(Episode.MaxTitleLength);
 
+        // Holds either a server-generated storage key or an absolute external URL, so the column is
+        // sized for the larger of the two.
         builder.Property(x => x.Video)
-            .HasMaxLength(Episode.MaxVideoLength);
+            .HasMaxLength(Episode.MaxVideoUrlLength);
 
         #endregion
 

@@ -27,7 +27,7 @@ public static class RoleErrors
 
     /// <summary>No role exists with the given identifier.</summary>
     /// <param name="id">The identifier that was looked up.</param>
-    public static DomainError NotFound(long id) =>
+    public static DomainError NotFound(RoleId id) =>
         DomainError.For<RoleEntity>(nameof(NotFound), ErrorType.NotFound, field: null, ("Id", id));
 
     /// <summary>
@@ -52,7 +52,7 @@ public static class RoleErrors
     /// nothing can ever honour.
     /// </summary>
     /// <param name="permissionId">The identifier that could not be resolved.</param>
-    public static DomainError PermissionNotFound(long permissionId) =>
+    public static DomainError PermissionNotFound(PermissionId permissionId) =>
         DomainError.For<RoleEntity>(nameof(PermissionNotFound), ErrorType.NotFound, field: null, ("PermissionId", permissionId));
 
     /// <summary>The role could not be created (persistence failure); masked behind a generic message.</summary>

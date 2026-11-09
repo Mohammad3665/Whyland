@@ -35,14 +35,6 @@ var STATUS_BADGE = {
 //#endregion
 
 //#region Form Helpers
-/** Persians digits for the readonly UsedCount display. */
-function faDigits(n) {
-  var fa = "۰۱۲۳۴۵۶۷۸۹";
-  return String(n).replace(/\d/g, function (d) {
-    return fa[+d];
-  });
-}
-
 /**
  * Populates the form fields from a Coupon object (null = create mode).
  * The row carries its raw fields in data-* attributes.

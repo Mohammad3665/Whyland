@@ -7,7 +7,7 @@ namespace Whyland.Application.Features.Admin.CourseFaqs.Commands.Create;
 /// </summary>
 /// <param name="unitOfWork">The unit of work providing access to course and course-FAQ persistence.</param>
 public sealed class CreateCourseFaqCommandHandler(IUnitOfWork unitOfWork)
-    : ICommandHandler<CreateCourseFaqCommand, long>
+    : ICommandHandler<CreateCourseFaqCommand, CourseFaqId>
 {
     /// <summary>
     /// Creates a new course FAQ through the domain factory, or returns an error when the course does
@@ -16,7 +16,7 @@ public sealed class CreateCourseFaqCommandHandler(IUnitOfWork unitOfWork)
     /// <param name="command">The command with the new question values.</param>
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>The identifier of the created question, or an error describing the failure.</returns>
-    public async Task<Result<long>> Handle(CreateCourseFaqCommand command, CancellationToken ct)
+    public async Task<Result<CourseFaqId>> Handle(CreateCourseFaqCommand command, CancellationToken ct)
     {
         var course = await unitOfWork.CourseCommandRepository.GetByIdAsync(command.CourseId, ct);
         if (course is null)
@@ -26,7 +26,8 @@ public sealed class CreateCourseFaqCommandHandler(IUnitOfWork unitOfWork)
             course.Id,
             command.Title,
             command.Description,
-            command.DisplayOrder);
+            command.DisplayOrder,
+            command.IsActive);
 
         if (created.IsFailure)
             return created.Error;
@@ -44,6 +45,6 @@ public sealed class CreateCourseFaqCommandHandler(IUnitOfWork unitOfWork)
         await unitOfWork.CourseFaqCommandRepository.RenumberAsync(command.CourseId, ct);
 
         saveResult = await unitOfWork.SaveAsync(ct);
-        return saveResult.IsFailure ? CourseFaqErrors.CreateFailed() : faq.Id.Value;
+        return saveResult.IsFailure ? CourseFaqErrors.CreateFailed() : faq.Id;
     }
 }

@@ -50,6 +50,7 @@ global using Whyland.Shared.Dtos.Catalog.Category;  // category listing DTOs
 global using Whyland.Shared.Dtos.Catalog.Course;    // course listing, details and option DTOs
 global using Whyland.Shared.Dtos.Catalog.CourseFaq; // course-scoped FAQ DTOs
 global using Whyland.Shared.Dtos.Catalog.CourseSection; // course section DTOs
+global using Whyland.Shared.Dtos.Catalog.Episode; // episode and attachment DTOs
 
 global using Whyland.Shared.Dtos.Identity;          // identity DTOs
 
@@ -144,6 +145,8 @@ global using Whyland.Domain.Model.Catalog.Category.Errors;
 global using Whyland.Domain.Model.Catalog.Course.Errors;
 global using Whyland.Domain.Model.Catalog.CourseFaq.Errors;
 global using Whyland.Domain.Model.Catalog.CourseSection.Errors;
+global using Whyland.Domain.Model.Catalog.Episode.Errors;
+global using Whyland.Domain.Model.Catalog.EpisodeAttachment.Errors;
 global using Whyland.Domain.Model.Content.Faq.Errors;                     
 global using Whyland.Domain.Model.Identity.ExternalLogin.Errors;          
 global using Whyland.Domain.Model.Identity.InstructorProfile.Errors;

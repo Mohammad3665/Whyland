@@ -8,4 +8,4 @@ namespace Whyland.Application.Features.Admin.Faqs.Commands.Create;
 /// <param name="Description">The answer/description of the FAQ.</param>
 /// <param name="DisplayOrder">The display order used for sorting FAQs.</param>
 /// <param name="IsActive">Whether the FAQ is visible to end users.</param>
-public sealed record CreateFaqCommand(string Title, string Description, int DisplayOrder, bool IsActive) : ICommand<long>;
+public sealed record CreateFaqCommand(string Title, string Description, int DisplayOrder, bool IsActive) : ICommand<FaqId>;

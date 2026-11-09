@@ -8,7 +8,7 @@
 /// <param name="passwordHasher">Hashes the initial password; it is never stored in plaintext.</param>
 public sealed class CreateUserCommandHandler(
     IUnitOfWork unitOfWork,
-    IPasswordHashService passwordHasher) : ICommandHandler<CreateUserCommand, Guid>
+    IPasswordHashService passwordHasher) : ICommandHandler<CreateUserCommand, UserId>
 {
     /// <summary>
     /// Creates the account, or returns a uniqueness error when its identifier is already taken
@@ -17,7 +17,7 @@ public sealed class CreateUserCommandHandler(
     /// <param name="command">The values submitted in the create modal.</param>
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>The new account identifier, or an error.</returns>
-    public async Task<Result<Guid>> Handle(CreateUserCommand command, CancellationToken ct)
+    public async Task<Result<UserId>> Handle(CreateUserCommand command, CancellationToken ct)
     {
         // The stored forms are the ones every login lookup uses: one spelling per number, trimmed e-mail.
         var phone = string.IsNullOrWhiteSpace(command.PhoneNumber)
@@ -53,11 +53,11 @@ public sealed class CreateUserCommandHandler(
         if (saveResult.IsFailure)
             return UserErrors.CreateFailed();
 
-        await unitOfWork.UserCommandRepository.ReplaceRolesAsync(user.Id.Value, command.RoleIds, ct);
+        await unitOfWork.UserCommandRepository.ReplaceRolesAsync(user.Id, command.RoleIds, ct);
 
         saveResult = await unitOfWork.SaveAsync(ct);
         return saveResult.IsFailure
             ? UserErrors.CreateFailed()
-            : user.Id.Value;
+            : user.Id;
     }
 }

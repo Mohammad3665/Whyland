@@ -4,6 +4,9 @@ using Whyland.Application.Features.Admin.CourseFaqs.Commands.Reorder;
 using Whyland.Application.Features.Admin.CourseFaqs.Commands.Update;
 using Whyland.Application.Features.Admin.CourseFaqs.Queries.GetForCourse;
 using Whyland.Application.Features.Admin.Courses.Queries.GetById;
+using Whyland.Domain.Model.Catalog.Course.Identifiers;
+using Whyland.Domain.Model.Catalog.CourseFaq.Identifiers;
+using CourseIdentifier = Whyland.Domain.Model.Catalog.Course.Identifiers.CourseId;
 
 namespace Whyland.Web.Areas.Admin.Pages.Catalog.Courses.CourseFaqs;
 
@@ -36,7 +39,8 @@ public class IndexModel(
         if (CourseId <= 0)
             return NotFound();
 
-        var course = await dispatcher.Send(new GetCourseByIdQuery(CourseId), ct);
+        var courseId = CourseIdentifier.From(CourseId);
+        var course = await dispatcher.Send(new GetCourseByIdQuery(courseId), ct);
         if (!course.IsSuccess)
             return NotFound();
 
@@ -55,7 +59,7 @@ public class IndexModel(
     /// </returns>
     public async Task<IActionResult> OnGetRowsAsync([FromQuery] long courseId, CancellationToken ct)
     {
-        var result = await dispatcher.Send(new GetCourseFaqsQuery(courseId), ct);
+        var result = await dispatcher.Send(new GetCourseFaqsQuery(CourseIdentifier.From(courseId)), ct);
 
         return result.IsSuccess
             ? new JsonResult(result.Data)
@@ -89,7 +93,7 @@ public class IndexModel(
     /// <param name="id">The identifier of the question to delete.</param>
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
-    public async Task<IActionResult> OnPostDeleteAsync([FromForm] long id, CancellationToken ct)
+    public async Task<IActionResult> OnPostDeleteAsync([FromForm] CourseFaqId id, CancellationToken ct)
         => await DenyUnlessAsync(Permissions.Courses.Edit)
             ?? ToJson(await dispatcher.Send(new DeleteCourseFaqCommand(id), ct));
 
@@ -104,7 +108,7 @@ public class IndexModel(
         CancellationToken ct)
         => await DenyUnlessAsync(Permissions.Courses.Edit)
             ?? ToJson(await dispatcher.Send(
-                new ReorderCourseFaqsCommand(courseId, rows.Select(r => r.Id).ToList()), ct));
+                new ReorderCourseFaqsCommand(CourseIdentifier.From(courseId), rows.Select(r => CourseFaqId.From(r.Id)).ToList()), ct));
 
     #endregion
 

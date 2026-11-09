@@ -47,7 +47,7 @@ public static class CourseErrors
 
     /// <summary>No course exists with the given identifier.</summary>
     /// <param name="id">The identifier that was looked up.</param>
-    public static DomainError NotFound(long id) =>
+    public static DomainError NotFound(CourseId id) =>
         DomainError.For<CourseEntity>(nameof(NotFound), ErrorType.NotFound, field: null, ("Id", id));
 
     /// <summary>Another course already uses this slug.</summary>
@@ -57,12 +57,12 @@ public static class CourseErrors
 
     /// <summary>A category the form selected is missing, deleted or inactive.</summary>
     /// <param name="id">The identifier of the unavailable category.</param>
-    public static DomainError CategoryUnavailable(long id) =>
+    public static DomainError CategoryUnavailable(CategoryId id) =>
         DomainError.For<CourseEntity>(nameof(CategoryUnavailable), ErrorType.Validation, field: null, ("Id", id));
 
     /// <summary>An instructor the form selected is missing or belongs to an inactive account.</summary>
     /// <param name="id">The identifier of the unavailable instructor profile.</param>
-    public static DomainError InstructorUnavailable(Guid id) =>
+    public static DomainError InstructorUnavailable(InstructorProfileId id) =>
         DomainError.For<CourseEntity>(nameof(InstructorUnavailable), ErrorType.Validation, field: null, ("Id", id));
 
     /// <summary>A course must have at least one instructor.</summary>

@@ -10,9 +10,9 @@ public sealed class CreateInstructorProfileCommandHandler(
     IUnitOfWork unitOfWork,
     IImageStorageService imageStorageService,
     ILogger<CreateInstructorProfileCommandHandler> logger)
-    : ICommandHandler<CreateInstructorProfileCommand, Guid>
+    : ICommandHandler<CreateInstructorProfileCommand, InstructorProfileId>
 {
-    public async Task<Result<Guid>> Handle(
+    public async Task<Result<InstructorProfileId>> Handle(
         CreateInstructorProfileCommand command,
         CancellationToken ct)
     {
@@ -29,7 +29,7 @@ public sealed class CreateInstructorProfileCommandHandler(
             return InstructorProfileErrors.AlreadyExists(command.UserId);
 
         var created = InstructorProfile.Create(
-            UserId.From(command.UserId),
+            UserId.From(command.UserId.Value),
             command.Bio,
             command.Biography,
             command.Specialization,
@@ -72,7 +72,7 @@ public sealed class CreateInstructorProfileCommandHandler(
                 return InstructorProfileErrors.CreateFailed();
             }
 
-            return profile.Id.Value;
+            return profile.Id;
         }
         catch (Exception ex)
         {

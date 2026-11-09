@@ -31,7 +31,7 @@ public sealed class ToggleUserStatusCommandHandler(
             return UserErrors.NotFound(command.Id);
 
         if (user.IsActive &&
-            await unitOfWork.UserCommandRepository.IsInRoleAsync(user.Id.Value, RoleNames.SuperAdmin, ct))
+            await unitOfWork.UserCommandRepository.IsInRoleAsync(user.Id, RoleNames.SuperAdmin, ct))
             return UserErrors.SuperAdminProtected();
 
         user.SetActive(!user.IsActive);

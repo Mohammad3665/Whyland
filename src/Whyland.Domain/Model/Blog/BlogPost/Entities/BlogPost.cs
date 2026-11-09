@@ -1,4 +1,4 @@
-﻿
+﻿using Whyland.Shared.Enums;
 using BlogCategoryEntity = Whyland.Domain.Model.Blog.BlogCategory.Entities.BlogCategory;
 
 namespace Whyland.Domain.Model.Blog.BlogPost.Entities;

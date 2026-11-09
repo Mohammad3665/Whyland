@@ -2,7 +2,7 @@ namespace Whyland.Application.Features.Admin.InstructorProfiles.Commands.Create;
 
 /// <summary>Creates the instructor profile of an existing, active account.</summary>
 public sealed record CreateInstructorProfileCommand(
-    Guid UserId,
+    UserId UserId,
     string? Bio,
     string? Biography,
     string? Specialization,
@@ -11,4 +11,4 @@ public sealed record CreateInstructorProfileCommand(
     string? Instagram,
     string? ShebaNumber,
     string? BankAccountNumber,
-    InstructorProfileImageUpload? Image) : ICommand<Guid>;
+    InstructorProfileImageUpload? Image) : ICommand<InstructorProfileId>;

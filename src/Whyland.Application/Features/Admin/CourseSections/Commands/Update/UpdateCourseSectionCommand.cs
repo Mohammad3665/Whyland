@@ -6,4 +6,4 @@ namespace Whyland.Application.Features.Admin.CourseSections.Commands.Update;
 /// <param name="Id">The identifier of the section to update.</param>
 /// <param name="Title">The new section title.</param>
 /// <param name="DisplayOrder">The new display order used for sorting sections.</param>
-public sealed record UpdateCourseSectionCommand(long Id, string Title, int DisplayOrder) : ICommand;
+public sealed record UpdateCourseSectionCommand(CourseSectionId Id, string Title, int DisplayOrder) : ICommand;

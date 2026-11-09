@@ -29,14 +29,14 @@ public sealed class UpdateCategoryCommandHandler(IUnitOfWork unitOfWork) : IComm
 
         // The request carries raw numbers, so every id is wrapped here once: the tree walks below
         // only ever compare identifiers.
-        var parentId = command.ParentId is { } rawParent ? CategoryId.From(rawParent) : (CategoryId?)null;
+        var parentId = command.ParentId is { } rawParent ? CategoryId.From(rawParent.Value) : (CategoryId?)null;
         var isActive = command.IsActive;
-        var id = CategoryId.From(command.Id);
+        var id = CategoryId.From(command.Id.Value);
 
         if (parentId is { } pid)
         {
             if (!byId.TryGetValue(pid, out var parent))
-                return CategoryErrors.ParentNotFound(pid.Value);
+                return CategoryErrors.ParentNotFound(pid);
 
             // Either edge of the loop: the row becomes its own parent, or the chosen parent is
             // already somewhere below it.
@@ -58,7 +58,7 @@ public sealed class UpdateCategoryCommandHandler(IUnitOfWork unitOfWork) : IComm
                 isActive = false;
         }
 
-        if (await repository.IsNameTakenAsync(command.Name, parentId?.Value, command.Id, ct))
+        if (await repository.IsNameTakenAsync(command.Name, parentId, command.Id, ct))
             return CategoryErrors.NameTaken(command.Name);
 
         var updated = category.Update(command.Name, command.LatinName, isActive);

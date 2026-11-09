@@ -10,7 +10,7 @@ public interface ICurrentUserService
     /// Gets the unique identifier of the currently authenticated user,
     /// or <c>null</c> if no user is authenticated.
     /// </summary>
-    Guid? UserId { get; }
+    UserId? UserId { get; }
 
     /// <summary>
     /// Gets a value indicating whether the current request is associated

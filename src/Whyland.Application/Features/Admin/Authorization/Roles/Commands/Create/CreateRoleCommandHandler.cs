@@ -6,7 +6,7 @@ namespace Whyland.Application.Features.Admin.Authorization.Roles.Commands.Create
 /// </summary>
 /// <param name="unitOfWork">The unit of work providing role persistence.</param>
 public sealed class CreateRoleCommandHandler(
-    IUnitOfWork unitOfWork) : ICommandHandler<CreateRoleCommand, long>
+    IUnitOfWork unitOfWork) : ICommandHandler<CreateRoleCommand, RoleId>
 {
     /// <summary>
     /// Creates the role, or returns a uniqueness error when its name is already taken and a generic
@@ -15,7 +15,7 @@ public sealed class CreateRoleCommandHandler(
     /// <param name="command">The values submitted in the create modal.</param>
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>The new role identifier, or an error.</returns>
-    public async Task<Result<long>> Handle(CreateRoleCommand command, CancellationToken ct)
+    public async Task<Result<RoleId>> Handle(CreateRoleCommand command, CancellationToken ct)
     {
         var repository = unitOfWork.RoleCommandRepository;
 
@@ -40,6 +40,6 @@ public sealed class CreateRoleCommandHandler(
         if (saveResult.IsFailure)
             return RoleErrors.CreateFailed();
 
-        return role.Id.Value;
+        return role.Id;
     }
 }

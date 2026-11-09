@@ -7,6 +7,25 @@
 
 var page; // shared CRUD page controller (set in initPage)
 var reorder; // shared drag & drop ordering controller (set in initPage)
+var picker; // generic filter picker (set in the boot block)
+
+/** Conditions of the generic picker, including the value currently typed in it. */
+function sectionConditions() {
+  return picker ? picker.conditions() : [];
+}
+
+/** Re-runs the client-side DataTable with the current filter conditions. */
+function applySectionFilters() {
+  if (page) page.table.draw(false);
+}
+
+function addFilterCondition() {
+  if (picker) picker.add();
+}
+
+function clearFilterConditions() {
+  if (picker) picker.clear();
+}
 
 //#region Server Connectivity (Razor Page handlers)
 function csrfToken() {
@@ -40,7 +59,9 @@ function postHandler(handler, data) {
 
 function saveSection(data, mode) {
   if (mode === "create") data.courseId = courseId();
-  return postHandler(mode === "create" ? "Create" : "Update", data).done(refreshRows);
+  return postHandler(mode === "create" ? "Create" : "Update", data).done(
+    refreshRows,
+  );
 }
 
 function deleteSection(id) {
@@ -93,20 +114,38 @@ function buildSectionRow(section) {
       "</tr>",
   );
 
-  $row.attr("data-id", section.id);
+  $row.attr("data-id", section.id).data("entity", section);
 
   var cells = $row.find("td");
   $(cells[1]).find(".section-order").text(faNumber(section.displayOrder));
-  $(cells[2]).append($('<span class="text-gray-800 fw-bold">').text(section.title));
+  $(cells[2]).append(
+    $('<span class="text-gray-800 fw-bold">').text(section.title),
+  );
   $(cells[3]).append(
     $('<span class="badge badge-light-primary">').text(
       faNumber(section.episodeCount) + " اپیزود",
     ),
   );
 
+  var $episodes = $(
+    '<a class="btn btn-sm btn-icon btn-bg-light btn-active-color-info me-1" title="اپیزودها">',
+  )
+    .attr(
+      "href",
+      "/Admin/Catalog/Courses/Episodes?courseId=" +
+        courseId() +
+        "&sectionId=" +
+        section.id,
+    )
+    .append(
+      '<i class="ki-duotone ki-book-open fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span></i>',
+    );
+
   var $edit = $(
     '<button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-primary me-1" title="ویرایش">',
-  ).append('<i class="ki-duotone ki-pencil fs-2"><span class="path1"></span><span class="path2"></span></i>');
+  ).append(
+    '<i class="ki-duotone ki-pencil fs-2"><span class="path1"></span><span class="path2"></span></i>',
+  );
   $edit.on("click", function () {
     openEditModal(section);
   });
@@ -120,7 +159,7 @@ function buildSectionRow(section) {
     if (page) page.openDelete(section.id, section.title);
   });
 
-  $(cells[4]).append($edit, $delete);
+  $(cells[4]).append($episodes, $edit, $delete);
   return $row[0];
 }
 
@@ -158,7 +197,6 @@ function initPage() {
         ],
       }),
     },
-    search: "#sectionSearch",
     modal: {
       id: "kt_modal_section",
       titleEl: "#modal-section-title",
@@ -207,6 +245,14 @@ function initPage() {
     onDelete: deleteSection,
   });
 
+  AdminTable.clientFilter(
+    "kt_course_sections_table",
+    sectionConditions,
+    function () {
+      return picker ? picker.fields() : [];
+    },
+  );
+
   reorder = AdminCrud.bindRowReorder(page.table, {
     badge: ".section-order",
     orderCol: 1,
@@ -250,11 +296,25 @@ function openEditModal(section) {
 
 //#region Boot
 $(function () {
-  loadRows()
-    .then(function (rows) {
+  picker = AdminTable.filterPicker({
+    fieldEl: "#filterField",
+    operatorEl: "#filterOperator",
+    valueWrapEl: "#filterValueWrap",
+    chipsEl: "#filterChips",
+    onChange: applySectionFilters,
+  });
+
+  var fieldsReady = picker.load().then(null, function () {
+    toastr.error("خطا در دریافت فیلدهای فیلتر.", "خطا");
+    return null;
+  });
+
+  $.when(loadRows(), fieldsReady)
+    .done(function (rows) {
       $("#kt_course_sections_table tbody").append(rows);
       initPage();
       reorder.renumber();
+      applySectionFilters();
     })
     .fail(function () {
       initPage();

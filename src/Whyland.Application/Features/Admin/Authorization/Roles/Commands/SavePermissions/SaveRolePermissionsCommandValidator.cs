@@ -9,7 +9,7 @@ public sealed class SaveRolePermissionsCommandValidator : AbstractValidator<Save
     /// <summary>Configures the validation rules for the grant set.</summary>
     public SaveRolePermissionsCommandValidator()
     {
-        RuleFor(x => x.RoleId)
+        RuleFor(x => x.RoleId.Value)
             .WhylandGreaterThan(0)
             .WithName("شناسه نقش");
 
@@ -17,7 +17,7 @@ public sealed class SaveRolePermissionsCommandValidator : AbstractValidator<Save
             .NotNull()
             .WithName("دسترسی‌ها");
 
-        RuleForEach(x => x.PermissionIds)
+        RuleForEach(x => x.PermissionIds.Select(id => id.Value))
             .WhylandGreaterThan(0)
             .WithName("دسترسی");
     }

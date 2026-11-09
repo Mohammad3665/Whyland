@@ -53,18 +53,10 @@ var page = AdminCrud.createPage({
 //#endregion
 
 //#region Details Modal (8.2, opened from the 8.1 actions cell)
-/** Persian digits for money/date display, matching the table's style. */
-function faDigits(text) {
-  var fa = "۰۱۲۳۴۵۶۷۸۹";
-  return String(text).replace(/\d/g, function (d) {
-    return fa[+d];
-  });
-}
-
 /** Formats a raw integer with thousands separators + تومان. */
 function formatToman(amount) {
   if (!amount) return "—";
-  return faDigits(Number(amount).toLocaleString("en-US")) + " تومان";
+  return PersianDigits.toPersian(Number(amount).toLocaleString("en-US")) + " تومان";
 }
 
 /** Status badge matching the table's badge classes ("label|type"). */
@@ -120,10 +112,10 @@ function openDetailsModal(
     $("#payment-details-tracking-no").html('<span class="text-muted">—</span>');
   }
 
-  $("#payment-details-created").text(faDigits(createdAt));
+  $("#payment-details-created").text(PersianDigits.toPersian(createdAt));
 
   if (paidAt) {
-    $("#payment-details-paid").text(faDigits(paidAt));
+    $("#payment-details-paid").text(PersianDigits.toPersian(paidAt));
   } else {
     $("#payment-details-paid").html('<span class="text-muted">—</span>');
   }
@@ -132,7 +124,7 @@ function openDetailsModal(
   //#region Linked order
   $("#payment-details-order-status").html(statusBadge(orderStatusBadge));
   $("#payment-details-order-amount").text(orderAmount || "—");
-  $("#payment-details-order-created").text(faDigits(orderCreatedAt));
+  $("#payment-details-order-created").text(PersianDigits.toPersian(orderCreatedAt));
   //#endregion
 
   AdminCrud.Utils.showModal("kt_modal_payment_details");

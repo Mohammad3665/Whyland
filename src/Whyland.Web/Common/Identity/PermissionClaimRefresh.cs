@@ -1,4 +1,5 @@
 using Whyland.Application.Common.Abstractions.UnitOfWork;
+using Whyland.Domain.Model.Identity.User.Identifiers;
 
 namespace Whyland.Web.Common.Identity;
 
@@ -38,8 +39,10 @@ public static class PermissionClaimRefresh
         if (context.Principal?.Identity is not ClaimsIdentity identity)
             return;
 
-        if (!Guid.TryParse(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
+        if (!Guid.TryParse(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var rawUserId))
             return;
+
+        var userId = UserId.From(rawUserId);
 
         if (!IsStale(identity, DateTimeOffset.UtcNow))
             return;

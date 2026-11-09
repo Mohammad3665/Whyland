@@ -6,7 +6,7 @@
 /// creating the category through the domain factory and persisting it via the unit of work.
 /// </summary>
 /// <param name="unitOfWork">The unit of work providing access to category persistence.</param>
-public sealed class CreateCategoryCommandHandler(IUnitOfWork unitOfWork) : ICommandHandler<CreateCategoryCommand, long>
+public sealed class CreateCategoryCommandHandler(IUnitOfWork unitOfWork) : ICommandHandler<CreateCategoryCommand, CategoryId>
 {
     /// <summary>
     /// Creates a new category, or returns an error when the parent is missing, the branch would grow
@@ -16,7 +16,7 @@ public sealed class CreateCategoryCommandHandler(IUnitOfWork unitOfWork) : IComm
     /// <param name="command">The command with the new category values.</param>
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>The identifier of the created category, or an error describing the failure.</returns>
-    public async Task<Result<long>> Handle(CreateCategoryCommand command, CancellationToken ct)
+    public async Task<Result<CategoryId>> Handle(CreateCategoryCommand command, CancellationToken ct)
     {
         var repository = unitOfWork.CategoryCommandRepository;
 
@@ -27,13 +27,13 @@ public sealed class CreateCategoryCommandHandler(IUnitOfWork unitOfWork) : IComm
 
         // The request carries raw numbers, so every id is wrapped here once: the tree walks below
         // only ever compare identifiers.
-        var parentId = command.ParentId is { } rawParent ? CategoryId.From(rawParent) : (CategoryId?)null;
+        var parentId = command.ParentId is { } rawParent ? CategoryId.From(rawParent.Value) : (CategoryId?)null;
         var isActive = command.IsActive;
 
         if (parentId is { } pid)
         {
             if (!byId.TryGetValue(pid, out var parent))
-                return CategoryErrors.ParentNotFound(pid.Value);
+                return CategoryErrors.ParentNotFound(pid);
 
             // The parent's own level is the ceiling check: a child of the last allowed level
             // would open a fourth one.
@@ -51,7 +51,7 @@ public sealed class CreateCategoryCommandHandler(IUnitOfWork unitOfWork) : IComm
                 isActive = false;
         }
 
-        if (await repository.IsNameTakenAsync(command.Name, parentId?.Value, ct: ct))
+        if (await repository.IsNameTakenAsync(command.Name, parentId, ct: ct))
             return CategoryErrors.NameTaken(command.Name);
 
         var created = Category.Create(command.Name, command.LatinName, command.DisplayOrder, parentId, isActive);
@@ -72,6 +72,6 @@ public sealed class CreateCategoryCommandHandler(IUnitOfWork unitOfWork) : IComm
         saveResult = await unitOfWork.SaveAsync(ct);
         return saveResult.IsFailure ?
             CategoryErrors.CreateFailed() :
-            category.Id.Value;
+            category.Id;
     }
 }

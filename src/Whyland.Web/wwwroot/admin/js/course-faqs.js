@@ -71,6 +71,12 @@ function faNumber(value) {
   return Number(value || 0).toLocaleString("fa-IR");
 }
 
+function faqDate(value) {
+  if (!value) return "—";
+  var date = new Date(value);
+  return isNaN(date.getTime()) ? "—" : date.toLocaleDateString("fa-IR");
+}
+
 function buildFaqRow(faq) {
   var $row = $(
     '<tr><td class="dtr-control-col"></td>' +
@@ -84,15 +90,39 @@ function buildFaqRow(faq) {
       '<span class="course-faq-order badge badge-light-secondary"></span>' +
       "</div></td>" +
       "<td></td>" +
+      '<td class="text-center"></td>' +
+      "<td></td>" +
       '<td class="text-end nowrap-cell"></td>' +
       "</tr>",
   );
 
-  $row.attr("data-id", faq.id);
+  $row.attr("data-id", faq.id).attr("data-active", faq.isActive ? 1 : 0);
 
   var cells = $row.find("td");
   $(cells[1]).find(".course-faq-order").text(faNumber(faq.displayOrder));
-  $(cells[2]).append($('<span class="text-gray-800 fw-bold">').text(faq.title));
+  $(cells[2]).append(
+    $('<span class="text-gray-800 fw-bold faq-title-clamp">')
+      .text(faq.title)
+      .attr("title", faq.title),
+  );
+
+  $(cells[3])
+    .attr("data-order", faq.isActive ? 1 : 0)
+    .append(
+      $(
+        '<span class="badge badge-light-' +
+          (faq.isActive ? "success" : "danger") +
+          '">',
+      ).text(faq.isActive ? "فعال" : "غیرفعال"),
+    );
+
+  $(cells[4])
+    .attr("data-order", faq.createdAt)
+    .append(
+      $('<span class="text-gray-600 faq-created-date">').text(
+        faqDate(faq.createdAt),
+      ),
+    );
 
   var $details = $(
     '<button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info me-1" title="جزئیات">',
@@ -117,7 +147,7 @@ function buildFaqRow(faq) {
     if (page) page.openDelete(faq.id, faq.title);
   });
 
-  $(cells[3]).append($details, $edit, $delete);
+  $(cells[5]).append($details, $edit, $delete);
   return $row[0];
 }
 
@@ -148,9 +178,9 @@ function initPage() {
       selector: "#kt_course_faqs_table",
       options: $.extend(true, AdminCrud.rowReorderOptions(), {
         columnDefs: [
-          { orderable: false, targets: [0, 1, 3] },
-          { className: "all", targets: 1 },
-          { className: "min-tablet", targets: [3] },
+          { orderable: false, targets: [0, 1, 5] },
+          { className: "all", targets: [1, 2] },
+          { className: "min-tablet", targets: [3, 4, 5] },
           { className: "dtr-control", targets: 0 },
         ],
       }),
@@ -174,12 +204,18 @@ function initPage() {
     },
 
     fillForm: function (faq) {
-      faq = faq || { title: "", description: "", displayOrder: 0 };
+      faq = faq || {
+        title: "",
+        description: "",
+        displayOrder: 0,
+        isActive: true,
+      };
       $("#Form_Title").val(faq.title);
       $("#Form_Description").val(faq.description);
       $("#Form_DisplayOrder").val(
         faq.displayOrder > 0 ? faq.displayOrder : reorder.getNextOrder(),
       );
+      $("#Form_IsActive").prop("checked", faq.isActive);
     },
 
     getData: function () {
@@ -187,6 +223,7 @@ function initPage() {
         title: $("#Form_Title").val().trim(),
         description: $("#Form_Description").val().trim(),
         displayOrder: parseInt($("#Form_DisplayOrder").val(), 10) || 0,
+        isActive: $("#Form_IsActive").is(":checked"),
       };
     },
 
@@ -225,9 +262,28 @@ function initPage() {
 //#endregion
 
 //#region Details / Create / Edit Handlers
+function faqDateTime(value) {
+  if (!value) return "—";
+  var date = new Date(value);
+  return isNaN(date.getTime()) ? "—" : date.toLocaleString("fa-IR");
+}
+
 function openDetailsModal(faq) {
   $("#details-course-faq-title").text(faq.title);
   $("#details-course-faq-description").text(faq.description);
+  $("#details-course-faq-id").text(faq.id);
+  $("#details-course-faq-course").text(faq.courseId);
+  $("#details-course-faq-order").text(faNumber(faq.displayOrder));
+  $("#details-course-faq-created").text(faqDateTime(faq.createdAt));
+  $("#details-course-faq-status")
+    .empty()
+    .append(
+      '<span class="badge badge-light-' +
+        (faq.isActive ? "success" : "danger") +
+        '">' +
+        (faq.isActive ? "فعال" : "غیرفعال") +
+        "</span>",
+    );
   AdminCrud.Utils.showModal("kt_modal_course_faq_details");
 }
 
@@ -258,6 +314,7 @@ function openEditModal(faq) {
   $("#Form_DisplayOrder").val(
     reorder.orderOf(faq.id, faq.displayOrder),
   );
+  $("#Form_IsActive").prop("checked", faq.isActive);
   AdminCrud.Utils.showModal("kt_modal_course_faq");
 }
 //#endregion

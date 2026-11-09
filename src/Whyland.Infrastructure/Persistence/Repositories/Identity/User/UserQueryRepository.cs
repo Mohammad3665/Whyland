@@ -76,18 +76,18 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
             .Limit(1)
             .GetFirstOrDefaultAsync<UserEntity>(dataSource, ct);
 
-    public Task<UserEntity?> GetByIdAsync(Guid userId, CancellationToken ct = default)
+    public Task<UserEntity?> GetByIdAsync(UserId userId, CancellationToken ct = default)
         => DapperFluentQueryBuilder<UserEntity>.Create($"{identity}.Users")
-            .Where(x => x.Id, userId)
+            .Where(x => x.Id, userId.Value)
             .Limit(1)
             .GetFirstOrDefaultAsync<UserEntity>(dataSource, ct);
 
     // The assignment table has no soft-delete column of its own - the builder only guards a table
     // whose entity really is soft-deletable - so the live-row filter is written on the role and the
     // permission instead, which is what the statement used to say.
-    public Task<IReadOnlyList<string>> GetPermissionKeysAsync(Guid userId, CancellationToken ct = default)
+    public Task<IReadOnlyList<string>> GetPermissionKeysAsync(UserId userId, CancellationToken ct = default)
         => DapperFluentQueryBuilder<UserRole>.Create($"{identity}.UserRoles", x => x.UserId)
-            .Where(x => x.UserId, userId)
+            .Where(x => x.UserId, userId.Value)
             .Join<RolePermission>($"{identity}.RolePermissions", ur => ur.RoleId, rp => rp.RoleId)
             .Join<RoleEntity>($"{identity}.Roles", ur => ur.RoleId, r => r.Id)
             .Join<RolePermission, Permission>($"{identity}.Permissions", rp => rp.PermissionId, p => p.Id)
@@ -146,7 +146,7 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
         return TableSpec.GetDataTableAsync<UserListItemDto>(dataSource, filter, conditions, ct);
     }
 
-    public Task<UserDetailsDto?> GetDetailsAsync(Guid userId, CancellationToken ct = default)
+    public Task<UserDetailsDto?> GetDetailsAsync(UserId userId, CancellationToken ct = default)
     {
         // One round-trip, three readers: the account row (with its joined profile), the assigned
         // roles and the linked external providers. A missing profile row is a left join on purpose,
@@ -157,7 +157,7 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
         // when the shapes disagree.
         var account = DapperFluentQueryBuilder<UserEntity>.Create($"{identity}.Users", x => x.Id)
             .LeftJoin<UserProfile>($"{identity}.UserProfiles", u => u.Id, p => p.UserId)
-            .Where(x => x.Id, userId)
+            .Where(x => x.Id, userId.Value)
             .ClearSelect()
             .Select(x => x.Id)
             .Select(x => x.FirstName)
@@ -178,7 +178,7 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
             .Limit(1);
 
         var roles = DapperFluentQueryBuilder<UserRole>.Create($"{identity}.UserRoles", x => x.UserId)
-            .Where(x => x.UserId, userId)
+            .Where(x => x.UserId, userId.Value)
             .Join<RoleEntity>($"{identity}.Roles", ur => ur.RoleId, r => r.Id)
             .WhereFrom<RoleEntity>(r => r.IsDeleted, false)
             .ClearSelect()
@@ -188,7 +188,7 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
             .OrderBy(nameof(RoleEntity.Title));
 
         var providers = DapperFluentQueryBuilder<ExternalLoginEntity>.Create($"{identity}.ExternalLogins", x => x.Provider)
-            .Where(x => x.UserId, userId)
+            .Where(x => x.UserId, userId.Value)
             .Distinct();
 
         return DapperSqlBatch.RunAsync(
@@ -234,10 +234,10 @@ public sealed class UserQueryRepository(NpgsqlDataSource dataSource) : IUserQuer
     // no avatar.
     // The columns are listed in the order UserMenuDto declares them - Dapper binds a result set onto
     // that constructor and reports the mismatch when the shapes disagree.
-    public Task<UserMenuDto?> GetMenuAsync(Guid userId, CancellationToken ct = default)
+    public Task<UserMenuDto?> GetMenuAsync(UserId userId, CancellationToken ct = default)
         => DapperFluentQueryBuilder<UserEntity>.Create($"{identity}.Users", x => x.Id)
             .LeftJoin<UserProfile>($"{identity}.UserProfiles", u => u.Id, p => p.UserId)
-            .Where(x => x.Id, userId)
+            .Where(x => x.Id, userId.Value)
             .ClearSelect()
             .Select(x => x.FirstName)
             .Select(x => x.LastName)

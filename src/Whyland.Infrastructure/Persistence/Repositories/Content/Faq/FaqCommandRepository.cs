@@ -11,18 +11,16 @@ public class FaqCommandRepository(WhylandDbContext context) : IFaqCommandReposit
     public async Task AddAsync(FaqEntity faq, CancellationToken ct = default)
         => await context.Faqs.AddAsync(faq, ct);
 
-    public Task<bool> ExistsAsync(string title, long? excludeId = null, CancellationToken ct = default)
+    public Task<bool> ExistsAsync(string title, FaqId? excludeId = null, CancellationToken ct = default)
     {
-        // The interface keeps a raw key, so it is wrapped once here and the comparison below
-        // stays between two identifiers.
-        var excluded = excludeId is { } skip ? FaqId.From(skip) : (FaqId?)null;
+        var excluded = excludeId is { } skip ? skip : (FaqId?)null;
 
         return context.Faqs.AsNoTracking()
             .AnyAsync(x => x.Title == title && (excluded == null || x.Id != excluded.Value), ct);
     }
 
-    public Task<FaqEntity?> GetByIdAsync(long id, CancellationToken ct = default)
-        => context.Faqs.FirstOrDefaultAsync(x => x.Id == FaqId.From(id), ct);
+    public Task<FaqEntity?> GetByIdAsync(FaqId id, CancellationToken ct = default)
+        => context.Faqs.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public void SoftDelete(FaqEntity faq) => faq.MarkDeleted();
 
@@ -32,14 +30,12 @@ public class FaqCommandRepository(WhylandDbContext context) : IFaqCommandReposit
     /// <summary>Stages the new display-order sequence; persisted on SaveAsync.</summary>
     /// <param name="orderedIds">The Faq ids in the desired order (index + 1 becomes DisplayOrder).</param>
     /// <param name="ct">Cancellation token.</param>
-    public async Task ReorderAsync(IReadOnlyList<long> orderedIds, CancellationToken ct = default)
+    public async Task ReorderAsync(IReadOnlyList<FaqId> orderedIds, CancellationToken ct = default)
     {
         if (orderedIds.Count == 0)
             return;
 
-        // The panel sends raw numbers, so the keys are wrapped once here: the query and the
-        // dictionary below only ever work with identifiers.
-        var ids = orderedIds.Select(FaqId.From).ToList();
+        var ids = orderedIds.ToList();
 
         // Load only the affected, live rows; unknown ids are silently skipped.
         var rows = await context.Faqs

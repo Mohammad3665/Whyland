@@ -30,6 +30,22 @@ public static class ApplicationBuilderExtensions
                 enricher.Set("SafePath", httpContext.Request.Path.ToString());
         });
 
+        // The protected media root holds episode videos and attachments. Static serving must never
+        // reach it: files are only readable through /media endpoints after the access check (s8.1.1,
+        // s8.2.1). The guard sits before UseStaticFiles so nothing is served on a cache miss either.
+        app.Use(async (context, next) =>
+        {
+            if (context.Request.Path.StartsWithSegments(
+                    "/uploads/media",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                return;
+            }
+
+            await next();
+        });
+
         app.UseStaticFiles();
         app.UseHttpsRedirection();
         app.UseRouting();

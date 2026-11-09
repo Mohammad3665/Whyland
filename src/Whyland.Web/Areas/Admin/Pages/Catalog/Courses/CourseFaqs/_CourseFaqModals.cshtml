@@ -20,6 +20,31 @@
                 </div>
                 <!--end::Heading-->
 
+                <!--begin::Properties-->
+                <div class="row g-5 mb-8">
+                    <div class="col-md-6">
+                        <div class="text-muted fs-7 mb-1">شناسه سوال</div>
+                        <div class="text-gray-800 fw-semibold" id="details-course-faq-id"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted fs-7 mb-1">شناسه دوره</div>
+                        <div class="text-gray-800 fw-semibold" id="details-course-faq-course"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted fs-7 mb-1">ترتیب نمایش</div>
+                        <div class="text-gray-800 fw-semibold" id="details-course-faq-order"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted fs-7 mb-1">وضعیت</div>
+                        <div class="text-gray-800 fw-semibold" id="details-course-faq-status"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted fs-7 mb-1">تاریخ ایجاد</div>
+                        <div class="text-gray-800 fw-semibold" id="details-course-faq-created"></div>
+                    </div>
+                </div>
+                <!--end::Properties-->
+
                 <!--begin::Question-->
                 <div class="mb-8">
                     <label class="fs-6 fw-semibold text-gray-800 mb-2">عنوان سوال</label>
@@ -90,13 +115,27 @@
                     </div>
                     <!--end::Input group-->
 
-                    <!--begin::Input group - DisplayOrder-->
-                    <div class="fv-row mb-8">
-                        <label class="fs-6 fw-semibold mb-2">ترتیب نمایش</label>
-                        <input type="number" id="Form_DisplayOrder" name="Form_DisplayOrder"
-                               class="form-control form-control-solid" value="1" />
-                        <div class="text-muted fs-7 mt-1">
-                            ترتیب سوالات همچنین با درگ کردن سطرها در جدول قابل تغییر است
+                    <!--begin::Input group - DisplayOrder & IsActive-->
+                    <div class="row g-9 mb-8">
+                        <div class="col-md-6 fv-row">
+                            <label class="fs-6 fw-semibold mb-2">ترتیب نمایش</label>
+                            <input type="number" id="Form_DisplayOrder" name="Form_DisplayOrder"
+                                   class="form-control form-control-solid" value="1" />
+                            <div class="text-muted fs-7 mt-1">
+                                ترتیب سوالات همچنین با درگ کردن سطرها در جدول قابل تغییر است
+                            </div>
+                        </div>
+                        <div class="col-md-6 fv-row">
+                            <div class="d-flex flex-stack h-100 justify-content-end pb-4">
+                                <div class="me-5">
+                                    <label class="fs-6 fw-semibold">وضعیت فعال</label>
+                                    <div class="text-muted fs-7">سوال غیرفعال در صفحه دوره نمایش داده نمی‌شود</div>
+                                </div>
+                                <label class="form-check form-switch form-check-custom form-check-solid">
+                                    <input class="form-check-input" type="checkbox" id="Form_IsActive" checked />
+                                    <span class="form-check-label fw-semibold text-muted">فعال</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                     <!--end::Input group-->

@@ -15,6 +15,9 @@ public sealed class CourseFaqConfiguration : IEntityTypeConfiguration<CourseFaq>
             .IsRequired()
             .HasMaxLength(CourseFaq.MaxTitleLength);
 
+        builder.Property(x => x.IsActive)
+            .HasDefaultValue(true);
+
         #endregion
 
         #region Indexes

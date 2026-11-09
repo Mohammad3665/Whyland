@@ -5,5 +5,5 @@ namespace Whyland.Application.Features.Admin.Authorization.Roles.Queries.GetGran
 /// pre-select before the operator touches the tree.
 /// </summary>
 /// <param name="RoleId">The role whose grants are read.</param>
-public sealed record GetRoleGrantedPermissionsQuery(long RoleId)
-    : IQuery<IReadOnlyList<long>>;
+public sealed record GetRoleGrantedPermissionsQuery(RoleId RoleId)
+    : IQuery<IReadOnlyList<PermissionId>>;

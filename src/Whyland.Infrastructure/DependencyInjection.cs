@@ -1,12 +1,15 @@
 using Whyland.Application.Common.Abstractions.Storage;
+using Whyland.Application.Common.Abstractions.Video;
 using Whyland.Application.Common.Interfaces.Localization;
 using Whyland.Infrastructure.Localization;
 using Whyland.Infrastructure.Storage;
+using Whyland.Infrastructure.Video;
 using Whyland.Infrastructure.Persistence.Conventions;
 using Whyland.Infrastructure.Persistence.Interceptors;
 using Whyland.Infrastructure.Persistence.UnitOfWork;
 using Whyland.Infrastructure.Services;
 using Whyland.Sms.Provider.DependencyInjection;
+using Whyland.Application.Common.Options;
 
 namespace Whyland.Infrastructure;
 
@@ -69,6 +72,27 @@ public static class DependencyInjection
             configuration.GetSection(LocalImageStorageOptions.SectionName));
         services.AddSingleton<ImageUploadValidator>();
         services.AddSingleton<IImageStorageService, LocalImageStorageService>();
+
+        // Protected media pipeline for episode videos and attachments: both adapters serialize their
+        // writes through a per-process gate, so only the local implementation exists (s8.1.1).
+        services.Configure<EpisodeVideoOptions>(
+            configuration.GetSection(EpisodeVideoOptions.SectionName));
+        services.Configure<EpisodeAttachmentOptions>(
+            configuration.GetSection(EpisodeAttachmentOptions.SectionName));
+        services.AddSingleton<IVideoStorageService, LocalVideoStorageService>();
+        services.AddSingleton<IAttachmentStorageService, LocalAttachmentStorageService>();
+
+        // External video metadata is resolved only for an allow-listed provider id. A single client
+        // keeps its connection pool without pulling the HTTP-client factory into this layer.
+        services.AddSingleton(_ =>
+        {
+            var client = new HttpClient { Timeout = TimeSpan.FromSeconds(8) };
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Whyland/1.0");
+            client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
+            client.DefaultRequestHeaders.Accept.ParseAdd("text/html");
+            return client;
+        });
+        services.AddSingleton<IExternalVideoMetadataService, ExternalVideoMetadataService>();
 
         // Single-use registration tickets that bridge "verify code" → "complete registration".
         services.AddSingleton<IRegistrationTicketService, RegistrationTicketService>();

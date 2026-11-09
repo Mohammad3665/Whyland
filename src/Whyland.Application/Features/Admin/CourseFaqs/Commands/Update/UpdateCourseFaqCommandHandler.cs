@@ -22,7 +22,7 @@ public sealed class UpdateCourseFaqCommandHandler(IUnitOfWork unitOfWork)
         if (faq is null)
             return CourseFaqErrors.NotFound(command.Id);
 
-        var updated = faq.Update(command.Title, command.Description, command.DisplayOrder);
+        var updated = faq.Update(command.Title, command.Description, command.DisplayOrder, command.IsActive);
         if (updated.IsFailure)
             return updated.Error;
 
@@ -34,7 +34,7 @@ public sealed class UpdateCourseFaqCommandHandler(IUnitOfWork unitOfWork)
 
         // Compact 1..n so a client-entered order (10, 17, 100, ...) still
         // yields a clean sequence matching each question's sorted position.
-        await unitOfWork.CourseFaqCommandRepository.RenumberAsync(faq.CourseId.Value, ct);
+        await unitOfWork.CourseFaqCommandRepository.RenumberAsync(faq.CourseId, ct);
 
         saveResult = await unitOfWork.SaveAsync(ct);
         return saveResult.IsFailure ? CourseFaqErrors.UpdateFailed() : Result.Success();

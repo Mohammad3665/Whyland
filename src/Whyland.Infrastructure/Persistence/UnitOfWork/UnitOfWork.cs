@@ -1,18 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
-using Whyland.Domain.Model.Catalog.Category.Repositories;
 using Whyland.Domain.Model.Catalog.Course.Repositories;
-using Whyland.Domain.Model.Catalog.CourseFaq.Repositories;
-using Whyland.Domain.Model.Catalog.CourseSection.Repositories;
-using Whyland.Domain.Model.Identity.ExternalLogin.Repositories;
-using Whyland.Domain.Model.Identity.InstructorProfile.Repositories;
-using Whyland.Domain.Model.Identity.OtpRequest.Repositories;
+using Whyland.Domain.Model.Catalog.Episode.Repositories;
+using Whyland.Domain.Model.Catalog.EpisodeAttachment.Repositories;
 using Whyland.Infrastructure.Persistence.Repositories.Catalog.Category;
 using Whyland.Infrastructure.Persistence.Repositories.Catalog.Course;
 using Whyland.Infrastructure.Persistence.Repositories.Catalog.CourseFaq;
 using Whyland.Infrastructure.Persistence.Repositories.Catalog.CourseSection;
+using Whyland.Infrastructure.Persistence.Repositories.Catalog.Episode;
+using Whyland.Infrastructure.Persistence.Repositories.Catalog.EpisodeAttachment;
 using Whyland.Infrastructure.Persistence.Repositories.Content.Faq;
-using Whyland.Infrastructure.Persistence.Repositories.Identity;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.ExternalLogin;
+using Whyland.Infrastructure.Persistence.Repositories.Identity.InstructorProfile;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.OtpRequest;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.Roles;
 using Whyland.Infrastructure.Persistence.Repositories.Identity.User;
@@ -100,6 +98,30 @@ public class UnitOfWork(WhylandDbContext context, NpgsqlDataSource dataSource) :
     /// <summary>Lazily creates the Dapper read repository for a course's FAQs.</summary>
     public ICourseFaqQueryRepository CourseFaqQueryRepository =>
         _courseFaqQueryRepository ??= new CourseFaqQueryRepository(dataSource);
+
+    private IEpisodeCommandRepository? _episodeCommandRepository;
+
+    /// <summary>Lazily creates the command repository for a section's episodes.</summary>
+    public IEpisodeCommandRepository EpisodeCommandRepository =>
+        _episodeCommandRepository ??= new EpisodeCommandRepository(context);
+
+    private IEpisodeQueryRepository? _episodeQueryRepository;
+
+    /// <summary>Lazily creates the Dapper read repository for a section's episodes.</summary>
+    public IEpisodeQueryRepository EpisodeQueryRepository =>
+        _episodeQueryRepository ??= new EpisodeQueryRepository(dataSource);
+
+    private IEpisodeAttachmentCommandRepository? _episodeAttachmentCommandRepository;
+
+    /// <summary>Lazily creates the command repository for an episode's attachments.</summary>
+    public IEpisodeAttachmentCommandRepository EpisodeAttachmentCommandRepository =>
+        _episodeAttachmentCommandRepository ??= new EpisodeAttachmentCommandRepository(context);
+
+    private IEpisodeAttachmentQueryRepository? _episodeAttachmentQueryRepository;
+
+    /// <summary>Lazily creates the Dapper read repository for an episode's attachments.</summary>
+    public IEpisodeAttachmentQueryRepository EpisodeAttachmentQueryRepository =>
+        _episodeAttachmentQueryRepository ??= new EpisodeAttachmentQueryRepository(dataSource);
 
     private IRoleCommandRepository? _roleCommandRepository;
 

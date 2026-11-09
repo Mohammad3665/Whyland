@@ -6,8 +6,11 @@ using Whyland.Application.Features.Admin.Courses.Queries.GetById;
 using Whyland.Application.Features.Admin.Courses.Queries.GetFilterFields;
 using Whyland.Application.Features.Admin.Courses.Queries.GetForDataTable;
 using Whyland.Application.Features.Admin.Courses.Queries.GetFormOptions;
-using Whyland.Domain.Common.Enums;
+using Whyland.Domain.Model.Catalog.Category.Identifiers;
 using Whyland.Domain.Model.Catalog.Course.Enums;
+using Whyland.Domain.Model.Catalog.Course.Identifiers;
+using Whyland.Domain.Model.Identity.InstructorProfile.Identifiers;
+using Whyland.Shared.Enums;
 using Whyland.Shared.Filters;
 
 namespace Whyland.Web.Areas.Admin.Pages.Catalog.Courses;
@@ -95,7 +98,7 @@ public class CoursesModel(
     /// <param name="ct">A token to cancel the operation.</param>
     public async Task<IActionResult> OnGetDetailsAsync(long id, CancellationToken ct)
     {
-        var result = await dispatcher.Send(new GetCourseByIdQuery(id), ct);
+        var result = await dispatcher.Send(new GetCourseByIdQuery(CourseId.From(id)), ct);
 
         return result.IsSuccess
             ? new JsonResult(new { isSuccess = true, data = result.Data })
@@ -183,8 +186,10 @@ public class CoursesModel(
                     input.Image.Length);
             }
 
+            var courseId = CourseId.From(input.Id);
+
             var command = new UpdateCourseCommand(
-                input.Id,
+                courseId,
                 input.Name,
                 input.LatinName,
                 input.ShortDescription,
@@ -216,7 +221,7 @@ public class CoursesModel(
     /// <param name="ct">A token to cancel the operation.</param>
     public async Task<IActionResult> OnPostDeleteAsync([FromForm] long id, CancellationToken ct)
         => await DenyUnlessAsync(Permissions.Courses.Delete)
-            ?? ToJson(await dispatcher.Send(new DeleteCourseCommand(id), ct));
+            ?? ToJson(await dispatcher.Send(new DeleteCourseCommand(CourseId.From(id)), ct));
 
     #endregion
 
@@ -267,10 +272,10 @@ public class CoursesModel(
         public bool IsAmazing { get; set; }
 
         /// <summary>The selected category identifiers.</summary>
-        public List<long>? CategoryIds { get; set; } = [];
+        public List<CategoryId>? CategoryIds { get; set; } = [];
 
         /// <summary>The selected instructor profile identifiers.</summary>
-        public List<Guid>? InstructorIds { get; set; } = [];
+        public List<InstructorProfileId>? InstructorIds { get; set; } = [];
 
         /// <summary>Whether the existing cover image should be removed.</summary>
         public bool RemoveImage { get; set; }

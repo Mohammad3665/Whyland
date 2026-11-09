@@ -62,7 +62,7 @@ public sealed class VerifyLoginCodeCommandHandler(
             unitOfWork.UserCommandRepository.TouchLastLogin(user);
             await unitOfWork.SaveAsync(ct);
 
-            var permissions = await unitOfWork.UserQueryRepository.GetPermissionKeysAsync(user.Id.Value, ct);
+            var permissions = await unitOfWork.UserQueryRepository.GetPermissionKeysAsync(user.Id, ct);
             var authenticated = new AuthenticatedUserDto(
             user.Id.Value,
                 $"{user.FirstName} {user.LastName}".Trim(),

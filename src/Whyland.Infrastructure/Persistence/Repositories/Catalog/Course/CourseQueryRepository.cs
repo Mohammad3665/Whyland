@@ -168,7 +168,7 @@ public sealed class CourseQueryRepository(NpgsqlDataSource dataSource) : ICourse
     /// </summary>
     /// <param name="id">Course identifier.</param>
     /// <param name="ct">Cancellation token.</param>
-    public async Task<CourseDetailsDto?> GetByIdAsync(long id, CancellationToken ct = default)
+    public async Task<CourseDetailsDto?> GetByIdAsync(CourseId id, CancellationToken ct = default)
     {
         await using var connection = await dataSource.OpenConnectionAsync(ct);
 
@@ -202,7 +202,7 @@ public sealed class CourseQueryRepository(NpgsqlDataSource dataSource) : ICourse
             .SelectExpression(
                 $"{UpdatedByAlias}.\"FirstName\" || ' ' || {UpdatedByAlias}.\"LastName\"",
                 nameof(CourseDetailsDto.UpdatedByName))
-            .Where(x => x.Id, id)
+            .Where(x => x.Id, id.Value)
             .GetFirstOrDefaultAsync<CourseDetailsRow>(connection, ct);
 
         if (row is null)
@@ -210,13 +210,13 @@ public sealed class CourseQueryRepository(NpgsqlDataSource dataSource) : ICourse
 
         var categoryIds = (await DapperFluentQueryBuilder<CourseCategoryEntity>
                 .Create($"{catalog}.CourseCategories", x => x.CategoryId)
-                .Where(x => x.CourseId, id)
+                .Where(x => x.CourseId, id.Value)
                 .GetAllAsync<long>(connection, ct))
             .ToArray();
 
         var instructorIds = (await DapperFluentQueryBuilder<CourseInstructorEntity>
                 .Create($"{catalog}.CourseInstructors", x => x.InstructorProfileId)
-                .Where(x => x.CourseId, id)
+                .Where(x => x.CourseId, id.Value)
                 .GetAllAsync<Guid>(connection, ct))
             .ToArray();
 
@@ -267,12 +267,13 @@ public sealed class CourseQueryRepository(NpgsqlDataSource dataSource) : ICourse
             .GetAllAsync<CourseCategoryOptionDto>(connection, ct);
 
         var instructors = await DapperFluentQueryBuilder<InstructorProfileEntity>.Create(
-                $"{identity}.InstructorProfiles",
-                x => x.Id,
-                x => x.Specialization)
+        $"{identity}.InstructorProfiles")
+            .ClearSelect()
             .Join<UserEntity>($"{identity}.Users", x => x.UserId, u => u.Id)
-            .SelectFrom<UserEntity>(u => u.FirstName)
-            .SelectFrom<UserEntity>(u => u.LastName)
+            .SelectFrom<InstructorProfileEntity>(x => x.Id, "Id")
+            .SelectFrom<UserEntity>(u => u.FirstName, "FirstName")
+            .SelectFrom<UserEntity>(u => u.LastName, "LastName")
+            .SelectFrom<InstructorProfileEntity>(x => x.Specialization, "Specialization")
             .WhereFrom<UserEntity>(u => u.IsActive, true)
             .SortableFrom<UserEntity>(u => u.FirstName)
             .SortableFrom<UserEntity>(u => u.LastName)
@@ -286,40 +287,40 @@ public sealed class CourseQueryRepository(NpgsqlDataSource dataSource) : ICourse
     /// <summary>Returns the subset of the ids that are still active and not soft-deleted.</summary>
     /// <param name="ids">Category identifiers sent by the form.</param>
     /// <param name="ct">Cancellation token.</param>
-    public async Task<IReadOnlySet<long>> GetActiveCategoryIdsAsync(
-        IReadOnlyCollection<long> ids,
+    public async Task<IReadOnlySet<CategoryId>> GetActiveCategoryIdsAsync(
+        IReadOnlyCollection<CategoryId> ids,
         CancellationToken ct = default)
     {
         if (ids.Count == 0)
-            return new HashSet<long>();
+            return new HashSet<CategoryId>();
 
         var found = await DapperFluentQueryBuilder<CategoryEntity>
             .Create($"{catalog}.Categories", x => x.Id)
-            .WhereIn(x => x.Id, ids.Cast<object?>())
+            .WhereIn(x => x.Id, ids.Select(x => (object?)x.Value))
             .Where(x => x.IsActive, true)
             .GetAllAsync<long>(dataSource, ct);
 
-        return found.ToHashSet();
+        return found.Select(CategoryId.From).ToHashSet();
     }
 
     /// <summary>Returns the subset of instructor profiles whose accounts are still active.</summary>
     /// <param name="ids">Instructor profile identifiers sent by the form.</param>
     /// <param name="ct">Cancellation token.</param>
-    public async Task<IReadOnlySet<Guid>> GetInstructorProfileIdsAsync(
-        IReadOnlyCollection<Guid> ids,
+    public async Task<IReadOnlySet<InstructorProfileId>> GetInstructorProfileIdsAsync(
+        IReadOnlyCollection<InstructorProfileId> ids,
         CancellationToken ct = default)
     {
         if (ids.Count == 0)
-            return new HashSet<Guid>();
+            return new HashSet<InstructorProfileId>();
 
         var found = await DapperFluentQueryBuilder<InstructorProfileEntity>
             .Create($"{identity}.InstructorProfiles", x => x.Id)
             .Join<UserEntity>($"{identity}.Users", x => x.UserId, u => u.Id)
             .WhereFrom<UserEntity>(u => u.IsActive, true)
-            .WhereIn(x => x.Id, ids.Cast<object?>())
+            .WhereIn(x => x.Id, ids.Select(x => (object?)x.Value))
             .GetAllAsync<Guid>(dataSource, ct);
 
-        return found.ToHashSet();
+        return found.Select(InstructorProfileId.From).ToHashSet();
     }
 
     #region Helpers

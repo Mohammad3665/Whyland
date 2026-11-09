@@ -16,8 +16,6 @@ global using System.Text.Json.Serialization;        // [JsonStringEnumConverter]
 
 global using Whyland.Domain.Common;                 // base contracts of the layer
 
-global using Whyland.Domain.Common.Enums;           // cross-entity domain enums
-
 global using Whyland.Domain.Common.Primitives;      // identity + soft-delete interfaces every entity implements
 
 global using Whyland.Domain.Common.Entities;         // BaseEntity<T> and the audit base classes

@@ -8,6 +8,7 @@ namespace Whyland.Shared.Dtos.Catalog.CourseFaq;
 /// <param name="Title">The question text.</param>
 /// <param name="Description">The answer text.</param>
 /// <param name="DisplayOrder">Manual ordering weight; lower values appear first.</param>
+/// <param name="IsActive">Whether the question is visible on the public course page.</param>
 /// <param name="CreatedAt">The UTC timestamp when the question was created.</param>
 public sealed record CourseFaqListItemDto(
     long Id,
@@ -15,4 +16,5 @@ public sealed record CourseFaqListItemDto(
     string Title,
     string Description,
     int DisplayOrder,
+    bool IsActive,
     DateTime CreatedAt);

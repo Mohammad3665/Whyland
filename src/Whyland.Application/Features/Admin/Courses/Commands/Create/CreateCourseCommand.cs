@@ -1,5 +1,3 @@
-using Whyland.Domain.Common.Enums;
-
 namespace Whyland.Application.Features.Admin.Courses.Commands.Create;
 
 /// <summary>
@@ -34,6 +32,6 @@ public sealed record CreateCourseCommand(
     DisplayStatus DisplayStatus,
     bool IsFeatured,
     bool IsAmazing,
-    IReadOnlyList<long> CategoryIds,
-    IReadOnlyList<Guid> InstructorIds,
-    CourseImageUpload? Image) : ICommand<long>;
+    IReadOnlyList<CategoryId> CategoryIds,
+    IReadOnlyList<InstructorProfileId> InstructorIds,
+    CourseImageUpload? Image) : ICommand<CourseId>;

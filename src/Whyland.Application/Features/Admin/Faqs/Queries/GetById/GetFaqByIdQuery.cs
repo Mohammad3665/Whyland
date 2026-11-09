@@ -4,4 +4,4 @@ namespace Whyland.Application.Features.Admin.Faqs.Queries.GetById;
 /// Query that retrieves a single FAQ by its identifier and returns it as a <see cref="FaqDto"/>.
 /// </summary>
 /// <param name="Id">The identifier of the FAQ to retrieve.</param>
-public sealed record GetFaqByIdQuery(long Id) : IQuery<FaqDto>;
+public sealed record GetFaqByIdQuery(FaqId Id) : IQuery<FaqDto>;

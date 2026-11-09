@@ -5,7 +5,7 @@ namespace Whyland.Application.Features.Admin.Faqs.Commands.Create;
 /// factory method and persisting it via the unit of work.
 /// </summary>
 /// <param name="unitOfWork">The unit of work providing access to FAQ persistence.</param>
-public sealed class CreateFaqCommandHandler(IUnitOfWork unitOfWork) : ICommandHandler<CreateFaqCommand, long>
+public sealed class CreateFaqCommandHandler(IUnitOfWork unitOfWork) : ICommandHandler<CreateFaqCommand, FaqId>
 {
     /// <summary>
     /// Creates a new FAQ through the domain factory, or returns an error when
@@ -14,7 +14,7 @@ public sealed class CreateFaqCommandHandler(IUnitOfWork unitOfWork) : ICommandHa
     /// <param name="command">The command with the new FAQ values.</param>
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>The identifier of the created FAQ, or an error describing the failure.</returns>
-    public async Task<Result<long>> Handle(CreateFaqCommand command, CancellationToken ct)
+    public async Task<Result<FaqId>> Handle(CreateFaqCommand command, CancellationToken ct)
     {
         var created = Faq.Create(command.Title, command.Description, command.DisplayOrder, command.IsActive);
         if(created.IsFailure)
@@ -34,6 +34,6 @@ public sealed class CreateFaqCommandHandler(IUnitOfWork unitOfWork) : ICommandHa
         saveResult = await unitOfWork.SaveAsync(ct);
         return saveResult.IsFailure ?
             FaqErrors.CreateFailed() :
-            faq.Id.Value;
+            faq.Id;
     }
 }

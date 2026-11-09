@@ -5,6 +5,8 @@ using Whyland.Application.Features.Admin.InstructorProfiles.Queries.GetById;
 using Whyland.Application.Features.Admin.InstructorProfiles.Queries.GetFilterFields;
 using Whyland.Application.Features.Admin.InstructorProfiles.Queries.GetForDataTable;
 using Whyland.Application.Features.Admin.InstructorProfiles.Queries.GetFormOptions;
+using Whyland.Domain.Model.Identity.InstructorProfile.Identifiers;
+using Whyland.Domain.Model.Identity.User.Identifiers;
 using Whyland.Shared.Filters;
 
 namespace Whyland.Web.Areas.Admin.Pages.InstructorProfile;
@@ -70,7 +72,7 @@ public class IndexModel(
     }
 
     /// <summary>Returns one instructor profile for the edit form.</summary>
-    public async Task<IActionResult> OnGetDetailsAsync(Guid id, CancellationToken ct)
+    public async Task<IActionResult> OnGetDetailsAsync(InstructorProfileId id, CancellationToken ct)
     {
         var result = await dispatcher.Send(new GetInstructorProfileByIdQuery(id), ct);
 
@@ -178,8 +180,8 @@ public class IndexModel(
     /// <summary>The multipart form shape the full-screen instructor form posts.</summary>
     public sealed class InstructorProfileFormInput
     {
-        public Guid Id { get; set; }
-        public Guid UserId { get; set; }
+        public InstructorProfileId Id { get; set; }
+        public UserId UserId { get; set; }
         public string? Bio { get; set; }
         public string? Biography { get; set; }
         public string? Specialization { get; set; }

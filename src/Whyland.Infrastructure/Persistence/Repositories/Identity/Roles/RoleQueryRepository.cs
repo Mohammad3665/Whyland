@@ -58,15 +58,20 @@ public sealed class RoleQueryRepository(NpgsqlDataSource dataSource) : IRoleQuer
 
     // The grant table has no soft-delete column of its own, so the live-row guard belongs on the
     // permission this reads back: a retired key must not come pre-selected into the editor.
-    public Task<IReadOnlyList<long>> GetGrantedPermissionIdsAsync(
-        long roleId,
+    public async Task<IReadOnlyList<PermissionId>> GetGrantedPermissionIdsAsync(
+        RoleId roleId,
         CancellationToken ct = default)
-        => DapperFluentQueryBuilder<RolePermission>.Create($"{identity}.RolePermissions", x => x.PermissionId)
-            .Where(x => x.RoleId, roleId)
+    {
+        var ids = await DapperFluentQueryBuilder<RolePermission>
+            .Create($"{identity}.RolePermissions", x => x.PermissionId)
+            .Where(x => x.RoleId, roleId.Value)
             .Join<Permission>($"{identity}.Permissions", rp => rp.PermissionId, p => p.Id)
             .WhereFrom<Permission>(p => p.IsDeleted, false)
             .OrderBy(nameof(RolePermission.PermissionId))
             .GetAllAsync<long>(dataSource, ct);
+
+        return ids.Select(PermissionId.From).ToList();
+    }
 
     #endregion
 

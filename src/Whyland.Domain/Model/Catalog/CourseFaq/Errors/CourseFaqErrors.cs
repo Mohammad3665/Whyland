@@ -32,7 +32,7 @@ public static class CourseFaqErrors
 
     /// <summary>No course FAQ exists with the given identifier.</summary>
     /// <param name="id">The identifier that was looked up.</param>
-    public static DomainError NotFound(long id) =>
+    public static DomainError NotFound(CourseFaqId id) =>
         DomainError.For<CourseFaqEntity>(nameof(NotFound), ErrorType.NotFound, field: null, ("Id", id));
 
     /// <summary>The course FAQ could not be created (persistence failure); masked behind a generic message.</summary>

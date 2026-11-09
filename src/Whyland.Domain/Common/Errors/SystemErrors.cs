@@ -30,4 +30,34 @@ public static class SystemErrors
     /// <summary>The image could not be written or removed; retryable and masked behind a generic message.</summary>
     public static DomainError ImageStorageFailed() =>
         DomainError.For("System", nameof(ImageStorageFailed), ErrorType.Unexpected);
+
+    /// <summary>
+    /// The uploaded file is not an MP4 video the storage layer accepts: a different extension, a
+    /// signature that is not an MP4 container, or an unreadable video header (s8.3.2).
+    /// </summary>
+    public static DomainError InvalidVideo() =>
+        DomainError.For("System", nameof(InvalidVideo), ErrorType.Validation);
+
+    /// <summary>The video upload is larger than the configured ceiling (s8.3.2).</summary>
+    public static DomainError VideoTooLarge() =>
+        DomainError.For("System", nameof(VideoTooLarge), ErrorType.Validation);
+
+    /// <summary>The video file could not be written, opened or removed; masked behind a generic message.</summary>
+    public static DomainError VideoStorageFailed() =>
+        DomainError.For("System", nameof(VideoStorageFailed), ErrorType.Unexpected);
+
+    /// <summary>
+    /// The uploaded file is not a document the storage layer accepts: an extension outside the
+    /// configured allow-list, or a signature that contradicts the declared kind of file (s8.3.1).
+    /// </summary>
+    public static DomainError AttachmentNotAllowed() =>
+        DomainError.For("System", nameof(AttachmentNotAllowed), ErrorType.Validation);
+
+    /// <summary>The attachment is larger than the configured ceiling (s7.8).</summary>
+    public static DomainError AttachmentTooLarge() =>
+        DomainError.For("System", nameof(AttachmentTooLarge), ErrorType.Validation);
+
+    /// <summary>The attachment file could not be written, opened or removed; masked behind a generic message.</summary>
+    public static DomainError AttachmentStorageFailed() =>
+        DomainError.For("System", nameof(AttachmentStorageFailed), ErrorType.Unexpected);
 }

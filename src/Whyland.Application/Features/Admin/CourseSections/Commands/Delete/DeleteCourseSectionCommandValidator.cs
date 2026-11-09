@@ -10,7 +10,7 @@ public sealed class DeleteCourseSectionCommandValidator : AbstractValidator<Dele
     /// </summary>
     public DeleteCourseSectionCommandValidator()
     {
-        RuleFor(x => x.Id)
+        RuleFor(x => x.Id.Value)
             .WhylandGreaterThan(0)
             .WithName("شناسه");
     }

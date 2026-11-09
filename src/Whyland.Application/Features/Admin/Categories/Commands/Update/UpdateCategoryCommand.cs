@@ -11,9 +11,9 @@ namespace Whyland.Application.Features.Admin.Categories.Commands.Update;
 /// <param name="ParentId">The new parent category, or null to move the row to the root level.</param>
 /// <param name="IsActive">Whether the category is visible to end users.</param>
 public sealed record UpdateCategoryCommand(
-    long Id,
+    CategoryId Id,
     string Name,
     string LatinName,
     int DisplayOrder,
-    long? ParentId,
+    CategoryId? ParentId,
     bool IsActive) : ICommand;

@@ -15,12 +15,12 @@ public sealed class CourseCommandRepository(WhylandDbContext context) : ICourseC
     /// replacing the links is a diff against the loaded collection, not a delete-and-reinsert.
     /// </summary>
     public Task<Domain.Model.Catalog.Course.Entities.Course?> GetByIdAsync(
-        long id,
+        CourseId id,
         CancellationToken ct = default)
         => context.Courses
             .Include(x => x.CourseCategories)
             .Include(x => x.CourseInstructors)
-            .FirstOrDefaultAsync(x => x.Id == CourseId.From(id), ct);
+            .FirstOrDefaultAsync(x => x.Id == id, ct);
 
     /// <summary>
     /// Checks the filtered unique index: only live courses block a slug, so a deleted course frees
@@ -28,16 +28,15 @@ public sealed class CourseCommandRepository(WhylandDbContext context) : ICourseC
     /// </summary>
     public Task<bool> IsSlugTakenAsync(
         string slug,
-        long? excludeId = null,
+        CourseId? excludeId = null,
         CancellationToken ct = default)
     {
         var query = context.Courses
             .AsNoTracking()
             .Where(x => x.Slug == slug);
 
-        if (excludeId is { } id)
+        if (excludeId is { } excluded)
         {
-            var excluded = CourseId.From(id);
             query = query.Where(x => x.Id != excluded);
         }
 

@@ -1,5 +1,6 @@
-﻿
 using EpisodeEntity = Whyland.Domain.Model.Catalog.Episode.Entities.Episode;
+using Whyland.Domain.Model.Catalog.EpisodeAttachment.Errors;
+using Whyland.Shared.Results;
 
 namespace Whyland.Domain.Model.Catalog.EpisodeAttachment.Entities;
 
@@ -26,6 +27,9 @@ public class EpisodeAttachment : BaseEntity<EpisodeAttachmentId>, ISoftDeletable
     public const int MaxStoragePathLength = 512;
 
     #endregion
+
+    #region Properties
+
     /// <summary>
     /// The episode the attachment belongs to.
     /// </summary>
@@ -71,4 +75,96 @@ public class EpisodeAttachment : BaseEntity<EpisodeAttachmentId>, ISoftDeletable
     /// The UTC time at which the entity was soft-deleted.
     /// </summary>
     public DateTime? DeletedAt { get; private set; }
+
+    #endregion
+
+    #region Construction
+
+    /// <summary>
+    /// Parameterless constructor required by ORMs (e.g. EF Core).
+    /// Not intended for direct use — create instances via <see cref="Create"/>.
+    /// </summary>
+    private EpisodeAttachment() { }
+
+    /// <summary>
+    /// Creates a new attachment after validating the metadata produced by the storage layer.
+    /// The storage key is generated server-side and is never the browser's file name.
+    /// </summary>
+    /// <param name="episodeId">The episode the attachment belongs to.</param>
+    /// <param name="fileName">The sanitized display name of the file.</param>
+    /// <param name="storagePath">The server-generated storage key.</param>
+    /// <param name="contentType">The MIME type resolved from the validated file.</param>
+    /// <param name="size">The stored file size in bytes.</param>
+    /// <returns>
+    /// A successful <see cref="Result{T}"/> containing the new attachment,
+    /// or a failure describing the first violated invariant.
+    /// </returns>
+    public static Result<EpisodeAttachment> Create(
+        EpisodeId episodeId,
+        string fileName,
+        string storagePath,
+        string contentType,
+        long size)
+    {
+        var attachment = new EpisodeAttachment { EpisodeId = episodeId };
+
+        var applied = attachment.Apply(fileName, storagePath, contentType, size);
+        return applied.IsFailure ? applied.Error : attachment;
+    }
+
+    #endregion
+
+    #region Behaviour
+
+    /// <summary>
+    /// Marks the attachment as deleted so the global query filter hides it. The file itself is removed
+    /// by the storage layer before this is called.
+    /// </summary>
+    public void MarkDeleted()
+    {
+        IsDeleted = true;
+        DeletedAt ??= DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Validates and assigns the file metadata. Shared with create so the rules live in one place;
+    /// on failure the instance is left unchanged.
+    /// </summary>
+    /// <param name="fileName">The sanitized display name of the file.</param>
+    /// <param name="storagePath">The server-generated storage key.</param>
+    /// <param name="contentType">The MIME type resolved from the validated file.</param>
+    /// <param name="size">The stored file size in bytes.</param>
+    /// <returns>A successful <see cref="Result"/> if all rules pass; otherwise a validation failure.</returns>
+    private Result Apply(string fileName, string storagePath, string contentType, long size)
+    {
+        if (string.IsNullOrWhiteSpace(fileName))
+            return EpisodeAttachmentErrors.FieldRequired(nameof(FileName));
+
+        if (fileName.Length > MaxFileNameLength)
+            return EpisodeAttachmentErrors.FieldTooLong(nameof(FileName), MaxFileNameLength);
+
+        if (string.IsNullOrWhiteSpace(storagePath))
+            return EpisodeAttachmentErrors.FieldRequired(nameof(StoragePath));
+
+        if (storagePath.Length > MaxStoragePathLength)
+            return EpisodeAttachmentErrors.FieldTooLong(nameof(StoragePath), MaxStoragePathLength);
+
+        if (string.IsNullOrWhiteSpace(contentType))
+            return EpisodeAttachmentErrors.FieldRequired(nameof(ContentType));
+
+        if (contentType.Length > MaxContentTypeLength)
+            return EpisodeAttachmentErrors.FieldTooLong(nameof(ContentType), MaxContentTypeLength);
+
+        if (size <= 0)
+            return EpisodeAttachmentErrors.InvalidSize();
+
+        FileName = fileName;
+        StoragePath = storagePath;
+        ContentType = contentType;
+        Size = size;
+
+        return Result.Success();
+    }
+
+    #endregion
 }

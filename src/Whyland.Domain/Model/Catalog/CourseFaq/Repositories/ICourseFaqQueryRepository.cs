@@ -15,6 +15,6 @@ public interface ICourseFaqQueryRepository
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Read-only list of the course FAQ items ordered by DisplayOrder.</returns>
     Task<IReadOnlyList<CourseFaqListItemDto>> GetForCourseAsync(
-        long courseId,
+        CourseId courseId,
         CancellationToken ct = default);
 }

@@ -9,4 +9,4 @@ namespace Whyland.Application.Features.Admin.Authorization.Roles.Commands.Delete
 /// </para>
 /// </summary>
 /// <param name="Id">The identifier of the role to soft-delete.</param>
-public sealed record DeleteRoleCommand(long Id) : ICommand;
+public sealed record DeleteRoleCommand(RoleId Id) : ICommand;

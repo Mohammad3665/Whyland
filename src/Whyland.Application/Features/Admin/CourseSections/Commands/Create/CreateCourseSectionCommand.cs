@@ -8,6 +8,6 @@ namespace Whyland.Application.Features.Admin.CourseSections.Commands.Create;
 /// <param name="Title">The section title.</param>
 /// <param name="DisplayOrder">The display order used for sorting sections.</param>
 public sealed record CreateCourseSectionCommand(
-    long CourseId,
+    CourseId CourseId,
     string Title,
-    int DisplayOrder) : ICommand<long>;
+    int DisplayOrder) : ICommand<CourseSectionId>;

@@ -14,6 +14,8 @@ namespace Whyland.Domain.Model.Identity.User.Repositories;
 public interface IUserQueryRepository
 {
     /// <summary>Returns the active, non-deleted user with the given phone, or null.</summary>
+    /// <param name="phoneNumber">The phone number to resolve the account by.</param>
+    /// <param name="ct">A token to cancel the operation.</param>
     Task<UserEntity?> GetByPhoneAsync(string phoneNumber, CancellationToken ct = default);
 
     /// <summary>
@@ -21,13 +23,17 @@ public interface IUserQueryRepository
     /// page needs it to decide what to ask for: a number that is missing must be verified first,
     /// and a stored password must be proven before it is replaced.
     /// </summary>
-    Task<UserEntity?> GetByIdAsync(Guid userId, CancellationToken ct = default);
+    /// <param name="userId">The account identifier.</param>
+    /// <param name="ct">A token to cancel the operation.</param>
+    Task<UserEntity?> GetByIdAsync(UserId userId, CancellationToken ct = default);
 
     /// <summary>
     /// Returns the effective permission keys of a user (union of all its roles'
     /// permissions). These keys become the "permissions" claims (s6.4).
     /// </summary>
-    Task<IReadOnlyList<string>> GetPermissionKeysAsync(Guid userId, CancellationToken ct = default);
+    /// <param name="userId">The account whose effective permissions are read.</param>
+    /// <param name="ct">A token to cancel the operation.</param>
+    Task<IReadOnlyList<string>> GetPermissionKeysAsync(UserId userId, CancellationToken ct = default);
 
     /// <summary>
     /// Returns the few columns a header user menu displays — name, phone and avatar — in one read,
@@ -36,7 +42,7 @@ public interface IUserQueryRepository
     /// </summary>
     /// <param name="userId">The signed-in account.</param>
     /// <param name="ct">A token to cancel the operation.</param>
-    Task<UserMenuDto?> GetMenuAsync(Guid userId, CancellationToken ct = default);
+    Task<UserMenuDto?> GetMenuAsync(UserId userId, CancellationToken ct = default);
 
     /// <summary>
     /// Reads the admin users table through the generic filter pipeline: every condition
@@ -57,12 +63,13 @@ public interface IUserQueryRepository
     /// </summary>
     /// <param name="userId">The account to read.</param>
     /// <param name="ct">A token to cancel the operation.</param>
-    Task<UserDetailsDto?> GetDetailsAsync(Guid userId, CancellationToken ct = default);
+    Task<UserDetailsDto?> GetDetailsAsync(UserId userId, CancellationToken ct = default);
 
     /// <summary>
     /// Returns every role that can be assigned to a user, ordered by title. Non-system roles
     /// included so the admin can create and assign its own ones.
     /// </summary>
+    /// <param name="ct">A token to cancel the operation.</param>
     Task<IReadOnlyList<RoleOptionDto>> GetAssignableRolesAsync(CancellationToken ct = default);
 
     /// <summary>

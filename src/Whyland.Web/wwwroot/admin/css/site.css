@@ -360,6 +360,23 @@ table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control {
   overflow: hidden;
 }
 
+/* FAQ question cells keep a long question inside their fixed column: two lines with an ellipsis,
+   while the full text stays available in the title tooltip and the details modal. */
+#kt_faqs_table td:nth-child(3),
+#kt_course_faqs_table td:nth-child(3) {
+  max-width: 400px;
+}
+
+.faq-title-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 100%;
+}
+
 /* #region Filter Select2 (all pages) */
 /* Every filter <select> is rebuilt as a Select2 by AdminTable.filterSelect2() in
    common/admin-table.js, which marks both the box wrapper and the list with .kt-filter-select2
@@ -375,12 +392,20 @@ table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control {
   line-height: 20px;
 }
 
-/* The theme caps the list at 250px on the inner <ul>; both levels are overridden because the
-   outer wrapper would otherwise clip first and !important is needed to beat the theme. */
-.kt-filter-select2 .select2-results,
+/* Only the inner <ul> is the scroll container. Putting overflow on both levels creates two
+   nested scrollers: the outer one clips the inner one, the wheel gets trapped in the wrong
+   element and the last rows never scroll into view. The theme's 250px cap on the inner <ul> is
+   overridden with !important so exactly six rows fit. */
+.kt-filter-select2 .select2-results {
+  max-height: none;
+  overflow: visible;
+}
+
 .kt-filter-select2 .select2-results__options {
-  max-height: 204px;
+  max-height: 204px !important;
   overflow-y: auto !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Persian search box inside the list. */

@@ -23,7 +23,7 @@ public sealed class ExternalLoginCallbackCommandHandler(
         if (link is null)
             return await ProvisionAsync(identity, ct);
 
-        var user = await unitOfWork.UserCommandRepository.GetTrackedByIdAsync(link.UserId.Value, ct);
+        var user = await unitOfWork.UserCommandRepository.GetTrackedByIdAsync(link.UserId, ct);
 
         // A deactivated or deleted account must not authenticate through its provider link.
         if (user is null || !user.IsActive)
@@ -89,7 +89,7 @@ public sealed class ExternalLoginCallbackCommandHandler(
 
         // A provisioned account is an account: it gets the ordinary-user role like every other one,
         // before the cookie reads the permissions that role resolves to.
-        await unitOfWork.UserCommandRepository.EnsureDefaultRoleAsync(user.Id.Value, ct);
+        await unitOfWork.UserCommandRepository.EnsureDefaultRoleAsync(user.Id, ct);
 
         var grantResult = await unitOfWork.SaveAsync(ct);
         if (grantResult.IsFailure)
@@ -103,7 +103,7 @@ public sealed class ExternalLoginCallbackCommandHandler(
         User user,
         CancellationToken ct)
     {
-        var permissions = await unitOfWork.UserQueryRepository.GetPermissionKeysAsync(user.Id.Value, ct);
+        var permissions = await unitOfWork.UserQueryRepository.GetPermissionKeysAsync(user.Id, ct);
 
         return new AuthenticatedUserDto(
             user.Id.Value,

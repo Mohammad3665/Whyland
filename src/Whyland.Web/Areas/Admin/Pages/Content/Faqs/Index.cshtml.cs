@@ -3,6 +3,7 @@ using Whyland.Application.Features.Admin.Faqs.Commands.Delete;
 using Whyland.Application.Features.Admin.Faqs.Commands.Reorder;
 using Whyland.Application.Features.Admin.Faqs.Commands.Update;
 using Whyland.Application.Features.Admin.Faqs.Queries.GetForDataTable;
+using Whyland.Domain.Model.Content.Faq.Identifiers;
 using Whyland.Shared.Filters;
 
 namespace Whyland.Web.Areas.Admin.Pages.Content.Faqs;
@@ -84,7 +85,7 @@ public class FaqsModel(
     /// <param name="id">The identifier of the FAQ to delete.</param>
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
-    public async Task<IActionResult> OnPostDeleteAsync([FromForm] long id, CancellationToken ct)
+    public async Task<IActionResult> OnPostDeleteAsync([FromForm] FaqId id, CancellationToken ct)
         => await DenyUnlessAsync(Permissions.Faqs.Delete)
             ?? ToJson(await dispatcher.Send(new DeleteFaqCommand(id), ct));
 
@@ -103,5 +104,5 @@ public class FaqsModel(
     /// <summary>Reorder payload sent by the client (RowReorder saves visual order).</summary>
     /// <param name="Id">The FAQ identifier.</param>
     /// <param name="DisplayOrder">The visual order displayed by the badge.</param>
-    public sealed record ReorderFaqRow(long Id, int DisplayOrder);
+    public sealed record ReorderFaqRow(FaqId Id, int DisplayOrder);
 }

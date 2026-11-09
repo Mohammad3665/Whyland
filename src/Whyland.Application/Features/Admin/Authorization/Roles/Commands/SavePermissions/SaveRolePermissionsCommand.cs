@@ -11,5 +11,5 @@ namespace Whyland.Application.Features.Admin.Authorization.Roles.Commands.SavePe
 /// <param name="RoleId">The role whose grants are rewritten.</param>
 /// <param name="PermissionIds">Every permission the role should end up holding.</param>
 public sealed record SaveRolePermissionsCommand(
-    long RoleId,
-    List<long> PermissionIds) : ICommand;
+    RoleId RoleId,
+    List<PermissionId> PermissionIds) : ICommand;

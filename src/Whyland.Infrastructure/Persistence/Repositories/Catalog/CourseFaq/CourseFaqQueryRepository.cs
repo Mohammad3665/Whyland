@@ -23,7 +23,7 @@ public sealed class CourseFaqQueryRepository(NpgsqlDataSource dataSource) : ICou
     /// <param name="courseId">The course whose FAQ items are read.</param>
     /// <param name="ct">Cancellation token.</param>
     public Task<IReadOnlyList<CourseFaqListItemDto>> GetForCourseAsync(
-        long courseId,
+        CourseId courseId,
         CancellationToken ct = default)
         => DapperFluentQueryBuilder<CourseFaqEntity>.Create(
                 $"{catalog}.CourseFaqs",
@@ -32,8 +32,9 @@ public sealed class CourseFaqQueryRepository(NpgsqlDataSource dataSource) : ICou
                 x => x.Title,
                 x => x.Description,
                 x => x.DisplayOrder,
+                x => x.IsActive,
                 x => x.CreatedAt)
-            .Where(x => x.CourseId, courseId)
+            .Where(x => x.CourseId, courseId.Value)
             .OrderBy(x => x.DisplayOrder)
             .TieBreakBy(x => x.Id)
             .GetAllAsync<CourseFaqListItemDto>(dataSource, ct);

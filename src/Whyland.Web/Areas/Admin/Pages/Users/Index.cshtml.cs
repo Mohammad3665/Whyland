@@ -6,6 +6,7 @@ using Whyland.Application.Features.Admin.Users.Queries.GetFilterFields;
 using Whyland.Application.Features.Admin.Users.Queries.GetForDataTable;
 using Whyland.Application.Features.Admin.Users.Queries.GetOptions;
 using Whyland.Application.Features.Admin.Users.Queries.GetRoles;
+using Whyland.Domain.Model.Identity.User.Identifiers;
 using Whyland.Shared.Dtos.Authorization.Role;
 using Whyland.Shared.Filters;
 
@@ -121,7 +122,7 @@ public class IndexModel(
     /// </summary>
     /// <param name="id">The account to read.</param>
     /// <param name="ct">A token to cancel the operation.</param>
-    public async Task<IActionResult> OnGetDetailsAsync([FromQuery] Guid id, CancellationToken ct)
+    public async Task<IActionResult> OnGetDetailsAsync([FromQuery] UserId id, CancellationToken ct)
     {
         var result = await dispatcher.Send(new GetUserDetailsQuery(id), ct);
 
@@ -160,7 +161,7 @@ public class IndexModel(
     /// </summary>
     /// <param name="id">The account to change.</param>
     /// <param name="ct">A token to cancel the operation.</param>
-    public async Task<IActionResult> OnPostToggleStatusAsync([FromForm] Guid id, CancellationToken ct)
+    public async Task<IActionResult> OnPostToggleStatusAsync([FromForm] UserId id, CancellationToken ct)
     {
         if (await DenyUnlessAsync(Permissions.Users.Edit) is { } denied)
             return denied;

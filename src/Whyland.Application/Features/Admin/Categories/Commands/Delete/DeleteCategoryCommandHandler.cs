@@ -24,7 +24,7 @@ public sealed class DeleteCategoryCommandHandler(IUnitOfWork unitOfWork) : IComm
             return CategoryErrors.NotFound(command.Id);
 
         var childCount = (await repository.GetLiveAllAsync(ct))
-            .Count(x => x.ParentId == CategoryId.From(command.Id));
+            .Count(x => x.ParentId == CategoryId.From(command.Id.Value));
 
         if (childCount > 0)
             return CategoryErrors.HasChildren(childCount);

@@ -16,10 +16,10 @@ namespace Whyland.Application.Features.Admin.Users.Commands.Update;
 /// <param name="IsActive">Whether the account may authenticate.</param>
 /// <param name="RoleIds">The full set of roles the account should hold afterwards.</param>
 public sealed record UpdateUserCommand(
-    Guid Id,
+    UserId Id,
     string FirstName,
     string LastName,
     string? Email,
     string? PhoneNumber,
     bool IsActive,
-    List<long> RoleIds) : ICommand;
+    List<RoleId> RoleIds) : ICommand;

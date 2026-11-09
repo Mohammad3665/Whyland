@@ -11,7 +11,7 @@ public sealed class CreateCourseFaqCommandValidator : AbstractValidator<CreateCo
     /// </summary>
     public CreateCourseFaqCommandValidator()
     {
-        RuleFor(x => x.CourseId)
+        RuleFor(x => x.CourseId.Value)
             .WhylandGreaterThan(0)
             .WithName("شناسه دوره");
 

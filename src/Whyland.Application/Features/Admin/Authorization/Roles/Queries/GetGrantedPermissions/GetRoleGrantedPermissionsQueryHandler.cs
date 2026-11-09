@@ -9,7 +9,7 @@ namespace Whyland.Application.Features.Admin.Authorization.Roles.Queries.GetGran
 public sealed class GetRoleGrantedPermissionsQueryHandler(
     IUnitOfWork unitOfWork,
     ILogger<GetRoleGrantedPermissionsQueryHandler> logger) :
-    IQueryHandler<GetRoleGrantedPermissionsQuery, IReadOnlyList<long>>
+    IQueryHandler<GetRoleGrantedPermissionsQuery, IReadOnlyList<PermissionId>>
 {
     /// <summary>
     /// Returns the granted identifiers, or a masked error when the read fails. A role that exists but
@@ -17,14 +17,14 @@ public sealed class GetRoleGrantedPermissionsQueryHandler(
     /// </summary>
     /// <param name="query">The query carrying the role identifier.</param>
     /// <param name="ct">A token to cancel the operation.</param>
-    public async Task<Result<IReadOnlyList<long>>> Handle(
+    public async Task<Result<IReadOnlyList<PermissionId>>> Handle(
         GetRoleGrantedPermissionsQuery query, CancellationToken ct)
     {
         try
         {
             var granted = await unitOfWork.RoleQueryRepository
                 .GetGrantedPermissionIdsAsync(query.RoleId, ct);
-            return Result<IReadOnlyList<long>>.Success(granted);
+            return Result<IReadOnlyList<PermissionId>>.Success(granted);
         }
         catch (Exception ex)
         {
@@ -32,7 +32,7 @@ public sealed class GetRoleGrantedPermissionsQueryHandler(
                 throw;
 
             logger.LogError(ex, "Reading granted permissions failed for role {RoleId}.", query.RoleId);
-            return Result<IReadOnlyList<long>>.Failure(RoleErrors.ListFailed());
+            return Result<IReadOnlyList<PermissionId>>.Failure(RoleErrors.ListFailed());
         }
     }
 }

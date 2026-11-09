@@ -174,8 +174,29 @@
       ),
     );
 
-    var dropdown = $el.data("select2") && $el.data("select2").dropdown;
-    if (dropdown) dropdown._positionDropdown = positionBelowField;
+    var instance = $el.data("select2");
+    if (instance && instance.dropdown) instance.dropdown._positionDropdown = positionBelowField;
+
+    // The search box sits above the scrolling results list, not inside it. Without this, a wheel
+    // gesture over the focused search box scrolls the page while the list under it stays put; an
+    // operator who types a query first naturally keeps the pointer there.
+    $el.off("select2:open.ktFilterWheel").on("select2:open.ktFilterWheel", function () {
+      var current = $el.data("select2");
+      var $dropdown = current && current.$dropdown;
+      if (!$dropdown) return;
+
+      var $results = $dropdown.find(".select2-results__options");
+      $dropdown
+        .find(".select2-search__field")
+        .off("wheel.ktFilterWheel")
+        .on("wheel.ktFilterWheel", function (event) {
+          var wheel = event.originalEvent;
+          if (!wheel || !$results.length) return;
+
+          $results[0].scrollTop += wheel.deltaY;
+          event.preventDefault();
+        });
+    });
 
     return $el;
   }
@@ -195,13 +216,7 @@
 
   /** A number written with Persian digits, the way the panel shows every count. */
   function faDigits(n) {
-    var fa = "۰۱۲۳۴۵۶۷۸۹";
-    return String(n === null || n === undefined ? "" : n).replace(
-      /\d/g,
-      function (d) {
-        return fa[+d];
-      },
-    );
+    return PersianDigits.toPersian(n);
   }
 
   /** Formats a UTC timestamp as a Persian date. */
@@ -434,6 +449,148 @@
       },
     },
   };
+
+  //#region Client-side generic conditions
+  /** Normalizes the Persian/Arabic digits the admin may type into a number. */
+  function numberValue(value) {
+    var text = latinDigits(String(value === null || value === undefined ? "" : value))
+      .replace(/,/g, "")
+      .trim();
+    if (!text) return null;
+    var number = Number(text);
+    return isNaN(number) ? null : number;
+  }
+
+  /** A calendar key (YYYY-MM-DD) so date comparisons ignore the time of day. */
+  function dateKey(value) {
+    if (!value) return null;
+    var date = new Date(value);
+    if (isNaN(date.getTime())) return null;
+    return (
+      date.getFullYear() +
+      "-" +
+      String(date.getMonth() + 1).padStart(2, "0") +
+      "-" +
+      String(date.getDate()).padStart(2, "0")
+    );
+  }
+
+  function booleanValue(value) {
+    return value === true || value === 1 || String(value).toLowerCase() === "true";
+  }
+
+  /**
+   * Evaluates one condition against a row object. Strings are compared case-insensitively,
+   * numbers may arrive with Persian digits, and dates are compared by calendar day so the
+   * <code>date</code> input works without a time part.
+   */
+  function matchesCondition(entity, field, condition) {
+    var actual = entity ? entity[condition.property] : null;
+    // Server filter metadata often uses PascalCase while the JSON row is camelCase.
+    if (entity && actual === undefined) {
+      var camel = condition.property.charAt(0).toLowerCase() + condition.property.slice(1);
+      actual = entity[camel];
+    }
+    var kind = field ? field.kind : "string";
+    var expected = condition.value === null || condition.value === undefined
+      ? ""
+      : String(condition.value).trim();
+    var operator = condition.operator;
+
+    function test(expectedPart) {
+      if (kind === "number") {
+        var left = numberValue(actual);
+        var right = numberValue(expectedPart);
+        if (left === null || right === null) return false;
+        if (operator === "Equals") return left === right;
+        if (operator === "NotEquals") return left !== right;
+        if (operator === "GreaterThan") return left > right;
+        if (operator === "GreaterThanOrEqual") return left >= right;
+        if (operator === "LessThan") return left < right;
+        if (operator === "LessThanOrEqual") return left <= right;
+        return false;
+      }
+
+      if (kind === "boolean") {
+        var leftBool = booleanValue(actual);
+        var rightBool = booleanValue(expectedPart);
+        return operator === "NotEquals" ? leftBool !== rightBool : leftBool === rightBool;
+      }
+
+      if (kind === "date") {
+        var leftDate = dateKey(actual);
+        var rightDate = dateKey(expectedPart);
+        if (!leftDate || !rightDate) return false;
+        if (operator === "Equals") return leftDate === rightDate;
+        if (operator === "NotEquals") return leftDate !== rightDate;
+        if (operator === "GreaterThan") return leftDate > rightDate;
+        if (operator === "GreaterThanOrEqual") return leftDate >= rightDate;
+        if (operator === "LessThan") return leftDate < rightDate;
+        if (operator === "LessThanOrEqual") return leftDate <= rightDate;
+        return false;
+      }
+
+      var leftText = String(actual === null || actual === undefined ? "" : actual).toLowerCase();
+      var rightText = String(expectedPart).toLowerCase();
+      if (operator === "Equals") return leftText === rightText;
+      if (operator === "NotEquals") return leftText !== rightText;
+      if (operator === "Contains") return leftText.indexOf(rightText) >= 0;
+      if (operator === "StartsWith") return leftText.indexOf(rightText) === 0;
+      if (operator === "EndsWith")
+        return leftText.slice(-rightText.length) === rightText;
+      return false;
+    }
+
+    if (operator === "In") {
+      return expected
+        .split(",")
+        .map(function (part) {
+          return part.trim();
+        })
+        .filter(Boolean)
+        .some(test);
+    }
+
+    return test(expected);
+  }
+
+  /** Whether one row satisfies every committed or currently typed condition. */
+  function matchesConditions(entity, conditions, fields) {
+    if (!conditions || !conditions.length) return true;
+
+    var byProperty = {};
+    (fields || []).forEach(function (field) {
+      byProperty[field.property] = field;
+    });
+
+    for (var i = 0; i < conditions.length; i++) {
+      var condition = conditions[i];
+      if (!matchesCondition(entity, byProperty[condition.property], condition))
+        return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Registers a DataTables search filter for a client-side table. The table rows must carry the
+   * source object with <code>.data("entity", row)</code>; the conditions and field descriptors are
+   * read on every draw, so the filter stays in sync with the picker.
+   */
+  function clientFilter(tableId, conditions, fields) {
+    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+      if (settings.nTable.id !== tableId) return true;
+
+      var active = conditions();
+      if (!active || !active.length) return true;
+
+      var row = settings.aoData[dataIndex] && settings.aoData[dataIndex].nTr;
+      if (!row) return true;
+
+      return matchesConditions($(row).data("entity"), active, fields());
+    });
+  }
+  //#endregion
 
   /**
    * Builds the «فیلتر روی» picker from ?handler=Fields: the field list, the operators each field
@@ -759,6 +916,8 @@
     postHandler: postHandler,
     filterPicker: filterPicker,
     filterSelect2: filterSelect2,
+    clientFilter: clientFilter,
+    matchesConditions: matchesConditions,
     resetOptionDirectories: resetOptionDirectories,
     serverSideAjax: serverSideAjax,
     badge: badge,

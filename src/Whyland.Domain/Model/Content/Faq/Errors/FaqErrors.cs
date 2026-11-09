@@ -31,7 +31,7 @@ public static class FaqErrors
 
     /// <summary>No FAQ exists with the given identifier.</summary>
     /// <param name="id">The identifier that was looked up.</param>
-    public static DomainError NotFound(long id) =>
+    public static DomainError NotFound(FaqId id) =>
         DomainError.For<FaqEntity>(nameof(NotFound), ErrorType.NotFound, field: null, ("Id", id));
 
     /// <summary>No FAQ exists with the given title.</summary>

@@ -5,4 +5,4 @@ namespace Whyland.Application.Features.Admin.Users.Commands.ToggleStatus;
 /// (s5.1.3: an inactive user must not authenticate).
 /// </summary>
 /// <param name="Id">The account to change.</param>
-public sealed record ToggleUserStatusCommand(Guid Id) : ICommand<bool>;
+public sealed record ToggleUserStatusCommand(UserId Id) : ICommand<bool>;

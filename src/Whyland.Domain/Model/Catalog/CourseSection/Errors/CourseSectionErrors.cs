@@ -32,12 +32,12 @@ public static class CourseSectionErrors
 
     /// <summary>No section exists with the given identifier.</summary>
     /// <param name="id">The identifier that was looked up.</param>
-    public static DomainError NotFound(long id) =>
+    public static DomainError NotFound(CourseSectionId id) =>
         DomainError.For<CourseSectionEntity>(nameof(NotFound), ErrorType.NotFound, field: null, ("Id", id));
 
     /// <summary>The section still contains episodes, so deleting it would orphan them.</summary>
     /// <param name="id">The identifier of the section that was refused.</param>
-    public static DomainError HasEpisodes(long id) =>
+    public static DomainError HasEpisodes(CourseSectionId id) =>
         DomainError.For<CourseSectionEntity>(nameof(HasEpisodes), ErrorType.Validation, field: null, ("Id", id));
 
     /// <summary>The section could not be created (persistence failure); masked behind a generic message.</summary>

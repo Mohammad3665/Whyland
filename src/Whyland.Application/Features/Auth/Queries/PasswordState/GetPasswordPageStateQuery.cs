@@ -14,4 +14,4 @@ public sealed record PasswordPageStateDto(
 
 /// <summary>Reads the account state that decides between the set-password and change-password pages.</summary>
 /// <param name="UserId">The signed-in user, taken from the cookie claims by the web layer.</param>
-public sealed record GetPasswordPageStateQuery(Guid UserId) : IQuery<PasswordPageStateDto>;
+public sealed record GetPasswordPageStateQuery(UserId UserId) : IQuery<PasswordPageStateDto>;

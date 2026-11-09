@@ -6,6 +6,7 @@ using Whyland.Application.Features.Admin.Authorization.Roles.Queries.GetFilterFi
 using Whyland.Application.Features.Admin.Authorization.Roles.Queries.GetForDataTable;
 using Whyland.Application.Features.Admin.Authorization.Roles.Queries.GetGrantedPermissions;
 using Whyland.Application.Features.Admin.Authorization.Roles.Queries.GetPermissionCatalog;
+using Whyland.Domain.Model.Authorization.Role.Identifiers;
 using Whyland.Shared.Dtos.Authorization.Permission;
 using Whyland.Shared.Filters;
 
@@ -134,7 +135,7 @@ public class IndexModel(
     /// </summary>
     /// <param name="id">The role whose grants are read.</param>
     /// <param name="ct">A token to cancel the operation.</param>
-    public async Task<IActionResult> OnGetGrantedAsync([FromQuery] long id, CancellationToken ct)
+    public async Task<IActionResult> OnGetGrantedAsync([FromQuery] RoleId id, CancellationToken ct)
     {
         var result = await dispatcher.Send(new GetRoleGrantedPermissionsQuery(id), ct);
 
@@ -175,7 +176,7 @@ public class IndexModel(
     /// <param name="id">The role to delete.</param>
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
-    public async Task<IActionResult> OnPostDeleteAsync([FromForm] long id, CancellationToken ct)
+    public async Task<IActionResult> OnPostDeleteAsync([FromForm] RoleId id, CancellationToken ct)
         => await DenyUnlessAsync(Permissions.Roles.Delete)
             ?? ToJson(await dispatcher.Send(new DeleteRoleCommand(id), ct));
 

@@ -10,7 +10,7 @@ public sealed class DeleteFaqCommandValidator : AbstractValidator<DeleteFaqComma
     /// </summary>
     public DeleteFaqCommandValidator()
     {
-        RuleFor(x => x.Id)
+        RuleFor(x => x.Id.Value)
             .WhylandGreaterThan(0)
             .WithName("شناسه");
     }

@@ -12,8 +12,8 @@ internal static class CourseReferenceValidator
     /// </summary>
     public static async Task<Result> ValidateAsync(
         IUnitOfWork unitOfWork,
-        IReadOnlyList<long> categoryIds,
-        IReadOnlyList<Guid> instructorIds,
+        IReadOnlyList<CategoryId> categoryIds,
+        IReadOnlyList<InstructorProfileId> instructorIds,
         CancellationToken ct)
     {
         var requestedCategories = categoryIds.Distinct().ToList();
@@ -23,7 +23,7 @@ internal static class CourseReferenceValidator
                 .GetActiveCategoryIdsAsync(requestedCategories, ct);
 
             var missing = requestedCategories.FirstOrDefault(id => !found.Contains(id));
-            if (missing != 0)
+            if (missing.Value != 0)
                 return CourseErrors.CategoryUnavailable(missing);
         }
 
@@ -34,7 +34,7 @@ internal static class CourseReferenceValidator
                 .GetInstructorProfileIdsAsync(requestedInstructors, ct);
 
             var missing = requestedInstructors.FirstOrDefault(id => !found.Contains(id));
-            if (missing != Guid.Empty)
+            if (missing.Value != Guid.Empty)
                 return CourseErrors.InstructorUnavailable(missing);
         }
 

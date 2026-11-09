@@ -8,4 +8,4 @@ namespace Whyland.Application.Features.Admin.Categories.Commands.Reorder;
 /// The visible category identifiers in their new order; each row is renumbered inside its own
 /// sibling group, so one branch can move without scrambling the others.
 /// </param>
-public sealed record ReorderCategoriesCommand(IReadOnlyList<long> OrderedIds) : ICommand;
+public sealed record ReorderCategoriesCommand(IReadOnlyList<CategoryId> OrderedIds) : ICommand;

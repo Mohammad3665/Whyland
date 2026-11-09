@@ -3,6 +3,7 @@ using Whyland.Application.Features.Auth.Password.ForgotPassword;
 using Whyland.Application.Features.Auth.Password.RequestPhoneBindingCode;
 using Whyland.Application.Features.Auth.Password.SetPassword;
 using Whyland.Application.Features.Auth.Queries.PasswordState;
+using Whyland.Domain.Model.Identity.User.Identifiers;
 using Whyland.Web.ViewModels;
 
 namespace Whyland.Web.Controllers;
@@ -212,7 +213,7 @@ public class PasswordController(IDispatcher dispatcher, ICurrentUserService curr
     /// <summary>Redisplays the first-password form with an error toast, keeping the entered number.</summary>
     private async Task<IActionResult> SetPasswordWithErrorAsync(
         string? message,
-        Guid userId,
+        UserId userId,
         SetPasswordViewModel model,
         CancellationToken ct)
     {
@@ -237,7 +238,7 @@ public class PasswordController(IDispatcher dispatcher, ICurrentUserService curr
     /// Reads which signed-in password page the account belongs to. If the read fails the change page
     /// is assumed; both commands re-check the account state server-side either way.
     /// </summary>
-    private async Task<PasswordPageStateDto> ReadStateAsync(Guid userId, CancellationToken ct)
+    private async Task<PasswordPageStateDto> ReadStateAsync(UserId userId, CancellationToken ct)
     {
         var state = await dispatcher.Send(new GetPasswordPageStateQuery(userId), ct);
         return state is { IsFailure: false }

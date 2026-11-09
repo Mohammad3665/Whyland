@@ -21,7 +21,7 @@ public sealed class DeleteCourseFaqCommandHandler(IUnitOfWork unitOfWork)
         if (faq is null)
             return CourseFaqErrors.NotFound(command.Id);
 
-        var courseId = faq.CourseId.Value;
+        var courseId = faq.CourseId;
 
         unitOfWork.CourseFaqCommandRepository.SoftDelete(faq);
 

@@ -13,7 +13,7 @@ public interface ICourseFaqCommandRepository
     /// <param name="id">Course FAQ identifier.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The tracked question, or null if not found.</returns>
-    Task<CourseFaqEntity?> GetByIdAsync(long id, CancellationToken ct = default);
+    Task<CourseFaqEntity?> GetByIdAsync(CourseFaqId id, CancellationToken ct = default);
 
     /// <summary>Stages a new entity; persisted on SaveAsync.</summary>
     /// <param name="faq">The question to add.</param>
@@ -32,10 +32,10 @@ public interface ICourseFaqCommandRepository
     /// <param name="courseId">The course whose FAQ list is reordered.</param>
     /// <param name="orderedIds">The question ids in the desired order (index + 1 becomes DisplayOrder).</param>
     /// <param name="ct">Cancellation token.</param>
-    Task ReorderAsync(long courseId, IReadOnlyList<long> orderedIds, CancellationToken ct = default);
+    Task ReorderAsync(CourseId courseId, IReadOnlyList<CourseFaqId> orderedIds, CancellationToken ct = default);
 
     /// <summary>Stages a compaction of DisplayOrder to 1..n for one course.</summary>
     /// <param name="courseId">The course whose FAQ list is renumbered.</param>
     /// <param name="ct">Cancellation token.</param>
-    Task RenumberAsync(long courseId, CancellationToken ct = default);
+    Task RenumberAsync(CourseId courseId, CancellationToken ct = default);
 }

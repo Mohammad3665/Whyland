@@ -5,6 +5,7 @@ using Whyland.Application.Features.Admin.Categories.Commands.Update;
 using Whyland.Application.Features.Admin.Categories.Queries.GetFilterFields;
 using Whyland.Application.Features.Admin.Categories.Queries.GetForDataTable;
 using Whyland.Application.Features.Admin.Users.Queries.GetOptions;
+using Whyland.Domain.Model.Catalog.Category.Identifiers;
 using Whyland.Shared.Filters;
 
 namespace Whyland.Web.Areas.Admin.Pages.Catalog.Categories;
@@ -133,7 +134,7 @@ public class CategoriesModel(
     /// <param name="id">The identifier of the category to delete.</param>
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
-    public async Task<IActionResult> OnPostDeleteAsync([FromForm] long id, CancellationToken ct)
+    public async Task<IActionResult> OnPostDeleteAsync([FromForm] CategoryId id, CancellationToken ct)
         => await DenyUnlessAsync(Permissions.Categories.Delete)
             ?? ToJson(await dispatcher.Send(new DeleteCategoryCommand(id), ct));
 
@@ -152,5 +153,5 @@ public class CategoriesModel(
     /// <summary>Reorder payload sent by the client (RowReorder saves visual order).</summary>
     /// <param name="Id">The category identifier.</param>
     /// <param name="DisplayOrder">The visual order displayed by the badge.</param>
-    public sealed record ReorderCategoryRow(long Id, int DisplayOrder);
+    public sealed record ReorderCategoryRow(CategoryId Id, int DisplayOrder);
 }

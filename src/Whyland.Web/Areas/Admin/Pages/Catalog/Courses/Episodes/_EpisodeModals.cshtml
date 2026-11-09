@@ -27,6 +27,7 @@
                         <label class="required fs-6 fw-semibold mb-2">عنوان</label>
                         <input type="text" id="Form_Title" name="Form_Title"
                                class="form-control form-control-solid"
+                               maxlength="200"
                                placeholder="مثال: معرفی دوره و نصب ابزارها" />
                     </div>
                     <!--end::Input group-->
@@ -40,59 +41,95 @@
                     </div>
                     <!--end::Input group-->
 
-                    <!--begin::Input group - Video file & Video URL-->
-                    <div class="row g-9 mb-8">
-                        <div class="col-md-6 fv-row">
-                            <label class="fs-6 fw-semibold mb-2">آپلود فایل ویدیو</label>
-                            <input type="file" id="Form_Video" name="Form_Video"
-                                   class="form-control form-control-solid"
-                                   accept="video/mp4,video/webm" />
-                            <div class="text-muted fs-7 mt-1">mp4، webm — حداکثر ۵۰۰ مگابایت</div>
-                        </div>
-                        <div class="col-md-6 fv-row">
-                            <label class="fs-6 fw-semibold mb-2">آدرس ویدیو (هاست دانلود)</label>
-                            <input type="text" id="Form_VideoUrl" name="Form_VideoUrl"
-                                   class="form-control form-control-solid" dir="ltr"
-                                   placeholder="https://..." />
-                            <div class="text-muted fs-7 mt-1">
-                                با وارد کردن آدرس، آپلود فایل قفل می‌شود (و برعکس)
+                    <!--begin::Input group - Video source-->
+                    <div class="fv-row mb-8">
+                        <label class="fs-6 fw-semibold mb-2">ویدیو اپیزود</label>
+
+                        <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed p-5 mb-5">
+                            <i class="ki-duotone ki-information-4 fs-2tx text-primary me-4">
+                                <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                            </i>
+                            <div class="d-flex flex-column fw-semibold">
+                                <div class="text-gray-800 fs-6" id="current-video-status">ویدیویی ثبت نشده است.</div>
+                                <div class="text-muted fs-7 mt-1">
+                                    می‌توانید فایل MP4 را آپلود کنید یا لینک ویدیوی میزبان دیگر را وارد کنید؛
+                                    هر دو با هم ممکن نیست.
+                                </div>
                             </div>
                         </div>
+
+                        <div class="row g-9">
+                            <div class="col-md-6 fv-row">
+                                <label class="fs-6 fw-semibold mb-2">آپلود فایل MP4</label>
+                                <input type="file" id="Form_Video" name="Form_Video"
+                                       class="form-control form-control-solid"
+                                       data-max-size-bytes="@Model.MaxVideoSizeBytes"
+                                       accept="video/mp4" />
+                                <div class="text-muted fs-7 mt-1">
+                                    حداکثر @Model.MaxVideoSizeDisplay — مدت زمان به‌صورت خودکار از فایل خوانده می‌شود
+                                </div>
+                            </div>
+                            <div class="col-md-6 fv-row">
+                                <label class="fs-6 fw-semibold mb-2">لینک ویدیو</label>
+                                <input type="url" id="Form_VideoUrl" name="Form_VideoUrl"
+                                       class="form-control form-control-solid" dir="ltr"
+                                       placeholder="https://..." />
+                                <div class="text-muted fs-7 mt-1">
+                                    لینک مستقیم فایل ویدیویی (مثل MP4) یا لینک صفحه YouTube، Vimeo یا Aparat
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="button" class="btn btn-sm btn-light-danger d-none" id="remove-video-btn"
+                                    onclick="removeEpisodeVideo()">
+                                <i class="ki-duotone ki-trash fs-4 me-1">
+                                    <span class="path1"></span><span class="path2"></span><span class="path3"></span>
+                                    <span class="path4"></span><span class="path5"></span>
+                                </i>
+                                حذف ویدیوی فعلی
+                            </button>
+                        </div>
+
+                        <!--begin::Video preview-->
+                        <div id="video-preview-wrapper" class="mt-5 d-none">
+                            <div class="text-muted fs-7 mb-2">پیش‌نمایش ویدیو</div>
+                            <video id="episode-video-preview"
+                                   class="w-100 rounded bg-dark"
+                                   style="max-height: 280px;"
+                                   controls preload="metadata"></video>
+                            <iframe id="episode-video-preview-embed"
+                                    class="w-100 rounded d-none"
+                                    allow="autoplay; fullscreen; picture-in-picture"
+                                    allowfullscreen></iframe>
+                            <div id="episode-video-preview-error" class="text-danger fs-7 mt-2 d-none"></div>
+                        </div>
+                        <!--end::Video preview-->
                     </div>
                     <!--end::Input group-->
 
-                    <!--begin::Input group - Duration & DisplayOrder-->
+                    <!--begin::Input group - DisplayOrder & IsFree-->
                     <div class="row g-9 mb-8">
-                        <div class="col-md-6 fv-row">
-                            <label class="fs-6 fw-semibold mb-2">مدت زمان</label>
-                            <input type="text" id="Form_Duration" name="Form_Duration"
-                                   class="form-control form-control-solid" dir="ltr"
-                                   placeholder="مثال: 14:25" />
-                            <div class="text-muted fs-7 mt-1">
-                                با انتخاب ویدیو یا وارد کردن آدرس، به‌صورت خودکار محاسبه و قفل می‌شود
-                            </div>
-                        </div>
                         <div class="col-md-6 fv-row">
                             <label class="fs-6 fw-semibold mb-2">ترتیب نمایش</label>
                             <input type="number" id="Form_DisplayOrder" name="Form_DisplayOrder"
-                                   class="form-control form-control-solid" value="1" />
+                                   class="form-control form-control-solid" min="0" value="0" />
                             <div class="text-muted fs-7 mt-1">
                                 ترتیب اپیزودها همچنین با درگ کردن سطرها در جدول قابل تغییر است
                             </div>
                         </div>
-                    </div>
-                    <!--end::Input group-->
-
-                    <!--begin::Input group - IsFree-->
-                    <div class="d-flex flex-stack mb-8">
-                        <div class="me-5">
-                            <label class="fs-6 fw-semibold">اپیزود رایگان</label>
-                            <div class="text-muted fs-7">اپیزودهای رایگان بدون خرید برای همه کاربران قابل مشاهده هستند</div>
+                        <div class="col-md-6 fv-row">
+                            <div class="d-flex flex-stack">
+                                <div class="me-5">
+                                    <label class="fs-6 fw-semibold">اپیزود رایگان</label>
+                                    <div class="text-muted fs-7">بدون خرید برای همه قابل مشاهده است</div>
+                                </div>
+                                <label class="form-check form-switch form-check-custom form-check-solid">
+                                    <input class="form-check-input" type="checkbox" id="Form_IsFree" />
+                                    <span class="form-check-label fw-semibold text-muted">رایگان</span>
+                                </label>
+                            </div>
                         </div>
-                        <label class="form-check form-switch form-check-custom form-check-solid">
-                            <input class="form-check-input" type="checkbox" id="Form_IsFree" />
-                            <span class="form-check-label fw-semibold text-muted">رایگان</span>
-                        </label>
                     </div>
                     <!--end::Input group-->
 
@@ -115,7 +152,6 @@
         </div>
     </div>
 </div>
-
 <!--end::Create/Edit Modal-->
 
 <!--begin::Delete Confirmation Modal-->
@@ -160,5 +196,113 @@
         </div>
     </div>
 </div>
-
 <!--end::Delete Confirmation Modal-->
+
+<!--begin::Episode Details Modal-->
+<div class="modal fade" id="kt_modal_episode_details" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable mw-900px">
+        <div class="modal-content rounded">
+            <!--begin::Modal header-->
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+            <!--end::Modal header-->
+
+            <!--begin::Modal body-->
+            <div class="modal-body px-10 px-lg-15 pt-0 pb-15">
+                <!--begin::Heading-->
+                <div class="mb-8">
+                    <div class="text-muted fw-semibold fs-7 mb-2">جزئیات اپیزود</div>
+                    <h2 class="mb-3 text-gray-900" id="episode-details-title"></h2>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <span class="badge badge-light-primary" id="episode-details-free"></span>
+                        <span class="badge badge-light-info" id="episode-details-video-type"></span>
+                    </div>
+                </div>
+                <!--end::Heading-->
+
+                <!--begin::Video-->
+                <div class="mb-8">
+                    <div class="text-gray-800 fw-bold fs-5 mb-3">ویدیوی اپیزود</div>
+                    <div id="episode-details-video-wrapper" class="d-none">
+                        <video id="episode-details-video"
+                               class="w-100 rounded bg-dark"
+                               style="max-height: 340px;"
+                               controls preload="metadata"></video>
+                        <iframe id="episode-details-video-embed"
+                                class="w-100 rounded d-none"
+                                allow="autoplay; fullscreen; picture-in-picture"
+                                allowfullscreen></iframe>
+                        <div id="episode-details-video-error" class="text-danger fs-7 mt-2 d-none"></div>
+                    </div>
+                    <div id="episode-details-video-empty" class="notice bg-light-secondary border border-dashed rounded p-5 text-muted fs-7">
+                        برای این اپیزود ویدیویی ثبت نشده است.
+                    </div>
+                </div>
+                <!--end::Video-->
+
+                <!--begin::Properties-->
+                <div class="separator separator-dashed my-6"></div>
+                <div class="row g-5 mb-8">
+                    <div class="col-md-6">
+                        <div class="text-muted fs-7 mb-1">شناسه اپیزود</div>
+                        <div class="text-gray-800 fw-semibold" id="episode-details-id"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted fs-7 mb-1">شناسه سرفصل</div>
+                        <div class="text-gray-800 fw-semibold" id="episode-details-section"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted fs-7 mb-1">ترتیب نمایش</div>
+                        <div class="text-gray-800 fw-semibold" id="episode-details-order"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted fs-7 mb-1">مدت زمان</div>
+                        <div class="text-gray-800 fw-semibold" id="episode-details-duration"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted fs-7 mb-1">تعداد پیوست‌ها</div>
+                        <div class="text-gray-800 fw-semibold" id="episode-details-attachment-count"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted fs-7 mb-1">تاریخ ایجاد</div>
+                        <div class="text-gray-800 fw-semibold" id="episode-details-created"></div>
+                    </div>
+                    <div class="col-12" id="episode-details-video-url-wrapper">
+                        <div class="text-muted fs-7 mb-1">لینک ویدیو</div>
+                        <a class="text-primary fw-semibold" id="episode-details-video-url"
+                           target="_blank" rel="noopener noreferrer" dir="ltr"></a>
+                    </div>
+                    <div class="col-12">
+                        <div class="text-muted fs-7 mb-1">توضیحات</div>
+                        <div class="text-gray-800 " id="episode-details-description"></div>
+                    </div>
+                </div>
+                <!--end::Properties-->
+
+                <!--begin::Attachments-->
+                <div class="separator separator-dashed my-6"></div>
+                <div class="text-gray-800 fw-bold fs-5 mb-3">پیوست‌های قابل دانلود</div>
+                <div id="episode-details-attachments-state" class="text-muted fs-7">در حال بارگذاری پیوست‌ها...</div>
+                <div id="episode-details-attachments" class="d-flex flex-column gap-2"></div>
+                <!--end::Attachments-->
+
+                <!--begin::Actions-->
+                <div class="d-flex justify-content-end gap-3 mt-9">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">بستن</button>
+                    <button type="button" class="btn btn-primary" onclick="editEpisodeFromDetails()">
+                        <i class="ki-duotone ki-pencil fs-4 me-1">
+                            <span class="path1"></span><span class="path2"></span>
+                        </i>
+                        ویرایش اپیزود
+                    </button>
+                </div>
+                <!--end::Actions-->
+            </div>
+            <!--end::Modal body-->
+        </div>
+    </div>
+</div>
+<!--end::Episode Details Modal-->

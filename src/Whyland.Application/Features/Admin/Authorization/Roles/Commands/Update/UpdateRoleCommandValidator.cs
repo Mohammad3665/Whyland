@@ -8,7 +8,7 @@ public sealed class UpdateRoleCommandValidator : AbstractValidator<UpdateRoleCom
     /// <summary>Configures the validation rules for every updatable role field.</summary>
     public UpdateRoleCommandValidator()
     {
-        RuleFor(x => x.Id)
+        RuleFor(x => x.Id.Value)
             .WhylandGreaterThan(0)
             .WithName("شناسه");
 

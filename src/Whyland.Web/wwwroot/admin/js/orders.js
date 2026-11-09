@@ -44,18 +44,10 @@ var page = AdminCrud.createPage({
 //#endregion
 
 //#region Details Modal (7.2 layout, opened from the 7.1 actions cell)
-/** Persian digits for money/date display, matching the table's style. */
-function faDigits(text) {
-  var fa = "۰۱۲۳۴۵۶۷۸۹";
-  return String(text).replace(/\d/g, function (d) {
-    return fa[+d];
-  });
-}
-
 /** Formats a raw integer with thousands separators + تومان. */
 function formatToman(amount) {
   if (!amount) return "—";
-  return faDigits(Number(amount).toLocaleString("en-US")) + " تومان";
+  return PersianDigits.toPersian(Number(amount).toLocaleString("en-US")) + " تومان";
 }
 
 /** Status badge matching the table's badge classes. */
@@ -103,18 +95,18 @@ function openDetailsModal(
   $("#details-status").html(
     statusBadge(status, STATUS_BADGES[status] || "secondary"),
   );
-  $("#details-created-at").text(faDigits(createdAt));
+  $("#details-created-at").text(PersianDigits.toPersian(createdAt));
 
   // PaidAt only exists for paid orders; expire date only for Pending.
   if (paidAt) {
-    $("#details-paid-at").text(faDigits(paidAt));
+    $("#details-paid-at").text(PersianDigits.toPersian(paidAt));
   } else {
     $("#details-paid-at").html('<span class="text-muted">—</span>');
   }
 
   if (status === "در انتظار پرداخت" && expiresAt) {
     $("#details-expires-wrapper").removeClass("d-none");
-    $("#details-expires-at").text(faDigits(expiresAt));
+    $("#details-expires-at").text(PersianDigits.toPersian(expiresAt));
   } else {
     $("#details-expires-wrapper").addClass("d-none");
   }
@@ -150,7 +142,7 @@ function openDetailsModal(
               class: "text-start ps-0 text-gray-800 fw-semibold",
             }).text(item.name),
           )
-          .append($("<td>", { class: "text-center" }).text(faDigits(item.qty)))
+          .append($("<td>", { class: "text-center" }).text(PersianDigits.toPersian(item.qty)))
           .append(
             $("<td>", {
               class: "text-end text-gray-700",

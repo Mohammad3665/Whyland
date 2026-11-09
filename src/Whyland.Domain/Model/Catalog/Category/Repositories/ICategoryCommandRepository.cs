@@ -14,7 +14,7 @@ public interface ICategoryCommandRepository
     /// <summary>Returns the tracked category, or null when there is none with that identifier.</summary>
     /// <param name="id">Category identifier.</param>
     /// <param name="ct">Cancellation token.</param>
-    Task<CategoryEntity?> GetByIdAsync(long id, CancellationToken ct = default);
+    Task<CategoryEntity?> GetByIdAsync(CategoryId id, CancellationToken ct = default);
 
     /// <summary>
     /// Returns every live category, tracked. The handlers walk the tree out of this single read —
@@ -35,8 +35,8 @@ public interface ICategoryCommandRepository
     /// <param name="ct">Cancellation token.</param>
     Task<bool> IsNameTakenAsync(
         string name,
-        long? parentId,
-        long? excludeId = null,
+        CategoryId? parentId,
+        CategoryId? excludeId = null,
         CancellationToken ct = default);
 
     #endregion
@@ -64,7 +64,7 @@ public interface ICategoryCommandRepository
     /// <param name="id">The identifier of the category whose subtree is being switched off.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>How many descendants were switched off.</returns>
-    Task<int> DeactivateDescendantsAsync(long id, CancellationToken ct = default);
+    Task<int> DeactivateDescendantsAsync(CategoryId id, CancellationToken ct = default);
 
     #endregion
 
@@ -78,7 +78,7 @@ public interface ICategoryCommandRepository
     /// </summary>
     /// <param name="orderedIds">The category identifiers in the new visual order.</param>
     /// <param name="ct">Cancellation token.</param>
-    Task ReorderAsync(IReadOnlyList<long> orderedIds, CancellationToken ct = default);
+    Task ReorderAsync(IReadOnlyList<CategoryId> orderedIds, CancellationToken ct = default);
 
     /// <summary>
     /// Stages a compaction of DisplayOrder to an unbroken 1..n sequence inside every sibling group

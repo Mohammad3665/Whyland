@@ -10,11 +10,13 @@ public sealed class UserCommandRepository(WhylandDbContext context) : IUserComma
         => await context.Users.AddAsync(user, ct);
 
     public async Task ReplaceRolesAsync(
-        Guid userId, IReadOnlyCollection<long> roleIds, CancellationToken ct = default)
+        UserId userId, IReadOnlyCollection<RoleId> roleIds, CancellationToken ct = default)
     {
-        // The panel sends raw numbers, so both keys are wrapped before the diff below.
-        var actor = UserId.From(userId);
-        var wanted = roleIds.Select(RoleId.From).ToHashSet();
+        // The ordinary-user role is a floor, not a choice: whatever the modal sent, an account
+        // without it cannot do anything on the site, so it is unioned in here rather than trusted to
+        // every caller to remember to include it.
+        var actor = userId;
+        var wanted = roleIds.ToHashSet();
 
         // The ordinary-user role is a floor, not a choice: whatever the modal sent, an account
         // without it cannot do anything on the site, so it is unioned in here rather than trusted to
@@ -38,13 +40,13 @@ public sealed class UserCommandRepository(WhylandDbContext context) : IUserComma
 
     // Registration and provider sign-in build an account without a role list, and the seeder is the
     // only other writer of assignments; this is the one place the floor is expressed for them.
-    public async Task EnsureDefaultRoleAsync(Guid userId, CancellationToken ct = default)
+    public async Task EnsureDefaultRoleAsync(UserId userId, CancellationToken ct = default)
     {
         var defaultRole = await DefaultRoleIdAsync(ct);
         if (defaultRole is null)
             return;
 
-        var actor = UserId.From(userId);
+        var actor = userId;
 
         if (await context.UserRoles.AnyAsync(x => x.UserId == actor && x.RoleId == defaultRole, ct))
             return;
@@ -80,15 +82,9 @@ public sealed class UserCommandRepository(WhylandDbContext context) : IUserComma
     public Task<Domain.Model.Identity.User.Entities.User?> GetTrackedByEmailAsync(string email, CancellationToken ct = default)
         => context.Users.FirstOrDefaultAsync(x => x.Email == email, ct);
 
-    public Task<Domain.Model.Identity.User.Entities.User?> GetTrackedByIdAsync(Guid id, CancellationToken ct = default)
-    {
-        var key = UserId.From(id);
-        return context.Users.FirstOrDefaultAsync(x => x.Id == key, ct);
-    }
+    public Task<Domain.Model.Identity.User.Entities.User?> GetTrackedByIdAsync(UserId id, CancellationToken ct = default)
+        => context.Users.FirstOrDefaultAsync(x => x.Id == id, ct);
 
-    public Task<bool> IsInRoleAsync(Guid userId, string roleName, CancellationToken ct = default)
-    {
-        var actor = UserId.From(userId);
-        return context.UserRoles.AnyAsync(x => x.UserId == actor && x.Role.Name == roleName, ct);
-    }
+    public Task<bool> IsInRoleAsync(UserId userId, string roleName, CancellationToken ct = default)
+        => context.UserRoles.AnyAsync(x => x.UserId == userId && x.Role.Name == roleName, ct);
 }

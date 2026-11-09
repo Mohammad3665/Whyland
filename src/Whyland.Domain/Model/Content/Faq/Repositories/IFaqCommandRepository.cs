@@ -13,7 +13,7 @@ public interface IFaqCommandRepository
     /// <param name="id">Faq identifier.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The tracked Faq, or null if not found.</returns>
-    Task<FaqEntity?> GetByIdAsync(long id, CancellationToken ct = default);
+    Task<FaqEntity?> GetByIdAsync(FaqId id, CancellationToken ct = default);
 
     /// <summary>Stages a new entity; persisted on SaveAsync.</summary>
     /// <param name="faq">The Faq to add.</param>
@@ -33,12 +33,12 @@ public interface IFaqCommandRepository
     /// <param name="excludeId">Optional id to exclude (for update scenarios).</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>True if a matching non-deleted Faq exists.</returns>
-    Task<bool> ExistsAsync(string title, long? excludeId = null, CancellationToken ct = default);
+    Task<bool> ExistsAsync(string title, FaqId? excludeId = null, CancellationToken ct = default);
 
     /// <summary>Stages a new display-order sequence; persisted on SaveAsync.</summary>
     /// <param name="orderedIds">The Faq ids in the desired order (index + 1 becomes DisplayOrder).</param>
     /// <param name="ct">Cancellation token.</param>
-    Task ReorderAsync(IReadOnlyList<long> orderedIds, CancellationToken ct = default);
+    Task ReorderAsync(IReadOnlyList<FaqId> orderedIds, CancellationToken ct = default);
 
     /// <summary>
     /// Stages a compaction of DisplayOrder over every live Faq so the values

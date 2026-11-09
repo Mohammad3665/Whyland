@@ -1,3 +1,5 @@
+using Whyland.Domain.Model.Identity.User.Identifiers;
+
 namespace Whyland.Web.Common.Identity.Services;
 
 /// <summary>
@@ -9,12 +11,12 @@ namespace Whyland.Web.Common.Identity.Services;
 public sealed class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICurrentUserService
 {
     /// <summary>The UserId (NameIdentifier claim) of the signed-in user, or null.</summary>
-    public Guid? UserId
+    public UserId? UserId
     {
         get
         {
             var value = httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-            return Guid.TryParse(value, out var id) ? id : null;
+            return Guid.TryParse(value, out var id) ? new UserId(id) : null;
         }
     }
 

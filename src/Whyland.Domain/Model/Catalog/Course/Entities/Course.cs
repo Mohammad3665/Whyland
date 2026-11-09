@@ -1,11 +1,11 @@
 using System.Text.RegularExpressions;
-
 using CourseCategoryEntity = Whyland.Domain.Model.Catalog.CourseCategory.Entities.CourseCategory;
 using CourseFaqEntity = Whyland.Domain.Model.Catalog.CourseFaq.Entities.CourseFaq;
 using CourseInstructorEntity = Whyland.Domain.Model.Catalog.CourseInstructor.Entities.CourseInstructor;
 using CourseSectionEntity = Whyland.Domain.Model.Catalog.CourseSection.Entities.CourseSection;
 using Whyland.Domain.Model.Catalog.Course.Errors;
 using Whyland.Shared.Results;
+using Whyland.Shared.Enums;
 
 namespace Whyland.Domain.Model.Catalog.Course.Entities;
 
@@ -292,9 +292,9 @@ public class Course : BaseEntity<CourseId>, ISoftDeletable
     /// Replaces the category links with exactly the requested set, keeping the rows that stay.
     /// </summary>
     /// <param name="categoryIds">The categories the course should belong to.</param>
-    public void ReplaceCategories(IEnumerable<long> categoryIds)
+    public void ReplaceCategories(IEnumerable<CategoryId> categoryIds)
     {
-        var desired = categoryIds.Distinct().Select(CategoryId.From).ToHashSet();
+        var desired = categoryIds.Select(id => id.Value).Distinct().Select(CategoryId.From).ToHashSet();
 
         foreach (var link in CourseCategories.Where(x => !desired.Contains(x.CategoryId)).ToList())
             CourseCategories.Remove(link);
@@ -309,9 +309,10 @@ public class Course : BaseEntity<CourseId>, ISoftDeletable
     /// Replaces the instructor links with exactly the requested set, keeping the rows that stay.
     /// </summary>
     /// <param name="instructorProfileIds">The instructor profiles assigned to the course.</param>
-    public void ReplaceInstructors(IEnumerable<Guid> instructorProfileIds)
+    public void ReplaceInstructors(IEnumerable<InstructorProfileId> instructorProfileIds)
     {
         var desired = instructorProfileIds
+            .Select(id => id.Value)
             .Distinct()
             .Select(InstructorProfileId.From)
             .ToHashSet();

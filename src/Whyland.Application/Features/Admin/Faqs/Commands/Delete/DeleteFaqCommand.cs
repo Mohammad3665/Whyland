@@ -4,4 +4,4 @@ namespace Whyland.Application.Features.Admin.Faqs.Commands.Delete;
 /// Command that soft-deletes an existing FAQ by its identifier.
 /// </summary>
 /// <param name="Id">The identifier of the FAQ to soft-delete.</param>
-public sealed record DeleteFaqCommand(long Id) : ICommand;
+public sealed record DeleteFaqCommand(FaqId Id) : ICommand;

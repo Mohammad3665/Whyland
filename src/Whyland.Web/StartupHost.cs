@@ -28,6 +28,13 @@ public class StartupHost
         builder.Services.AddControllersWithViews();
         builder.Services.AddMapping();
 
+        // Kestrel's default body limit (30 MB) is below the configured video ceiling; the form limit
+        // is raised in the same place, from the same configuration.
+        var maxUploadBytes = Whyland.Web.Common.Extensions.ServiceCollectionExtensions
+            .MaxUploadBytes(builder.Configuration);
+        builder.WebHost.ConfigureKestrel(options =>
+            options.Limits.MaxRequestBodySize = maxUploadBytes);
+
         builder.Services.AddApplicationServices(builder.Configuration, builder.Environment);
         builder.Host.UseSerilog(
             (context, services, logger) =>

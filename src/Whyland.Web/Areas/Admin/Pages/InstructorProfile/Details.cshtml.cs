@@ -1,4 +1,5 @@
 using Whyland.Application.Features.Admin.InstructorProfiles.Queries.GetById;
+using Whyland.Domain.Model.Identity.InstructorProfile.Identifiers;
 using Whyland.Shared.Dtos.Identity.InstructorProfile;
 
 namespace Whyland.Web.Areas.Admin.Pages.InstructorProfile;
@@ -13,7 +14,7 @@ public class DetailsModel(
     public InstructorProfileDetailsDto Profile { get; private set; } = null!;
 
     /// <summary>Loads the profile or answers 404 when it does not exist.</summary>
-    public async Task<IActionResult> OnGetAsync(Guid id, CancellationToken ct)
+    public async Task<IActionResult> OnGetAsync(InstructorProfileId id, CancellationToken ct)
     {
         var result = await dispatcher.Send(new GetInstructorProfileByIdQuery(id), ct);
         if (result.IsFailure)

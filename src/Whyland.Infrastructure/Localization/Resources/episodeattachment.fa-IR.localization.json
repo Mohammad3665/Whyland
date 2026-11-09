@@ -1,0 +1,14 @@
+{
+  "EpisodeAttachment.FieldRequired": "فیلد {Field} نمی‌تواند خالی باشد.",
+  "EpisodeAttachment.FieldTooLong": "فیلد {Field} نمی‌تواند بیشتر از {Max} کاراکتر باشد.",
+  "EpisodeAttachment.InvalidSize": "فایل انتخاب‌شده خالی است.",
+  "EpisodeAttachment.NotFound": "پیوستی با شناسه {Id} یافت نشد.",
+  "EpisodeAttachment.LimitReached": "اپیزود {EpisodeId} به حداکثر تعداد مجاز پیوست ({Max} مورد) رسیده است.",
+  "EpisodeAttachment.AccessDenied": "شما اجازه دانلود این پیوست را ندارید.",
+  "EpisodeAttachment.InvalidExtension": "پسوند فایل {Extension} مجاز نیست.",
+  "EpisodeAttachment.FileTooLarge": "حجم فایل بیش از حد مجاز ({Max} بایت) است.",
+  "EpisodeAttachment.CreateFailed": "خطا در ذخیره پیوست، لطفاً مجدداً تلاش کنید.",
+  "EpisodeAttachment.DeleteFailed": "خطا در حذف پیوست، لطفاً مجدداً تلاش کنید.",
+  "EpisodeAttachment.ListFailed": "خطا در دریافت پیوست‌ها، لطفاً مجدداً تلاش کنید.",
+  "EpisodeAttachment.UploadFailed": "آپلود پیوست ناموفق بود؛ لطفاً دوباره تلاش کنید."
+}

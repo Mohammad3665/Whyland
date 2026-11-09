@@ -13,5 +13,5 @@ public sealed record CreateCategoryCommand(
     string Name,
     string LatinName,
     int DisplayOrder,
-    long? ParentId,
-    bool IsActive) : ICommand<long>;
+    CategoryId? ParentId,
+    bool IsActive) : ICommand<CategoryId>;

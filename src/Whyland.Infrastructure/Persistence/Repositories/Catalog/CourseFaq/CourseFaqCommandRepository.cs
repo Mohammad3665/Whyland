@@ -19,8 +19,8 @@ public sealed class CourseFaqCommandRepository(WhylandDbContext context) : ICour
     /// <summary>Returns the tracked question, or null if not found.</summary>
     /// <param name="id">Course FAQ identifier.</param>
     /// <param name="ct">Cancellation token.</param>
-    public Task<CourseFaqEntity?> GetByIdAsync(long id, CancellationToken ct = default)
-        => context.CourseFaqs.FirstOrDefaultAsync(x => x.Id == CourseFaqId.From(id), ct);
+    public Task<CourseFaqEntity?> GetByIdAsync(CourseFaqId id, CancellationToken ct = default)
+        => context.CourseFaqs.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     /// <summary>Stages an existing question for update; persisted on SaveAsync.</summary>
     /// <param name="faq">The tracked question to update.</param>
@@ -36,19 +36,18 @@ public sealed class CourseFaqCommandRepository(WhylandDbContext context) : ICour
     /// <param name="orderedIds">The question ids in the desired order (index + 1 becomes DisplayOrder).</param>
     /// <param name="ct">Cancellation token.</param>
     public async Task ReorderAsync(
-        long courseId,
-        IReadOnlyList<long> orderedIds,
+        CourseId courseId,
+        IReadOnlyList<CourseFaqId> orderedIds,
         CancellationToken ct = default)
     {
         if (orderedIds.Count == 0)
             return;
 
-        var course = CourseId.From(courseId);
-        var ids = orderedIds.Select(CourseFaqId.From).ToList();
+        var ids = orderedIds.ToList();
 
         // Load only the affected, live rows; unknown ids are silently skipped.
         var rows = await context.CourseFaqs
-            .Where(x => x.CourseId == course && ids.Contains(x.Id))
+            .Where(x => x.CourseId == courseId && ids.Contains(x.Id))
             .ToDictionaryAsync(x => x.Id, ct);
 
         for (var i = 0; i < ids.Count; i++)
@@ -62,9 +61,9 @@ public sealed class CourseFaqCommandRepository(WhylandDbContext context) : ICour
     /// </summary>
     /// <param name="courseId">The course whose FAQ list is renumbered.</param>
     /// <param name="ct">Cancellation token.</param>
-    public async Task RenumberAsync(long courseId, CancellationToken ct = default)
+    public async Task RenumberAsync(CourseId courseId, CancellationToken ct = default)
     {
-        var course = CourseId.From(courseId);
+        var course = courseId;
 
         var rows = await context.CourseFaqs
             .Where(x => x.CourseId == course)

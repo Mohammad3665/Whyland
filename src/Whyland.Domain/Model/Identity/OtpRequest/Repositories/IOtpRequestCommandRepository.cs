@@ -12,6 +12,8 @@ namespace Whyland.Domain.Model.Identity.OtpRequest.Repositories;
 public interface IOtpRequestCommandRepository
 {
     /// <summary>Stages a new OTP request; persisted on SaveAsync.</summary>
+    /// <param name="request">The OTP request entity to add.</param>
+    /// <param name="ct">A token to cancel the operation.</param>
     Task AddAsync(OtpRequestEntity request, CancellationToken ct = default);
 
     /// <summary>
@@ -19,6 +21,9 @@ public interface IOtpRequestCommandRepository
     /// not expired, and with attempts remaining. Tracked, so the caller can
     /// mutate AttemptCount / IsUsed and persist via SaveAsync. Null if none.
     /// </summary>
+    /// <param name="phoneNumber">The phone number the OTP was issued to.</param>
+    /// <param name="purpose">The OTP purpose (e.g. login, binding) used to scope the lookup.</param>
+    /// <param name="ct">A token to cancel the operation.</param>
     Task<OtpRequestEntity?> GetLatestUsableAsync(
         string phoneNumber,
         OtpPurpose purpose,
@@ -29,6 +34,9 @@ public interface IOtpRequestCommandRepository
     /// resend cooldown, which must survive a code that was invalidated because it never delivered.
     /// A binding code must not throttle a login code for the same number, hence the per-purpose read.
     /// </summary>
+    /// <param name="phoneNumber">The phone number whose latest OTP row is read.</param>
+    /// <param name="purpose">The OTP purpose (e.g. login, binding) used to scope the lookup.</param>
+    /// <param name="ct">A token to cancel the operation.</param>
     Task<OtpRequestEntity?> GetLatestAsync(
         string phoneNumber,
         OtpPurpose purpose,

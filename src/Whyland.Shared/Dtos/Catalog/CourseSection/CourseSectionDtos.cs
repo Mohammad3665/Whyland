@@ -7,12 +7,12 @@ namespace Whyland.Shared.Dtos.Catalog.CourseSection;
 /// <param name="CourseId">The course the section belongs to.</param>
 /// <param name="Title">The section title.</param>
 /// <param name="DisplayOrder">Manual ordering weight; lower values appear first.</param>
-/// <param name="EpisodeCount">How many live episodes the section currently has.</param>
 /// <param name="CreatedAt">The UTC timestamp when the section was created.</param>
+/// <param name="EpisodeCount">How many live episodes the section currently has.</param>
 public sealed record CourseSectionListItemDto(
     long Id,
     long CourseId,
     string Title,
     int DisplayOrder,
-    int EpisodeCount,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    int EpisodeCount);

@@ -10,7 +10,7 @@ public sealed class ReorderCategoriesCommandValidator : AbstractValidator<Reorde
     /// </summary>
     public ReorderCategoriesCommandValidator()
     {
-        RuleFor(x => x.OrderedIds)
+        RuleFor(x => x.OrderedIds.Select(id => id.Value))
             .NotNull().WithMessage("ترتیب دسته‌بندی‌ها ارسال نشده است.")
             .NotEmpty().WithMessage("ترتیب دسته‌بندی‌ها خالی ارسال شده است.")
             .Must(ids => ids.All(id => id > 0)).WithMessage("شناسه دسته‌بندی ارسال‌شده نامعتبر است.");

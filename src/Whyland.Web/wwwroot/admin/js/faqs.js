@@ -121,7 +121,9 @@ function buildFaqRow(faq) {
   $(cells[1]).find(".faq-order").text(faq.displayOrder);
 
   $(cells[2]).append(
-    $('<span class="text-gray-800 fw-bold">').text(faq.title),
+    $('<span class="text-gray-800 fw-bold faq-title-clamp">')
+      .text(faq.title)
+      .attr("title", faq.title),
   );
 
   $(cells[3])
@@ -142,7 +144,7 @@ function buildFaqRow(faq) {
     '<button type="button" class="btn btn-sm btn-icon btn-bg-light btn-active-color-info me-1" title="جزئیات">',
   ).append('<i class="ki-duotone ki-eye fs-2"><span class="path1"></span><span class="path2"></span></i>');
   $details.on("click", function () {
-    openDetailsModal(faq.title, faq.description);
+    openDetailsModal(faq);
   });
 
   var $edit = $(
@@ -311,13 +313,31 @@ function initPage() {
 //#endregion
 
 //#region Details Modal (read-only answer preview)
+function faqDateTime(value) {
+  if (!value) return "—";
+  var date = new Date(value);
+  return isNaN(date.getTime()) ? "—" : date.toLocaleString("fa-IR");
+}
+
 /**
- * Shows the long answer in a read-only modal; avoids truncating the
- * توضیحات column in the table.
+ * Shows every property of the FAQ in a read-only modal; avoids truncating the long answer in the
+ * table while keeping the record's identity, order, status and creation time visible.
  */
-function openDetailsModal(title, description) {
-  $("#details-faq-title").text(title);
-  $("#details-faq-description").text(description);
+function openDetailsModal(faq) {
+  $("#details-faq-title").text(faq.title);
+  $("#details-faq-description").text(faq.description);
+  $("#details-faq-id").text(faq.id);
+  $("#details-faq-order").text(faq.displayOrder);
+  $("#details-faq-created").text(faqDateTime(faq.createdAt));
+  $("#details-faq-status")
+    .empty()
+    .append(
+      '<span class="badge badge-light-' +
+        (faq.isActive ? "success" : "danger") +
+        '">' +
+        (faq.isActive ? "فعال" : "غیرفعال") +
+        "</span>",
+    );
   AdminCrud.Utils.showModal("kt_modal_faq_details");
 }
 //#endregion

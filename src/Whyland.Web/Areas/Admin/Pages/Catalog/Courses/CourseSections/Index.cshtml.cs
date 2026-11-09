@@ -3,7 +3,11 @@ using Whyland.Application.Features.Admin.CourseSections.Commands.Delete;
 using Whyland.Application.Features.Admin.CourseSections.Commands.Reorder;
 using Whyland.Application.Features.Admin.CourseSections.Commands.Update;
 using Whyland.Application.Features.Admin.CourseSections.Queries.GetForCourse;
+using Whyland.Application.Common.Helpers;
 using Whyland.Application.Features.Admin.Courses.Queries.GetById;
+using CourseIdentifier = Whyland.Domain.Model.Catalog.Course.Identifiers.CourseId;
+using Whyland.Domain.Model.Catalog.CourseSection.Identifiers;
+using Whyland.Shared.Filters;
 
 namespace Whyland.Web.Areas.Admin.Pages.Catalog.Courses.CourseSections;
 
@@ -36,13 +40,33 @@ public class IndexModel(
         if (CourseId <= 0)
             return NotFound();
 
-        var course = await dispatcher.Send(new GetCourseByIdQuery(CourseId), ct);
+        var courseId = CourseIdentifier.From(CourseId);
+
+        var course = await dispatcher.Send(new GetCourseByIdQuery(courseId), ct);
         if (!course.IsSuccess)
             return NotFound();
 
         CourseTitle = course.Data!.Name;
         return Page();
     }
+
+    /// <summary>
+    /// Describes the section properties the generic filter picker can filter on. The table is
+    /// client-side, so these descriptors drive filtering over the rows already loaded.
+    /// </summary>
+    public IActionResult OnGetFields()
+        => new JsonResult(new
+        {
+            isSuccess = true,
+            data = new[]
+            {
+                new FilterFieldDto("id", "شناسه", "number", FilterFieldCatalog.Range),
+                new FilterFieldDto("title", "عنوان سرفصل", "string", FilterFieldCatalog.Text),
+                new FilterFieldDto("displayOrder", "ترتیب نمایش", "number", FilterFieldCatalog.Range),
+                new FilterFieldDto("episodeCount", "تعداد اپیزودها", "number", FilterFieldCatalog.Range),
+                new FilterFieldDto("createdAt", "تاریخ ایجاد", "date", FilterFieldCatalog.Range),
+            },
+        });
 
     /// <summary>
     /// Returns all live sections of the course, ordered by DisplayOrder, that the client-side
@@ -55,7 +79,7 @@ public class IndexModel(
     /// </returns>
     public async Task<IActionResult> OnGetRowsAsync([FromQuery] long courseId, CancellationToken ct)
     {
-        var result = await dispatcher.Send(new GetCourseSectionsQuery(courseId), ct);
+        var result = await dispatcher.Send(new GetCourseSectionsQuery(CourseIdentifier.From(courseId)), ct);
 
         return result.IsSuccess
             ? new JsonResult(result.Data)
@@ -91,7 +115,7 @@ public class IndexModel(
     /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
     public async Task<IActionResult> OnPostDeleteAsync([FromForm] long id, CancellationToken ct)
         => await DenyUnlessAsync(Permissions.Courses.Edit)
-            ?? ToJson(await dispatcher.Send(new DeleteCourseSectionCommand(id), ct));
+            ?? ToJson(await dispatcher.Send(new DeleteCourseSectionCommand(CourseSectionId.From(id)), ct));
 
     /// <summary>Persists the visual drag &amp; drop ordering (?handler=Reorder).</summary>
     /// <param name="courseId">The course whose sections are reordered.</param>
@@ -99,12 +123,14 @@ public class IndexModel(
     /// <param name="ct">A token to cancel the operation.</param>
     /// <returns>A flat <c>{isSuccess, message}</c> envelope.</returns>
     public async Task<IActionResult> OnPostReorderAsync(
-        [FromQuery] long courseId,
-        [FromBody] List<ReorderRow> rows,
-        CancellationToken ct)
-        => await DenyUnlessAsync(Permissions.Courses.Edit)
-            ?? ToJson(await dispatcher.Send(
-                new ReorderCourseSectionsCommand(courseId, rows.Select(r => r.Id).ToList()), ct));
+    [FromQuery] long courseId,
+    [FromBody] List<ReorderRow> rows,
+    CancellationToken ct)
+    => await DenyUnlessAsync(Permissions.Courses.Edit)
+        ?? ToJson(await dispatcher.Send(
+            new ReorderCourseSectionsCommand(
+                CourseIdentifier.From(courseId),
+                rows.Select(r => CourseSectionId.From(r.Id)).ToList()), ct));
 
     #endregion
 

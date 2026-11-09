@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Whyland.Shared.Dtos.Identity;
 
 namespace Whyland.Web.Common.Identity;

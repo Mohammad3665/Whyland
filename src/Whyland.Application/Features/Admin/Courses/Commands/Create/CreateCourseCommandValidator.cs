@@ -49,7 +49,7 @@ public sealed class CreateCourseCommandValidator : AbstractValidator<CreateCours
             .WithMessage("دسته‌بندی‌های دوره را انتخاب کنید.")
             .WithName("دسته‌بندی‌ها");
 
-        RuleForEach(x => x.CategoryIds)
+        RuleForEach(x => x.CategoryIds.Select(id => id.Value))
             .GreaterThan(0)
             .WithName("شناسهٔ دسته‌بندی");
 

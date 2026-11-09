@@ -50,7 +50,7 @@ public sealed class AuditableEntityInterceptor(TimeProvider timeProvider, ICurre
         var now = timeProvider.GetUtcNow().UtcDateTime;
         // The contract of the accessor is a raw guid, while the audit columns store the account
         // identifier, so the wrapper happens once here.
-        var userId = currentUser.UserId is { } id ? UserId.From(id) : (UserId?)null;
+        var userId = currentUser.UserId;
 
         // --- Audit: Created / Updated ---
         foreach (var entry in context.ChangeTracker.Entries<IAuditable>())

@@ -22,4 +22,4 @@ public sealed record CreateUserCommand(
     string? PhoneNumber,
     string Password,
     bool IsActive,
-    List<long> RoleIds) : ICommand<Guid>;
+    List<RoleId> RoleIds) : ICommand<UserId>;

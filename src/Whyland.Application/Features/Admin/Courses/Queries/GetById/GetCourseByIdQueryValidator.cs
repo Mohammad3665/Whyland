@@ -6,7 +6,7 @@ public sealed class GetCourseByIdQueryValidator : AbstractValidator<GetCourseByI
     /// <summary>Configures the validation rule for the course identifier.</summary>
     public GetCourseByIdQueryValidator()
     {
-        RuleFor(x => x.Id)
+        RuleFor(x => x.Id.Value)
             .WhylandGreaterThan(0)
             .WithName("شناسه");
     }

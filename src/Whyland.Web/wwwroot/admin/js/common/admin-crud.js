@@ -70,6 +70,7 @@
       var m = bootstrap.Modal.getInstance(document.getElementById(id));
       if (m) m.hide();
     },
+
   };
   //#endregion
 
@@ -218,13 +219,22 @@
         .not(".child");
     }
 
+    /**
+     * The number a badge holds. persian-digits.js rewrites the painted label as ۰-۹, so the
+     * value the reorder round-trip sends is kept in an attribute instead of being parsed back
+     * out of the text — parseInt on a Persian label yields NaN and every row would save as 0.
+     */
+    function orderValue($badge) {
+      return Number($badge.attr("data-value")) || 0;
+    }
+
     /** Returns 1 + the highest order number currently visible. */
     function getNextOrder() {
       var max = 0;
       orderedRowNodes()
         .find(opts.badge)
         .each(function () {
-          max = Math.max(max, parseInt($(this).text(), 10) || 0);
+          max = Math.max(max, orderValue($(this)));
         });
       return max + 1;
     }
@@ -234,6 +244,7 @@
       orderedRowNodes().each(function (idx) {
         $(this)
           .find(opts.badge)
+          .attr("data-value", idx + 1)
           .text(idx + 1);
       });
     }
@@ -245,7 +256,7 @@
           var $row = $(this);
           return {
             id: $row.data("id"),
-            displayOrder: parseInt($row.find(opts.badge).text(), 10) || 0,
+            displayOrder: orderValue($row.find(opts.badge)),
           };
         })
         .get();
@@ -265,7 +276,7 @@
 
       if (!$badge.length) return fallback;
 
-      var order = parseInt($badge.text(), 10);
+      var order = Number($badge.attr("data-value"));
       return isNaN(order) ? fallback : order;
     }
 

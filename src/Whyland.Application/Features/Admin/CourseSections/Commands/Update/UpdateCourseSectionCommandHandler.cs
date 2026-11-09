@@ -34,7 +34,7 @@ public sealed class UpdateCourseSectionCommandHandler(IUnitOfWork unitOfWork)
 
         // Compact 1..n so a client-entered order (10, 17, 100, ...) still
         // yields a clean sequence matching each section's sorted position.
-        await unitOfWork.CourseSectionCommandRepository.RenumberAsync(section.CourseId.Value, ct);
+        await unitOfWork.CourseSectionCommandRepository.RenumberAsync(section.CourseId, ct);
 
         saveResult = await unitOfWork.SaveAsync(ct);
         return saveResult.IsFailure ? CourseSectionErrors.UpdateFailed() : Result.Success();

@@ -18,7 +18,7 @@ public interface ICourseCommandRepository
     /// <param name="id">Course identifier.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The tracked course, or null if not found.</returns>
-    Task<CourseEntity?> GetByIdAsync(long id, CancellationToken ct = default);
+    Task<CourseEntity?> GetByIdAsync(CourseId id, CancellationToken ct = default);
 
     /// <summary>
     /// Whether another live course already uses this slug. A deleted course frees its slug for a
@@ -28,7 +28,7 @@ public interface ICourseCommandRepository
     /// <param name="excludeId">A row that must not count against itself, when editing.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>True when another live course already uses the slug.</returns>
-    Task<bool> IsSlugTakenAsync(string slug, long? excludeId = null, CancellationToken ct = default);
+    Task<bool> IsSlugTakenAsync(string slug, CourseId? excludeId = null, CancellationToken ct = default);
 
     #endregion
 

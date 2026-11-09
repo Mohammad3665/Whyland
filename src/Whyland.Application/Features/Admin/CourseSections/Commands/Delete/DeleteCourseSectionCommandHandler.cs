@@ -25,7 +25,7 @@ public sealed class DeleteCourseSectionCommandHandler(IUnitOfWork unitOfWork)
         if (await unitOfWork.CourseSectionCommandRepository.HasEpisodesAsync(command.Id, ct))
             return CourseSectionErrors.HasEpisodes(command.Id);
 
-        var courseId = section.CourseId.Value;
+        var courseId = section.CourseId;
 
         unitOfWork.CourseSectionCommandRepository.SoftDelete(section);
 

@@ -17,7 +17,7 @@ public interface IRoleCommandRepository
     /// </summary>
     /// <param name="id">Role identifier.</param>
     /// <param name="ct">Cancellation token.</param>
-    Task<RoleEntity?> GetByIdAsync(long id, CancellationToken ct = default);
+    Task<RoleEntity?> GetByIdAsync(RoleId id, CancellationToken ct = default);
 
     /// <summary>
     /// Whether another live role already uses this name. A role name is unique across the whole
@@ -27,7 +27,7 @@ public interface IRoleCommandRepository
     /// <param name="name">The name to look for.</param>
     /// <param name="excludeId">A row that must not count against itself, when editing.</param>
     /// <param name="ct">Cancellation token.</param>
-    Task<bool> IsNameTakenAsync(string name, long? excludeId = null, CancellationToken ct = default);
+    Task<bool> IsNameTakenAsync(string name, RoleId? excludeId = null, CancellationToken ct = default);
 
     /// <summary>
     /// The identifiers that do not resolve to a live permission. A grant carrying a key that does not
@@ -38,8 +38,8 @@ public interface IRoleCommandRepository
     /// <param name="permissionIds">The identifiers to resolve.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The identifiers with no permission behind them; empty when the whole set is valid.</returns>
-    Task<IReadOnlyCollection<long>> GetUnknownPermissionIdsAsync(
-        IReadOnlyCollection<long> permissionIds,
+    Task<IReadOnlyCollection<PermissionId>> GetUnknownPermissionIdsAsync(
+        IReadOnlyCollection<PermissionId> permissionIds,
         CancellationToken ct = default);
 
     #endregion
@@ -69,8 +69,8 @@ public interface IRoleCommandRepository
     /// <param name="permissionIds">The full set of permissions the role should end up with.</param>
     /// <param name="ct">Cancellation token.</param>
     Task ReplacePermissionsAsync(
-        long roleId,
-        IReadOnlyCollection<long> permissionIds,
+        RoleId roleId,
+        IReadOnlyCollection<PermissionId> permissionIds,
         CancellationToken ct = default);
 
     /// <summary>
@@ -81,7 +81,7 @@ public interface IRoleCommandRepository
     /// <param name="roleId">The role being detached.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>How many assignments were removed.</returns>
-    Task<int> DetachUsersAsync(long roleId, CancellationToken ct = default);
+    Task<int> DetachUsersAsync(RoleId roleId, CancellationToken ct = default);
 
     #endregion
 }

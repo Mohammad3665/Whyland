@@ -15,7 +15,7 @@ public interface IFaqQueryRepository
     /// <param name="id">Faq identifier.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The Faq DTO, or null if not found.</returns>
-    Task<FaqDto?> GetByIdAsync(long id, CancellationToken ct = default);
+    Task<FaqDto?> GetByIdAsync(FaqId id, CancellationToken ct = default);
     
     /// <summary>
     /// Returns one page of rows for the admin DataTables listing

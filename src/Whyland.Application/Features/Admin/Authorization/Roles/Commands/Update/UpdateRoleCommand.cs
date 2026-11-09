@@ -12,6 +12,6 @@ namespace Whyland.Application.Features.Admin.Authorization.Roles.Commands.Update
 /// <param name="Name">The new unique role name.</param>
 /// <param name="Title">The new display title.</param>
 public sealed record UpdateRoleCommand(
-    long Id,
+    RoleId Id,
     string Name,
     string Title) : ICommand;

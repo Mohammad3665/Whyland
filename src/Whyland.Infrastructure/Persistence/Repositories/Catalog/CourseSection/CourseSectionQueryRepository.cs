@@ -38,7 +38,7 @@ public sealed class CourseSectionQueryRepository(NpgsqlDataSource dataSource) : 
     /// <param name="courseId">The course whose sections are read.</param>
     /// <param name="ct">Cancellation token.</param>
     public Task<IReadOnlyList<CourseSectionListItemDto>> GetForCourseAsync(
-        long courseId,
+        CourseId courseId,
         CancellationToken ct = default)
         => DapperFluentQueryBuilder<CourseSectionEntity>.Create(
                 $"{catalog}.CourseSections",
@@ -48,7 +48,7 @@ public sealed class CourseSectionQueryRepository(NpgsqlDataSource dataSource) : 
                 x => x.DisplayOrder,
                 x => x.CreatedAt)
             .SelectExpression(EpisodeCountColumn, nameof(CourseSectionListItemDto.EpisodeCount))
-            .Where(x => x.CourseId, courseId)
+            .Where(x => x.CourseId, courseId.Value)
             .OrderBy(x => x.DisplayOrder)
             .TieBreakBy(x => x.Id)
             .GetAllAsync<CourseSectionListItemDto>(dataSource, ct);

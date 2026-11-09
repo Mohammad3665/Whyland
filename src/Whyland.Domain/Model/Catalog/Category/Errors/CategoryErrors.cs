@@ -32,7 +32,7 @@ public static class CategoryErrors
 
     /// <summary>No category exists with the given identifier.</summary>
     /// <param name="id">The identifier that was looked up.</param>
-    public static DomainError NotFound(long id) =>
+    public static DomainError NotFound(CategoryId id) =>
         DomainError.For<CategoryEntity>(nameof(NotFound), ErrorType.NotFound, field: null, ("Id", id));
 
     /// <summary>
@@ -41,7 +41,7 @@ public static class CategoryErrors
     /// it is the reference that is broken.
     /// </summary>
     /// <param name="parentId">The parent identifier that could not be resolved.</param>
-    public static DomainError ParentNotFound(long parentId) =>
+    public static DomainError ParentNotFound(CategoryId parentId) =>
         DomainError.For<CategoryEntity>(nameof(ParentNotFound), ErrorType.NotFound, field: null, ("ParentId", parentId));
 
     /// <summary>

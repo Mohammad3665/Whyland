@@ -33,11 +33,8 @@ public class CategoryCommandRepository(WhylandDbContext context) : ICategoryComm
 
     #region Reads
 
-    public Task<CategoryEntity?> GetByIdAsync(long id, CancellationToken ct = default)
-    {
-        var key = CategoryId.From(id);
-        return Live.FirstOrDefaultAsync(x => x.Id == key, ct);
-    }
+    public Task<CategoryEntity?> GetByIdAsync(CategoryId id, CancellationToken ct = default)
+        => Live.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public async Task<IReadOnlyList<CategoryEntity>> GetLiveAllAsync(CancellationToken ct = default)
         => await Live
@@ -47,13 +44,13 @@ public class CategoryCommandRepository(WhylandDbContext context) : ICategoryComm
 
     public Task<bool> IsNameTakenAsync(
         string name,
-        long? parentId,
-        long? excludeId = null,
+        CategoryId? parentId,
+        CategoryId? excludeId = null,
         CancellationToken ct = default)
     {
-        // Raw request numbers become identifiers here, once, so the query below compares keys.
-        var group = parentId is { } parent ? CategoryId.From(parent) : NoParent;
-        var excluded = excludeId is { } skip ? CategoryId.From(skip) : (CategoryId?)null;
+        // Request numbers become identifiers at the handler, once, so the query compares keys.
+        var group = parentId ?? NoParent;
+        var excluded = excludeId is { } skip ? skip : (CategoryId?)null;
 
         return Live.AsNoTracking()
             .AnyAsync(
@@ -75,14 +72,14 @@ public class CategoryCommandRepository(WhylandDbContext context) : ICategoryComm
 
     public void SoftDelete(CategoryEntity category) => category.MarkDeleted();
 
-    public async Task<int> DeactivateDescendantsAsync(long id, CancellationToken ct = default)
+    public async Task<int> DeactivateDescendantsAsync(CategoryId id, CancellationToken ct = default)
     {
         // One read of the whole tree, then a walk of it: the depth is capped at three levels, so
         // this is a handful of rows and no recursive SQL.
         var all = await Live.ToListAsync(ct);
         var byParent = all.ToLookup(x => x.ParentId ?? NoParent);
 
-        var root = CategoryId.From(id);
+        var root = id;
         var pending = new Queue<CategoryId>([root]);
         var seen = new HashSet<CategoryId> { root };
         var count = 0;
@@ -111,12 +108,12 @@ public class CategoryCommandRepository(WhylandDbContext context) : ICategoryComm
 
     #region Ordering
 
-    public async Task ReorderAsync(IReadOnlyList<long> orderedIds, CancellationToken ct = default)
+    public async Task ReorderAsync(IReadOnlyList<CategoryId> orderedIds, CancellationToken ct = default)
     {
         if (orderedIds.Count == 0)
             return;
 
-        var ids = orderedIds.Select(CategoryId.From).ToList();
+        var ids = orderedIds.ToList();
 
         var rows = await Live
             .Where(x => ids.Contains(x.Id))

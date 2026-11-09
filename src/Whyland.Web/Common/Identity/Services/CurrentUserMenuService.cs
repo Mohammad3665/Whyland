@@ -1,4 +1,5 @@
 using Whyland.Application.Common.Abstractions.UnitOfWork;
+using Whyland.Domain.Model.Identity.User.Identifiers;
 
 namespace Whyland.Web.Common.Identity.Services;
 
@@ -19,8 +20,10 @@ public sealed class CurrentUserMenuService(IUnitOfWork unitOfWork)
     /// <param name="ct">A token to cancel the read.</param>
     public async Task<CurrentUserMenu?> GetAsync(ClaimsPrincipal user, CancellationToken ct = default)
     {
-        if (!Guid.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+        if (!Guid.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), out var rawUserId))
             return null;
+
+        var userId = UserId.From(rawUserId);
 
         var account = await unitOfWork.UserQueryRepository.GetMenuAsync(userId, ct);
         if (account is null)

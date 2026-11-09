@@ -158,8 +158,6 @@ global using Whyland.Domain.Model.Identity.OtpRequest.Repositories;
 global using Whyland.Domain.Model.Identity.User.Repositories;             
 global using Whyland.Domain.Model.Authorization.Common.Constants;
 
-global using Whyland.Domain.Common.Enums;           // cross-entity domain enums
-
 global using Whyland.Domain.Common.Stores;          // StaticDataStore
 
 global using Whyland.Shared.Enums;                  // FilterOperator, SortType, ...

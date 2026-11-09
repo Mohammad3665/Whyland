@@ -11,7 +11,7 @@ public sealed class CreateCourseSectionCommandValidator : AbstractValidator<Crea
     /// </summary>
     public CreateCourseSectionCommandValidator()
     {
-        RuleFor(x => x.CourseId)
+        RuleFor(x => x.CourseId.Value)
             .WhylandGreaterThan(0)
             .WithName("شناسه دوره");
 

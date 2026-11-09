@@ -15,7 +15,7 @@ namespace Whyland.Application.Features.Auth.Password.SetPassword;
 /// <paramref name="PhoneNumber"/> belongs to this user.</param>
 /// <param name="NewPassword">The password to store; never logged or persisted in plaintext.</param>
 public sealed record SetPasswordCommand(
-    Guid UserId,
+    UserId UserId,
     string? PhoneNumber,
     string? Code,
     string NewPassword

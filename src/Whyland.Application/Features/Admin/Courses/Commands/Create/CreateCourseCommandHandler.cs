@@ -11,13 +11,13 @@ namespace Whyland.Application.Features.Admin.Courses.Commands.Create;
 public sealed class CreateCourseCommandHandler(
     IUnitOfWork unitOfWork,
     IImageStorageService imageStorageService,
-    ILogger<CreateCourseCommandHandler> logger) : ICommandHandler<CreateCourseCommand, long>
+    ILogger<CreateCourseCommandHandler> logger) : ICommandHandler<CreateCourseCommand, CourseId>
 {
     /// <summary>
     /// Creates the course, or returns an error when a reference is unavailable, the slug is taken,
     /// the domain rejects the values, the image cannot be stored, or persistence fails.
     /// </summary>
-    public async Task<Result<long>> Handle(CreateCourseCommand command, CancellationToken ct)
+    public async Task<Result<CourseId>> Handle(CreateCourseCommand command, CancellationToken ct)
     {
         var references = await CourseReferenceValidator.ValidateAsync(
             unitOfWork, command.CategoryIds, command.InstructorIds, ct);
@@ -80,7 +80,7 @@ public sealed class CreateCourseCommandHandler(
                 return CourseErrors.CreateFailed();
             }
 
-            return course.Id.Value;
+            return course.Id;
         }
         catch (Exception ex)
         {

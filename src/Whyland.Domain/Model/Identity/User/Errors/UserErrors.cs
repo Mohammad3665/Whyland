@@ -112,7 +112,7 @@ public static class UserErrors
 
     /// <summary>No account exists with the given identifier.</summary>
     /// <param name="id">The identifier that was looked up.</param>
-    public static DomainError NotFound(Guid id) =>
+    public static DomainError NotFound(UserId id) =>
         DomainError.For<UserEntity>(nameof(NotFound), ErrorType.NotFound, field: null, ("Id", id));
 
     /// <summary>The e-mail is already attached to another account.</summary>

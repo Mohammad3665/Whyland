@@ -47,7 +47,7 @@ public sealed class LoginWithPasswordCommandHandler(
         unitOfWork.UserCommandRepository.TouchLastLogin(user);
         await unitOfWork.SaveAsync(ct);
 
-        var permissions = await unitOfWork.UserQueryRepository.GetPermissionKeysAsync(user.Id.Value, ct);
+        var permissions = await unitOfWork.UserQueryRepository.GetPermissionKeysAsync(user.Id, ct);
 
         return new AuthenticatedUserDto(
             user.Id.Value,
