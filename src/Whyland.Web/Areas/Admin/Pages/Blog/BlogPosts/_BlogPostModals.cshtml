@@ -1,4 +1,150 @@
-﻿<!--begin::Create/Edit Modal (fullscreen)-->
+﻿<!--begin::Blog Post Details Modal-->
+<div class="modal fade" id="kt_modal_blog_post_details" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content rounded">
+            <div class="modal-header pb-0 border-0 justify-content-end">
+                <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal" title="بستن">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+
+            <div class="modal-body scroll-y px-10 px-lg-15 pt-0 pb-15">
+                <!--begin::Image and identity-->
+                <div class="d-flex flex-column flex-md-row align-items-md-center gap-7 mb-8">
+                    <div class="symbol symbol-150px symbol-2by3">
+                        <img id="bpd-image" src="" alt="" class="d-none" />
+                        <div id="bpd-image-empty" class="symbol-label bg-light-primary text-primary">
+                            <i class="ki-duotone ki-picture fs-3x"><span class="path1"></span><span class="path2"></span></i>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column gap-2">
+                        <h3 id="bpd-title" class="fw-bold mb-0">—</h3>
+                        <div id="bpd-short-description" class="text-muted fs-6"></div>
+                    </div>
+                </div>
+                <!--end::Image and identity-->
+
+                <!--begin::Post information-->
+                <h3 class="fs-4 fw-bold mb-4">اطلاعات مقاله</h3>
+                <div class="table-responsive mb-8">
+                    <table class="table table-row-dashed fs-6 gy-4 align-middle mb-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted fw-semibold w-200px">شناسه</td>
+                                <td id="bpd-id"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">عنوان</td>
+                                <td id="bpd-title-info"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">اسلاگ</td>
+                                <td id="bpd-slug"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">نویسنده</td>
+                                <td id="bpd-author"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">دسته‌بندی</td>
+                                <td id="bpd-category"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">وضعیت نمایش</td>
+                                <td id="bpd-status"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">ترتیب نمایش</td>
+                                <td id="bpd-display-order"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">توضیح کوتاه</td>
+                                <td id="bpd-short-description-info"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">مسیر ذخیره تصویر</td>
+                                <td id="bpd-image-path" dir="ltr"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">آدرس تصویر</td>
+                                <td id="bpd-image-url" dir="ltr"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">آدرس بندانگشتی</td>
+                                <td id="bpd-thumbnail-url" dir="ltr"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--end::Post information-->
+
+                <!--begin::Content-->
+                <h3 class="fs-4 fw-bold mb-4">محتوای کامل</h3>
+                <div id="bpd-content" class="blog-post-details-content border rounded bg-light p-5 mb-8"></div>
+                <!--end::Content-->
+
+                <!--begin::Audit-->
+                <h3 class="fs-4 fw-bold mb-4">تاریخچه تغییرات</h3>
+                <div class="table-responsive mb-8">
+                    <table class="table table-row-dashed fs-6 gy-4 align-middle mb-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted fw-semibold w-200px">تاریخ ایجاد</td>
+                                <td id="bpd-created-at"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">ایجادکننده</td>
+                                <td id="bpd-created-by"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">آخرین ویرایش</td>
+                                <td id="bpd-updated-at"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">ویرایش‌کننده</td>
+                                <td id="bpd-updated-by"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--end::Audit-->
+
+                <!--begin::Soft delete-->
+                <h3 class="fs-4 fw-bold mb-4">حذف نرم</h3>
+                <div class="table-responsive mb-8">
+                    <table class="table table-row-dashed fs-6 gy-4 align-middle mb-0">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted fw-semibold w-200px">حذف شده؟</td>
+                                <td id="bpd-is-deleted"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">تاریخ حذف</td>
+                                <td id="bpd-deleted-at"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted fw-semibold">حذف‌کننده</td>
+                                <td id="bpd-deleted-by"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--end::Soft delete-->
+
+                <div class="d-flex justify-content-end gap-3 mt-10">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">بستن</button>
+                    <button type="button" class="btn btn-primary" id="bpd-edit">
+                        <i class="ki-duotone ki-pencil fs-4 me-1"><span class="path1"></span><span class="path2"></span></i>
+                        ویرایش مقاله
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end::Blog Post Details Modal-->
+
+<!--begin::Create/Edit Modal (fullscreen)-->
 <div class="modal fade" id="kt_modal_blog_post" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-focus="false">
     <div class="modal-dialog modal-fullscreen">
         <div class="modal-content">
@@ -15,6 +161,7 @@
             <div class="modal-body bg-light px-5 px-lg-10 py-7">
                 <form id="kt_blog_post_form" class="form d-flex flex-column flex-lg-row gap-7 gap-lg-10" onsubmit="return false;">
                     <input type="hidden" id="Form_Id" />
+                    <input type="hidden" id="Form_RemoveImage" value="0" />
 
                     <!--begin::Side column-->
                     <div class="d-flex flex-column gap-7 gap-lg-10 w-100 w-lg-350px">
@@ -29,7 +176,6 @@
                                            data-kt-image-input-action="change" title="تغییر تصویر">
                                         <i class="ki-duotone ki-pencil fs-6"><span class="path1"></span><span class="path2"></span></i>
                                         <input type="file" id="Form_Image" name="Image" accept=".png,.jpg,.jpeg,.webp" />
-                                        <input type="hidden" name="Image_remove" />
                                     </label>
                                     <span class="btn btn-icon btn-circle btn-color-muted btn-active-color-primary w-25px h-25px bg-body shadow"
                                           data-kt-image-input-action="cancel" title="انصراف">
@@ -40,14 +186,14 @@
                                         <i class="ki-duotone ki-cross fs-2"><span class="path1"></span><span class="path2"></span></i>
                                     </span>
                                 </div>
-                                <div class="text-muted fs-7">فرمت‌های مجاز: png، jpg، jpeg، webp</div>
+                                <div class="text-muted fs-7">فرمت‌های مجاز: png، jpg، jpeg، webp — حداکثر ۱۰ مگابایت</div>
                             </div>
                         </div>
 
                         <div class="card card-flush py-4">
                             <div class="card-header"><div class="card-title"><h2>وضعیت</h2></div></div>
                             <div class="card-body pt-0">
-                                <label class="fs-6 fw-semibold mb-2">وضعیت نمایش</label>
+                                <label class="required fs-6 fw-semibold mb-2">وضعیت نمایش</label>
                                 <select id="Form_DisplayStatus" class="form-select form-select-solid mb-8">
                                     <option value="Draft">پیش‌نویس</option>
                                     <option value="Published">منتشر شده</option>
@@ -59,29 +205,16 @@
                         <div class="card card-flush py-4">
                             <div class="card-header"><div class="card-title"><h2>دسته‌بندی</h2></div></div>
                             <div class="card-body pt-0">
-                                <select id="Form_CategoryId" class="form-select form-select-solid" data-control="select2"
-                                        data-dropdown-parent="#kt_modal_blog_post" data-placeholder="بدون دسته‌بندی">
-                                    <option value="">بدون دسته‌بندی</option>
-                                    <option value="1">اخبار</option>
-                                    <option value="2">— اخبار فناوری</option>
-                                    <option value="3">آموزش</option>
-                                    <option value="5">کسب و کار</option>
+                                <!-- Filled by blog-posts.js from ?handler=FormOptions, so an inactive
+                                     category is visible but disabled and the tree order stays intact. -->
+                                <select id="Form_CategoryId" class="form-select form-select-solid"
+                                        data-placeholder="انتخاب دسته‌بندی">
+                                    <option value="">انتخاب دسته‌بندی...</option>
                                 </select>
-                                <div class="text-muted fs-7 mt-2">هر مقاله حداکثر یک دسته‌بندی دارد</div>
+                                <div class="text-muted fs-7 mt-2">هر مقاله در یک دسته‌بندی قرار می‌گیرد.</div>
                             </div>
                         </div>
 
-                        <div class="card card-flush py-4">
-                            <div class="card-header"><div class="card-title"><h2>نویسنده</h2></div></div>
-                            <div class="card-body pt-0">
-                                <select id="Form_AuthorId" class="form-select form-select-solid" data-control="select2"
-                                        data-dropdown-parent="#kt_modal_blog_post" data-placeholder="انتخاب نویسنده">
-                                    <option value="1">علی رضایی</option>
-                                    <option value="2">مریم احمدی</option>
-                                    <option value="3">سارا کریمی</option>
-                                </select>
-                            </div>
-                        </div>
                     </div>
                     <!--end::Side column-->
 
@@ -95,25 +228,27 @@
                                     <div class="col-md-6 fv-row">
                                         <label class="required fs-6 fw-semibold mb-2">عنوان</label>
                                         <input type="text" id="Form_Title" class="form-control form-control-solid"
-                                               placeholder="مثال: معرفی ASP.NET Core 8" />
+                                               maxlength="200" placeholder="مثال: معرفی ASP.NET Core 8" />
                                     </div>
                                     <div class="col-md-6 fv-row">
                                         <label class="required fs-6 fw-semibold mb-2">ترتیب نمایش</label>
-                                        <input type="number" id="Form_DisplayOrder" class="form-control form-control-solid" value="0" />
+                                        <input type="number" id="Form_DisplayOrder" class="form-control form-control-solid" value="0" min="0" />
+                                        <div class="text-muted fs-7 mt-1">ترتیب نمایش در فهرست مقالات؛ پس از ذخیره به‌صورت پیوسته شماره‌گذاری می‌شود.</div>
                                     </div>
                                 </div>
 
                                 <div class="row g-9 mb-8">
                                     <div class="col-md-6 fv-row">
-                                        <label class="required fs-6 fw-semibold mb-2">اسلاگ</label>
-                                        <input type="text" id="Form_Slug" class="form-control form-control-solid"
-                                               placeholder="aspnet-core-8-intro" dir="ltr" />
-                                        <div class="text-muted fs-7 mt-1">یکتا — به‌صورت خودکار از عنوان ملی ساخته می‌شود و قابل ویرایش است</div>
-                                    </div>
-                                    <div class="col-md-6 fv-row">
-                                        <label class="required fs-6 fw-semibold mb-2">عنوان لاتین (برای ساخت اسلاگ)</label>
+                                        <label class="fs-6 fw-semibold mb-2">عنوان لاتین (برای ساخت اسلاگ)</label>
                                         <input type="text" id="Form_LatinTitle" class="form-control form-control-solid"
                                                placeholder="Example: ASP.NET Core 8 intro" dir="ltr" />
+                                        <div class="text-muted fs-7 mt-1">برای ساخت خودکار اسلاگ؛ داخل مقاله ذخیره نمی‌شود.</div>
+                                    </div>
+                                    <div class="col-md-6 fv-row">
+                                        <label class="required fs-6 fw-semibold mb-2">اسلاگ (Slug)</label>
+                                        <input type="text" id="Form_Slug" class="form-control form-control-solid"
+                                               maxlength="300" placeholder="aspnet-core-8-intro" dir="ltr" />
+                                        <div class="text-muted fs-7 mt-1">یکتا؛ فقط حروف لاتین کوچک، عدد و خط تیره.</div>
                                     </div>
                                 </div>
 
@@ -124,7 +259,7 @@
                                 </div>
 
                                 <div class="fv-row">
-                                    <label class="fs-6 fw-semibold mb-2">محتوای کامل</label>
+                                    <label class="required fs-6 fw-semibold mb-2">محتوای کامل</label>
                                     <textarea id="Form_Content"></textarea>
                                 </div>
                             </div>
@@ -171,6 +306,9 @@
                     آیا از حذف مقاله
                     <span class="fw-bold text-gray-900" id="delete-blog-post-name"></span>
                     مطمئن هستید؟
+                </div>
+                <div class="text-muted fs-7 mb-8">
+                    حذف به‌صورت نرم انجام می‌شود؛ مقاله از فهرست کنار می‌رود و اسلاگ آن آزاد می‌شود.
                 </div>
                 <div class="d-flex justify-content-center gap-3">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">انصراف</button>

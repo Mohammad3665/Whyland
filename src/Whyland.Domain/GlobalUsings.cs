@@ -82,6 +82,8 @@ global using Whyland.Domain.Model.Authorization.RolePermission.Entities;
 global using Whyland.Domain.Model.Authorization.UserRole.Entities;        
 global using Whyland.Domain.Model.Blog.BlogCategory.Entities;             
 global using Whyland.Domain.Model.Blog.BlogPost.Entities;                 
+global using Whyland.Domain.Model.Blog.BlogPost.Errors;
+global using Whyland.Domain.Model.Blog.BlogPost.Repositories;
 global using Whyland.Domain.Model.Catalog.Category.Entities;              
 global using Whyland.Domain.Model.Catalog.Course.Entities;                
 global using Whyland.Domain.Model.Catalog.CourseCategory.Entities;        

@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using Whyland.Domain.Model.Blog.BlogCategory.Repositories;
+using Whyland.Domain.Model.Blog.BlogPost.Repositories;
 using Whyland.Domain.Model.Catalog.Course.Repositories;
 using Whyland.Domain.Model.Catalog.Episode.Repositories;
 using Whyland.Domain.Model.Catalog.EpisodeAttachment.Repositories;
 using Whyland.Infrastructure.Persistence.Repositories.Blog.BlogCategory;
+using Whyland.Infrastructure.Persistence.Repositories.Blog.BlogPost;
 using Whyland.Infrastructure.Persistence.Repositories.Catalog.Category;
 using Whyland.Infrastructure.Persistence.Repositories.Catalog.Course;
 using Whyland.Infrastructure.Persistence.Repositories.Catalog.CourseFaq;
@@ -74,6 +76,21 @@ public class UnitOfWork(WhylandDbContext context, NpgsqlDataSource dataSource) :
     /// </summary>
     public IBlogCategoryQueryRepository BlogCategoryQueryRepository =>
         _blogCategoryQueryRepository ??= new BlogCategoryQueryRepository(dataSource);
+
+    private IBlogPostCommandRepository? _blogPostCommandRepository;
+    /// <summary>
+    /// Lazily creates the singleton-per-unit-of-work <see cref="IBlogPostCommandRepository"/>.
+    /// </summary>
+    public IBlogPostCommandRepository BlogPostCommandRepository =>
+        _blogPostCommandRepository ??= new BlogPostCommandRepository(context);
+
+    private IBlogPostQueryRepository? _blogPostQueryRepository;
+    /// <summary>
+    /// Lazily creates the singleton-per-unit-of-work <see cref="IBlogPostQueryRepository"/>,
+    /// built on the pooled Npgsql data source for Dapper queries.
+    /// </summary>
+    public IBlogPostQueryRepository BlogPostQueryRepository =>
+        _blogPostQueryRepository ??= new BlogPostQueryRepository(dataSource);
 
     private ICourseCommandRepository? _courseCommandRepository;
 

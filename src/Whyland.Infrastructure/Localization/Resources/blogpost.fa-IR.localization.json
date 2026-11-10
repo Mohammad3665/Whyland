@@ -1,0 +1,17 @@
+{
+  "BlogPost.FieldRequired": "فیلد {Field} نمی‌تواند خالی باشد.",
+  "BlogPost.FieldTooLong": "فیلد {Field} نمی‌تواند بیشتر از {Max} کاراکتر باشد.",
+  "BlogPost.GreaterThanOrEqualToZero": "فیلد {Field} نمی‌تواند کمتر از صفر باشد.",
+  "BlogPost.InvalidSlug": "اسلاگ فقط می‌تواند شامل حروف لاتین کوچک، عدد و خط تیره باشد.",
+  "BlogPost.InvalidDisplayStatus": "وضعیت نمایش انتخاب‌شده معتبر نیست.",
+  "BlogPost.NotFound": "مقاله با شناسه {Id} یافت نشد.",
+  "BlogPost.CategoryNotFound": "دسته‌بندی بلاگ با شناسه {CategoryId} یافت نشد.",
+  "BlogPost.CategoryInactive": "دسته‌بندی بلاگ انتخاب‌شده غیرفعال است و نمی‌توان مقاله‌ای در آن ثبت کرد.",
+  "BlogPost.AuthorNotFound": "نویسنده با شناسه {AuthorId} یافت نشد.",
+  "BlogPost.SlugTaken": "اسلاگ «{Slug}» قبلاً برای مقاله دیگری استفاده شده است.",
+  "BlogPost.CreateFailed": "خطا در ایجاد مقاله، لطفاً مجدداً تلاش کنید.",
+  "BlogPost.UpdateFailed": "خطا در ویرایش مقاله، لطفاً مجدداً تلاش کنید.",
+  "BlogPost.SoftDeleteFailed": "خطا در حذف مقاله، لطفاً مجدداً تلاش کنید.",
+  "BlogPost.ListFailed": "خطا در دریافت لیست مقالات، لطفاً مجدداً تلاش کنید.",
+  "BlogPost.ReorderFailed": "خطا در ذخیره ترتیب مقالات، لطفاً مجدداً تلاش کنید."
+}

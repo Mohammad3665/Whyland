@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using Whyland.Domain.Model.Authorization.Role.Repositories;
 using Whyland.Domain.Model.Blog.BlogCategory.Repositories;
+using Whyland.Domain.Model.Blog.BlogPost.Repositories;
 using Whyland.Domain.Model.Catalog.Category.Repositories;
 using Whyland.Domain.Model.Catalog.Course.Repositories;
 using Whyland.Domain.Model.Catalog.CourseFaq.Repositories;
@@ -55,6 +56,16 @@ public interface IUnitOfWork : IAsyncDisposable
     /// Repository for read (query) operations on blog category entities.
     /// </summary>
     IBlogCategoryQueryRepository BlogCategoryQueryRepository { get; }
+
+    /// <summary>
+    /// Repository for write (command) operations on blog post entities.
+    /// </summary>
+    IBlogPostCommandRepository BlogPostCommandRepository { get; }
+
+    /// <summary>
+    /// Repository for read (query) operations on blog post entities.
+    /// </summary>
+    IBlogPostQueryRepository BlogPostQueryRepository { get; }
 
     /// <summary>
     /// Repository for write (command) operations on Course entities.

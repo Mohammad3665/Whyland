@@ -23,6 +23,9 @@ public sealed class GetUserOptionsQueryHandler(
         {
             [nameof(User.CreatedBy)] = Permissions.Users.Create,
             [nameof(User.UpdatedBy)] = Permissions.Users.Edit,
+
+            // The blog author picker lists the people who can author a post, not every account.
+            [nameof(BlogPost.AuthorId)] = Permissions.Blogs.Create,
         };
 
     /// <summary>
