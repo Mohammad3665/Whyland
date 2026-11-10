@@ -694,15 +694,17 @@ function initFormSelects() {
     });
   });
 
-  var $status = $("#Form_DisplayStatus");
-  if ($status.length && $.fn.select2) {
-    AdminTable.filterSelect2($status, {
+  ["#Form_DisplayStatus", "#Form_DiscountType"].forEach(function (selector) {
+    var $select = $(selector);
+    if (!$select.length || !$.fn.select2) return;
+
+    AdminTable.filterSelect2($select, {
       dropdownParent: $modal,
       width: "100%",
       dropdownAutoWidth: false,
       minimumResultsForSearch: Infinity,
     });
-  }
+  });
 }
 //#endregion
 
@@ -812,7 +814,9 @@ function initPage() {
           ? ""
           : AdminCrud.Utils.toFa(course.price),
       );
-      $("#Form_DiscountType").val(course.discountType || "None");
+      $("#Form_DiscountType")
+        .val(course.discountType || "None")
+        .trigger("change");
       setDiscountState(course.discountType || "None");
       $("#Form_DiscountValue").val(
         course.discountValue === null || course.discountValue === undefined

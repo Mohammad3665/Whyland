@@ -45,6 +45,7 @@ public static class InfrastructureSeeder
             Permissions.Payments.View,
             Permissions.Coupons.View, Permissions.Coupons.Create, Permissions.Coupons.Edit, Permissions.Coupons.Delete,
             Permissions.Blogs.View, Permissions.Blogs.Create, Permissions.Blogs.Edit, Permissions.Blogs.Delete,
+            Permissions.BlogCategories.View, Permissions.BlogCategories.Create, Permissions.BlogCategories.Edit, Permissions.BlogCategories.Delete,
             Permissions.Faqs.View, Permissions.Faqs.Create, Permissions.Faqs.Edit, Permissions.Faqs.Delete,
             Permissions.Settings.View, Permissions.Settings.Edit,
         ],
@@ -381,6 +382,11 @@ public static class InfrastructureSeeder
             Created(Permission.Create("ایجاد وبلاگ‌ها", Permissions.Blogs.Create)),
             Created(Permission.Create("ویرایش وبلاگ‌ها", Permissions.Blogs.Edit)),
             Created(Permission.Create("حذف وبلاگ‌ها", Permissions.Blogs.Delete)),
+            // Blog category (the taxonomy, not the posts)
+            Created(Permission.Create("مشاهده دسته‌بندی‌های مقالات", Permissions.BlogCategories.View)),
+            Created(Permission.Create("ایجاد دسته‌بندی‌های مقالات", Permissions.BlogCategories.Create)),
+            Created(Permission.Create("ویرایش دسته‌بندی‌های مقالات", Permissions.BlogCategories.Edit)),
+            Created(Permission.Create("حذف دسته‌بندی‌های مقالات", Permissions.BlogCategories.Delete)),
             // Faq (site FAQs, not the course-scoped ones)
             Created(Permission.Create("مشاهده سوالات متداول", Permissions.Faqs.View)),
             Created(Permission.Create("ایجاد سوالات متداول", Permissions.Faqs.Create)),

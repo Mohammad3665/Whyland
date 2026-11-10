@@ -142,6 +142,55 @@
   }
 
   /**
+   * The mirror of positionBelowField: the same measurements and the same both-edge write, with the
+   * vertical anchor moved from the bottom of the control to its top. Writing `right: auto` and the
+   * width is what keeps the list on the field — left alone, the RTL stylesheet's `right` wins over
+   * the inline `left` and the options open on the far side of the dialog instead of over the box.
+   */
+  function positionAboveField() {
+    var $offsetParent = this.$dropdownParent;
+
+    // A statically positioned parent is measured against the element that really offsets it.
+    if ($offsetParent.css("position") === "static")
+      $offsetParent = $offsetParent.offsetParent();
+
+    var offset = this.$container.offset();
+    var width = this.$container.outerWidth(false);
+    var listHeight = this.$dropdown.outerHeight(false);
+    var parentOffset = { top: 0, left: 0 };
+
+    if (
+      $.contains(document.body, $offsetParent[0]) ||
+      $offsetParent[0].isConnected
+    )
+      parentOffset = $offsetParent.offset();
+
+    this.$dropdownContainer.css({
+      position: "absolute",
+      left: offset.left - parentOffset.left,
+      right: "auto",
+      top: offset.top - parentOffset.top - listHeight - 2,
+      width: width,
+    });
+
+    this.$dropdown.css({
+      position: "relative",
+      top: "auto",
+      left: "auto",
+      right: "auto",
+      width: "100%",
+    });
+
+    // The direction classes are what round the corners of the box and the list.
+    this.$dropdown
+      .removeClass("select2-dropdown--below")
+      .addClass("select2-dropdown--above");
+    this.$container
+      .removeClass("select2-container--below")
+      .addClass("select2-container--above");
+  }
+
+  /**
    * The one Select2 setup every filter select of the panel gets: the list opens below the box,
    * shows at most six rows and then scrolls (both are sized in css/site.css), and a select with
    * fewer than six options keeps no search box, so a two-operator field is still a plain select.
@@ -197,6 +246,40 @@
           event.preventDefault();
         });
     });
+
+    return $el;
+  }
+
+  /**
+   * The Select2 setup for a picker inside a modal: the list opens above the box and is pinned to
+   * the field's own edges. Select2's own "auto" only flips upwards when the viewport runs out of
+   * room, which a tall dialog on a tall screen never does — so a field low in the modal gets a list
+   * opening downwards, outside the dialog. Forcing the anchor is what makes every modal picker
+   * behave like the roles picker in the user modal.
+   *
+   * Re-initialising destroys the previous instance first, for the same reason filterSelect2 does.
+   */
+  function modalSelect2($el, options) {
+    if (!$el.length) return $el;
+
+    if ($el.data("select2")) $el.select2("destroy");
+
+    $el.select2(
+      $.extend(
+        true,
+        {
+          dir: "rtl",
+          width: "100%",
+          dropdownAutoWidth: false,
+          allowClear: true,
+        },
+        options || {},
+      ),
+    );
+
+    var instance = $el.data("select2");
+    if (instance && instance.dropdown)
+      instance.dropdown._positionDropdown = positionAboveField;
 
     return $el;
   }
@@ -916,6 +999,7 @@
     postHandler: postHandler,
     filterPicker: filterPicker,
     filterSelect2: filterSelect2,
+    modalSelect2: modalSelect2,
     clientFilter: clientFilter,
     matchesConditions: matchesConditions,
     resetOptionDirectories: resetOptionDirectories,

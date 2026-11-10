@@ -503,52 +503,14 @@ function initPage() {
 
 // The parent select lives inside a bootstrap modal, so Select2 is initialised the first time
 // the modal is laid out ("shown.bs.modal", once): attached to <body> it measures against the
-// page and the list ends up in the top left corner instead of on the field. It is attached to
-// the .modal element and not to .modal-content because the theme gives .modal-content
-// "overflow: hidden", which would cut the list off as soon as it reaches the header.
+// page and the list ends up in the top left corner instead of on the field. AdminTable.modalSelect2
+// is the shared modal setup — .modal-content is the dropdown parent and the list opens above the
+// box, pinned to the field's own edges.
 $("#kt_modal_category").one("shown.bs.modal", function () {
-  var $select = $("#Form_ParentId");
-
-  $select.select2({
-    dropdownParent: $("#kt_modal_category"),
+  AdminTable.modalSelect2($("#Form_ParentId"), {
+    dropdownParent: $("#kt_modal_category .modal-content"),
     placeholder: "بدون والد (سطح اول)",
-    allowClear: true,
-    width: "100%",
-    dropdownAutoWidth: false,
-    dir: "rtl",
   });
-
-  /**
-   * Places the list above the field, with the same left edge as the field. This is a copy of
-   * Select2's own AttachBody._positionDropdown (the function that writes the offsets on open,
-   * on scroll and on resize) with the vertical anchor moved from the bottom of the control to
-   * its top: overriding it - instead of repositioning after the fact - is what keeps the list
-   * from being painted below the field for the first frame.
-   */
-  function positionAboveField() {
-    var $parent = this.$dropdownParent;
-    if ($parent.css("position") === "static") $parent = $parent.offsetParent();
-
-    var control = this.$container.offset();
-    var origin = $parent.offset();
-    var height = this.$dropdown.outerHeight(false);
-
-    this.$dropdownContainer.css({
-      left: control.left - origin.left,
-      top: control.top - origin.top - height - 2,
-    });
-
-    // The direction classes are what swap the rounded corners of the list and the box.
-    this.$dropdown
-      .removeClass("select2-dropdown--below")
-      .addClass("select2-dropdown--above");
-    this.$container
-      .removeClass("select2-container--below")
-      .addClass("select2-container--above");
-  }
-
-  var dropdown = $select.data("select2").dropdown;
-  dropdown._positionDropdown = positionAboveField;
 });
 //#endregion
 

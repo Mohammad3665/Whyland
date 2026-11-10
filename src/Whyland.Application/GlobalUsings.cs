@@ -46,6 +46,8 @@ global using Whyland.Shared.Dtos.Content;           // content DTOs
 
 global using Whyland.Shared.Dtos.Content.Faq;       // FAQ DTOs and filters
 
+global using Whyland.Shared.Dtos.Blog.BlogCategory; // blog category listing DTOs
+
 global using Whyland.Shared.Dtos.Catalog.Category;  // category listing DTOs
 global using Whyland.Shared.Dtos.Catalog.Course;    // course listing, details and option DTOs
 global using Whyland.Shared.Dtos.Catalog.CourseFaq; // course-scoped FAQ DTOs
@@ -141,6 +143,7 @@ global using Whyland.Domain.Model.Learning.UserEpisodeProgress.Entities;
 global using Whyland.Domain.Model.Settings.SiteSetting.Entities;          
 global using Whyland.Domain.Model.Authorization.Permission.Errors;        
 global using Whyland.Domain.Model.Authorization.Role.Errors;              
+global using Whyland.Domain.Model.Blog.BlogCategory.Errors;
 global using Whyland.Domain.Model.Catalog.Category.Errors;                
 global using Whyland.Domain.Model.Catalog.Course.Errors;
 global using Whyland.Domain.Model.Catalog.CourseFaq.Errors;

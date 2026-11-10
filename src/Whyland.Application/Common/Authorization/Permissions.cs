@@ -122,6 +122,23 @@ public static class Permissions
     }
 
     /// <summary>
+    ///     Blog category permissions (Blog/BlogCategories). Deliberately separate from
+    ///     <see cref="Blogs"/>, which manages the posts themselves: the taxonomy and the articles
+    ///     are two pages with two jobs, so an editor may hold one set of keys without the other.
+    /// </summary>
+    public static class BlogCategories
+    {
+        /// <summary>Permission to view blog categories.</summary>
+        public const string View = "blogcategory.view";
+        /// <summary>Permission to create blog categories.</summary>
+        public const string Create = "blogcategory.create";
+        /// <summary>Permission to edit existing blog categories.</summary>
+        public const string Edit = "blogcategory.edit";
+        /// <summary>Permission to delete blog categories.</summary>
+        public const string Delete = "blogcategory.delete";
+    }
+
+    /// <summary>
     ///     Site FAQ permissions (Content/Faqs). Deliberately separate from the course FAQ module,
     ///     which manages the questions attached to one course and keeps its own keys.
     /// </summary>

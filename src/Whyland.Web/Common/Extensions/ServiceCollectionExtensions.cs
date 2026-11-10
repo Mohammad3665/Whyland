@@ -8,6 +8,7 @@ using Whyland.Application;
 using Whyland.Application.Common.Authorization;
 using Whyland.Application.Common.Options;
 using Whyland.Infrastructure;
+using Whyland.Web.Common.Json;
 using Whyland.Web.Common.ModelBinding;
 
 namespace Whyland.Web.Common.Extensions;
@@ -79,7 +80,17 @@ public static class ServiceCollectionExtensions
         // numeric binders used by Razor Pages and MVC convert them before parsing. Options are
         // shared by both, which is why this is registered once here instead of per Add* call.
         services.Configure<MvcOptions>(options =>
-            options.ModelBinderProviders.Insert(0, new EasternDigitsModelBinderProvider()));
+        {
+            // First: a wrapped key is a single value on the wire, not the complex object the
+            // default binder would look for under "Id.Value".
+            options.ModelBinderProviders.Insert(0, new StronglyTypedIdModelBinderProvider());
+            options.ModelBinderProviders.Insert(1, new EasternDigitsModelBinderProvider());
+        });
+
+        // The [FromBody] half of the same translation: a JSON payload carries the raw key, so the
+        // reorder endpoints deserialize their row list instead of receiving null.
+        services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(options =>
+            options.JsonSerializerOptions.Converters.Add(new StronglyTypedIdJsonConverterFactory()));
 
         services.AddHttpContextAccessor();
 

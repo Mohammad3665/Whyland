@@ -1,0 +1,17 @@
+{
+  "BlogCategory.FieldRequired": "فیلد {Field} نمی‌تواند خالی باشد.",
+  "BlogCategory.FieldTooLong": "فیلد {Field} نمی‌تواند بیشتر از {Max} کاراکتر باشد.",
+  "BlogCategory.GreaterThanOrEqualToZero": "فیلد {Field} نمی‌تواند کمتر از صفر باشد.",
+  "BlogCategory.InvalidSlug": "اسلاگ فقط می‌تواند شامل حروف لاتین کوچک، عدد و خط تیره باشد.",
+  "BlogCategory.NotFound": "دسته‌بندی بلاگ با شناسه {Id} یافت نشد.",
+  "BlogCategory.ParentNotFound": "دسته‌بندی والد با شناسه {ParentId} یافت نشد.",
+  "BlogCategory.SlugTaken": "اسلاگ «{Slug}» قبلاً برای دسته‌بندی بلاگ دیگری استفاده شده است.",
+  "BlogCategory.CircularParent": "یک دسته‌بندی نمی‌تواند والد خودش یا یکی از فرزندانش باشد.",
+  "BlogCategory.CreateFailed": "خطا در ایجاد دسته‌بندی بلاگ، لطفاً مجدداً تلاش کنید.",
+  "BlogCategory.UpdateFailed": "خطا در ویرایش دسته‌بندی بلاگ، لطفاً مجدداً تلاش کنید.",
+  "BlogCategory.SoftDeleteFailed": "خطا در حذف دسته‌بندی بلاگ، لطفاً مجدداً تلاش کنید.",
+  "BlogCategory.ListFailed": "خطا در دریافت لیست دسته‌بندی‌های بلاگ، لطفاً مجدداً تلاش کنید.",
+  "BlogCategory.HasChildren": "این دسته‌بندی {ChildCount} زیرمجموعه فعال دارد؛ ابتدا آن‌ها را حذف کنید.",
+  "BlogCategory.HasPosts": "این دسته‌بندی {PostCount} مقاله فعال دارد؛ ابتدا مقاله‌ها را به دسته‌بندی دیگری منتقل یا حذف کنید.",
+  "BlogCategory.ReorderFailed": "خطا در ذخیره ترتیب دسته‌بندی‌های بلاگ، لطفاً مجدداً تلاش کنید."
+}
