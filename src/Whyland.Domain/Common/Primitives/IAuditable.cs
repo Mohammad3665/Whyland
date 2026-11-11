@@ -18,9 +18,9 @@ public interface IAuditable
     UserId? CreatedBy { get; }
 
     /// <summary>
-    /// The UTC time of the latest modification of the entity.
+    /// The UTC time of the latest modification of the entity; null until the first update.
     /// </summary>
-    DateTime UpdatedAt { get; }
+    DateTime? UpdatedAt { get; }
 
     /// <summary>
     /// The identifier of the user responsible for the latest change.

@@ -41,7 +41,7 @@ public sealed record InstructorProfileListItemDto(
 /// <param name="BankAccountNumber">Bank account number.</param>
 /// <param name="CourseCount">Number of live courses assigned to the instructor.</param>
 /// <param name="CreatedAt">UTC creation time.</param>
-/// <param name="UpdatedAt">UTC last-update time.</param>
+/// <param name="UpdatedAt">UTC last-update time; null until the first update.</param>
 public sealed record InstructorProfileDetailsDto(
     Guid Id,
     Guid UserId,
@@ -60,7 +60,7 @@ public sealed record InstructorProfileDetailsDto(
     string? BankAccountNumber,
     int CourseCount,
     DateTime CreatedAt,
-    DateTime UpdatedAt);
+    DateTime? UpdatedAt);
 
 /// <summary>An active account that can still be given an instructor profile.</summary>
 /// <param name="Id">Account identifier.</param>

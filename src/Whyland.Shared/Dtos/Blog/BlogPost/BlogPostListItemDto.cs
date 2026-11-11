@@ -23,7 +23,7 @@ namespace Whyland.Shared.Dtos.Blog.BlogPost;
 /// <param name="CreatedAt">UTC creation timestamp.</param>
 /// <param name="CreatedBy">Identifier of the creating account.</param>
 /// <param name="CreatedByName">Full name of the creating account, when it resolved.</param>
-/// <param name="UpdatedAt">UTC timestamp of the last change.</param>
+/// <param name="UpdatedAt">UTC timestamp of the last change; null until the first update.</param>
 /// <param name="UpdatedBy">Identifier of the last editing account.</param>
 /// <param name="UpdatedByName">Full name of the last editing account, when it resolved.</param>
 /// <param name="IsDeleted">Whether the row is soft-deleted.</param>
@@ -48,7 +48,7 @@ public sealed record BlogPostListItemDto(
     DateTime CreatedAt,
     Guid? CreatedBy,
     string? CreatedByName,
-    DateTime UpdatedAt,
+    DateTime? UpdatedAt,
     Guid? UpdatedBy,
     string? UpdatedByName,
     bool IsDeleted,

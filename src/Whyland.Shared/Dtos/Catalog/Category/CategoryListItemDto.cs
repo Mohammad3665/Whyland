@@ -19,7 +19,7 @@ namespace Whyland.Shared.Dtos.Catalog.Category;
 /// The full name of that account, read by joining it to its key. The modal shows a name rather than
 /// a guid an operator cannot read; null when the row has no author, which the page shows as a dash.
 /// </param>
-/// <param name="UpdatedAt">UTC timestamp of the last modification.</param>
+/// <param name="UpdatedAt">UTC timestamp of the last modification; null until the first update.</param>
 /// <param name="UpdatedBy">Identifier of the user who last changed the row.</param>
 /// <param name="UpdatedByName">The full name of the account behind <paramref name="UpdatedBy"/>.</param>
 /// <param name="IsDeleted">Whether the row is soft-deleted.</param>
@@ -37,7 +37,7 @@ public sealed record CategoryListItemDto(
     DateTime CreatedAt,
     Guid? CreatedBy,
     string? CreatedByName,
-    DateTime UpdatedAt,
+    DateTime? UpdatedAt,
     Guid? UpdatedBy,
     string? UpdatedByName,
     bool IsDeleted,

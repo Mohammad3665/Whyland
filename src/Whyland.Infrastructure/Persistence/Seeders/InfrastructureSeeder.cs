@@ -223,8 +223,9 @@ public static class InfrastructureSeeder
 
             await context.Users.AddAsync(user);
 
-            // The audit columns are not set here: the interceptor stamps CreatedAt/UpdatedAt for
-            // every IAuditable entry on save, and UserRole takes its own timestamp on creation.
+            // The audit columns are not set here: the interceptor stamps CreatedAt/CreatedBy for
+            // every IAuditable entry on save and leaves the update audit empty until a real edit,
+            // and UserRole takes its own timestamp on creation.
             await context.UserRoles.AddAsync(
                 UserRole.Create(user.Id, superAdminRole.Id)
             );

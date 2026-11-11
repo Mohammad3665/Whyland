@@ -182,7 +182,7 @@
                     <div class="card card-flush">
                         <div class="card-body py-5 d-flex flex-wrap gap-6 text-muted fs-7">
                             <span>تاریخ ایجاد: @Model.Profile.CreatedAt.ToString("yyyy-MM-dd HH:mm")</span>
-                            <span>آخرین ویرایش: @Model.Profile.UpdatedAt.ToString("yyyy-MM-dd HH:mm")</span>
+                            <span>آخرین ویرایش: @(Model.Profile.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "—")</span>
                         </div>
                     </div>
                 </div>

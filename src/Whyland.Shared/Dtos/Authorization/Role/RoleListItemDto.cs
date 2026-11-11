@@ -19,7 +19,7 @@ namespace Whyland.Shared.Dtos.Authorization.Role;
 /// The full name of that account, read by joining it to its key. The modal shows a name rather than
 /// a guid an operator cannot read; null when the role has no author, which the page renders as a dash.
 /// </param>
-/// <param name="UpdatedAt">UTC time of the last modification.</param>
+/// <param name="UpdatedAt">UTC time of the last modification; null until the first update.</param>
 /// <param name="UpdatedBy">Identifier of the account that last changed the row, when any.</param>
 /// <param name="UpdatedByName">The full name of the account behind <paramref name="UpdatedBy"/>.</param>
 public sealed record RoleListItemDto(
@@ -32,6 +32,6 @@ public sealed record RoleListItemDto(
     DateTime CreatedAt,
     Guid? CreatedBy,
     string? CreatedByName,
-    DateTime UpdatedAt,
+    DateTime? UpdatedAt,
     Guid? UpdatedBy,
     string? UpdatedByName);

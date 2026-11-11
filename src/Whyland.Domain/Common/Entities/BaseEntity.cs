@@ -26,10 +26,10 @@ public abstract class BaseEntity<TKey> : IEntity, IAuditable
     public UserId? CreatedBy { get; private set; }
 
     /// <summary>
-    /// The UTC time of the latest modification of the entity.
+    /// The UTC time of the latest modification of the entity; null until the first update.
     /// Refreshed by the audit interceptor on every update; never by clients.
     /// </summary>
-    public DateTime UpdatedAt { get; private set; }
+    public DateTime? UpdatedAt { get; private set; }
 
     /// <summary>
     /// The identifier of the user responsible for the latest change.

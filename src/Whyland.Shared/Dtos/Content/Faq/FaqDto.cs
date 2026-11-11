@@ -14,7 +14,7 @@ namespace Whyland.Shared.Dtos.Content.Faq;
 /// Inactive items are hidden but kept for editing.
 /// </param>
 /// <param name="CreatedAt">The UTC timestamp when the FAQ was created.</param>
-/// <param name="UpdatedAt">The UTC timestamp of the last update, if any.</param>
+/// <param name="UpdatedAt">The UTC timestamp of the last update; null until the first update.</param>
 public sealed record FaqDto(
     long Id,
     string Title,
@@ -22,4 +22,4 @@ public sealed record FaqDto(
     int DisplayOrder,
     bool IsActive,
     DateTime CreatedAt,
-    DateTime UpdatedAt);
+    DateTime? UpdatedAt);

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Diagnostics;
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Whyland.Domain.Common.Primitives;
 
 namespace Whyland.Infrastructure.Persistence.Interceptors;
@@ -39,6 +40,20 @@ public sealed class AuditableEntityInterceptor(TimeProvider timeProvider, ICurre
     }
 
     /// <summary>
+    /// Whether the only modified property of the row is its display order. Renumbering is an
+    /// internal ordering pass, not a business edit, so it must not stamp the update audit.
+    /// </summary>
+    /// <param name="entry">The tracked auditable entity.</param>
+    /// <returns><c>true</c> when no field other than <c>DisplayOrder</c> changed.</returns>
+    private static bool IsOrderingOnlyChange(EntityEntry<IAuditable> entry)
+    {
+        var changed = entry.Properties.Where(property => property.IsModified).ToList();
+
+        return changed.Count > 0 &&
+               changed.All(property => property.Metadata.Name == "DisplayOrder");
+    }
+
+    /// <summary>
     /// Stamps <see cref="IAuditable"/> entities with creation/update metadata and
     /// rewrites hard deletes of <see cref="ISoftDeletable"/> entities as soft deletes.
     /// </summary>
@@ -60,13 +75,21 @@ public sealed class AuditableEntityInterceptor(TimeProvider timeProvider, ICurre
                 case EntityState.Added:
                     entry.Property(nameof(IAuditable.CreatedAt)).CurrentValue = now;
                     entry.Property(nameof(IAuditable.CreatedBy)).CurrentValue = userId;
-                    entry.Property(nameof(IAuditable.UpdatedAt)).CurrentValue = now;
-                    entry.Property(nameof(IAuditable.UpdatedBy)).CurrentValue = userId;
+                    // A new row has not been edited yet, so its update audit stays empty. Only
+                    // CreatedAt/CreatedBy describe it until the first real modification.
+                    entry.Property(nameof(IAuditable.UpdatedAt)).CurrentValue = null;
+                    entry.Property(nameof(IAuditable.UpdatedBy)).CurrentValue = null;
                     break;
 
                 case EntityState.Modified:
-                    entry.Property(nameof(IAuditable.UpdatedAt)).CurrentValue = now;
-                    entry.Property(nameof(IAuditable.UpdatedBy)).CurrentValue = userId;
+                    // Automatic 1..n renumbering only rewrites DisplayOrder. That maintenance
+                    // pass is not a user edit of the affected rows, so it must not populate their
+                    // update audit (or a fresh row would look edited immediately after creation).
+                    if (!IsOrderingOnlyChange(entry))
+                    {
+                        entry.Property(nameof(IAuditable.UpdatedAt)).CurrentValue = now;
+                        entry.Property(nameof(IAuditable.UpdatedBy)).CurrentValue = userId;
+                    }
 
                     entry.Property(nameof(IAuditable.CreatedAt)).IsModified = false;
                     entry.Property(nameof(IAuditable.CreatedBy)).IsModified = false;
